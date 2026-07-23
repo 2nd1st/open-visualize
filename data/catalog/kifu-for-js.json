@@ -26,7 +26,7 @@
     "note": "播放器按内容自动决定高度；默认 maxWidth 400px,由 KifuStore 控制棋盘宽。不要给容器 vh/百分比高,也不要用固定高度裁掉回放控件。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:原生 load(options,id) 通过 document.getElementById 找容器\n+import KifuForJS from 'https://cdn.jsdelivr.net/npm/kifu-for-js@5/+esm';\n+const el = document.createElement('div'); el.id = `kifu_${crypto.randomUUID()}`;\n+document.getElementById('kifu').appendChild(el);\n+const store = await KifuForJS.load({ kifu: data.kifu, ply: data.ply ?? 0, maxWidth: data.maxWidth ?? 400 }, el.id);",
+    "artifact": "// inferred-not-tested:原生 load(options,id) 通过 document.getElementById 找容器\nimport KifuForJS from 'https://cdn.jsdelivr.net/npm/kifu-for-js@5/+esm';\nconst el = document.createElement('div'); el.id = `kifu_${crypto.randomUUID()}`;\ndocument.getElementById('kifu').appendChild(el);\nconst store = await KifuForJS.load({ kifu: data.kifu, ply: data.ply ?? 0, maxWidth: data.maxWidth ?? 400 }, el.id);",
     "widget": "unsupported:Kifu for JS 5.5.0 原生 load(options,id) 内部调用 document.getElementById(id),不会穿透 ShadowRoot；包又内置 React 16 renderer,不能用外部 React root 无损替代。需做可接收 HTMLElement 的 L2 mount 后再开放 widget。",
     "codex": "同 artifact(sandbox iframe):kifu-for-js@5/+esm 默认对象的 load(options,id),先把唯一 id 容器挂进 iframe document。"
   },
@@ -35,5 +35,14 @@
     "artifact": "inferred-not-tested:原生全局 id 查找可在隔离 document 工作；包内 UI/棋子为自包含 React/SVG,无外部 CSS 文件",
     "widget": "unsupported:document.getElementById 无法发现 shadow 内节点,不满足 widget 必须落 shadow 容器",
     "codex": "supported:sandbox iframe 提供独立 document 与全局 id 查找"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "unknown",
+    "globalDomMutation": "unknown",
+    "globalEvents": "unknown",
+    "evidence": "src/index.tsx loadCommon() 用 `const container = document.getElementById(id)`(L76),load(options,id) 把 id 直喂 getElementById → shadow 内容器不可见,渲染必失败;包内置 React16 renderer(README 列 React/React DnD/MobX)。head 样式注入未在 +esm 命中(仅 'Material Symbols' 字体名引用),react-dnd HTML5 backend 通常绑 document 级 drag 监听但未活体确认,故 style/dom/events 标 unknown;shadow=no 有 getElementById 硬证据。",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

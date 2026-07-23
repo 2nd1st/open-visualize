@@ -38,5 +38,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:需允许同源 iframe、iframe 内 classic script 与 jsDelivr;iframe 挂在 shadowRoot 中以隔离 legacy require/define 全局",
     "codex": "conditional:sandbox iframe 需允许 classic script CDN;无 worker/wasm/font/uplink 需求"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "dist/regulex.js is an almond AMD bundle that installs global require/define; Raphael draws inline SVG into the target element (no document.head style, no document.body append, and no document/window addEventListener found in the bundle). The real footprint is the legacy global require/define (+ Raphael globals), which is why the catalog isolates it inside a same-origin <iframe> nested in the shadowRoot rather than mounting bare in shadow.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

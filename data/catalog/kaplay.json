@@ -91,5 +91,14 @@
     "artifact": "inferred-not-tested:ESM CDN + canvas + requestAnimationFrame + 键盘事件",
     "widget": "supported:显式 canvas 落 shadowRoot，KAPLAY global=false，不注入 document.head、外部 CSS、图片或字体",
     "codex": "supported:ESM CDN + canvas + requestAnimationFrame；默认示例不要求 worker、音频或远程资产"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "No createElement('style')/head.appendChild in the bundle, and canvas?:HTMLCanvasElement option confirmed (8753) so KAPLAY renders into the boot-supplied shadow canvas — no document.body.appendChild found. globalEvents=yes: attaches listeners to window (window.addEventListener(p,E) over Object.entries) and document, in addition to canvas, and runs a persistent requestAnimationFrame loop; none are torn down unless k.quit() is called, which the boot does not. global:false avoids polluting window with KAPLAY's API. Rendering + input work inside the shadow (the window/document listeners actually let keyboard work without canvas focus); the uncleaned global listeners are a teardown/leak caveat, not a render blocker.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

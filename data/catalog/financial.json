@@ -57,5 +57,14 @@
   "boot": {
     "shared": "// 三载体一致:纯 JS、无 DOM/uplink/shadow 足迹\nimport { PaymentDueTime, pmt, irr, npv } from 'https://cdn.jsdelivr.net/npm/financial@0/+esm';\nlet result;\nif (data.kind === 'pmt') result = pmt(data.rate, data.periods, data.present_value, data.future_value ?? 0, data.due === 'begin' ? PaymentDueTime.Begin : PaymentDueTime.End);\nelse if (data.kind === 'irr') result = irr(data.cashflows, data.guess ?? 0.1, data.tolerance ?? 1e-6, data.max_iterations ?? 100);\nelse if (data.kind === 'npv') result = npv(data.rate, data.cashflows);\nelse throw new Error('Unsupported financial function');",
     "note": "IRR 不收敛或现金流没有正负混合时返回 NaN;必须用 Number.isFinite(result) 校验,不要把 NaN 当 0。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "dist/index.d.ts exposes only pure math functions (pmt/irr/npv/fv/pv/rate/mirr/ipmt/ppmt/nper) returning number; package has zero DOM/CSS/event surface — runs identically in any context including shadow.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -40,5 +40,14 @@
   "boot": {
     "shared": "// 三载体一致:纯编译,预览容器由消费 AI 自己创建\nimport mjml2html from 'https://cdn.jsdelivr.net/npm/mjml-browser@5/+esm';\nconst result = mjml2html(data.mjml, data.options ?? {});\nconst html = result.html;\nconst diagnostics = result.errors;",
     "note": "已核对 5.4.0 的 jsDelivr +esm 默认导出为 mjml2html,另有具名 mjml。browser build 明确忽略 mj-include 且不读 .mjmlconfig。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Headless-primitive, pure string→string compiler. mjml-browser +esm grep for `document.*`/`window.*` references returns EMPTY — the compile path touches no DOM at all, so it injects no style, mutates no body, and registers no listeners. Output is an html-document string the consumer drops into an iframe/email preview; trivially shadow-safe (no shadow interaction needed).",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

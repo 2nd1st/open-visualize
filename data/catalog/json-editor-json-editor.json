@@ -55,5 +55,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:2.17.1 原生支持 shadowRoot.adoptedStyleSheets;宿主须支持 CSSStyleSheet.replaceSync 与 adoptedStyleSheets",
     "codex": "supported:jsDelivr +esm 可得到具名 JSONEditor 导出,样式留在 sandbox iframe"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "unknown",
+    "evidence": "+esm 内含 shadow 探测 function g(o){return o&&(o.toString()===\"[object ShadowRoot]\"?o:g(o.parentNode))} 与 addNewStyleRulesToShadowRoot,以及 new CSSStyleSheet;replaceSync(c);l.adoptedStyleSheets=[...]。widget boot 先 shadowRoot.appendChild(el) 再 init,探测命中 shadow 父级 → 样式落 shadowRoot.adoptedStyleSheets(styleInject=no),document.head 仅为非 shadow 回退路径。默认 html 主题内联渲染进 el、无 body portal(domMutation=no);表单控件监听绑自身元素、是否有 document 级监听未证(events=unknown);shadow 生效以浏览器支持 CSSStyleSheet.replaceSync/adoptedStyleSheets 为前提(shadow=conditional)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

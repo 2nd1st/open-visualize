@@ -34,5 +34,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:ESM + SVG;style.css 含内联图标字体并落 shadow,无外部 font/img/uplink 足迹",
     "codex": "supported:ESM CDN + CSS + SVG"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "API correct: @3/+esm confirmed 404, @3.0.0-alpha.10/+esm returns 200 and exports named SimplePlayer (or) — catalog note accurate. dist/SimplePlayer/SimplePlayer.d.ts: constructor(elem:HTMLElement, config?) with config.sgf:string|null; dist/index.js constructor VERIFIED to auto-render: 'function SimplePlayer(elem,config){...this.element=elem;this.init();...}' — so new SimplePlayer(el,{sgf}) renders without a separate init() call (this was the key risk; cleared). globalStyleInjection=no: lib has 0 document.head / 0 createElement('style') (catalog links dist/style.css into shadow). globalEvents=yes: attaches keydown+keyup to document (enableKeys, default on) and resize to window; cleanable via PlayerDOM.clear()/destroy but active by default -> page-wide arrow-key capture. globalDomMutation=yes: 1 document.body.append site (transient) — main board/player UI renders into the provided container. shadowCompatible=conditional: SVG board + player render inside the shadow container fine, but global document key listeners leak; set enableKeys:false to contain.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -34,5 +34,14 @@
     "artifact": "inferred-not-tested",
     "widget": "unsupported:document 全局接管与 shadow 零足迹要求冲突",
     "codex": "conditional:隔离 iframe 可承载 UMD 全局与讲者窗口;官方 remark-latest.min.js 是可变 URL,上游没有可核对的固定发布文件"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "remark.create() takes over the entire document: injects its presentation stylesheet into document.head, builds slide-container DOM in document.body, and binds window-level keyboard navigation + hashchange + localStorage-based presenter-view sync with no scoped teardown; there is no shadowRoot mount parameter. Bundle confirms a global remark UMD (create:function). Catalog correctly marks the widget carrier 'unsupported'.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

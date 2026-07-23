@@ -9,6 +9,7 @@
   "mode": "direct-import",
   "upstream": {
     "npm": "jsonresume-component",
+    "version": "0.3.1",
     "github": "scottnath/jsonresume-component"
   },
   "license": "MIT",
@@ -56,5 +57,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:需 iframe srcdoc、import map、jsDelivr 多模块和 Shadow DOM;组件自身另有 shadow,不向宿主 head 注入 CSS",
     "codex": "conditional:包根 /+esm 当前由 jsDelivr 返回错误,必须保留已核对的 dist + import map 路径"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "LitElement web component with its own shadow root; the boot loads it inside an iframe + import map because bare `/+esm` fails, so from the host every style/DOM/event is iframe-scoped. dist imports `lit`/`@lit/task`/lit directives (matched by boot import map). gist_id/json_url would hit the GitHub gist API (dist: fetch(api.github.com/gists/...)), but the boot sets `resumejson` directly, avoiding that fetch; no global host listeners added. Shadow-compatible only via the iframe+importmap wrapper (import maps are document-level, can't be injected into an existing shadow root).",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

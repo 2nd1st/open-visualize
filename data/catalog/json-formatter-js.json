@@ -43,5 +43,14 @@
     "artifact": "inferred-not-tested",
     "widget": "unsupported:模块导入阶段固定注入 document.head,无法满足 CSS 只落 shadowRoot 的零足迹要求",
     "codex": "supported:内置 CSS 与 DOM 树均被 sandbox iframe 隔离,无 worker/wasm/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "dist/index.d.ts 顶部 import \"./style.less\";+esm 含 createElement(\"style\")+document.head → 模块无条件向 document.head 注入内置样式,且无指定 shadow 目标的参数(styleInject=yes)。formatter.render() 返回元素挂进传入的 el、不向 body 追加 portal(domMutation=no);toggleOpen 等点击监听绑在自身渲染元素上、非 document/window(events=no)。因样式被强制入 head 无法跨 shadow 边界,DOM 落 shadow 会失样(shadow=no,与 catalog widget:unsupported 一致)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

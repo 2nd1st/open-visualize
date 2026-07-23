@@ -56,5 +56,14 @@
     "artifact": "// inferred-not-tested:artifact H0 探针未闭合;源节点须先完成字体与图片加载\nimport { snapdom } from 'https://cdn.jsdelivr.net/npm/@zumer/snapdom@2/+esm';\nawait document.fonts?.ready;\nconst image = await snapdom.toPng(data.node, data.options ?? {});\ndocument.getElementById('preview')?.replaceChildren(image);",
     "widget": "// headless 调用不挂全局 UI;若预览,只把返回的 img 放入 shadow 容器\nimport { snapdom } from 'https://cdn.jsdelivr.net/npm/@zumer/snapdom@2/+esm';\nawait document.fonts?.ready;\nconst image = await snapdom.toPng(data.node, data.options ?? {});\nshadowRoot.replaceChildren(image);",
     "codex": "// sandbox iframe 内直接捕获已完成布局的节点\nimport { snapdom } from 'https://cdn.jsdelivr.net/npm/@zumer/snapdom@2/+esm';\nawait document.fonts?.ready;\nconst blob = await snapdom.toBlob(data.node, { type: 'png', ...(data.options ?? {}) });\nconst objectUrl = URL.createObjectURL(blob);"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "no",
+    "evidence": "Verified against dist/snapdom.mjs via grep. styleInject=no: only TRANSIENTLY appends probe `<link rel=stylesheet data-snapdom=\"injected-import\">` to head to read cross-origin stylesheet rules, then removes all (`for(y of h) try{y.remove()}`); no persistent style/link left. domMutation=yes: Ti()/Xe creates a PERSISTENT cached hidden singleton `<div id=\"snapdom-measure-slot\" aria-hidden=\"true\" position:absolute left:-99999px 0x0 opacity:0 contain:size layout style>` appended to document.documentElement and reused across captures, PLUS transient measurement nodes and self-removing download-anchors on document.body (paired appendChild/removeChild, anchor.click()+remove()). No interactive UI (no tooltip/modal/menu/portal) -- all hidden/offscreen/transient -- but the top-level DOM IS mutated. events=no: grep found 0 window/document addEventListener; only a try/catch MutationObserver on document.head for font/@import resource discovery, no persistent event listeners. shadow=conditional: headless primitive -- callable from a shadow-scoped widget and can capture nodes that live inside shadow roots (README cross-shadow capture), but its measurement/rasterization scaffolding lives in the top-level document (persistent #snapdom-measure-slot on documentElement + transient body/head nodes), so it is NOT fully contained within the widget's shadow root, though every injected node is hidden/offscreen/transient.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

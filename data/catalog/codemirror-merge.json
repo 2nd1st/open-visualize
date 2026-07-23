@@ -39,5 +39,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:MergeView 接受 root:ShadowRoot,style-mod 与布局 CSS 均可留在 shadow",
     "codex": "supported:ESM CDN + DOM,无外部 CSS/worker/wasm/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified against @codemirror/merge@6.12.2/dist/index.d.ts: MergeView takes DirectMergeConfig {a:EditorStateConfig, b:EditorStateConfig, parent?, root?:Document|ShadowRoot} — import{MergeView} is a real named export (+esm: 'Rt as MergeView'); EditorState.readOnly is 'static readOnly: Facet<boolean,boolean>' (state d.ts L1228) so .of(true) is valid; collapseUnchanged type is exactly {margin?:number,minSize?:number} with doc-stated defaults margin=3/minSize=4 (d.ts L232-239) — matches schema verbatim. Styling: CM uses style-mod, whose StyleModule.mount() branches on the root — for a ShadowRoot (no .head, has adoptedStyleSheets) it mounts into root.adoptedStyleSheets, NOT document.head (style-mod src L94,L129-130). The widget boot passes root:shadowRoot, so styles stay in shadow; DirectMergeConfig.root doc literally says 'Only necessary if the view is mounted in a shadow root'. Editors/gutters/revert-controls render inside parent, no body portal. EditorView.destroy() exists (view d.ts L1124) to remove any managed doc/window listeners.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -57,5 +57,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:iframe 必须挂进 shadowRoot;主题 HTML 会请求 Google Fonts,字体 CDN 未放行时回退系统字体但布局仍可读",
     "codex": "conditional:ESM CDN + iframe srcdoc 可用;外部 Google Fonts 受限时仅发生字体回退"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "render(resume):string is a pure string builder (no DOM). Theme CSS is embedded inside the returned full HTML document, which the boot mounts via iframe srcdoc so it lands in the iframe head, never the host head. Output references external Google Fonts — blocked under widget CSP, degrades to system-font fallback (layout intact). Because render returns a whole document, it MUST use an iframe (can't inject a full doc into a shadow root); the iframe is placed into shadowRoot.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

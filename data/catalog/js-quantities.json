@@ -45,5 +45,14 @@
     "widget": "// widget 内纯计算,无需接触 shadow DOM\nimport Qty from 'https://cdn.jsdelivr.net/npm/js-quantities@1/esm/+esm';\nconst source = Qty(data.value, data.unit);\nconst quantity = data.target_unit ? source.to(data.target_unit) : source;\nconst result = { scalar: quantity.scalar,\n  units: quantity.units(), kind: quantity.kind() };",
     "codex": "// sandbox iframe 内直接跑纯 ESM\nimport Qty from 'https://cdn.jsdelivr.net/npm/js-quantities@1/esm/+esm';\nconst source = Qty(data.value, data.unit);\nconst quantity = data.target_unit ? source.to(data.target_unit) : source;\nconst result = { scalar: quantity.scalar,\n  units: quantity.units(), kind: quantity.kind() };",
     "note": "使用包的原生 ESM 子入口 /esm/+esm,已核对 default Qty；不要用 parse 失败后返回 null 的宽松路径吞掉坏输入。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "纯量纲代数,无任何 DOM;/esm/+esm 内唯一 window 引用为 Number.isFinite||window.isFinite 特性探测(只读,非写入);无 document/appendChild/addEventListener/createElement。完全 shadow/worker 无关(shadow=yes)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -54,5 +54,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:上游原生支持 scrollElem/contentElem 直接元素引用,CSS link 与全部表格 DOM 可留在 shadowRoot",
     "codex": "supported:ESM CDN + CSS + DOM 虚拟窗口,无 worker/wasm/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "+esm `export{S as default}` — boot default import Clusterize correct. Source (clusterize.js l.49-52) resolves element options as `self[elem+'_elem'] = data[elem+'Id'] ? getElementById(...) : data[elem+'Elem']` i.e. it reads data.scrollElem/data.contentElem exactly as the boot passes; rows/rows_in_block/blocks_in_cluster/show_no_data_row/no_data_text/keep_parity merged via options loop. rows-as-full-HTML-<tr>-strings requirement is accurately documented. Library injects NO <style> to head (no document.head/createElement('style') in source; clusterize.css is external, boot puts it in shadowRoot for widget) and mutates only the provided scroll/content elems (no document.body). globalEvents=yes: registers `on('resize', window, resizeEv)` (l.101) but removes it in destroy `off('resize', window, resizeEv)` (l.106) — not a leak; scroll listener is bound to the (shadow) scroll_elem. Upstream natively supports element refs so it works entirely inside shadowRoot.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

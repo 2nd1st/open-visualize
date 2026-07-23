@@ -74,5 +74,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:Render.create 的 element 可直接是 shadow 内普通 div,canvas 与指针监听均留在该容器；无 CSS/head 注入",
     "codex": "supported:ESM CDN + canvas,无 worker/wasm/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Render.create({element}) appends only a canvas to the passed element — no CSS/head write and no body append. Matter.Mouse (via Mouse.create(render.canvas)) binds mousemove/mousedown/mouseup/wheel/touch listeners to the canvas element itself, not to document/window, so pointer handling stays inside the shadow container. Entry carrier is 'supported'; a plain div in the shadow works as the render element.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

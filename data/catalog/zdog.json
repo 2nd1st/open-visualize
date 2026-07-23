@@ -98,5 +98,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:canvas 与全部绘制留在 shadow 容器,无字体/图片/CDN CSS 依赖",
     "codex": "supported:ESM CDN + canvas + requestAnimationFrame"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "styleInject=no: no document.head access anywhere in source; only inline styles on the caller's canvas (illustration.js setSizeCanvas `this.element.style.width`; dragger.js `element.style.touchAction='none'`). domMutation=no: renders into the caller's canvas 2D ctx, or appends `<path>` into the caller's SVG element (renderGraphSvg->this.element); never document.body. events=yes: dragger.js dragStart adds `window.addEventListener(move/up)` (self-removed on pointerup/dragEnd, per-gesture clean) and illustration.js setResize adds a PERSISTENT `window.addEventListener('resize')` with NO destroy() API (leaks) but only when illustration.resize=true (schema default false); the pointerdown listener is bound to the canvas element, not global. shadow=yes: canvas is JS-created into shadowRoot and drawn via getContext('2d'); pointerdown on the canvas element; drag uses window move/up + pointer.pageX/Y which work across shadow; no head/body dependency.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

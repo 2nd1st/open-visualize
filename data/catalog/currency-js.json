@@ -50,5 +50,14 @@
   "boot": {
     "shared": "// 三载体一致:纯 JS、无 DOM/uplink/shadow 足迹\nimport currency from 'https://cdn.jsdelivr.net/npm/currency.js@2/+esm';\nlet money = currency(data.amount, data.options ?? {});\nconst methods = { plus:'add', minus:'subtract', times:'multiply', divide:'divide' };\nfor (const step of data.operations ?? []) money = money[methods[step.op]](step.operand);\nconst parts = data.split_count === undefined ? undefined : money.distribute(data.split_count).map(x => x.format());\nconst result = { value: money.value, intValue: money.intValue, formatted: money.format(), parts };",
     "note": "step.op 必须按 schema 白名单校验;currency.js 不做实时汇率与跨币种换算。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "currency.d.ts exposes only add/subtract/multiply/divide (Constructor value+opts), distribute(count):Array<currency>, format():string, readonly value/intValue — boot maps plus/minus/times/divide→add/subtract/multiply/divide and split_count→distribute correctly, and reads value/intValue/format()/distribute().map(format). Options interface confirms all schema keys real (precision/symbol/separator/decimal/pattern/negativePattern/fromCents/errorOnInvalid/increment). Zero DOM/CSS/event API — pure headless money value-object, nothing renders, shadow-irrelevant (safe).",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

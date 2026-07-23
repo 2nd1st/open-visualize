@@ -60,9 +60,9 @@
     "note": "X6 Graph 需要像素宽高,本条默认 height 420px 并在初始化时读取容器宽度;铁律 3 禁 vh/百分比高,容器变化时消费 AI 应调用 graph.resize(width,height)。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合\nimport { Graph, Selection, Snapline } from 'https://cdn.jsdelivr.net/npm/@antv/x6@3/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@antv/x6@3/dist/index.css'; document.head.appendChild(css);\nconst el = document.getElementById('x6'); el.style.height = '420px';\nconst graph = new Graph({ container: el, width: el.clientWidth || 800, height: 420, grid: true }); graph.use(new Selection({ enabled: true, rubberband: true, multiple: true })); graph.use(new Snapline({ enabled: true }));\ngraph.fromJSON(data);",
-    "widget": "import { Graph, Selection, Snapline } from 'https://cdn.jsdelivr.net/npm/@antv/x6@3/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@antv/x6@3/dist/index.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); el.style.height = '420px'; shadowRoot.appendChild(el);\nconst graph = new Graph({ container: el, width: el.clientWidth || 800, height: 420, grid: true }); graph.use(new Selection({ enabled: true, rubberband: true, multiple: true })); graph.use(new Snapline({ enabled: true }));\ngraph.fromJSON(data);",
-    "codex": "import { Graph, Selection, Snapline } from 'https://cdn.jsdelivr.net/npm/@antv/x6@3/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@antv/x6@3/dist/index.css'; document.head.appendChild(css);\nconst el = document.getElementById('x6'); el.style.height = '420px';\nconst graph = new Graph({ container: el, width: el.clientWidth || 800, height: 420, grid: true }); graph.use(new Selection({ enabled: true, rubberband: true, multiple: true })); graph.use(new Snapline({ enabled: true }));\ngraph.fromJSON(data);"
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合\nimport { Graph, Selection, Snapline } from 'https://cdn.jsdelivr.net/npm/@antv/x6@3/+esm';\nconst el = document.getElementById('x6'); el.style.height = '420px';\nconst graph = new Graph({ container: el, width: el.clientWidth || 800, height: 420, grid: true }); graph.use(new Selection({ enabled: true, rubberband: true, multiple: true })); graph.use(new Snapline({ enabled: true }));\ngraph.fromJSON(data);",
+    "widget": "import { Graph, Selection, Snapline } from 'https://cdn.jsdelivr.net/npm/@antv/x6@3/+esm';\nconst el = document.createElement('div'); el.style.height = '420px'; shadowRoot.appendChild(el);\nconst graph = new Graph({ container: el, width: el.clientWidth || 800, height: 420, grid: true }); graph.use(new Selection({ enabled: true, rubberband: true, multiple: true })); graph.use(new Snapline({ enabled: true }));\ngraph.fromJSON(data);",
+    "codex": "import { Graph, Selection, Snapline } from 'https://cdn.jsdelivr.net/npm/@antv/x6@3/+esm';\nconst el = document.getElementById('x6'); el.style.height = '420px';\nconst graph = new Graph({ container: el, width: el.clientWidth || 800, height: 420, grid: true }); graph.use(new Selection({ enabled: true, rubberband: true, multiple: true })); graph.use(new Snapline({ enabled: true }));\ngraph.fromJSON(data);"
   },
   "example": {
     "_why": "X6 的 NodeMetadata/EdgeMetadata 与回读 CellProperties 是双形状深 config,minimal 固定易写的 {nodes,edges} 分支。",
@@ -110,5 +110,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:core SVG/HTML 渲染与 dist CSS 可落同一 shadow;Stencil/Selection/Snapline 等独立插件未在本条预装",
     "codex": "supported:ESM CDN + SVG/DOM,core 无 React/worker/wasm peer"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "css-loader/index.js 实测:createElement('style') + document.querySelector('head').insertBefore(styleElement,head.firstChild) → 硬注 document.head(globalStyleInjection=yes)。boot 仅 core+Selection+Snapline,渲进 container、无 body portal(未装 Stencil/ContextMenu/Tooltip)→ globalDomMutation=no。拖拽/框选在 document 挂 mousemove/mouseup 属瞬时监听,pointerup 即移除、graph.dispose() 兜底,无持久泄漏 → globalEvents=no。shadowCompatible=conditional:SVG 图可渲进 shadow,但 X6 强制向 document.head 注样式(非零足迹)且 head 样式不达 shadow 内容,widget 需额外把样式 adopt 进 shadow。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

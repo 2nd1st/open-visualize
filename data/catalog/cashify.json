@@ -45,5 +45,14 @@
     "widget": "// widget 内纯计算,无需接触 shadow DOM\nimport { convert } from 'https://cdn.jsdelivr.net/npm/cashify@4/+esm';\nif (data.rates[data.base] !== 1) throw new Error('rates[base] must equal 1');\nconst value = convert(data.amount, { from: data.from, to: data.to,\n  base: data.base, rates: data.rates });\nconst result = { value, from: data.from, to: data.to, as_of: data.as_of };",
     "codex": "// sandbox iframe 内直接跑纯 ESM\nimport { convert } from 'https://cdn.jsdelivr.net/npm/cashify@4/+esm';\nif (data.rates[data.base] !== 1) throw new Error('rates[base] must equal 1');\nconst value = convert(data.amount, { from: data.from, to: data.to,\n  base: data.base, rates: data.rates });\nconst result = { value, from: data.from, to: data.to, as_of: data.as_of };",
     "note": "jsDelivr +esm 已核对 named convert/Cashify/parse；v4 的 big.js 是可选 peer,本条裁掉 BigJs 以保持 JSON 输入与默认 number 输出。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "dist/convert.d.ts: `convert(amount, { from, to, base, rates, BigJs }): number` and options.d.ts require base+rates — exactly the boot call convert(data.amount,{from,to,base,rates}); index.d.ts + +esm confirm named {Cashify,convert,parse}. Headless pure-math primitive, no DOM/window API in bundle; as_of correctly kept out of the convert() call and only carried into result.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

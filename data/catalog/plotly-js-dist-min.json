@@ -98,5 +98,14 @@
     "artifact": "inferred-not-tested",
     "widget": "unsupported:运行时 CSS 硬注入 document.head,shadowRoot 内图层得不到这些规则",
     "codex": "conditional:SVG/canvas 图支持;scatter3d/surface 等 trace 还要求 sandbox 提供 WebGL"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "STYLE=yes:+esm 实测 createElement(\"style\") x2 + document.head x2 + 字面量 \"plotly.js-style\" x2 —— 运行时向 document.head 注入 <style id=plotly.js-style-*>,不穿透 shadow root(违铁律 2),故 shadowCompatible=no、widget 正确判 unsupported。EVENTS=yes:+esm 实测 addEventListener(\"resize\") x5 于 window(responsive 模式;有配对 removeEventListener x5 但仅经 Plotly.purge 清理)。DOM=no:主渲染(SVG/canvas/WebGL、hover、modebar)落在传入的 el 容器内,未见 document.body 注入。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -64,5 +64,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:可视 DOM/CSS 落 shadow,但旧版 jQuery/JSAV/Raphaël 会占全局且组合 CDN 需 CSP 放行,不是零全局足迹",
     "codex": "conditional:需 sandbox 允许串行外部 script 与组合 CDN；无 npm 可用构建,必须保留载入顺序"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "unknown",
+    "evidence": "boot 必须向 document.head append jQuery/jquery.transit/Raphael/JSAV-combine 5+ 个 classic <script> 并污染全局 $/jQuery/Raphael/JSAV,是内在不可避免的全局足迹(domMutation=yes,无 ESM 替代)。库本身不自注入 <style>,CSS 由 boot 手动加载(widget 落 shadow <style>、artifact 落 head <link>)故 styleInject=no。控件(prev/next)事件绑在自身 DOM 上,是否另有 document 级监听未证(events=unknown)。可视 DOM+CSS 能落 shadow(boot 已做),但依赖全局 jQuery/Raphael 与 combine-CDN 需 CSP 放行,非零足迹(shadow=conditional)。",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

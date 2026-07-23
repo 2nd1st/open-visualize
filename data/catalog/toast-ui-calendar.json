@@ -119,5 +119,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:须把 toastui-calendar.min.css 和挂载 Element 一并放进 shadowRoot;usageStatistics 强制 false,内部 Preact 树留在该容器",
     "codex": "supported:ESM CDN + 外部 CSS + DOM 几何布局,无 worker/wasm 或默认上行依赖"
+  },
+  "isolation": {
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "shadowCompatible": "conditional",
+    "evidence": "唯一 body append 是 usageStatistics GA 元素(boot 以 usageStatistics:false 禁);日历 UI/弹层渲入传入容器;一个 window resize 监听(calendar.destroy 清理);CSS+挂载点须同落 shadow",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

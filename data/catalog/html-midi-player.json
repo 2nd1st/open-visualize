@@ -45,5 +45,14 @@
     "artifact": "inferred-not-tested:静态 custom elements 可注册；实际播放取决于真实用户手势与 Web Audio,远程 SoundFont 另受网络/CSP 限制",
     "widget": "conditional:元素可经 createElement 落 shadowRoot且内部样式自封闭；播放仍要求宿主开放 Web Audio 与用户手势",
     "codex": "conditional:ESM/custom elements 可用；Web Audio 与自动播放策略决定能否发声"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "unknown",
+    "evidence": "两元素样式经 controlsTemplate/visualizerTemplate 的 <style>${controlsCSS}</style> 注入各自 shadow(controlsCSS/visualizerCSS 以 :host 开头,shadow 作用域),不写 document.head。globalEvents 存疑:Tone.js/@magenta 惯常挂 document/window 一次性手势监听解锁 AudioContext,本 bundle 未逐行确认。元素为自带 shadow 的 web component 可 append 进外层 shadowRoot,但需 Web Audio+用户手势+重型传递依赖(carriers.widget=conditional)。",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

@@ -42,5 +42,14 @@
     "widget": "// headless 无 DOM/shadow 足迹;宿主须允许从 pinned jsDelivr fetch WASM\nimport initSqlJs from 'https://cdn.jsdelivr.net/npm/sql.js@1/+esm';\nconst SQL = await initSqlJs({ locateFile: () => 'https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/sql-wasm-browser.wasm' });\nconst db = new SQL.Database(data.databaseBytes ? Uint8Array.from(data.databaseBytes) : undefined);\nif (data.setupSql) db.run(data.setupSql);\nconst resultSets = db.exec(data.query, data.params);",
     "codex": "// Codex 打包变体:把 pinned sql-wasm-browser.wasm 的字节预先 base64 内联,避免运行时 WASM fetch\nimport initSqlJs from 'https://cdn.jsdelivr.net/npm/sql.js@1/+esm';\nconst wasmBinary = Uint8Array.from(atob(SQL_WASM_BASE64), c => c.charCodeAt(0));\nconst SQL = await initSqlJs({ wasmBinary });\nconst db = new SQL.Database(data.databaseBytes ? Uint8Array.from(data.databaseBytes) : undefined); if (data.setupSql) db.run(data.setupSql);\nconst resultSets = db.exec(data.query, data.params);",
     "note": "SQL_WASM_BASE64 必须由 sql.js@1.14.1/dist/sql-wasm-browser.wasm 原字节生成,不可与 sql-wasm.wasm 或其他版本混用;拿不准宿主 connect-src 时优先用 Codex 内联变体。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "headless-primitive: MODULARIZE emscripten factory (EXPORT_NAME=initSqlJs) returns a module object without leaking globals; pure WASM compute, no DOM/style/event footprint. Renders nothing → shadow-safe. Only external dependency is fetching the WASM (needs connect-src to pinned jsDelivr), or the codex carrier's inlined base64 wasmBinary variant to avoid the fetch.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

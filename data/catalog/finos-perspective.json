@@ -65,5 +65,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:仅在宿主允许 WebAssembly、Worker 与 jsDelivr 跨源模块时可用;custom element 经 createElement 挂入 shadow",
     "codex": "conditional:需要 sandbox CSP 开放 WebAssembly + Worker;若任一被禁则不能降级为百万行本地透视"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "unknown",
+    "evidence": "perspective-viewer@3.8.0 +esm (57KB) has no document.head or document.body references; it uses `new CSSStyleSheet` (adoptedStyleSheets) inside its own component shadow root plus customElements.define. No head/body footprint, but it requires WebAssembly + Web Worker + cross-origin ESM loading, so shadow use is gated on host capabilities; worker/event listeners not exhaustively traced and runtime not live-tested.",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

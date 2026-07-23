@@ -104,5 +104,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:canvas 与 tooltip 全落 shadow 容器,无外部 CSS",
     "codex": "supported:两个 ESM CDN 入口 + canvas,无上行依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm exports `O as Flow, L as SankeyController` (named) — boot import {SankeyController, Flow} + Chart.register(...registerables, SankeyController, Flow) matches README lines 39/41. README data elements are {from,to,flow} (lines 96-99); schema colorFrom/colorTo default red/green and colorMode 'gradient' match +esm O.defaults exactly. Inherits chart.js canvas rendering; grep for head/body/style injection = ZERO hits.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

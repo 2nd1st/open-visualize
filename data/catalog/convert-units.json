@@ -40,5 +40,14 @@
     "widget": "// widget 内纯计算,无需接触 shadow DOM\nimport convert from 'https://cdn.jsdelivr.net/npm/convert-units@2/+esm';\nconst possible = convert().from(data.from).possibilities();\nif (!possible.includes(data.to)) throw new Error('Incompatible units');\nconst result = convert(data.value).from(data.from).to(data.to);",
     "codex": "// sandbox iframe 内直接跑纯 JS\nimport convert from 'https://cdn.jsdelivr.net/npm/convert-units@2/+esm';\nconst possible = convert().from(data.from).possibilities();\nif (!possible.includes(data.to)) throw new Error('Incompatible units');\nconst result = convert(data.value).from(data.from).to(data.to);",
     "note": "jsDelivr +esm 已核对为 default convert；缩写白名单由包的 possibilities() 产生,不要让 AI 猜单位 token。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "convert-units@2.3.4 is a CJS package (package.json main:'lib', no types/module/exports); jsDelivr +esm wraps it to a single default export ('Hr as default') so 'import convert from ...' is correct. README ground truth: convert(1).from('l').to('ml') and convert().from('l').possibilities() — boot's convert(value).from(from).to(to) plus possibilities() precheck match exactly; measures()/describe() also present in bundle. data_in schema value/from/to map 1:1 onto the real call chain. Headless-primitive: pure numeric computation, no DOM/style/event APIs anywhere in the bundle — safe in any shadow root.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

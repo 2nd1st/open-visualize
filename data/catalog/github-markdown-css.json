@@ -23,13 +23,22 @@
     }
   },
   "boot": {
-    "artifact": "// inferred-not-tested:样式必须进入 document.head\nconst css = document.createElement('link'); css.rel = 'stylesheet';\ncss.href = 'https://cdn.jsdelivr.net/npm/github-markdown-css@5.9.0/github-markdown.min.css';\ndocument.head.appendChild(css);\nconst el = document.getElementById('markdown'); el.className = 'markdown-body';\nif (data.color_mode && data.color_mode !== 'auto') el.dataset.theme = data.color_mode;\nel.style.padding = `${data.padding ?? 32}px`; el.innerHTML = data.html;",
-    "widget": "// widget 零足迹:CSS 与 .markdown-body 都落 shadowRoot\nconst css = document.createElement('link'); css.rel = 'stylesheet';\ncss.href = 'https://cdn.jsdelivr.net/npm/github-markdown-css@5.9.0/github-markdown.min.css';\nconst el = document.createElement('article'); el.className = 'markdown-body';\nif (data.color_mode && data.color_mode !== 'auto') el.dataset.theme = data.color_mode;\nel.style.padding = `${data.padding ?? 32}px`; el.innerHTML = data.html;\nshadowRoot.append(css, el);",
-    "codex": "// sandbox iframe:同 artifact，把 CSS link 放进 iframe document.head\nconst el = document.getElementById('markdown'); el.className = 'markdown-body';\nif (data.color_mode && data.color_mode !== 'auto') el.dataset.theme = data.color_mode;\nel.style.padding = `${data.padding ?? 32}px`;\nel.innerHTML = data.html;"
+    "artifact": "// inferred-not-tested:样式必须进入 document.head;按 color_mode 换文件(auto 版的 dark/light 规则被 @media 包裹,dataset.theme 覆盖无效)\nconst file = data.color_mode === 'light' ? 'github-markdown-light.css' : data.color_mode === 'dark' ? 'github-markdown-dark.css' : 'github-markdown.min.css';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/github-markdown-css@5.9.0/' + file; document.head.appendChild(css);\nconst el = document.getElementById('markdown'); el.className = 'markdown-body';\nel.style.padding = `${data.padding ?? 32}px`; el.innerHTML = data.html;",
+    "widget": "// widget 零足迹:CSS 与 .markdown-body 都落 shadowRoot;按 color_mode 换文件\nconst file = data.color_mode === 'light' ? 'github-markdown-light.css' : data.color_mode === 'dark' ? 'github-markdown-dark.css' : 'github-markdown.min.css';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/github-markdown-css@5.9.0/' + file;\nconst el = document.createElement('article'); el.className = 'markdown-body';\nel.style.padding = `${data.padding ?? 32}px`; el.innerHTML = data.html;\nshadowRoot.append(css, el);",
+    "codex": "// sandbox iframe:同 artifact,CSS link 放进 iframe document.head;按 color_mode 换文件\nconst file = data.color_mode === 'light' ? 'github-markdown-light.css' : data.color_mode === 'dark' ? 'github-markdown-dark.css' : 'github-markdown.min.css';\nconst el = document.getElementById('markdown'); el.className = 'markdown-body';\nel.style.padding = `${data.padding ?? 32}px`; el.innerHTML = data.html;"
   },
   "carriers": {
     "artifact": "inferred-not-tested",
     "widget": "supported:CSS link 放入 shadowRoot 后无 document.head 足迹；无外部字体、wasm 或 worker",
     "codex": "supported:纯 CSS + 已渲染 HTML"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "纯 CSS,无运行时 JS,不存在库主动注入;.markdown-body 作用域样式。widget boot 将 <link>+article 一并落 shadowRoot,样式隔离可行(shadow 内 media/data-theme 门控行为不变,但那是功能瑕疵不是隔离问题)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

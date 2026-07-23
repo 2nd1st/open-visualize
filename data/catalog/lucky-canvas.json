@@ -113,5 +113,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:canvas 可留在 shadow;若 prizes/blocks 使用远程 imgs,还需对应 image CDN 与 CORS",
     "codex": "supported:纯文字/颜色配置只需 ESM CDN + canvas;远程图片另判"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "esm grep: 4× document.createElement (canvas elements), 1× appendChild into the given container, NO document.head/document.body, no adoptedStyleSheets — pure canvas rendering, no style injection, no body mutation. globalEvents=yes and it's a LEAK: `window.addEventListener('resize', ...)` is registered (guarded by a typeof-function check) with ZERO removeEventListener in the bundle and no destroy that unbinds it; the click listener is element-scoped (`canvasElement.addEventListener('click')`), fine. shadowCompatible=conditional: the canvas + text/color config render fully inside a shadow container, but (a) it leaks an uncleaned window resize listener that keeps referencing the instance after teardown, and (b) remote prize/block `imgs` need CDN+CORS (catalog's stated conditional). Rendering mechanics themselves work in shadow.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

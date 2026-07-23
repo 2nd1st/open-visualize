@@ -47,5 +47,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:CSS 可落 shadowRoot,但上游会访问 localStorage 与 window.hashchange,宿主须允许这些浏览器能力并正确卸载 Vue app",
     "codex": "supported:Vue ESM + pinned Bootstrap/PEV2 CSS,无 worker/wasm/font CDN/uplink 需求"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "Confirmed `document.body.appendChild(...)` with a `.destroy()` lifecycle (tooltip/popover teleport; 9 total document.body refs) — these escape the shadow root and will NOT receive the shadow-scoped pev2.css. Global listeners: window `hashchange` (1) + document `mousemove`/`touchstart/move/end` (splitpanes drag) + localStorage read/write (6) — matches catalog note. The lone `document.head` ref is a `parentNode!==document.head` comparison guard, NOT a style injection. Multi-instance needs manual Vue app.unmount().",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

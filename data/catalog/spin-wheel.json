@@ -74,5 +74,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:canvas 挂进 shadow 容器,ResizeObserver/Pointer Events 可用,无外部 CSS",
     "codex": "supported:ESM CDN + canvas + Pointer Events"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "src/events.js: uses ResizeObserver on the canvas container via util.getResizeObserver (element-scoped — confirms catalog note) + a window.matchMedia('(resolution:...)') 'change' listener for devicePixelRatio. Drag = canvas.setPointerCapture with pointer listeners on the canvas; mouse fallback adds document mousemove/mouseup that self-remove on mouseup. unregister()/remove() removes canvas listeners, stops the ResizeObserver, and removes the matchMedia listener → no leak IF teardown calls wheel.remove(). Canvas appended to the supplied container; nothing to body/head.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

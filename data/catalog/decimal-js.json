@@ -40,5 +40,14 @@
   "boot": {
     "shared": "// 三载体一致:纯 JS,clone 避免污染同页其他 Decimal 使用者\nimport Decimal from 'https://cdn.jsdelivr.net/npm/decimal.js@10/+esm';\nconst D = Decimal.clone({ precision: data.precision ?? 20, rounding: data.rounding ?? Decimal.ROUND_HALF_UP });\nlet result = new D(data.value);\nfor (const step of data.operations ?? []) result = result[step.op](step.operand);\nif (data.decimal_places !== undefined) result = result.toDecimalPlaces(data.decimal_places);\nconst output = result.toString();",
     "note": "step.op 必须按 schema 白名单校验后再作属性访问;舍入是领域规则,不要仅靠最终显示层 toFixed 掩盖中间误差。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified: +esm exports `Pi as default` (default import correct). decimal.d.ts confirms `static readonly ROUND_HALF_UP: 4` (schema default rounding 4 accurate), `static clone(object?: Config)` with Config {precision?, rounding?} (boot's clone({precision,rounding}) correct), toDecimalPlaces(dp, rounding?) single-arg overload valid, and chain methods plus/minus/times/dividedBy/pow all present (boot's result[step.op] whitelist matches). Default precision 20 accurate. +esm bundle: 0 DOM/style/event APIs — pure decimal math.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

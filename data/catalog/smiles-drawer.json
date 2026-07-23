@@ -36,5 +36,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:parse 纯 JS,draw 可直接吃 shadow 内 HTMLCanvasElement；无 CSS/head/图片/font CDN 注入",
     "codex": "supported:ESM CDN + canvas,无额外 fetch/worker/wasm/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr smiles-drawer@2.4.1: `Jn as default` and `window.SmilesDrawer=Jn` — the default export is the SmilesDrawer namespace. dist/types/app.d.ts confirms `export default class SmilesDrawerNS` with static Drawer, static parse(smiles, successCallback, errorCallback?), Version, apply, clean, parseReaction — so `import SmilesDrawer from` then `new SmilesDrawer.Drawer(options)` and `SmilesDrawer.parse(...)` are correct. Drawer.d.ts: `constructor(options)` and `draw(data, target: string|HTMLCanvasElement, themeName?, infoOnly?, highlight_atoms?)` matches boot `drawer.draw(tree, canvas, theme ?? 'light', false)`. Schema smiles/theme/width/height consumed correctly. Isolation: +esm shows 0 document.head/body/createElement('style')/document.addEventListener/window.addEventListener — parse is pure JS, draw renders into the shadow-mounted HTMLCanvasElement. Only side effect is assigning window.SmilesDrawer/window.SmiDrawer globals (harmless namespace write, not a DOM/style/event footprint).",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

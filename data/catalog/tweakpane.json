@@ -41,5 +41,14 @@
     "artifact": "inferred-not-tested",
     "widget": "unsupported:运行时强制 document.head 样式注入,与 shadow 零足迹约束冲突",
     "codex": "supported:sandbox iframe 隔离了 document.head 注入"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "+esm contains `data-tp-style`; Tweakpane's embedStyle appends a `<style data-tp-style>` to document.head unconditionally at Pane construction — head rules do not cross into shadow, so this disqualifies the zero-footprint widget (exactly the entry's claim). 12x `ownerDocument` + mousedown/mousemove/mouseup/mouseleave are transient slider-drag listeners (added on press, removed on release). `body.appendChild` exists only on the default-wrapper branch, NOT taken because boot passes `container: el`.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

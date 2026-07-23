@@ -46,5 +46,14 @@
   "boot": {
     "shared": "import { feature } from 'https://cdn.jsdelivr.net/npm/topojson-client@3/+esm';\nconst object = data.topology.objects[data.object_name];\nif (!object) throw new Error(`Unknown TopoJSON object: ${data.object_name}`);\nconst geojson = feature(data.topology, object);\n// geojson 可直接交给 d3-geo 或 ECharts registerMap",
     "note": "主路径只做 feature 解码。共享州界/县界改用 mesh(topology, object, (a,b) => a !== b);行政区合并改用 merge,不要把 Topology 直接冒充 GeoJSON。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "纯几何变换库(TopoJSON→GeoJSON/mesh/merge),README 与导出确认全部为数据函数,无 DOM/document/window 触及。headless-primitive 无渲染面→shadowCompatible=yes,三副作用轴均 no。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

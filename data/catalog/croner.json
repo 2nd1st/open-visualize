@@ -40,5 +40,14 @@
     "artifact": "// inferred-not-tested:纯 ESM 求值;paused 避免注册真实定时任务\nimport { Cron } from 'https://cdn.jsdelivr.net/npm/croner@10/+esm';\nconst cron = new Cron(data.pattern, { paused: true, timezone: data.timezone, mode: data.mode ?? 'auto', domAndDow: data.domAndDow ?? false });\nconst runs = cron.nextRuns(data.count ?? 5, data.from ? new Date(data.from) : undefined);",
     "widget": "// headless:无 DOM/shadow 足迹\nimport { Cron } from 'https://cdn.jsdelivr.net/npm/croner@10/+esm';\nconst cron = new Cron(data.pattern, { paused: true, timezone: data.timezone, mode: data.mode ?? 'auto', domAndDow: data.domAndDow ?? false });\nconst runs = cron.nextRuns(data.count ?? 5, data.from ? new Date(data.from) : undefined);",
     "codex": "// sandbox iframe/worker 均可\nimport { Cron } from 'https://cdn.jsdelivr.net/npm/croner@10/+esm';\nconst cron = new Cron(data.pattern, { paused: true, timezone: data.timezone, mode: data.mode ?? 'auto', domAndDow: data.domAndDow ?? false });\nconst runs = cron.nextRuns(data.count ?? 5, data.from ? new Date(data.from) : undefined);"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "croner@10.0.1 +esm exports 'b as Cron' — import{Cron} correct. dist/croner.d.ts: class Cron constructor(pattern:string|Date, fnOrOptions1?, fnOrOptions2?) (L541); nextRuns(n:number, previous?:Date|string):Date[] (L556) and nextRun (L548) real — boot's new Cron(pattern,opts).nextRuns(count, from-as-Date) correct (2nd arg 'previous' returns runs after it, matching the 'from = start time' intent). CronOptions contains all boot keys as real fields: paused (L11), timezone (L56), domAndDow (L66, default false=OR), mode (L93); CronMode type = 'auto'|'5-part'|'6-part'|'7-part'|'5-or-6-parts'|'6-or-7-parts' matches the schema enum verbatim. Headless-primitive: boot passes paused:true so no real timer/scheduledJobs registration; nextRuns is pure date evaluation — no DOM/style/global-listener footprint, shadow-safe.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

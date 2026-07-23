@@ -50,5 +50,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:必须按 boot 把 photoswipe.css 与 appendToEl 都放入 shadowRoot;远程图片 URL 仍须获宿主 img-src/CORS 许可",
     "codex": "supported:ESM CDN + CSS + Pointer Events;远程图片源须可加载"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "PhotoSwipe defaults to appending its scaffold to document.body, but the `appendToEl` option (boot sets it to the shadow host) redirects that single body-append into the shadow root — so no body mutation under the prescribed boot. No head/style injection (CSS external; widget boot loads photoswipe.css into shadowRoot). Binds 2 document + 4 window listeners via its tracked events helper (document keydown for keyboard nav; window resize/scroll) — all removed on close/destroy (events.removeAll), so no leak when lifecycle is honored.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

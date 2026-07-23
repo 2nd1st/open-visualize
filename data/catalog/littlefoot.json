@@ -54,5 +54,14 @@
     "artifact": "inferred-not-tested",
     "widget": "unsupported:4.1.4 扫描根写死为 document,无法发现 ShadowRoot 内引用与脚注;不伪造跨根 boot",
     "codex": "supported:sandbox iframe 自有 document,ESM 与 CSS 都可限定在该文档"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "esm grep: zero createElement('style'/'link'), zero head.appendChild, zero adoptedStyleSheets — CSS ships as separate dist/littlefoot.css that the boot links (library JS injects nothing). Popovers placed via `insertAdjacentElement('afterend', button)` within the scoped article, NOT portaled to body. Only element-level listeners: `.addEventListener('mouseenter')` and `.addEventListener('wheel')` on footnote button/popover; ZERO document/window addEventListener (removeEventListener count 0, but element listeners die with DOM removal on unmount). Shadow-incompatible: esm hardcodes `document.body.contains(o)` (popover liveness check) and `o.style.maxWidth=document.body.clientWidth` (popover sizing); shadow-root nodes fail document.body.contains, so the popover lifecycle breaks inside a ShadowRoot — matches catalog widget=unsupported.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

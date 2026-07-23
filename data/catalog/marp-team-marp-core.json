@@ -34,5 +34,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:render 产出的 CSS 必须与 HTML 同落 shadow,再对该根调用官方 browser helper;Markdown 外链图片、Twemoji 或 KaTeX 字体另受 CDN 可达性约束",
     "codex": "supported:编译器、配套 CSS 与 browser helper 均可在 sandbox iframe 内闭环"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "browser/+esm grep: no `document.head` write, only `.attachShadow` (marp-auto-scaling uses its own internal shadow); render() returns CSS as a string that the boot places (head for artifact, shadowRoot for widget) so the LIBRARY injects nothing to head. Global effects are in browser(): `customElements.define(\"marp-auto-scaling\",…)` on the page-global registry (guarded by a `window[H]` flag → duplicate-safe: `s||customElements.define`) plus `window.addEventListener(\"message\",…)` for postMessage auto-scaling, neither torn down per-instance. Shadow works because globally-registered custom elements upgrade inside shadow roots and the widget boot lands both css+html in shadowRoot; conditional because it depends on the global define/window-listener and Marpit theme CSS may use `:root` (which does not match inside a shadow tree).",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

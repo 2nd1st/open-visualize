@@ -34,5 +34,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:canvas 与 graphre 纯 JS 均落 shadow 容器,无 CSS/worker/wasm/uplink",
     "codex": "supported:ESM CDN + canvas"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm scan: 0 `document.head`, 0 `document.body`, 0 document/window addEventListener. Uses measureText/getContext (9 refs) for text sizing and draws into the caller-supplied canvas (only dependency is graphre, bundled). No global injection or portals — canvas output fully within the passed shadow container.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

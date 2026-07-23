@@ -48,5 +48,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:构造器接收 shadow 内 custom canvas,无需默认 document.body 注入或外部 CSS",
     "codex": "supported:ESM CDN + canvas,无 worker/wasm/外部资产"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm 仅 createElement(\"canvas\"),无 createElement(\"style\")/document.head(styleInject=no);默认(不传 canvas)路径 createElement(\"canvas\")+document.body+appendChild,但 boot 传 new JSConfetti({canvas}) 绕过 body 注入(domMutation=no);仅 6×requestAnimationFrame,零 addEventListener/onresize/matchMedia(events=no);custom canvas 挂 shadowRoot 内可正常工作(shadow=yes)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

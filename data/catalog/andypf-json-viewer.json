@@ -41,5 +41,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:以 JS createElement 挂入宿主 shadowRoot;组件再用自身 shadow DOM 封装全部基底样式,无 document.head 注入",
     "codex": "supported:ESM CDN + custom element,无 worker/wasm/外部图片或 uplink 需求"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm:`attachShadow` x1(自带 Shadow DOM,46 主题样式封装其内);全部 addEventListener(click x4/mouseenter x2/mouseleave x2)挂在其内部 shadow 元素;零 document.head/body。README 明示『Web Components + Shadow DOM』。落入宿主 shadowRoot 形成嵌套 shadow,正常工作。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

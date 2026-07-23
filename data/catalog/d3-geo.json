@@ -40,5 +40,14 @@
   "boot": {
     "shared": "import { geoAlbersUsa, geoEqualEarth, geoMercator, geoNaturalEarth1, geoPath } from 'https://cdn.jsdelivr.net/npm/d3-geo@3/+esm';\nconst makers = { albersUsa: geoAlbersUsa, equalEarth: geoEqualEarth, mercator: geoMercator, naturalEarth1: geoNaturalEarth1 };\nconst pad = data.viewport.padding ?? 8;\nconst projection = makers[data.projection ?? 'equalEarth']().fitExtent([[pad, pad], [data.viewport.width - pad, data.viewport.height - pad]], data.geojson);\nconst path = geoPath(projection); const d = path(data.geojson);",
     "note": "保守使用 projection.fitExtent + geoPath,不手填 scale/translate。若输入是 us-atlas 的 *-albers-10m.json,它已是 975×610 平面坐标,不要再经本投影链。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm confirms named exports geoAlbersUsa/geoEqualEarth/geoMercator/geoNaturalEarth1/geoPath — boot's makers map and imports all match. projection.fitExtent([[x0,y0],[x1,y1]],object) then geoPath(projection) then path(geojson) are standard d3-geo v3 pure-math APIs producing SVG 'd' strings / canvas path commands; all four projections support fitExtent (albersUsa composite included). Zero DOM/CSS/event surface — headless primitive, shadow-irrelevant (safe).",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

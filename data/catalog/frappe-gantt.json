@@ -25,7 +25,7 @@
           "end": "string —— YYYY-MM-DD 或 YYYY-MM-DD HH:mm",
           "progress?": "number 0..100 —— 默认 0",
           "dependencies?": "string | string[] —— 前置任务 id,字符串用逗号分隔;默认 []",
-          "description?": "string —— popup 副标题,默认空字符串",
+          "description?": "string —— 需自定义 popup option 才渲染;默认 popup 不显示",
           "custom_class?": "string —— 任务条 CSS class,默认不设置"
         }
       ],
@@ -96,5 +96,14 @@
     "browse-compare"
   ],
   "owner": true,
-  "owner_note": "pick 合并三个场景;本条以 data-explore 为 owner,交互共创与浏览比较复用同一原生组件。"
+  "owner_note": "pick 合并三个场景;本条以 data-explore 为 owner,交互共创与浏览比较复用同一原生组件。",
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "Source: the popup renders into a popup_wrapper appended to the gantt container (no document.body); the library does not auto-inject CSS — frappe-gantt.css is placed by the boot (in shadowRoot for widget). It registers one persistent document.addEventListener('mouseup', …) for bar/progress drag-release with no destroy/cleanup path; that listener still fires cross-shadow (mouseup bubbles to document), so it works but is a standing global footprint. Shadow use is conditional on placing the CSS inside the shadow root.",
+    "confidence": "high",
+    "audited": "2026-07-23"
+  }
 }

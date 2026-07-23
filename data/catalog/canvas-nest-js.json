@@ -41,5 +41,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:canvas 本身完全落 shadowRoot,但 2.0.4 会暂存并替换 window.onmousemove/onmouseout;同页限一个活跃实例且卸载须调用 nest.destroy()",
     "codex": "supported:sandbox iframe 隔离全局指针属性,ESM CDN + canvas,无 CSS/worker/wasm/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "+esm 导出 k as default → import CanvasNest 正确;new CanvasNest(el,config) 签名正确;options color/pointColor/opacity/count/zIndex 与 2.0.4 源码消费一致(源码命中 opacity/pointColor/c.count),schema 强调 color/pointColor 须逗号分隔 RGB 三元组正确(源码内 rgb(${color}))。隔离:无 CSS(globalStyleInjection=no);canvas append 到传入 el(落 shadow)、无 document.body(globalDomMutation=no);源码实测以属性赋值覆盖 window.onmousemove/window.onmouseout(init:this.onmousemove=window.onmousemove 暂存后替换;destroy():window.onmousemove=this.onmousemove 还原)→ globalEvents=yes,属性式覆盖会 clobber 页面既有同名 handler、仅 destroy() 还原。shadowCompatible=conditional:canvas 完全落 shadow,但 window.onmousemove/onmouseout 全局覆盖逃出 shadow,同页限一活跃实例且卸载须 nest.destroy()。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

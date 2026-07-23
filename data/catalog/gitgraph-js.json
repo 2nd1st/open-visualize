@@ -57,5 +57,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:原生 SVG 仅挂入传入的 shadow 容器,无 document.head/CSS/worker/wasm 足迹",
     "codex": "supported:ESM CDN + DOM/SVG,无 uplink 需求"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "@gitgraph/js@1.4.0(10.7KB)+其依赖 @gitgraph/core@1.5.0(27KB)两 chunk grep 均彻底干净:0 document.head/body、0 createElement(style/link)、0 insertRule、0 document/window.addEventListener、0 Worker。SVG 仅渲入传入容器,commit tooltip 为容器内 SVG 元素(非 body portal),hover 事件挂在 SVG 节点(非全局)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -49,5 +49,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:构造器固定向 document.head 生成三类 style;boot 以唯一 ESM 实例捕获并迁入 shadowRoot,宿主须允许动态 ESM 与 crypto.randomUUID",
     "codex": "supported:sandbox iframe 吸收运行时 head 样式,雪花 DOM 留在指定容器"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "globalStyleInjection=yes (defining trait): index.d.ts exposes private mainStyleNode/animationStyleNode/imagesStyleNode + injectStyle/appendStyles/removeStyles; esm confirms `document.head` injection. Flakes DOM is appended to the passed `container` (isBody special-cases body, but boot supplies a div) → globalDomMutation=no. globalEvents=no: window `resize` + orientationchange('change') listeners are registered but destroy() removes them (esm: removeEventListener×3) — cleaned, not leaked. shadowCompatible=conditional: flakes render inside the container (shadow-OK) but CSS injects to document.head, so the widget boot must capture the newly-added <style> nodes and migrate them into shadowRoot (plus dynamic-ESM cache-bust via `?ov-shadow=`+crypto.randomUUID for a fresh instance) — matches catalog conditional.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

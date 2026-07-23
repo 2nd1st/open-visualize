@@ -85,5 +85,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:React 18 与 canvas 均可落 shadow 容器;若奖项使用外链图片或非 Web-safe 字体,还需对应 CDN 可达与跨域许可",
     "codex": "supported:React ESM + canvas,无上行依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "package.json deps styled-components ^5.1.1 -> injects <style> into document.head at runtime (bundle shows 11x 'styled', 1x document.head, 1x createElement('style')). The wheel itself is drawn on <canvas> so it renders inside shadow, but the head-injected styled-components CSS does not cross the shadow boundary, so the styled wrapper/pointer layout is unstyled inside a shadow root (cosmetic, not a hard break). No document/window addEventListener found.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

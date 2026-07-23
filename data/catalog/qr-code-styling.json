@@ -96,5 +96,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:无 logo 时纯 SVG/canvas 且完全落 shadowRoot；远程 image 需宿主放行图片域与 CORS，建议 data URI",
     "codex": "supported:ESM CDN + SVG/canvas；远程 logo 仍受图片 CORS，默认无 logo"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "STYLE=no:+esm 实测无 document.head、无 addEventListener。EVENTS=no:实测无 addEventListener。DOM=no:渲染由 qr.append(host) 落入传入容器;唯一 document.body 用法是下载辅助(实测 document.body.appendChild(e),e.click();...removeChild(e)),仅在 qr.download() 触发、瞬时自清,不在 boot 渲染路径。shadowCompatible=yes:SVG/canvas 完全落 shadow 容器;唯一条件是远程 logo image 需宿主 img-src/CORS(建议 data URI)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

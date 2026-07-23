@@ -96,5 +96,14 @@
     "artifact": "inferred-not-tested:Testbed 是 document 级单例 Stage canvas,需 iframe 隔离并由宿主固定 400px 高",
     "widget": "unsupported:原生 Testbed.mount 无容器参数,无法落 shadowRoot；不能谎报零足迹",
     "codex": "conditional:sandbox iframe 可容纳全局 Testbed canvas；须固定 fragment 高度且一个 document 只挂一个 Testbed"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "Confirmed in with-testbed bundle: Testbed/Stage does createElement('canvas') and appends it to global document.body (TestbedMountOptions has NO element/container parameter — the canvas cannot be scoped to a shadow root). Registers window keydown/keyup/blur + document mouseup. This exactly matches the catalog's widget:'unsupported' — the entry honestly refuses the widget carrier. (Boot itself also sets document.body.style.margin/height, only safe inside the prescribed iframe isolation.) Library does not inject to document.head.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

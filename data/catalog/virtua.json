@@ -54,5 +54,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:纯 React DOM + ResizeObserver,无外部 CSS、worker、wasm 或 document.head 注入;挂载点可留在 shadowRoot",
     "codex": "supported:需让 React/ReactDOM 与 jsDelivr 为 virtua 解析的 peer 版本一致"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "virtua@0.49.3 +esm exports named VList (_e) — import correct and peer React 19 resolvable. lib/react/VList.d.ts: VListProps picks 'children'|'data' from VirtualizerProps, where VirtualizerProps.children: ReactNode | ((data:T,index:number)=>ReactElement) and data?:ArrayLike<T>; JSDoc literally says 'pass a function and set data to create elements lazily' — so boot's createElement(VList,{data:items},rowFn) is the documented render-prop API. schema items(->data)/itemTextField(->render fn) match. Grep of bundle: 0 document.head, 0 createElement('style'), 0 body.append, 0 document/window listeners; measurement is via element-scoped ResizeObserver only.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

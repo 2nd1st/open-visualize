@@ -34,5 +34,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:repo-only classic 脚本需写 document.head,但组件 DOM 与两张 CSS 落 shadow;fixed resize 避免全局窗口布局假设",
     "codex": "conditional:需允许从 jsDelivr /gh/ 固定 commit 加载多文件 classic JS;使用 flat 主题无图片 CDN"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "固定 commit 4f03a3a 的 15 个 classic JS + css/besogo.css + css/board-flat.css 均 HTTP 200;besogo.js 定义 window.besogo 且 besogo.create 存在;options.sgf/panels/resize/coord/nowheel 均被源码消费(data_in {sgf} 直传正确)。隔离:运行时不向 document.head 注 <style>(CSS 走外链,widget 落 shadow;boot 的 <script>/<link> 写 head 只是加载机制)→ globalStyleInjection=no;渲染 SVG 进传入元素、无 document.body append → globalDomMutation=no;besogo.js 注册 addEventListener('keydown') 与 window 级监听(棋谱游走导航),classic 单体无 destroy/cleanup API → globalEvents=yes。shadowCompatible=conditional:棋盘 SVG+面板可在 shadow 内渲染,但脚本须全局加载、注册 window.besogo,且全局 keydown 监听逃出 shadow。",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

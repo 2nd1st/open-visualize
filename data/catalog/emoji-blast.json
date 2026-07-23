@@ -59,5 +59,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:首次调用会生成 style;boot 用唯一 className 识别并同步迁入 shadowRoot,宿主须允许动态样式与 crypto.randomUUID",
     "codex": "supported:sandbox iframe 吸收 document.head 样式,DOM 粒子留在指定容器"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "+esm grep: `createElement('style')` x1 + `document.head` x1 → injects a base <style> (defaultClassName='emoji-styles') into head on first blast (entry migrates it via unique-className match — handled). defaultCreateContainer JSDoc: '<div/> element prepended to document.body' → default body mutation, but entry always passes explicit `container:el` so emojis stay in the shadow container. `document.addEventListener('pointermove'|'pointerup')` for grab-and-toss (document-level, transient per drag). Emoji elements use `position: fixed` — entry establishes a local containing block via `transform:translateZ(0)` on the container so fixed coords resolve inside it. Containable with all three boot mitigations → conditional.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

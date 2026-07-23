@@ -37,5 +37,14 @@
   "boot": {
     "shared": "// 三载体一致:纯 ESM 计算,无 DOM/shadow/uplink\nimport { Chord, Scale, Interval, Note } from 'https://cdn.jsdelivr.net/npm/tonal@6/+esm';\nconst kind = data.kind || 'chord';\nconst api = { chord: Chord, scale: Scale, interval: Interval, note: Note }[kind];\nconst result = api.get(data.notation);\n// result 是数据产物,交给可视化 peer 或直接回显",
     "note": "若只需单一域可改导入对应 @tonaljs/* 子包以减小体积;空 name/notes 通常表示记法未命中,消费方自行报错。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "纯函数乐理计算库,README 与导出确认全部为数据 API(输入记法字符串→输出音符数组/属性对象),无任何 DOM/document/window 触及。headless-primitive 无渲染面,shadow 内外行为一致→shadowCompatible=yes,三副作用轴均 no。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

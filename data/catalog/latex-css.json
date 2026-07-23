@@ -30,5 +30,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:CSS link 必须放入 shadowRoot；字体由 CSS 相对路径从同一 jsDelivr 包加载，宿主需允许 font-cdn",
     "codex": "supported:纯 CSS + 语义 HTML；无 wasm、worker 或 uplink 需求"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "纯 CSS 无 JS;boot 追加 <link>(artifact→document.head,可改指 shadowRoot)。style.css 基础规则用全局元素选择器 body(L154/188)/html(L171)/:root 变量(L103),shadow 内不匹配 → 需 body/html/:root→:host 重写才成立;字体经相对路径 ./fonts/*.woff2 从同包加载,需 font-cdn 放行。无 body 追加、无事件监听。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

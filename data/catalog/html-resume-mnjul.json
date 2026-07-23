@@ -35,5 +35,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:shadowRoot 必须允许外部 stylesheet link 与 Font Awesome 字体;原模板只验证过 Letter 纸张,预览可用但打印应优先 artifact/codex 独立文档",
     "codex": "conditional:需三个 CSS/font CDN 资源;无 JS、worker、wasm 或上行能力要求"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "无运行时 JS,但 artifact/codex boot 把 normalize.css(全局 reset)+font-awesome+style.css 三个 <link> 追加进 document.head 且默认 media=all → 影响宿主整页;widget boot 已正确改落 shadowRoot。style.css 的 body{}(32行)与 @page{}(1行)为文档级规则,shadow 内不生效——#main/#sidebar 为 id 选择器+组件 class 可在 shadow 命中,widget boot 用内联 font-family/line-height 补偿 body 层排版,真实打印纸张几何(@page)仍需 artifact/codex 文档级。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

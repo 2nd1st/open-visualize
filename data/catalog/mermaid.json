@@ -39,5 +39,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:必须把 shadow 内元素作为 render 第三个参数;ESM 会从 jsDelivr 懒载图类型与布局依赖",
     "codex": "supported:ESM CDN + SVG;传显式容器后临时节点留在 sandbox iframe 内"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "mermaid +esm grep `document.head`: 0 — v11 embeds styles as an inline `<style>` inside the produced SVG rather than injecting to head. No `document.body.appendChild` temp-inject found; the boot passes the shadow container as render's 3rd arg so measurement/temp DOM stays in-container (entry note: '传第三个容器参数,避免临时 SVG 落到 document.body'). One-shot render registers no persistent global listeners. Conditional: the container must be passed AND attached+visible for text getBBox measurement, and ESM lazy-loads diagram/layout deps from jsDelivr (CDN reachability).",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

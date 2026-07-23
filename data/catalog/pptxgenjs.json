@@ -137,5 +137,14 @@
       },
       "filename": "presentation.pptx"
     }
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "headless-primitive,不渲染。boot 走 write({outputType:'blob'}) —— 内存内(JSZip)构建 PPTX 二进制,不碰 DOM/head。唯一会追加下载 <a> 的是 writeFile(),boot 未用。无 CSS 注入、无 window/document 监听。产物为 Blob,零 DOM 足迹,shadow 内安全。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

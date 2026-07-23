@@ -59,5 +59,14 @@
     "artifact": "inferred-not-tested",
     "widget": "unsupported:Stitches 动态 CSS 固定写 document.head,无法满足 shadow 零足迹",
     "codex": "supported:sandbox iframe 隔离 React 与 Stitches 的 document.head 足迹"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "leva 0.10.1 打包 Stitches(+esm 命中 'stitches';@stitches/react 运行时向 document.head 注入 <style>,无重定向到 shadowRoot 的 API);package.json deps 含 @radix-ui/react-portal + @radix-ui/react-tooltip → tooltip/portal 挂 document.body;拖拽/tooltip 绑 window/document 事件。节点即便落 shadow 也失去 Stitches 样式(铁律2)且 portal 逃逸 → widget 不成立。Stitches 具体 insertRule 调用未逐行验(故 med)。",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

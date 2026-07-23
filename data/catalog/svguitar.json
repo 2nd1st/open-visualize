@@ -74,5 +74,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:构造器直接接 shadow 内 HTMLElement,输出容器内 SVG,无 CSS/font/uplink",
     "codex": "supported:ESM CDN + SVG"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "svguitar.d.ts constructor takes an HTMLElement directly (no global selector needed); renders SVG (via svg.js/rough.js) into that supplied container. No document.head style injection, no body portal, no window/document listeners — one-shot static SVG draw. Fully in-shadow.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

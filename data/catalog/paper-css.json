@@ -37,5 +37,14 @@
     "artifact": "inferred-not-tested",
     "widget": "unsupported:body/@page 选择器无法收束到 shadow 且仍保持毫米级打印语义",
     "codex": "supported:独占 sandbox iframe 可设置真实 body class、head CSS 与浏览器打印"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "no",
+    "evidence": "By design: boot itself does document.head.append(link) to load paper.css, and the CSS keys off `body.A4 .sheet` plus `@page` rules (paper.css L1,L12-21) that only resolve against the real document/body. Boot also mutates document.body.className. mm/@page print geometry cannot be re-scoped into a shadowRoot — catalog widget=unsupported is correct.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

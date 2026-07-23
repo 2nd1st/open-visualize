@@ -30,5 +30,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:正文与 CSS 落 ShadowRoot,但旧版依赖和 Tangle 构造器注册全局符号;同页只能保守单实例加载",
     "codex": "conditional:classic scripts + GitHub master,无版本钉住且许可证待核"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "Tangle.js 源码 grep 无 document.head/createElement('style')/document.body。TangleKit.js 有 addEvent('mousedown'/'mousemove') 拖拽监听(L158-159)且全库无 destroy() 清理→globalEvents=yes。TangleKit .inject() 目标是组件自身元素(spinner/箭头)非 body portal→globalDomMutation=no;CSS 为 opt-in TangleKit.css,widget boot 落 shadowRoot→globalStyleInjection=no。shadowCompatible=conditional:正文+CSS 可入 shadowRoot,但 5 个 classic script 经 boot 注入 document.head 注册页面级全局符号(window.Tangle/MooTools $),不可按 shadow 隔离,单页单实例,mootools 选择器引擎不跨 shadow 边界。",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

@@ -108,5 +108,14 @@
       },
       "filename": "document.docx"
     }
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "Verified: +esm exports `vo as Document, No as Packer, He as Paragraph, Yt as TextRun, Ph as HeadingLevel, We as AlignmentType` — all six imports real. HeadingLevel keys TITLE/HEADING_1..HEADING_6 and AlignmentType keys LEFT/CENTER/RIGHT/JUSTIFIED('both') confirmed (boot's HeadingLevel[p.heading]/AlignmentType[p.alignment] correct). index.d.ts: IRunOptions has text/bold/italics/size/color/break; ParagraphOptions has heading/alignment/spacing/children; `Packer.toBlob(file): Promise<Blob>`. Schema→boot mapping accurate. globalStyleInjection/globalDomMutation=no: +esm has 0 document.head/body, 0 createElement/appendChild/insertRule (produces a Blob, renders nothing). globalEvents=YES: bundle contains a setImmediate/postMessage polyfill IIFE that registers `window.addEventListener('message', ...)` keyed to a unique random token ('setImmediate$'+Math.random()) — benign background scheduling plumbing, not cleaned up, but only fires on its own token and never touches DOM/styles, so it does not affect shadow rendering (shadowCompatible=yes).",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

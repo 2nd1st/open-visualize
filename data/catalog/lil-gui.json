@@ -41,5 +41,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:节点与 pinned CSS link 都落 shadowRoot,injectStyles:false 阻断默认 document.head 注入",
     "codex": "supported:ESM + 固定 CSS,无 worker/wasm/uplink 依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "esm 默认经 `_injectStyles`→document.head 注入(_injectStyles x2、document.head x2),受 injectStyles 开关控制(d.ts 默认 true L334);entry boot 传 injectStyles:false 阻断,并把 pinned dist/lil-gui.css link 放进 shadowRoot。传 container 覆盖 autoPlace(默认 true,L318/321)→ 不向 body 追加。拖拽仅临时绑 window mousemove/up 并在松手解绑,无持久全局泄漏 → 节点+CSS 全落 shadow,widget 成立(与 entry supported 一致)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

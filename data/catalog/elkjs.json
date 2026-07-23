@@ -81,5 +81,14 @@
         "edges": []
       }
     }
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Headless layout engine — no DOM API surface at all (provides.shape=geometry-layout). +esm bundles its worker inline (grep: `self.onmessage` present, `new Worker` x1, `workerFactory` x6), so no <style>/body/document-listener footprint. Only side effect is spawning a Web Worker (a CSP worker-src concern, NOT a shadow-DOM isolation issue). Works identically regardless of shadow boundary.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

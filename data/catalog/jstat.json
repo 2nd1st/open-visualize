@@ -41,5 +41,14 @@
   "boot": {
     "shared": "// 三载体一致：纯 JS、无 DOM/uplink/shadow 足迹\nimport jStatModule from 'https://cdn.jsdelivr.net/npm/jstat@1/+esm';\nconst jStat = jStatModule.jStat ?? jStatModule;\nconst operation = data.operation ?? 'pdf';\nconst input = operation === 'inv' ? data.p : (operation === 'pdf' || operation === 'cdf' ? data.x : undefined);\nconst args = input === undefined ? data.params : [input, ...data.params];\nconst result = jStat[data.distribution][operation](...args);",
     "note": "分布名和 operation 应按 schema 白名单取值；不要把用户字符串直接当属性链执行。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Pure numeric JS: jStat[dist][op](...) returns scalars/samples with zero DOM, style, event, or window access. Headless math layer, runs identically in any context including inside a shadow root.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

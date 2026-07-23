@@ -82,5 +82,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:使用 peer ESM 并把 vis-network.min.css 显式放进 shadow,避免 standalone build 向 head 注样式",
     "codex": "supported:ESM CDN + canvas,无 worker/wasm/uplink 硬依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "no",
+    "evidence": "API correct: +esm exports named Network (F); declarations/network/Network.d.ts constructor(container:HTMLElement, data:Data, options?:Options); Edge type uses from/to (schema pins these correctly, not source/target); options physics/layout.hierarchical.enabled/interaction.hover are real; styles/vis-network.min.css returns 200 and is scoped (div.vis-network ...). globalStyleInjection=no: peer +esm injects no CSS (grep 0 head style) — catalog manually links the css into shadow. globalDomMutation=yes: Network appends the hover tooltip to document.body ('document.body.appendChild(this.popupDiv.html)') plus a transient img-measure body.append — the popup escapes shadow, but it is gated on node.title which the entry schema does NOT expose, so it is not triggered by normal schema use. globalEvents=no: autoResize adds window 'resize' but pushes removeEventListener into _cleanupCallbacks run on destroy() (verified) — cleaned, not a leak. shadowCompatible=conditional: canvas + manipulation UI render inside the provided container in shadow; only added node titles would leak a tooltip to body.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

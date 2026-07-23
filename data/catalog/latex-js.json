@@ -31,5 +31,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:parse/HtmlGenerator 可零 head 挂载；KaTeX/article/CMU CSS 与 base.js 全放 shadowRoot，字体仍需 font-cdn",
     "codex": "supported:浏览器 ESM + DOM；无 wasm/worker，CSS 与字体来自同一 pinned jsDelivr 包"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "dist/latex.mjs 里 web-component(LaTeXJSComponent)路径会 `t.head.appendChild(this.stylesAndScripts())` 注入字体/样式到 ownerDocument.head(head.appendChild x5);但 entry boot 刻意绕开 component,直接用 parse/HtmlGenerator 拿 fragment 挂 shadowRoot,故其选定路径 head-free。component 本身也支持 `this.shadow.appendChild`。字体 CMU/KaTeX 从 pinned 同包加载需 font-cdn;stylesAndScripts 含 <script> 元素,进 shadow 的执行行为未深验。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

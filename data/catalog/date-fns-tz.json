@@ -40,5 +40,14 @@
   "boot": {
     "shared": "// 三载体一致:纯 JS;jsDelivr +esm 会解析 date-fns peer\nimport { formatInTimeZone, toZonedTime, fromZonedTime } from 'https://cdn.jsdelivr.net/npm/date-fns-tz@3/+esm';\nconst label = formatInTimeZone(data.instant, data.timeZone, data.format ?? 'yyyy-MM-dd HH:mm:ssXXX');\nconst wallClock = toZonedTime(data.instant, data.timeZone);\nconst roundTripInstant = fromZonedTime(wallClock, data.timeZone);",
     "note": "toZonedTime 返回的仍是原生 Date,其默认 toString 会按浏览器本地时区显示;面向用户输出必须继续用 formatInTimeZone,不要用 Date.toString 判断目标时区。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified: +esm exports `fe as formatInTimeZone, le as fromZonedTime, S as toZonedTime, me as getTimezoneOffset` — all four import names are real named exports in 3.2.0. README confirms `getTimezoneOffset(timeZone: string, date?: Date|number): number` (matches api_surface order timeZone-then-instant). Schema instant/timeZone/format are positional-mapped correctly in boot. +esm bundle: 0 DOM/style/event APIs — pure functions over Intl. Peer date-fns ^3||^4 is real; +esm resolves it.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -84,5 +84,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:纯 DOM/SVG;样式 link 与渲染容器都挂入 shadowRoot,无 worker/wasm/font/uplink",
     "codex": "supported:jsDelivr +esm 默认导出构造器集合,外加 pinned CSS"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm 实测完全干净:无 document.head、无 createElement(\"style\")、无 document.body、无 addEventListener(grep 全空)。渲染需外置 railroad-diagrams.css,由 boot 手动供给(artifact/codex 进 head,widget 进 shadowRoot)。Diagram(...).toSVG() 返回游离 <svg>,boot 追加到目标容器(库虽有 .addTo() 默认落 document.body,但 boot 刻意改用 .toSVG())。纯 DOM/SVG,零全局副作用,shadow 内完全安全。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

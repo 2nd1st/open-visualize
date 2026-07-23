@@ -24,7 +24,7 @@
             "_default": "未提供时不显示 popover,仅聚光目标",
             "title?": "string —— 默认不显示标题",
             "description?": "string —— 默认不显示正文",
-            "side?": "'top'|'right'|'bottom'|'left'|'over' —— 默认 bottom",
+            "side?": "'top'|'right'|'bottom'|'left' —— 默认 bottom",
             "align?": "'start'|'center'|'end' —— 默认 start"
           }
         }
@@ -65,5 +65,14 @@
     "artifact": "inferred-not-tested",
     "widget": "unsupported:上游强制 document.body/document.querySelector 全局路径,不能把 overlay、popover 与目标查询限制在 shadowRoot",
     "codex": "supported:sandbox iframe 吸收 document.body 与 document.head 全局足迹;需同源 jsDelivr ESM 与 CSS"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "+esm grep: `document.body` x10, `appendChild` x13, `document.querySelector` x3 — overlay SVG and popover are appended to document.body and step targets resolved via document.querySelector (can't be scoped to a shadow root). d.ts State.__events = {onKeyup,onKeydown,onResize,onScroll,onClick} confirms global keyboard/resize/scroll/click listeners (destroy() holds refs to remove them). No runtime <style> injection (relies on external driver.css). Entry correctly marks widget 'unsupported'.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

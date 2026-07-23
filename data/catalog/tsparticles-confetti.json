@@ -47,13 +47,22 @@
     "note": "自定义 canvas 必须有显式像素高度;默认 400px,宽度取容器 clientWidth(不可用时按 640px),禁用 vh/百分比高。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:自定义 canvas 把粒子限制在 artifact 容器\nimport { confetti } from 'https://cdn.jsdelivr.net/npm/@tsparticles/confetti@4/+esm';\nconst el = document.getElementById('confetti'); el.style.height = `${spec.height ?? 400}px`;\nconst canvas = document.createElement('canvas'); canvas.style.cssText = `width:100%;height:${spec.height ?? 400}px;display:block`;\ncanvas.width = el.clientWidth || 640; canvas.height = spec.height ?? 400; el.appendChild(canvas);\nconst fire = await confetti.create(canvas, data.options ?? {});",
-    "widget": "// canvas 直接落 shadow 容器,无 CSS/head 注入\nimport { confetti } from 'https://cdn.jsdelivr.net/npm/@tsparticles/confetti@4/+esm';\nconst el = document.createElement('div'); el.style.height = `${spec.height ?? 400}px`; shadowRoot.appendChild(el);\nconst canvas = document.createElement('canvas'); canvas.style.cssText = `width:100%;height:${spec.height ?? 400}px;display:block`;\ncanvas.width = el.clientWidth || 640; canvas.height = spec.height ?? 400; el.appendChild(canvas);\nconst fire = await confetti.create(canvas, data.options ?? {});",
-    "codex": "import { confetti } from 'https://cdn.jsdelivr.net/npm/@tsparticles/confetti@4/+esm';\nconst el = document.getElementById('confetti'); el.style.height = `${spec.height ?? 400}px`;\nconst canvas = document.createElement('canvas'); canvas.style.cssText = `width:100%;height:${spec.height ?? 400}px;display:block`;\ncanvas.width = el.clientWidth || 640; canvas.height = spec.height ?? 400; el.appendChild(canvas);\nconst fire = await confetti.create(canvas, data.options ?? {});"
+    "artifact": "// inferred-not-tested:自定义 canvas 把粒子限制在 artifact 容器\nimport { confetti } from 'https://cdn.jsdelivr.net/npm/@tsparticles/confetti@4/+esm';\nconst el = document.getElementById('confetti'); el.style.height = `${spec.height ?? 400}px`;\nconst canvas = document.createElement('canvas'); canvas.style.cssText = `width:100%;height:${spec.height ?? 400}px;display:block`;\ncanvas.width = el.clientWidth || 640; canvas.height = spec.height ?? 400; el.appendChild(canvas);\nconst fire = await confetti.create(canvas, {}); await fire(data.options ?? {});  // create 只绑定 canvas 返回 fire,必须再调用才发射",
+    "widget": "// canvas 直接落 shadow 容器,无 CSS/head 注入\nimport { confetti } from 'https://cdn.jsdelivr.net/npm/@tsparticles/confetti@4/+esm';\nconst el = document.createElement('div'); el.style.height = `${spec.height ?? 400}px`; shadowRoot.appendChild(el);\nconst canvas = document.createElement('canvas'); canvas.style.cssText = `width:100%;height:${spec.height ?? 400}px;display:block`;\ncanvas.width = el.clientWidth || 640; canvas.height = spec.height ?? 400; el.appendChild(canvas);\nconst fire = await confetti.create(canvas, {}); await fire(data.options ?? {});  // create 只绑定 canvas 返回 fire,必须再调用才发射",
+    "codex": "import { confetti } from 'https://cdn.jsdelivr.net/npm/@tsparticles/confetti@4/+esm';\nconst el = document.getElementById('confetti'); el.style.height = `${spec.height ?? 400}px`;\nconst canvas = document.createElement('canvas'); canvas.style.cssText = `width:100%;height:${spec.height ?? 400}px;display:block`;\ncanvas.width = el.clientWidth || 640; canvas.height = spec.height ?? 400; el.appendChild(canvas);\nconst fire = await confetti.create(canvas, {}); await fire(data.options ?? {});  // create 只绑定 canvas 返回 fire,必须再调用才发射"
   },
   "carriers": {
     "artifact": "inferred-not-tested",
     "widget": "supported:显式 canvas 落 shadowRoot,包内无 CSS/head 注入;需允许 jsDelivr ESM 与 canvas",
     "codex": "supported:ESM CDN + canvas,无 worker/wasm/uplink 硬依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "unknown",
+    "evidence": "+esm(仅 6.5KB)为惰性包装,引擎副作用在代码分割 chunk(@tsparticles/engine 及 emitters/motion/shapes/updaters),未能逐块反编译→部分轴 unknown。boot 走 confetti.create(canvas) 传入 shadowRoot 内自建 canvas,按引用绑定,不走会 append 固定定位 canvas 到 document.body 的全局 confetti(options) 形态→globalDomMutation 倾向 no;canvas 2D 渲染自足→shadowCompatible=conditional(需 provided-canvas 路径且须补 fire 调用)。tsParticles Container 一般挂 window resize/visibilitychange 并随 burst life(ticks)结束自动 destroy,未逐块确认→globalEvents=unknown。无 head/style 证据但引擎 chunk 未验→globalStyleInjection 标 no(低置信)。",
+    "confidence": "low",
+    "audited": "2026-07-23"
   }
 }

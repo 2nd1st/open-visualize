@@ -48,5 +48,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:刻谱需 ESM + Bravura font-cdn并可落 shadow;playback 额外要求 worker/worklet、WebAudio、soundfont 与用户手势",
     "codex": "conditional:纯刻谱路径支持 ESM/SVG/font-cdn;playback 路径需单独通过 wasm+webaudio 能力探针"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "API verified against @coderline/alphatab@1.8.4/dist/alphaTab.d.ts: import{AlphaTabApi} is a real named export; constructor(element:HTMLElement, options:SettingsJson|Settings) (L255); api.tex(tex:string) (L259) and api.load(scoreData:unknown):boolean (L626) — boot's tex()/load(Uint8Array) dispatch is correct. CoreSettings.engine/useWorkers/scriptFile/fontDirectory all real (L6081/6100/5970/5985); PlayerSettings.enablePlayer:boolean (L13648) and soundFont:string|null (L13610) real. Asset paths exist: dist/font/Bravura.woff2, dist/soundfont/sonivox.sf2, dist/alphaTab.mjs. HEAVY global footprint: +esm injects a music-font stylesheet into the DOCUMENT head — createElement('style'); s.id='alphaTabStyle...'; s.innerHTML=cssSource; t.getElementsByTagName('head').item(0).appendChild(s) — @font-face must be at document level (font-face rules do not apply inside a shadow root), so this is unavoidable. FontLoadingChecker appends a hidden trigger element to document.body (r.innerText='Trigger ... load'; document.body.appendChild(r)); player/export paths append audio/anchor to body. Registers window.addEventListener('resize',...) (2 sites) plus ResizeObserver. SVG renders into the provided element (can be in shadow) but the font @font-face + body probe leak to the main document → conditional, not zero-footprint.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

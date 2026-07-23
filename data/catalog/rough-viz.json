@@ -77,5 +77,14 @@
     "artifact": "inferred-not-tested",
     "widget": "unsupported:文档级定位器与内部 document.getElementById 无法定位 shadowRoot 内节点",
     "codex": "supported:ESM CDN + SVG,内嵌字体 data URL,无外部 CSS 或默认上行依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "rough-viz@2.0.5 +esm: injects a <style type='text/css'> containing @font-face (hand-drawn Gaegu/Indie-Flower fonts as base64 data URLs; @font-face x2, fontFamily x40). document.body x2 used as a transient getBBox text-measurement node (self.document.body.appendChild(n) then removeChild(n)); chart tooltips go inside this.el (select(this.el).select('.tooltip').remove()), not body. addEventListener('resize', this.resizeHandler.bind(this)) — window resize listener with inline .bind(this) (ref not cleanly removable -> leak risk). Mount + internal SVG resolved via document.getElementById x9 / document.querySelector x2 -> cannot see shadow-root subtrees, so shadow-incompatible (matches widget=unsupported).",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

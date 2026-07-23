@@ -46,5 +46,14 @@
     "widget": "// widget 内纯计算,明细再交给 shadow 内的表格组件\nimport { Loan } from 'https://cdn.jsdelivr.net/npm/loanjs@1/+esm';\nconst kind = data.kind ?? 'annuity';\nconst result = Loan(data.amount, data.installments_number,\n  data.annual_interest_percent, kind);\nconst rows = result.installments;",
     "codex": "// sandbox iframe 内直接跑纯 JS\nimport { Loan } from 'https://cdn.jsdelivr.net/npm/loanjs@1/+esm';\nconst kind = data.kind ?? 'annuity';\nconst result = Loan(data.amount, data.installments_number,\n  data.annual_interest_percent, kind);\nconst rows = result.installments;",
     "note": "jsDelivr +esm 已核对 named export Loan；不要调用同包的 loanToHtmlTable,展示层应由消费组件掌控。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Headless pure-math primitive. entry LoanJS.js re-exports dist/loan + dist/loanToHtmlTable; types.d.ts shows only pure functions returning plain objects/strings. No DOM, window, document, style, or event references anywhere on the computation path (boot uses only Loan). Fully shadow-safe because it never touches the DOM.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

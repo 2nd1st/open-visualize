@@ -32,5 +32,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:自带 shadow 样式零足迹,但运行时会从 jsDelivr 动态加载 marked、highlight.js、KaTeX/Mermaid 及主题 CSS,宿主须放行这些网络资源",
     "codex": "conditional:ESM/custom elements 可用;同样依赖 jsDelivr 动态模块与样式加载"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Core verified clean (src/lib/*.js read in full). styleInject=no: all CSS -- `<link>` github-markdown-css@5 / @highlightjs/cdn-assets@11 / katex@0 + `<style>` HOST (presets.js) -- is stamped into `.markdown-styles` INSIDE the component's own shadow root (connectedCallback attachShadow + stamp()); nothing reaches document.head. domMutation=no: only this.root.prepend()/node.append() into the shadow root; no document.body writes. events=no: click listener bound to this.shadowRoot and removed in disconnectedCallback; MutationObserver observes `this` element and disconnect()s on disconnect -- zero window/document listeners. shadow=conditional: self-encapsulates in its own shadow root (designed for it) and nests cleanly in a widget shadow, BUT at runtime dynamically import()s marked/hljs/katex/mermaid AND fetches theme CSS `<link>` from jsDelivr, so the host CSP must allow those network fetches. CAVEAT: mermaid@11 is loaded on-demand ONLY for ```mermaid code blocks; its entry does createElement('style') and mermaid is documented to inject styles + measure via top-level DOM, but its lazy render chunks were not fully traced this session -- so styleInject/domMutation could flip to yes when the markdown contains mermaid diagrams.",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

@@ -66,5 +66,14 @@
     "artifact": "inferred-not-tested",
     "widget": "unsupported:全局 document.querySelector 无法穿透 shadow root",
     "codex": "supported:普通 iframe document + Web Animations API,无额外动画依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Default import correct (+esm export{o as WheelFortune,o as default}). dist/index.d.ts WheelFortuneOptions = {rootSelector,wheelSelector,triggerSelector,rotationCount?,duration?,overshootDeg?,returnDuration?,swayOptions?{amplitude,period},spinStates?[]} and SpinState={targetAngle:number,callback?} — the entry schema matches this type field-for-field exactly; constructor(options) + init()/destroy()/reset() present. globalStyleInjection=no / globalDomMutation=no: the library injects no <style> and appends nothing to body — it only reads pre-existing elements. globalEvents=no: init() does this.triggerElement.addEventListener('click',this.onClick) on the wheel's own trigger button (not document/window) and destroy() removes it. shadowCompatible=no: init() runs document.querySelector(this.options.rootSelector) (verified in source) which cannot see elements inside a widget shadow root — exactly the entry's honest widget=unsupported. (The artifact/codex boot's own document.head <style> injection is a declared boot choice, not library behavior.)",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

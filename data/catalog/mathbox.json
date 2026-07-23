@@ -31,7 +31,7 @@
   },
   "spec": {
     "height": 480,
-    "note": "WebGL canvas 容器必须显式给 480px 高度(铁律 3 禁 vh/百分比高)；2.3.2-rc1 的 ESM 图依赖 Three.js 0.148,OrbitControls 必须匹配该版本。"
+    "note": "WebGL canvas 容器必须显式给 480px 高度(铁律 3 禁 vh/百分比高)；MathBox peer 依赖 three >=0.118.0(dev ^0.139.2);本 boot 的 OrbitControls 钉 0.148.0(在 peer 范围内,API 兼容)。"
   },
   "boot": {
     "artifact": "// inferred-not-tested；MathBox CSS 只进 document.head(铁律 2)\nimport { mathBox } from 'https://cdn.jsdelivr.net/npm/mathbox@2.3.2-rc1/+esm';\nimport { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.148.0/examples/jsm/controls/OrbitControls.js/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/mathbox@2.3.2-rc1/build/mathbox.css' }); document.head.appendChild(css);\nconst el = document.getElementById('mathbox'); el.style.height = '480px';\nconst root = mathBox({ element: el, controls: { klass: OrbitControls } });\nconst view = root.cartesian({ range: data.range ?? [[-3,3],[-2,2],[-2,2]], scale: data.scale ?? [1,1,1] });\nfor (const axis of data.axes ?? [1,2,3]) view.axis({ axis });\nif (data.curve) { const f = Function('x', 'return (' + data.curve.expression + ')'); view.interval({ width: data.curve.samples ?? 128, channels: 3, range: data.curve.domain ?? (data.range?.[0] ?? [-3,3]), expr: (emit, x) => emit(x, f(x), 0) }).line({ width: data.curve.width ?? 4, color: data.curve.color ?? 0x3090ff }); }",
@@ -64,5 +64,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:需 WebGL + ESM；canvas/overlay 与 CSS 均落 shadow,但 GPU/上下文配额须宿主探针确认",
     "codex": "conditional:需 sandbox iframe 开放 WebGL；无 worker/wasm/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "mathbox +esm grep `document.head`: 0 — CSS must be included manually (README) and the boot loads build/mathbox.css itself; WebGL canvas + HTML overlay are rendered into the passed `element` (mathBox({element})), so no head/body injection. globalEvents=yes: +esm contains a `resize` handler (threestrap resize plugin → window resize) and the boot's OrbitControls (three) attaches transient pointer listeners on the canvas ownerDocument during drag; neither explicitly destroyed by the boot. shadowCompatible=conditional: canvas+overlay+CSS can live in shadow (widget boot does this) but require a live WebGL context/GPU quota and leave a global window-resize listener.",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

@@ -42,5 +42,14 @@
   },
   "boot": {
     "shared": "// 三载体一致:jsDelivr 把该 CommonJS 包转换成 ESM,使用具名 constructor\nimport { diff_match_patch } from 'https://cdn.jsdelivr.net/npm/diff-match-patch@1/+esm';\nconst dmp = new diff_match_patch(); if (data.timeoutSeconds != null) dmp.Diff_Timeout = data.timeoutSeconds;\nconst diffs = dmp.diff_main(data.oldText, data.newText);\nif ((data.cleanup ?? 'semantic') === 'semantic') dmp.diff_cleanupSemantic(diffs);\nelse if (data.cleanup === 'efficiency') dmp.diff_cleanupEfficiency(diffs);\nconst patches = dmp.patch_make(data.oldText, diffs);"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified: +esm exports `z as diff_match_patch` (named import correct; also DIFF_DELETE=-1/DIFF_EQUAL=0/DIFF_INSERT=1). index.js confirms prototype methods diff_main/diff_cleanupSemantic/diff_cleanupEfficiency/patch_make/patch_apply and property Diff_Timeout (boot sets dmp.Diff_Timeout, calls diff_main/diff_cleanupSemantic/diff_cleanupEfficiency/patch_make(text1,diffs) — all valid). Output diffs [-1|0|1,string][] matches DIFF_DELETE/EQUAL/INSERT constants. +esm bundle: 0 DOM/style/event APIs.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

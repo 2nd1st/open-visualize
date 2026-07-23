@@ -121,5 +121,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:React 19 + ReactDOM 19 + @xyflow/react 三个 ESM 依赖;组件与官方 CSS 均落 shadow 容器",
     "codex": "supported:浏览器 React peer + DOM/SVG,无 worker/wasm/uplink 强依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "globalStyleInjection=no and globalDomMutation=no: the +esm has no createElement('style')/document.head and no document.body/portal usage (NodeToolbar/EdgeLabelRenderer render inside the flow's own DOM, not document.body); the official CSS is external and boot-placed (shadowRoot for widget). globalEvents=yes: attaches `window.addEventListener('blur', ...)` and `window.addEventListener('resize', ...)` plus keydown/keyup (useKeyPress) — all window-level, they do not cross the shadow boundary. shadowCompatible=conditional: no shadow-hostile document.querySelector/getElementById/body usage was found and it renders in the container with CSS in the shadowRoot, but it requires React 19 + ReactDOM 19 + @xyflow/react ESM all to load and React Flow has historically shadow-DOM-sensitive measurement (hence conditional, matching the catalog).",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

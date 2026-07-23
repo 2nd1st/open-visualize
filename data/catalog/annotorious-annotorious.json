@@ -107,5 +107,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:官方 CSS、img 与 SVG 覆盖层须一起放入 shadowRoot;远程图像域必须可加载",
     "codex": "conditional:ESM CDN + CSS + SVG,并依赖 image.src 可访问;跨域像素导出另受 CORS 限制"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "+esm:无 document.head/body 注入(样式走外链 annotorious.css,库运行时不注 head;grep 零 document.body);SVG 标注层渲入 img 父容器(entry 落 shadowRoot)。全局事件:`window.addEventListener('keydown',...)`(Shift 修饰键检测)+ initKeyboardCommands,均返回 cleanup 函数(destroy 清理);pointermove/多数 keydown 挂局部元素。widget 需把 CSS+img+SVG 三件套齐落 shadowRoot(entry 已做),故 conditional。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

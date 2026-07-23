@@ -34,5 +34,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:需宿主 WebGL;canvas 落 shadow 容器,无 CSS/font/uplink 足迹",
     "codex": "conditional:需 sandbox WebGL;数据内联时无额外网络请求"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "+esm 实测:`document.body.addEventListener('mouseup',this._handleMouse...)` 与 `window.addEventListener('resize',this.resize.bind(this))`;grep 无 createElement('style')/document.head,WebGL canvas 渲入传入容器(可为 shadow)。故渲染 shadow-OK 但残留全局 body/window 监听,且 bind 使 removeEventListener 困难。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -81,5 +81,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:显式 parent 使 mo.js 生成的 SVG/DOM 留在 shadow 容器,无外部 CSS",
     "codex": "supported:ESM CDN + SVG/DOM animation,无 uplink 需求"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "mo.js builds animation nodes via `createElementNS` (SVG) + innerHTML; +esm `document.head` count 0 → no head/style injection. It DOES default `parent:document.body` (found in +esm) when no parent is given, but the boot ALWAYS overrides with an explicit shadow `el` (`new Ctor({...data.options, parent: el})`), so generated SVG/DOM lands in the shadow container, not body. Animations run on requestAnimationFrame (mojs tweener), no global DOM listeners. Shadow-safe as long as the explicit parent is supplied — which the boot enforces.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

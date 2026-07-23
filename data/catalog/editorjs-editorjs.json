@@ -62,5 +62,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:需按 boot 将 Editor.js 动态注入 document.head 的新增 style 搬入 shadow;未接 tools 时仅 paragraph",
     "codex": "supported:sandbox iframe + 包内 ESM 入口;无需 worker/wasm"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "editorjs.mjs grep: `createElement('style')` x3 + `document.head` x4 → injects CSS into head (entry's widget boot migrates new head <style> into shadow via before/after diff — handled). `.body.appendChild` x3 → appends utility elements to document.body (NOT handled by boot's shadow migration; may escape shadow, though firing in paragraph-only path unconfirmed). `document.addEventListener('keydown')` + `window.addEventListener('scroll')`, with matching removeEventListener('keydown' x2,'scroll') + destroy() → global listeners exist but are cleaned up on destroy. Entry's 'conditional' marking is right; the body.appendChild footprint is an extra caveat beyond what boot documents.",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

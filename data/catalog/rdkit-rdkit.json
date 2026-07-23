@@ -34,5 +34,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:宿主须允许 WebAssembly 编译和跨源 fetch 固定 wasm;渲染结果本身为 shadow 内 SVG",
     "codex": "conditional:需 WebAssembly + jsDelivr wasm 可达;无 uplink 需求"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm 实测完全干净:无 document.head、无 document.body、无 addEventListener、无 window.onerror(grep 全空)。RDKit_minimal 为无显示的纯计算 WASM;get_svg(w,h) 返回 SVG 字符串,boot 以 el.innerHTML 落入 shadow 容器,mol.delete() 在 finally 释放 WASM 对象。shadowCompatible=yes:输出 SVG 完全 shadow 安全;唯一外部要求是宿主允许 WebAssembly 编译 + 跨源 fetch 固定 wasm(属 CSP/载体条件,非 shadow-DOM 隔离问题;与条目 widget=conditional 一致)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

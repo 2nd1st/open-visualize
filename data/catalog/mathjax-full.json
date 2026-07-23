@@ -22,13 +22,22 @@
     }
   },
   "boot": {
-    "artifact": "// inferred-not-tested:包根 /+esm 是 Node 入口；浏览器必须用官方 tex-svg component 的 ESM 转换路径\n+globalThis.MathJax = { startup: { typeset: false }, svg: { fontCache: 'local' } };\n+await import('https://cdn.jsdelivr.net/npm/mathjax-full@3/es5/tex-svg.js/+esm');\n+await globalThis.MathJax.startup.promise;\n+const node = await globalThis.MathJax.tex2svgPromise(data.tex, { display: data.display ?? false });\n+document.getElementById('math').replaceChildren(node);",
-    "widget": "// MathJax 会先把 SVG stylesheet 建到 document.head；复制进 shadow 后再挂输出节点\n+globalThis.MathJax = { startup: { typeset: false }, svg: { fontCache: 'local' } };\n+await import('https://cdn.jsdelivr.net/npm/mathjax-full@3/es5/tex-svg.js/+esm'); await globalThis.MathJax.startup.promise;\n+const node = await globalThis.MathJax.tex2svgPromise(data.tex, { display: data.display ?? false });\n+const sheet = document.getElementById('MJX-SVG-styles'); if (sheet) shadowRoot.appendChild(sheet.cloneNode(true));\n+const el = document.createElement('span'); el.replaceChildren(node); shadowRoot.appendChild(el);",
+    "artifact": "// inferred-not-tested:包根 /+esm 是 Node 入口；浏览器必须用官方 tex-svg component 的 ESM 转换路径\nglobalThis.MathJax = { startup: { typeset: false }, svg: { fontCache: 'local' } };\nawait import('https://cdn.jsdelivr.net/npm/mathjax-full@3/es5/tex-svg.js/+esm');\nawait globalThis.MathJax.startup.promise;\nconst node = await globalThis.MathJax.tex2svgPromise(data.tex, { display: data.display ?? false });\ndocument.getElementById('math').replaceChildren(node);",
+    "widget": "// MathJax 会先把 SVG stylesheet 建到 document.head；复制进 shadow 后再挂输出节点\nglobalThis.MathJax = { startup: { typeset: false }, svg: { fontCache: 'local' } };\nawait import('https://cdn.jsdelivr.net/npm/mathjax-full@3/es5/tex-svg.js/+esm'); await globalThis.MathJax.startup.promise;\nconst node = await globalThis.MathJax.tex2svgPromise(data.tex, { display: data.display ?? false });\nconst sheet = document.getElementById('MJX-SVG-styles'); if (sheet) shadowRoot.appendChild(sheet.cloneNode(true));\nconst el = document.createElement('span'); el.replaceChildren(node); shadowRoot.appendChild(el);",
     "codex": "同 artifact(sandbox iframe):预置 globalThis.MathJax 配置,导入 mathjax-full@3/es5/tex-svg.js/+esm,等待 startup.promise 后 tex2svgPromise。"
   },
   "carriers": {
     "artifact": "inferred-not-tested:SVG fontCache='local' 无字体 CDN；浏览器入口必须是 es5/tex-svg.js/+esm,不能误用 Node-only 包根",
     "widget": "conditional:须把 #MJX-SVG-styles 复制进 shadowRoot；同一 document 共享一份 MathJax 全局配置,不要并存冲突配置",
     "codex": "supported:自包含 SVG glyph,无 webfont/worker/wasm/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "unknown",
+    "evidence": "MathJax SVG output appends `<style id=\"MJX-SVG-styles\">` to document.head — id confirmed in the es5/tex-svg.js bundle, and the widget boot explicitly clones `#MJX-SVG-styles` from head into shadowRoot (acknowledging the injection). With `startup.typeset:false` the glyph node is RETURNED by tex2svgPromise and placed by the boot (no auto-append to body); it does set a JS singleton `globalThis.MathJax`. No persistent global DOM listeners expected for one-shot tex2svg but not verified (unknown). shadowCompatible=conditional: the head stylesheet must be copied into the shadow root and only one global MathJax config may exist per page.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

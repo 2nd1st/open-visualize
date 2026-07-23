@@ -39,5 +39,14 @@
   "boot": {
     "shared": "// 三载体一致:纯 JS、无 DOM/uplink/shadow 足迹\nimport spacetime from 'https://cdn.jsdelivr.net/npm/spacetime@7/+esm';\nlet dt = spacetime(data.instant, data.timeZone);\ndt = dt.goto(data.targetTimeZone ?? data.timeZone);\nconst result = dt.format(data.format ?? 'iso');",
     "note": "spacetime 的数字构造参数是毫秒 epoch;秒 epoch 必须先乘 1000,或改用 spacetime.fromUnixSeconds。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "headless-primitive: pure-JS temporal library with bundled tz data; touches no DOM/style/event API (only reads system Intl on goto(null)). Produces strings/numbers/Spacetime objects. Nothing to render → trivially shadow-safe.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

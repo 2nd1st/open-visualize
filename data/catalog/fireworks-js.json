@@ -73,5 +73,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:canvas 仅挂入 shadowRoot 内指定容器,无 CSS/head 注入;启用 sound 时另需音频 URL 权限",
     "codex": "supported:ESM CDN + canvas;默认 sound=false 时无额外网络资产"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "createCanvas() in the +esm: when a non-canvas element (the boot's div) is passed it does this.canvas=document.createElement('canvas') INSIDE the container; document.body.append fires only if the passed element is itself an *unconnected* HTMLCanvasElement (not the boot's case). No head/CSS injection; autoresize uses ResizeObserver on the container and mouse listeners bind to the canvas — no window/document.addEventListener found.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

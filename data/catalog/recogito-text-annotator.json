@@ -111,5 +111,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:官方 CSS 与被标注文本须一起位于 shadowRoot;依赖浏览器 Range 与 CSS Highlights/DOM span 渲染",
     "codex": "supported:ESM CDN + CSS + DOM Range,无图片/worker/wasm"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "Default renderer is CSS_HIGHLIGHTS: it injects a dynamic highlight-color <style> into document.head (document.createElement('style'); document.getElementsByTagName('head')[0]...) and uses the global CSS.highlights registry (new Highlight, ::highlight). It attaches document selectionchange(x2)/pointerdown/pointerup/scroll/keyup/contextmenu + window resize listeners, with cleanup (removeEventListener x10, destroy()). It observes document.body via MutationObserver and does Range boundary checks against body but appends no nodes to body. So the API works in shadow but the head <style> injection + document-global highlight registry mean the catalog's 'CSS into shadowRoot' claim understates the footprint; renderer:'SPANS' avoids it.",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

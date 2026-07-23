@@ -27,7 +27,7 @@
   },
   "boot": {
     "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合前按此推断写\nimport { Chessboard, COLOR } from 'https://cdn.jsdelivr.net/npm/cm-chessboard@8/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/cm-chessboard@8.12.14/assets/chessboard.css' });\ndocument.head.appendChild(css); // 铁律 2:artifact CSS 进 head\nconst el = document.getElementById('board'); el.style.cssText = 'width:480px;max-width:100%;height:480px';\nnew Chessboard(el, { position: data.fen, orientation: data.orientation === 'black' ? COLOR.black : COLOR.white, assetsUrl: 'https://cdn.jsdelivr.net/npm/cm-chessboard@8.12.14/assets/' });",
-    "widget": "import { Chessboard, COLOR } from 'https://cdn.jsdelivr.net/npm/cm-chessboard@8/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/cm-chessboard@8.12.14/assets/chessboard.css' });\nshadowRoot.appendChild(css); // 铁律 2:widget CSS 进 shadow\nconst el = document.createElement('div'); el.style.cssText = 'width:480px;max-width:100%;height:480px';\nshadowRoot.appendChild(el);\nnew Chessboard(el, { position: data.fen, orientation: data.orientation === 'black' ? COLOR.black : COLOR.white, assetsUrl: 'https://cdn.jsdelivr.net/npm/cm-chessboard@8.12.14/assets/' });",
+    "widget": "import { Chessboard, COLOR } from 'https://cdn.jsdelivr.net/npm/cm-chessboard@8/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/cm-chessboard@8.12.14/assets/chessboard.css' });\nshadowRoot.appendChild(css); // 铁律 2:widget CSS 进 shadow\nconst el = document.createElement('div'); el.style.cssText = 'width:480px;max-width:100%;height:480px';\nshadowRoot.appendChild(el);\nnew Chessboard(el, { position: data.fen, orientation: data.orientation === 'black' ? COLOR.black : COLOR.white, assetsUrl: 'https://cdn.jsdelivr.net/npm/cm-chessboard@8.12.14/assets/', assetsCache: false });",
     "codex": "同 artifact(sandbox iframe):ESM import jsDelivr /npm/ + head CSS + new Chessboard(el,原生 props),默认 height 480px。"
   },
   "peer": {
@@ -38,5 +38,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:CSS 必须进 shadow,棋子 SVG 从 pinned img-cdn 读取;原生构造器直接接收 shadow 内 HTMLElement",
     "codex": "supported:ESM CDN + SVG/img-cdn,无 uplink 需求"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "no",
+    "evidence": "grep of +esm: no document.head and no createElement('style') — chessboard.css is external (loaded by boot). document.body appears twice: (1) `cacheSpriteToDiv('cm-chessboard-sprite', getSpriteUrl())` appends a hidden aria-hidden sprite div via XHR to document.body on every render when assetsCache=true (default) — globalDomMutation; (2) drag ghost `createSvg(document.body)` only on active drag. Pointer listener is `mousedown` bound to the board element/context (ChessboardView l.69/94), not document/window, and move-input is disabled in the boot -> globalEvents=no. shadowCompatible=conditional: requires assetsCache:false (else <use href='#id'> can't reach the body sprite from shadow) plus CSS-in-shadow.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

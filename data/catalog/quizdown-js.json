@@ -41,5 +41,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:host 落我们的 shadowRoot,quizdown createApp 再 attachShadow,组件 CSS 自封闭",
     "codex": "conditional:使用 pinned /gh/ UMD 副作用加载并读取 globalThis.quizdown;非 npm +esm 通道"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "unknown",
+    "evidence": "STYLE=no:/gh/ build 实测无 document.head(grep 空),createApp 经 attachShadow 建自带 shadow root,Svelte 组件 CSS 封闭其中而非 document.head。DOM=no:mount 进传入 host 及其内部 nested shadow root。EVENTS=unknown:自封闭 Svelte-in-shadow,压缩 UMD 未能确证是否注册全局监听(倾向 scoped,但无直接证据)。shadowCompatible=yes:host 落我们的 shadowRoot,quizdown 再 attachShadow 一层,CSS 自封闭(与条目 widget=supported 一致)。",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

@@ -46,5 +46,14 @@
     "browse-compare"
   ],
   "owner": true,
-  "owner_note": "pick 合并 data-explore 与 browse-compare;本条以 data-explore 为 owner,两场景共用同一转换 primitive。"
+  "owner_note": "pick 合并 data-explore 与 browse-compare;本条以 data-explore 为 owner,两场景共用同一转换 primitive。",
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Headless transform primitive (markdown-it based). transform() is string→IPureNode data; getUsedAssets() RETURNS asset descriptors (IAssets{styles,scripts}) as plain data — it does not inject them. On the transform path there is no mount/render, no DOM/style/event side effect (the bundled markmap-view code is not executed unless Markmap.create is called, which this entry never does). Fully shadow-safe; any shadow concern belongs to the downstream markmap-view consumer, not this package.",
+    "confidence": "high",
+    "audited": "2026-07-23"
+  }
 }

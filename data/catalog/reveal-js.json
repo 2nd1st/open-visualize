@@ -38,5 +38,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:必须使用 embedded 实例、把核心/主题 CSS 放进 shadow,并把键盘范围限制为 focused;全屏与讲者窗口仍属 document 级能力",
     "codex": "supported:ESM、Markdown plugin、CSS 与打印均封闭在 sandbox iframe"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "reveal.js@6.0.1 +esm: createElement('style') x1 -> document.head x1 (slide scaling style); document.body x5 and document.documentElement x6 with classList add/remove ~100x (print/overview/fullscreen state toggles on body/html); addEventListener keydown x2, resize x1, scroll x1, hashchange x1 (window/document-level). Boot also appends reveal.css/theme.css (link -> head in artifact, -> shadowRoot in widget). Embedded:true contains layout in the container, but reveal's own scaling <style> targets document.head and will not reach a shadow-rooted .reveal; keyboardCondition:'focused' scopes keys but resize/hashchange/fullscreen stay document-level -> conditional in shadow.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

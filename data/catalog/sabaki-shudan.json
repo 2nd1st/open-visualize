@@ -49,5 +49,14 @@
     "artifact": "inferred-not-tested:需 ESM CDN、Preact 与 document.head CSS；CSS 还读取同版本包内 board.png",
     "widget": "conditional:挂载点与 @import CSS 可封闭在 shadowRoot；仍需允许 jsDelivr 上的 Preact、组件、CSS 与 board.png",
     "codex": "supported:ESM CDN + Preact + DOM/SVG；须加载同版本 Shudan CSS"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "@sabaki/shudan@1.8.0 +esm: the only document.* usage is createElement (Preact internal node creation); no document.head, no document.body, no window/document addEventListener. Preact render() mounts into the passed host; Marker.tooltip renders inline in the board; all interaction is via onVertex* component props (no global listeners). Component is side-effect-free but needs goban.css loaded via @import so its relative url('./board.png')/url('./stone_1.svg')/url('./stone_-1.svg') resolve against the CDN base, and that CSS routed into the same shadow root -> conditional.",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

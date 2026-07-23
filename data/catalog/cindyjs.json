@@ -8,7 +8,8 @@
   "level": "L1",
   "mode": "direct-import",
   "upstream": {
-    "github": "CindyJS/CindyJS"
+    "github": "CindyJS/CindyJS",
+    "version": "0.0.5"
   },
   "license": "Apache-2.0",
   "data_in": {
@@ -44,9 +45,9 @@
     "note": "canvas 的 width/height 属性必须是明确像素值,默认 640×400；铁律 3 禁 vh/百分比高。visibleRect 决定数学坐标范围,不是 CSS 尺寸。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:GitHub-only pick 无版本；npm 0.x 构建仅作保守 CDN 入口,需 H0 实测\nimport CindyJS from 'https://cdn.jsdelivr.net/npm/cindyjs@0/+esm';\nconst canvas = document.createElement('canvas'); canvas.width = 640; canvas.height = 400;\ndocument.getElementById('cindy').appendChild(canvas);\nconst port = { element: canvas, width: 640, height: 400, grid: data.grid ?? 0, axes: data.axes ?? false, snap: data.snap ?? false };\nif (data.visibleRect) port.transform = [{ visibleRect: data.visibleRect }];\nconst cdy = CindyJS({ ports: [port], geometry: data.geometry, scripts: data.scripts ?? {}, csconsole: null });",
-    "widget": "// 裸 canvas 不需 CindyJS.css,直接落 shadow 容器\nimport CindyJS from 'https://cdn.jsdelivr.net/npm/cindyjs@0/+esm';\nconst canvas = document.createElement('canvas'); canvas.width = 640; canvas.height = 400;\nshadowRoot.appendChild(canvas);\nconst port = { element: canvas, width: 640, height: 400, grid: data.grid ?? 0, axes: data.axes ?? false, snap: data.snap ?? false };\nif (data.visibleRect) port.transform = [{ visibleRect: data.visibleRect }];\nconst cdy = CindyJS({ ports: [port], geometry: data.geometry, scripts: data.scripts ?? {}, csconsole: null });",
-    "codex": "同 artifact(sandbox iframe):JS 创建 canvas,以 ports[0].element 传入,再调用 CindyJS 原生构造器；不用声明式自定义标签。"
+    "artifact": "// inferred-not-tested:cindyjs +esm default 是 parser 命名空间非 launcher(已核导出),必须经典脚本载 UMD 取 window.CindyJS;geometry 逐字段仍需实例验证\nawait new Promise((ok, bad) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/cindyjs@0.0.5/build/js/Cindy.js'; s.onload = ok; s.onerror = bad; document.head.appendChild(s); });\nconst CindyJS = window.CindyJS;\nconst canvas = document.createElement('canvas'); canvas.width = 640; canvas.height = 400;\ndocument.getElementById('cindy').appendChild(canvas);\nconst port = { element: canvas, width: 640, height: 400, grid: data.grid ?? 0, axes: data.axes ?? false, snap: data.snap ?? false };\nif (data.visibleRect) port.transform = [{ visibleRect: data.visibleRect }];\nconst cdy = CindyJS({ ports: [port], geometry: data.geometry, scripts: data.scripts ?? {}, csconsole: null });",
+    "widget": "// UMD 全局脚本进 document.head(CindyJS 挂 window,无法 shadow 作用域化),故 widget 非零足迹;canvas 落 shadowRoot\nawait new Promise((ok, bad) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/cindyjs@0.0.5/build/js/Cindy.js'; s.onload = ok; s.onerror = bad; document.head.appendChild(s); });\nconst CindyJS = window.CindyJS;\nconst canvas = document.createElement('canvas'); canvas.width = 640; canvas.height = 400; shadowRoot.appendChild(canvas);\nconst port = { element: canvas, width: 640, height: 400, grid: data.grid ?? 0, axes: data.axes ?? false, snap: data.snap ?? false };\nif (data.visibleRect) port.transform = [{ visibleRect: data.visibleRect }];\nconst cdy = CindyJS({ ports: [port], geometry: data.geometry, scripts: data.scripts ?? {}, csconsole: null });",
+    "codex": "await new Promise((ok, bad) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/cindyjs@0.0.5/build/js/Cindy.js'; s.onload = ok; s.onerror = bad; document.head.appendChild(s); });\nconst CindyJS = window.CindyJS;\nconst canvas = document.createElement('canvas'); canvas.width = 640; canvas.height = 400;\ndocument.getElementById('cindy').appendChild(canvas);\nconst port = { element: canvas, width: 640, height: 400, grid: data.grid ?? 0, axes: data.axes ?? false, snap: data.snap ?? false };\nif (data.visibleRect) port.transform = [{ visibleRect: data.visibleRect }];\nconst cdy = CindyJS({ ports: [port], geometry: data.geometry, scripts: data.scripts ?? {}, csconsole: null });"
   },
   "example": {
     "_why": "geometry 的 kind/type/args/齐次 pos 组合歧义高,给一个最小可拖两点成线构造。",
@@ -56,24 +57,40 @@
           "name": "A",
           "kind": "P",
           "type": "Free",
-          "pos": [-2, 0, 1],
+          "pos": [
+            -2,
+            0,
+            1
+          ],
           "labeled": true
         },
         {
           "name": "B",
           "kind": "P",
           "type": "Free",
-          "pos": [2, 1, 1],
+          "pos": [
+            2,
+            1,
+            1
+          ],
           "labeled": true
         },
         {
           "name": "a",
           "kind": "L",
           "type": "Join",
-          "args": ["A", "B"]
+          "args": [
+            "A",
+            "B"
+          ]
         }
       ],
-      "visibleRect": [-5, 4, 5, -4],
+      "visibleRect": [
+        -5,
+        4,
+        5,
+        -4
+      ],
       "axes": true
     },
     "empty": {
@@ -85,5 +102,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:纯 canvas/ESM 可落 shadow；GitHub-only pick 缺版本且 npm 入口较旧,须 H0 验证构建与 CSP",
     "codex": "conditional:需允许大体积 ESM 与 canvas；基础几何无 worker/wasm/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "unknown",
+    "globalStyleInjection": "unknown",
+    "globalDomMutation": "unknown",
+    "globalEvents": "unknown",
+    "evidence": "Loader is broken (default export is not the CindyJS function), so runtime side effects could not be exercised/verified. Static hints of global pollution: +esm assigns `window.ClipperLib=` and `window.cindyDontWait=`. CindyJS is a heavy framework distributed as a global-namespace UMD (ref/createCindy.md: 'exports a single object into the global namespace, CindyJS') and ships CindyJS.css; a real shadow-DOM run needs live H0 verification. Marked unknown, not assumed.",
+    "confidence": "low",
+    "audited": "2026-07-23"
   }
 }

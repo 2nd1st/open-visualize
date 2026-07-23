@@ -45,5 +45,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:需 React/ReactDOM、浏览器版 render 的动态模块与 iframe srcdoc;iframe 挂 shadowRoot 后无宿主 CSS 足迹",
     "codex": "conditional:jsDelivr ESM 依赖图较大但无需 worker/wasm/uplink;外部邮件图片仍受其各自 CORS/网络策略影响"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "render() produces an HTML string via server-side render (no DOM mount, no head/body writes); the catalog mounts the result through <iframe srcdoc>, so all email CSS lives inside the iframe document -> zero host head/body/shadow footprint. Works identically whether mounted in shadow or not.",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

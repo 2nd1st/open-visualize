@@ -89,5 +89,14 @@
     "artifact": "inferred-not-tested",
     "widget": "unsupported:options.element 内部固定 document.querySelector(selector),shadowRoot 查询边界不可达",
     "codex": "supported:ESM CDN 会带入 Dragula,官方 CSS 进 iframe document.head"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "库不向 document.head 注 CSS(源码无 link/head 注入),jkanban.min.css 由 boot 手动加载。boards 构建进 options.element 解析出的容器,不向 body 追加 modal/tooltip。globalEvents=yes:内置 Dragula 在 document.documentElement 上绑 mousemove/mouseup/touchmove(源码 859/920/1288/1354 行),1.3.1 无干净 destroy。shadowCompatible=no:源码 466 行 self.element=document.querySelector(self.options.element) 用全局 document 查询,无法定位 shadowRoot 内挂载点(carriers.widget=unsupported 属实)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

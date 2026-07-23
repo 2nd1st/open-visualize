@@ -88,5 +88,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:零依赖 DOM;基础 CSS 与自定义 seat cssClass 规则都须留在 shadowRoot",
     "codex": "supported:jsDelivr +esm 默认导出与官方 dist CSS 路径已核对"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "seatchart@0.1.0 +esm: builds all DOM with document.createElement x32 / appendChild x38 into the passed element (map + cart + legend render inside the container); grep found 0 document.body, 0 document.head, 0 window.addEventListener, 0 document.addEventListener. The single addEventListener('click') is a.addEventListener('click', seatClick) bound to individual seat elements, not document/window. Library injects no styles (CSS loaded by boot -> head in artifact, -> shadowRoot in widget). Zero global footprint and self-contained CSS (no external image assets) -> fully works in a shadow root (matches widget=supported).",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

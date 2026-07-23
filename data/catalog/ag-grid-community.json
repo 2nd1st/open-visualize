@@ -60,5 +60,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:createGrid 落 shadow,v36 主题样式写 grid wrapper,popupParent 显式钉到同一容器",
     "codex": "supported:ESM CDN + DOM 虚拟化,无 worker/wasm/uplink 硬依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm 全量 grep:零 `document.head`、零 `document.body`、零 `document.addEventListener`、零 `window.addEventListener`、零 adoptedStyleSheets;存在 `_getRootNode`——v36 Theming API 把主题 <style> 注入 grid 元素的 getRootNode()(在 shadow 内即注入该 shadow root,不外泄 document.head);内部 doc 监听经 getDocument()/getRootNode() 作用域化并在 destroy 清理。widget boot 另设 popupParent:el。强支持 entry『supported』。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

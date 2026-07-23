@@ -53,5 +53,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:返回的 SVG/figure 直接落 shadow 容器,无必需全局 CSS 或上行能力",
     "codex": "supported:ESM CDN + SVG,无上行依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm scan: 0 `document.head` refs; Plot generates a scoped class (e.g. `plot-d6a7b5`) and places its `<style>` INSIDE the returned figure element, so styles travel with the node into the shadow root (no head injection). 0 `document.body` -> returns a detached SVG/figure node the consumer mounts. 0 document/window addEventListener -> interactive marks (tip/pointer/crosshair) bind to the returned SVG's own elements. Returned figure with its scoped inline <style> drops straight into a shadow container.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

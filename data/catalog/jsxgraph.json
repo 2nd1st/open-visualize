@@ -132,5 +132,14 @@
     "local-tools"
   ],
   "owner": true,
-  "owner_note": "pick 合并 teach-sim 与 local-tools;本条以 teach-sim 为 owner,工具箱场景复用同一组件。"
+  "owner_note": "pick 合并 teach-sim 与 local-tools;本条以 teach-sim 为 owner,工具箱场景复用同一组件。",
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "+esm grep: no head style injection (zero createElement('style')/insertRule/head.appendChild); relies on external distrib/jsxgraph.css (200) which the boot adopts into the shadow. globalEvents=yes: registers 6× addEvent(this.document,...) drag listeners for pointermove/pointerup/mousemove/mouseup/touchmove/touchend on the shared document; teardown exists via JXG.JSXGraph.freeBoard but the boot wires none. globalDomMutation=no for the boot's path: the one `document.body.insertBefore(...,'jxgbox')` is in the string-id/auto-board container-creation helper, NOT initBoard(HTMLElement) — initBoard calls getDimensions(e) directly and only hits getElementById when `typeof e=='string'`. Shadow works given: element ref passed + jsxgraph.css in shadow + sized container attached before initBoard — the widget boot does all three.",
+    "confidence": "high",
+    "audited": "2026-07-23"
+  }
 }

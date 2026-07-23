@@ -35,5 +35,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:需宿主允许 wasm 初始化与较大 CDN 模块;输出仅落 shadow 容器内 SVG",
     "codex": "conditional:需 wasm + ESM CDN;无字体 CDN、uplink 或 worker"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Import names verified correct: dist/verovio-module.mjs ends with 'export default createVerovioModule' (default) and dist/verovio.mjs 'export { ...,VerovioToolkit,... }' (named) — matches boot. README confirms new VerovioToolkit(module) + loadData + renderToSVG(1); setOptions{scale,adjustPageHeight} and getPageCount() are real verovio API; schema fields notation(->loadData)/scale(->setOptions) match consumption. Grep of BOTH bundles incl the 6.6MB WASM glue module.mjs: 0 document.head, 0 createElement('style'), 0 document.body.append, 0 document/window addEventListener. renderToSVG returns an SVG string the consumer writes into the shadow container — zero global footprint.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

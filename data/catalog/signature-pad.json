@@ -102,5 +102,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:零依赖 Canvas/Pointer Events,挂载与全部状态都留在 shadowRoot;无 head、worker、wasm 足迹",
     "codex": "supported:单 ESM + Canvas2D;导出 PNG/JPEG/SVG 均由浏览器本地完成"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr signature_pad@5.1.3: `S as default` export matches `import SignaturePad from`. dist/types/signature_pad.d.ts: `constructor(canvas: HTMLCanvasElement, options?: Options)`, `fromData(pointGroups: PointGroup[])`, `toData(): PointGroup[]`. Schema fields are exact: PointGroupOptions{dotSize,minWidth,maxWidth,penColor,velocityFilterWeight,compositeOperation}, PointGroup extends it with points: BasicPoint[], BasicPoint{x,y,pressure,time} (point.d.ts) — all match schema.PointGroup + points. options keys (minWidth/maxWidth/penColor/backgroundColor/velocityFilterWeight/throttle/minDistance) all exist on Options. Isolation: +esm shows 0 across document.head/body/createElement('style')/document.addEventListener/window.addEventListener — pointer events are attached to the canvas element only; all state stays in the shadow-mounted canvas. Textbook shadow-safe.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

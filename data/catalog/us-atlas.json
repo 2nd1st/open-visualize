@@ -58,5 +58,14 @@
     }
   },
   "fetch_url": "https://cdn.jsdelivr.net/npm/us-atlas@3.0.1/counties-10m.json",
-  "artifact_note": "artifact 发布前应 fetch 此 pinned URL 并把 JSON 内联为常量;只有宿主明确白名单 cdn.jsdelivr.net 时才保留运行时 fetch。只需州界可换同版 states-10m.json;要免投影的 975×610 SVG/Canvas 坐标可换 counties-albers-10m.json,不要再套 d3 地理投影。"
+  "artifact_note": "artifact 发布前应 fetch 此 pinned URL 并把 JSON 内联为常量;只有宿主明确白名单 cdn.jsdelivr.net 时才保留运行时 fetch。只需州界可换同版 states-10m.json;要免投影的 975×610 SVG/Canvas 坐标可换 counties-albers-10m.json,不要再套 d3 地理投影。",
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Static TopoJSON data-asset (counties-10m.json / states-10m.json / nation-10m.json + albers variants) — no runtime code, no exports, no DOM. Rendering is done entirely by the consumer's own d3-geo/topojson code, so it is inert with respect to shadow isolation.",
+    "confidence": "high",
+    "audited": "2026-07-23"
+  }
 }

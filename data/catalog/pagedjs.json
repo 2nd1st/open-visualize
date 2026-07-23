@@ -35,5 +35,14 @@
     "artifact": "inferred-not-tested",
     "widget": "unsupported:全局 CSSOM/分页样式与 shadow 样式隔离冲突",
     "codex": "conditional:ESM 与 DOM 分页可在 sandbox iframe 闭环;外链 CSS、图片和字体仍需 CDN 可达与跨域许可"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "+esm bundle: document.head (x1) + createElement('style') (x2) + insertRule (x23) + styleEl (x4) → Polisher injects generated @page/paged stylesheets into document.head and manipulates the document CSSOM; addEventListener x3. Paginated DOM + head-scoped rules cannot be reproduced inside a shadowRoot — catalog widget=unsupported is correct.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

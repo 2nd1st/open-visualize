@@ -31,5 +31,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:纯 ESM + DOM;formatter CSS 必须按 boot 落 shadow",
     "codex": "supported:ESM CDN + 静态 HTML formatter,无 worker/wasm/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "grep of formatters/html/+esm (8.9KB): zero createElement('style')/head.appendChild/insertRule/addEventListener/onclick. Only 1 document.body reference, and it lives in the unused showUnchanged/hideUnchanged helpers (default node param) which the boot never calls. format(delta,left) returns an inert HTML string set via innerHTML into a shadow div; CSS is a separate file adopted into the shadow. Fully self-contained.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

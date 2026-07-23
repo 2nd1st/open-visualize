@@ -39,5 +39,14 @@
   "boot": {
     "shared": "// 三载体一致:纯 JS、无 DOM/uplink/shadow 足迹\nimport * as D from 'https://cdn.jsdelivr.net/npm/dinero.js@2/+esm';\nconst code = data.currency ?? 'USD', currency = D[code];\nif (!currency || typeof currency.exponent !== 'number') throw new Error('Unsupported ISO currency');\nconst money = D.dinero({ amount: data.amount, currency, ...(data.scale === undefined ? {} : { scale: data.scale }) });\nconst allocations = data.ratios === undefined ? undefined : D.allocate(money, data.ratios);\nconst result = { money, decimal: D.toDecimal(money), allocations };",
     "note": "amount/scale 必须是整数;currency 必须按导出白名单解析,不要把任意用户字符串直接当模块属性执行。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified against the REAL package root (dist/esm/index.js, not a jsDelivr artifact): it `export {USD, EUR, JPY, ... , dinero, allocate, toDecimal, toSnapshot}` — re-exporting all ISO currencies from ./currencies/index.js. So `import * as D` then D.USD/D.dinero/D.allocate/D.toDecimal all resolve. currencies/index.js: USD={code:'USD',base:10,exponent:2} (boot's typeof currency.exponter==='number' guard valid). index.d.ts: DineroFactory({amount,currency,scale?}); allocate params [dineroObject, ratios: ReadonlyArray<DineroScaledAmount|TAmount>] where DineroScaledAmount={amount,scale} — matches schema ratios Array<number|{amount,scale}> exactly. +esm bundle: 0 DOM/style/event APIs — immutable money math.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

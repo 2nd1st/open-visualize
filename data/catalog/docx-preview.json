@@ -52,5 +52,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:必须给 shadow 内独立 styleContainer,否则生成 CSS 会落错作用域;需 Blob/ArrayBuffer、JSZip 与对象 URL 浏览器能力",
     "codex": "supported:ESM CDN + 浏览器二进制/ZIP/Blob API;生成样式与文档内容均限制在 sandbox iframe"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified: +esm exports `Ot as renderAsync`; d.ts sig `renderAsync(data: Blob|any, bodyContainer: HTMLElement, styleContainer?: HTMLElement, userOptions?: Partial<Options>)` matches boot arg order exactly. All 16 schema option keys exist in Options interface; defaultOptions confirmed {breakPages:true, className:'docx', inWrapper:true, hideWrapperOnPrint:false, ignoreWidth/Height/Fonts:false, debug:false, experimental:false, trimXmlDeclaration:true,...}. globalStyleInjection=no: 0 `document.head` in source — styles are written into the caller-supplied styleContainer param (widget boot passes a shadow-internal one). globalDomMutation=no: no persistent portal; the only document.body touch is helper `function Ft(a=document.body){e=createElement('div'); a.appendChild(e); ...; a.removeChild(e)}` (called as Ft()) — a transient pt→px measuring div appended and immediately removed. globalEvents=no: 0 window/document.addEventListener. shadowCompatible=conditional: fully works in shadow DOM IF both body+style containers are shadow-internal (widget boot does this); default document.head styleSink would leak, hence conditional.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -50,5 +50,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:无依赖,DOM 与 gutter CSS 可完全封闭在 shadowRoot;boot 先解析 pane 元素以避开 document 级 selector",
     "codex": "supported:ESM CDN + pointer/touch DOM,无 worker/wasm/uplink 硬依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Library injects no <style>; gutter visuals are user CSS (boot supplies gutter CSS into shadowRoot for the widget carrier). +esm binds drag mousemove/mouseup to the panes' parent element (grep shows only parent./ .parentNode, no document.body/window/ownerDocument), removed on drag end. Gutter elements are inserted between panes inside the container, never body. Boot passes element references (not document selectors) so no document-level queries.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

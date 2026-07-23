@@ -66,5 +66,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:3.12.0 基底 CSS 在模块求值时硬写 document.head;boot 以唯一查询串动态导入并把本次 .jse-* style 移入 shadowRoot,宿主须允许动态 ESM 与 crypto.randomUUID",
     "codex": "supported:jsDelivr +esm 可得 createJSONEditor;基底样式封在 sandbox iframe head,无 worker/wasm"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "+esm (513KB): `createElement('style')` + `document.head` inject the `.jse-*` base CSS at module-eval time (1243 `.jse-` refs) — exactly the entry's claim. 4x `document.body` + 16x AbsolutePopup: context menus, color picker, and sort/transform modals can portal to body. document click/keydown/mousemove(x2)/mouseup(x2)/reset listeners (click-outside + drag). The boot's shadow strategy relocates the freshly-injected `.jse-` <style> into shadowRoot, which styles the editor body — but any popup/modal that portals to document.body would then render unstyled; requires the relocation trick + a live probe, hence conditional.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

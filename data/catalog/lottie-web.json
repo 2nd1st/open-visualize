@@ -50,5 +50,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:SVG/canvas 可落 shadow;若 animationData 引用外部 images/fonts,还需相应资源 CDN 能力",
     "codex": "supported:内联 Lottie JSON + SVG/canvas;外链资产时按 URL 能力另判"
+  },
+  "isolation": {
+    "globalStyleInjection": "no",
+    "globalDomMutation": "conditional",
+    "globalEvents": "no",
+    "shadowCompatible": "conditional",
+    "evidence": "SVG/canvas 渲入传入容器,但向 document.body 追加瞬态测量节点(append+remove)+ 持久节点(声明 fonts 的字体<link>/luma matte 的 filter<svg>)逃逸 shadow;0 window DOM 监听;仅纯内联 asset SVG 动画完全 shadow-safe",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -34,7 +34,7 @@
           "show?": "boolean —— 默认 true",
           "limit?": "number —— 默认 6",
           "colors?": "boolean —— 默认 true",
-          "names?": "boolean —— 上游字段为 propername,默认 false",
+          "names?": "boolean —— 映射到 stars.designation(Bayer/Flamsteed 标签,默认 true);专有名用 stars.propername(默认 false)",
           "size?": "positive number(px) —— 默认 7",
           "data?": "package data filename —— 默认 'stars.6.json'"
         },
@@ -136,5 +136,14 @@
     "artifact": "inferred-not-tested:需要跨源读取 pinned data/*.json,并在 iframe document.head 加 CSS",
     "widget": "unsupported:文档级 id/body/window 与 shadowRoot 不兼容",
     "codex": "conditional:需允许 jsDelivr ESM、CSS 和 pinned data/*.json 跨源读取;canvas 与交互本身无 worker/wasm 依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "celestial.js: library appends a hidden <div id='d3-celestial-svg'> to body (L4565 d3.select('body').append('div')) and resolves it via document-level id selectors; window resize listener via d3.select(window).on('resize',resize) (L99); boot additionally injects celestial.css <link> into document.head for artifact/codex. Document-level ids + body node + window resize are all incompatible with shadow encapsulation — corroborates the entry's widget=unsupported verdict.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

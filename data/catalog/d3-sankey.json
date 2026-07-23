@@ -56,5 +56,14 @@
     "artifact": "// inferred-not-tested:纯 JS 布局,不挂 DOM\nimport { sankey } from 'https://cdn.jsdelivr.net/npm/d3-sankey@0/+esm';\nconst input = { nodes: data.nodes.map(d => ({ ...d })), links: data.links.map(d => ({ ...d })) };\nconst layout = sankey().nodeId(d => d.id).nodeWidth(16).nodePadding(10).extent([[0, 0], [720, 400]]).iterations(6);\nconst graph = layout(input);\n// graph 交给 SVG/canvas 消费者",
     "widget": "import { sankey } from 'https://cdn.jsdelivr.net/npm/d3-sankey@0/+esm';\nconst input = { nodes: data.nodes.map(d => ({ ...d })), links: data.links.map(d => ({ ...d })) };\nconst layout = sankey().nodeId(d => d.id).nodeWidth(16).nodePadding(10).extent([[0, 0], [720, 400]]).iterations(6);\nconst graph = layout(input);\n// graph 仅为内存对象,不产生 shadow 外足迹",
     "codex": "import { sankey } from 'https://cdn.jsdelivr.net/npm/d3-sankey@0/+esm';\nconst input = { nodes: data.nodes.map(d => ({ ...d })), links: data.links.map(d => ({ ...d })) };\nconst layout = sankey().nodeId(d => d.id).nodeWidth(16).nodePadding(10).extent([[0, 0], [720, 400]]).iterations(6);\nconst graph = layout(input);\n// graph 交给当前 fragment 的绘图代码"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified: +esm exports `ct as sankey` (named import correct). src/sankey.js confirms methods nodeId/nodeWidth/nodePadding/extent/iterations (boot uses exactly these) and output fields node.x0/x1/y0/y1/value/depth/height/index/sourceLinks/targetLinks, link.source/target/value/width/y0/y1 (matches provides.outputs). Schema nodes[{id,name?}]/links[{source,target,value}] consistent with boot's nodeId(d=>d.id). +esm bundle: 0 document.head/body, 0 createElement/appendChild/addEventListener/insertRule — pure layout math, no rendering.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -34,5 +34,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:纯 ESM + 库生成 SVG,无 WASM/worker/CSS/font/uplink 足迹,DOM 落 shadow 容器",
     "codex": "supported:ESM CDN + SVG"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Molecule.toSVG returns a plain SVG string (dist/openchemlib.d.ts L666-671) — pure computation; boot writes it via el.innerHTML into the shadow container. No document.head/body writes, no listeners. registerCustomElement export exists but boot never calls it.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

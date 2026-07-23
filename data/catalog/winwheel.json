@@ -84,5 +84,14 @@
     "artifact": "inferred-not-tested",
     "widget": "unsupported:document.getElementById 不可见 shadow 内 canvas",
     "codex": "conditional:普通 iframe document + canvas 可用;动画还需 gsap@2 TweenMax 全局"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Constructor hard-codes `document.getElementById(canvasId)` (lib/Winwheel.js:98) to resolve its canvas — a canvas inside a widget shadowRoot is invisible to document.getElementById, so it cannot mount in shadow (matches catalog widget=unsupported). Source has no document.head/createElement('style') (no style injection), no document.body append (no DOM mutation), and no addEventListener/window listeners of its own (animation runs on GSAP's internal RAF ticker, not document events).",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

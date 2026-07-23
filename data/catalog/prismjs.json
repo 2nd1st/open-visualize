@@ -22,9 +22,9 @@
     }
   },
   "boot": {
-    "artifact": "// inferred-not-tested:artifact 的主题 CSS 必须进 document.head(铁律 2)\nimport Prism from 'https://cdn.jsdelivr.net/npm/prismjs@1/+esm';\nconst link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism.css'; document.head.appendChild(link);\nconst pre = document.createElement('pre'); const code = document.createElement('code'); const lang = data.language ?? 'javascript';\ncode.className = `language-${lang}`; code.innerHTML = Prism.highlight(data.code, Prism.languages[lang], lang); pre.appendChild(code);\ndocument.getElementById('code').replaceChildren(pre);",
-    "widget": "// 主题 CSS 取回后只落 shadow 容器(铁律 2),不污染 document.head\nimport Prism from 'https://cdn.jsdelivr.net/npm/prismjs@1/+esm';\nconst style = document.createElement('style'); style.textContent = await fetch('https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism.css').then(r => r.text()); shadowRoot.appendChild(style);\nconst pre = document.createElement('pre'); const code = document.createElement('code'); const lang = data.language ?? 'javascript';\ncode.className = `language-${lang}`; code.innerHTML = Prism.highlight(data.code, Prism.languages[lang], lang); pre.appendChild(code); shadowRoot.appendChild(pre);",
-    "codex": "// sandbox iframe:主题 CSS 进 iframe document.head\nimport Prism from 'https://cdn.jsdelivr.net/npm/prismjs@1/+esm';\nconst lang = data.language ?? 'javascript';\nconst html = Prism.highlight(data.code, Prism.languages[lang], lang);\n// 创建 pre>code.language-<lang>,写入 html;主题取 /npm/prismjs@1/themes/prism.css。"
+    "artifact": "// inferred-not-tested:artifact 的主题 CSS 必须进 document.head(铁律 2)\nimport Prism from 'https://cdn.jsdelivr.net/npm/prismjs@1/+esm';\nPrism.manual = true;  // 抑制 import 时自动 highlightAll(rAF)\nconst link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism.css'; document.head.appendChild(link);\nconst pre = document.createElement('pre'); const code = document.createElement('code'); const lang = data.language ?? 'javascript';\ncode.className = `language-${lang}`; code.innerHTML = Prism.highlight(data.code, Prism.languages[lang], lang); pre.appendChild(code);\ndocument.getElementById('code').replaceChildren(pre);",
+    "widget": "// 主题 CSS 取回后只落 shadow 容器(铁律 2),不污染 document.head\nimport Prism from 'https://cdn.jsdelivr.net/npm/prismjs@1/+esm';\nPrism.manual = true;  // 抑制 import 时自动 highlightAll(rAF)\nconst style = document.createElement('style'); style.textContent = await fetch('https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism.css').then(r => r.text()); shadowRoot.appendChild(style);\nconst pre = document.createElement('pre'); const code = document.createElement('code'); const lang = data.language ?? 'javascript';\ncode.className = `language-${lang}`; code.innerHTML = Prism.highlight(data.code, Prism.languages[lang], lang); pre.appendChild(code); shadowRoot.appendChild(pre);",
+    "codex": "// sandbox iframe:主题 CSS 进 iframe document.head\nimport Prism from 'https://cdn.jsdelivr.net/npm/prismjs@1/+esm';\nPrism.manual = true;  // 抑制 import 时自动 highlightAll(rAF)\nconst lang = data.language ?? 'javascript';\nconst html = Prism.highlight(data.code, Prism.languages[lang], lang);\n// 创建 pre>code.language-<lang>,写入 html;主题取 /npm/prismjs@1/themes/prism.css。"
   },
   "example": {
     "empty": {
@@ -36,5 +36,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:需 fetch 主题 CSS 并注入 shadow;JS 只在目标 code 节点产出 span,无 worker/wasm",
     "codex": "supported:ESM CDN + iframe head 主题 CSS"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "STYLE=no:core 实测无 document.head/createElement(\"style\")注入,主题 CSS 为外置文件(boot 手动:artifact 进 head、widget fetch 进 shadow)。EVENTS=yes:import 时经 requestAnimationFrame / document DOMContentLoaded 调度 highlightAll(实测守卫存在且 ESM 下 manual=false),未清理。DOM=yes:该 highlightAll 会 querySelectorAll(document) 扫描并改写 light DOM 内 code.language-* 节点(不触及 shadow 内容,但属全局副作用)。shadowCompatible=conditional:highlight() 产出 span 与主题 CSS 在 shadow 内工作完好,唯 import 期自动 highlightAll 是未隔离的全局行为(可用 Prism.manual=true 抑制)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

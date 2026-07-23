@@ -97,5 +97,14 @@
     "artifact": "inferred-not-tested",
     "widget": "unsupported:ESM 硬注入 document.head 且无独立 CSS 资产,shadowRoot 内样式不可得,违反铁律 2",
     "codex": "supported:ESM CDN + SVG/DOM + pointer brush,无 worker/wasm 或默认上行依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "mjs 含 styleInject(css){...var head=document.head...} 把内置 CSS(含 .chart-tooltip 规则)注入 document.head(styleInject×2, document.head×1),且发布包无独立 .css 资产可改道 shadowRoot→shadowCompatible=no、widget unsupported 成立、globalStyleInjection=yes。document.body=0 且 window/document.addEventListener=0:tooltip 为 .chart-tooltip 元素落图表自有容器,brush/zoom 用 d3 事件绑定于自有 SVG,无 body 追加/全局窗口监听→globalDomMutation=no、globalEvents=no。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

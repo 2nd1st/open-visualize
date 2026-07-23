@@ -39,5 +39,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:主题 CSS 放入 shadowRoot,SVG 与交互 DOM 全落 shadow 容器;本 boot 未启用可选外置 tooltip",
     "codex": "supported:两个 ESM CDN 入口 + 同源 CSS + SVG,无上行依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "dist/d3-flamegraph.es.js: getName=d.data.n||d.data.name (L255), getValue=d.value||d.data.v||d.data.value (L209/257), children via internal d3.hierarchy — so schema root{name,value,children} is correct. default export=flamegraph factory; boot's flamegraph().width().height().cellHeight() + select(el).datum(root).call(chart) matches README. Chart-internal tooltip2=null (L237) and is used only `if(tooltip2)` (L521/L680); boot never calls .tooltip(), so the body-appending defaultFlamegraphTooltip (L88 `select('body').append('div')`) stays inactive — no body mutation. Theme CSS is external dist/d3-flamegraph.css (file confirmed present) which the widget boot puts into shadowRoot; library injects nothing to head and adds no window resize. SVG renders into the provided container → shadow-safe.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -100,5 +100,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:jsDelivr ESM + Roboto VFS + blob URL + iframe 均须放行；生成与预览全在 shadow 容器内，无 head CSS",
     "codex": "supported:browser ESM、Blob、object URL 与 iframe；远程 image/font 另受 img-cdn/font-cdn 策略约束"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Pure generation: createPdf(...).getBlob() produces a Blob, boot appends an <iframe src=blob:> to the given (shadow) container. No document.head CSS, no document.body append, no persistent global listeners — fonts come from the in-memory VFS, not injected. Fully shadow-containable.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

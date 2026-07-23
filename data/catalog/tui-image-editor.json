@@ -52,5 +52,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:编辑器 DOM/canvas 与两份 CSS 均落 ShadowRoot;需探针确认 includeUI 没有 document 级选择器或浮层泄漏",
     "codex": "conditional:ESM + CSS + canvas;远程图片必须满足 CORS 才能导出"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "dist UMD (1.99MB): 16x `document.body` (Fabric.js appends a hidden IText edit textarea + measurement nodes to body); `document.addEventListener('keydown'|'mousemove'|'mouseup')` + `window.addEventListener('resize'|'orientationchange'|'load')`; 1x `head.appendChild` (identity unconfirmed — note the 2 required stylesheets are boot-loaded via <link>, not auto-injected, so this is a separate small footprint). Canvas renders inside the wrapper el, but Fabric's body-anchored text-editing textarea and document-offset coordinate math are known-fragile inside shadow DOM — needs a live probe before trusting widget.",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

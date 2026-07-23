@@ -21,5 +21,14 @@
     }
   },
   "fetch_url": "https://cdn.jsdelivr.net/gh/parsimonhi/animCJK@ec5e17cca76c87587790bcbce5ea0b4d4fb753d6/{folder}/{unicode_decimal}.svg",
-  "artifact_note": "此仓库没有 picks 可用的 npm/version,故只能用固定 commit 的 jsDelivr /gh/ 路径,不能伪造 /npm/ URL；artifact 发布前应 fetch 目标 SVG、校验 text 为 <svg> 后内联进 iframe,不要依赖运行时跨域 fetch。"
+  "artifact_note": "此仓库没有 picks 可用的 npm/version,故只能用固定 commit 的 jsDelivr /gh/ 路径,不能伪造 /npm/ URL；artifact 发布前应 fetch 目标 SVG、校验 text 为 <svg> 后内联进 iframe,不要依赖运行时跨域 fetch。",
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "纯 SVG 文本资产,实读结构:`<svg>` 内含 `<style>`+`@keyframes`+`id='z20013'`(codepoint 作用域)+ clip-path 逐画动画,无 JS、无监听。<style> 位于 <svg> 内联,随 SVG 内联进 shadow root 即被作用域化,不注 document.head。注意:同一 root 内联多字符时 @keyframes 名可能撞车(多实例消费侧留意),单字符典型用法无碍。",
+    "confidence": "high",
+    "audited": "2026-07-23"
+  }
 }

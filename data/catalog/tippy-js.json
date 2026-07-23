@@ -36,5 +36,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:显式 appendTo 锚点父元素,避免默认落 document.body;核心 CSS 放 shadowRoot,Popper DOM 不越界",
     "codex": "supported:ESM CDN 会解析 @popperjs/core,另加载同版本核心 CSS"
+  },
+  "isolation": {
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "shadowCompatible": "conditional",
+    "evidence": "默认 appendTo=document.body(widget boot 用 appendTo:()=>anchor.parentElement 覆盖);模块级 document mousemove/touchstart 全局监听不清理;ESM 不自动注 CSS,tippy.css 须手动进 shadow",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

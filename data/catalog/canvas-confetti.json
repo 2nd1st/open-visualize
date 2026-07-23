@@ -56,5 +56,14 @@
     "artifact": "inferred-not-tested:custom canvas + 主线程模式,不要求 worker",
     "widget": "supported:显式 canvas 落 shadowRoot,useWorker=false,无 CSS/head/图片/font CDN 注入",
     "codex": "supported:ESM CDN + canvas；默认尊重 prefers-reduced-motion"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "+esm 导出 Mr as default + pr as create → import confetti + confetti.create 正确;README 确认 confetti.create(canvas,[globalOptions]) 的 resize/useWorker/disableForReducedMotion 三个 global option;fire(options) 的 particleCount/angle/spread/startVelocity/decay/gravity/drift/ticks/origin/colors/shapes/scalar/flat/zIndex 均真实参数;用自建 canvas(confetti.create),不走默认 confetti() 向 document.body 追加 canvas 的路径。隔离:无 CSS/head 注入(globalStyleInjection=no);canvas 落宿主/shadow 容器、无 body 突变(globalDomMutation=no);resize:true 挂 window 'resize' 监听以同步 canvas 尺寸(README 明述),实例 reset() 可清理、影响低且 shadow 安全(globalEvents=yes)。shadowCompatible=yes:自建 canvas 落 shadowRoot,useWorker=false 主线程渲染。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

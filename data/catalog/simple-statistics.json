@@ -39,5 +39,14 @@
   "boot": {
     "shared": "// 三载体一致:纯 JS、无 DOM/uplink/shadow 足迹\nimport { mean, median, quantile, sampleVariance, linearRegression, linearRegressionLine } from 'https://cdn.jsdelivr.net/npm/simple-statistics@7/+esm';\nconst summary = { mean: mean(data.values), median: median(data.values), quantile: quantile(data.values, data.quantileP ?? 0.5), sampleVariance: sampleVariance(data.values) };\nconst model = data.points?.length ? linearRegression(data.points) : null;\nconst predict = model ? linearRegressionLine(model) : null;",
     "note": "多数函数对空数组会抛错或没有统计意义;消费 AI 须先拒绝空 values,并显式选择 sampleVariance 或 variance,不可互换。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr simple-statistics@7.9.3: all named exports used by boot present in +esm (w as mean, W as median, A as quantile, I as sampleVariance, Or as linearRegression, Ur as linearRegressionLine; also fr as sampleCorrelation). Signatures from src/*.d.ts: linearRegression(data: number[][]) => {m,b}; linearRegressionLine(mb:{b,m}) => (x)=>number; sampleCorrelation(x:number[], y:number[]) => number; quantile(x:number[], p:number|number[]) => number|number[] — all match api_surface and schema (values/quantileP/points consumed exactly by boot). headless-primitive: pure-JS numeric layer, zero DOM/event/style footprint, so trivially shadow-safe (no carriers matrix needed by design).",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

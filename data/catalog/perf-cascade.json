@@ -192,5 +192,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:ESM、CSS 和 SVG 可落 shadowRoot;详情面板使用 SVG foreignObject,宿主浏览器需支持",
     "codex": "supported:jsDelivr +esm 具名 fromHar + pinned CSS,无 worker/wasm/font/uplink 需求"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "no",
+    "evidence": "ZERO document/window.addEventListener in the bundle (grep empty); all 19 listeners are on local SVG rows (returned in-tree, so shadow-safe). Library self-injects no CSS to head (perf-cascade.css is external; widget boot loads it into shadowRoot). BUT the bundle transiently appends temp nodes to document.body for SVG text-width measurement, plus a temp input for clipboard-copy (append→remove), and a `parentElement===undefined && body.appendChild` fallback. Detail panels use SVG foreignObject (host must support). Chart itself goes to the given container.",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

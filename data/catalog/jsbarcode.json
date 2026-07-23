@@ -20,7 +20,7 @@
       "value": "string —— 待编码值；EAN/UPC 等制式必须满足其位数与校验规则，空字符串为空态",
       "options?": {
         "_default": "{} —— format auto、条宽 2px、条高 100px、显示人读文本",
-        "format?": "'auto' | 'CODE128' | 'CODE128A' | 'CODE128B' | 'CODE128C' | 'EAN13' | 'EAN8' | 'EAN5' | 'EAN2' | 'UPC' | 'UPCE' | 'CODE39' | 'ITF14' | 'ITF' | 'MSI' | 'MSI10' | 'MSI11' | 'MSI1010' | 'MSI1110' | 'pharmacode' | 'codabar' —— 默认 auto",
+        "format?": "'auto' | 'CODE128' | 'CODE128A' | 'CODE128B' | 'CODE128C' | 'EAN13' | 'EAN8' | 'EAN5' | 'EAN2' | 'UPC' | 'UPCE' | 'CODE39' | 'CODE93' | 'ITF14' | 'ITF' | 'MSI' | 'MSI10' | 'MSI11' | 'MSI1010' | 'MSI1110' | 'pharmacode' | 'codabar' —— 默认 auto",
         "width?": "positive number CSS pixels/module —— 默认 2",
         "height?": "positive number CSS pixels —— 默认 100",
         "displayValue?": "boolean —— 默认 true",
@@ -62,5 +62,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:SVG 直接写入 shadowRoot 子容器，无 CSS/head、canvas、图片、字体 CDN、worker 或 wasm",
     "codex": "supported:ESM CDN + SVG DOM；非默认 webfont 由消费端自行承担字体策略"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm 内无 document.head、无 createElement(\"style\")(styleInject=no);JsBarcode(svg,value,options) 只把几何绘入传入的 SVG 元素,不向 document.body 追加 portal(domMutation=no);无 addEventListener(events=no);SVG 直接写入 shadowRoot 子容器即可(shadow=yes)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -35,5 +35,14 @@
   "boot": {
     "shared": "const s = document.createElement('script');\ns.src = 'https://cdn.jsdelivr.net/gh/NeilFraser/JS-Interpreter@45d00b0c86e48cca1bb3af0f711bc4c0d626c359/acorn_interpreter.js';\nawait new Promise((ok, fail) => { s.onload = ok; s.onerror = fail; document.head.appendChild(s); });\nconst vm = new globalThis.Interpreter(data.source);\nlet steps = 0;\nwhile (steps < (data.step_limit ?? 10000) && vm.step()) steps++;\nconst result = vm.pseudoToNative(vm.value);",
     "note": "picks 未给 npm/version,所以上述为固定 commit 的 jsDelivr /gh/ 经典脚本,不是伪造的 ESM 包；acorn_interpreter.js 已把 Acorn 与 Interpreter 合为一个浏览器文件。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "no",
+    "evidence": "headless 纯计算,无样式无渲染(styleInject=no,events=no)。载入必须向 document.head append 一个 classic loader <script> 且置 globalThis.Interpreter(Pa.Interpreter=t)命名空间污染——这是全局文档/命名空间足迹(domMutation=yes),但非 body UI portal 且属加载机制。计算结果与 shadow 无关,产出可在任意容器消费(shadow=yes)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

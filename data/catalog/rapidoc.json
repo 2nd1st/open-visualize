@@ -107,5 +107,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:custom element 自带 shadow DOM并经 createElement 挂入外层 shadowRoot;load-fonts=false 无字体 CDN,但含外部 $ref 的 spec 仍需网络/CORS",
     "codex": "supported:单 ESM custom element + 内建样式;含外部 $ref 时条件取决于 sandbox 网络与 CORS"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "STYLE=no(boot 配置下):唯一 document.head.appendChild 实测被 X 门控(X&&document.head,X=load-fonts 标志),boot 设 load-fonts=false 故不注入;LitElement 样式落自身 shadow(createRenderRoot x5、attachShadow)。若 load-fonts=true 则会注入字体 <link>。DOM=yes:实测 document.body.appendChild x3,为瞬时剪贴板(临时 <textarea>)与下载(<a>)辅助,复制/下载动作触发后自清,非常驻 portal。EVENTS=yes:实测 window.addEventListener 注册多监听 —— hashchange(深链导航)、keydown、keyup、storage、message、mousedown、mouseup、change;disconnect 时是否全清不确定。shadowCompatible=conditional:标准 shadow-DOM Web Component 可挂入外层 shadowRoot,但劫持 window hashchange 做深链、用 document.body 做剪贴板/下载、含外部 $ref 的 spec 需网络/CORS(与条目 widget=conditional 一致)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -42,5 +42,14 @@
   "boot": {
     "shared": "// 三载体一致：纯 JS、无 DOM/uplink/shadow 足迹\nimport PF from 'https://cdn.jsdelivr.net/npm/pathfinding@0/+esm';\nconst finders = { AStar: PF.AStarFinder, BreadthFirst: PF.BreadthFirstFinder, Dijkstra: PF.DijkstraFinder, BiAStar: PF.BiAStarFinder, JumpPoint: PF.JumpPointFinder };\nconst Finder = finders[data.finder ?? 'AStar'];\nconst finder = new Finder({ allowDiagonal: data.allowDiagonal ?? false, dontCrossCorners: data.dontCrossCorners ?? false, weight: data.weight ?? 1 });\nconst grid = new PF.Grid(data.matrix);\nconst path = finder.findPath(data.start[0], data.start[1], data.goal[0], data.goal[1], grid);",
     "note": "JumpPointFinder 对 diagonalMovement 的细项配置在不同小版本有差异；此条保守只传 0.4.18 普遍接受的 allowDiagonal/dontCrossCorners,复杂 JPS 策略须实测。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "headless-primitive, pure algorithmic JS (Grid + finders over a matrix). No DOM, no document.head/body, no listeners anywhere in the module. Returns [x,y][] path (or [] if unreachable). Trivially shadow-compatible / carrier-agnostic.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

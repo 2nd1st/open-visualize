@@ -35,5 +35,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:CSS 可放入 shadow 预览通用 typography 与辅助 class,但 body padding 和真实打印页语义会降级;最终打印应走 artifact/codex",
     "codex": "supported:base/theme CSS 进入 sandbox iframe head,浏览器打印能力可用"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "无运行时 JS,零自主副作用。artifact/codex boot 用 media=print 进 head(仅打印生效不污染屏幕),widget boot 采纳进 shadowRoot。但 gutenberg.css 含 body 页边距/@page/@media print 文档级规则,shadow 内 body/@page 不生效——通用 typography+辅助 class 可用,纸张页语义降级(carriers.widget=conditional)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

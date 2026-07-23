@@ -78,5 +78,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:WebGL canvas 完全落 shadow 容器,无 CSS/head/worker/uplink 依赖",
     "codex": "supported:ESM CDN + WebGL;宿主需提供 WebGL 上下文"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "Verified vs jsDelivr sigma@3.0.3: +esm ends `ir=St;export{...St as Sigma,...ir as default}` — the default export IS the Sigma class, so `import Sigma from '.../+esm'` is correct. constructor `(graph: Graph, container: HTMLElement, settings?: Partial<Settings>)` per dist/declarations/src/sigma.d.ts:56 matches `new Sigma(graph, el, data.settings ?? {})`. graphology@0 exports `w as Graph, w as default` so `import Graph from` gets the class; `graph.import(data.graph)` consumes graphology's SerializedGraph and schema fields (attributes?/nodes[{key,attributes{x,y,label?,size?,color?}}]/edges[{key?,source,target,attributes?,undirected?}]) match that canonical format. Isolation: +esm has 0 document.head, 0 createElement('style'), 0 document.body — WebGL canvas lives in the passed container; document mousemove/mouseup/touchend/touchmove + window resize are drag-capture listeners cleaned via 13 removeEventListener (renderer.kill). No style/head/body footprint → shadow-safe (globalEvents yes but non-blocking).",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

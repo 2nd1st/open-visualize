@@ -36,5 +36,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:必须使用 instance mode 并把 shadow 内 HTMLElement 作为 new p5 的第二参数；不用 global mode,无 CSS/head 注入",
     "codex": "supported:ESM CDN + canvas,无必需 worker/wasm/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "No document.head / createElement('style') / adoptedStyleSheets / insertRule in +esm (0 hits). Input listeners bind to `.elt` (canvas element, 261 refs), not window — shadow-safe. Only window-level listeners are lifecycle/error: load(x4), blur(x2), focus(x1), error(x2), unhandledrejection(x1) — global but benign; 9 removeEventListener calls clean up on instance.remove(). With node arg supplied (boot passes shadow `el`), the canvas mounts into the shadow container, not document.body. Conditional = requires instance mode + node arg, exactly as catalog states.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

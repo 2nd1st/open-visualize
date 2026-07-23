@@ -37,5 +37,14 @@
   "boot": {
     "shared": "import diff from 'https://cdn.jsdelivr.net/npm/node-htmldiff@0/+esm';\nconst html = diff(\n  data.before, data.after, data.class_name ?? null,\n  data.data_prefix ?? null, data.atomic_tags ?? null\n);\n// html 交给消费端的受信 HTML 视图",
     "note": "保守使用包的单一默认函数;不在本条内渲染或绑定回调。jsDelivr +esm 已把 0.9.4 的 CommonJS 入口转换为 default export。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm scan: 0 `document.head`, 0 `document.body`, 0 createElement('style'), 0 addEventListener. Headless string-in/string-out HTML diff; touches no DOM. Consumer mounts the returned trusted HTML wherever it wants (including a shadow root).",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

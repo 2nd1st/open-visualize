@@ -36,5 +36,14 @@
     "artifact": "inferred-not-tested:JS ESM 外还需 connect-src 访问 cdn.jsdelivr.net 的 hanzi-writer-data@2.0.1",
     "widget": "conditional:传 shadow 内 HTMLElement 而非 id；组件无外部 CSS/head 注入,但需允许字形 JSON CDN fetch",
     "codex": "conditional:支持 ESM + SVG/canvas；需联网读取 pinned 字形 JSON"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "create() 接受 HTMLElement,渲染 SVG 仅进入传入的 element;指针监听绑在 RenderTargetBase 目标节点(_getMousePoint/_getTouchPoint)而非 document/window;无 CSS/head 注入。唯一外需是默认 charDataLoader 向 cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1 fetch 字形 JSON(connect-src),不构成 DOM 全局副作用。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

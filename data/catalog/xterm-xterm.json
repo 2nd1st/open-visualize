@@ -40,5 +40,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:ESM + CSS link 均可落 shadowRoot;默认 DOM renderer,无 worker/wasm/外部图片或 uplink 需求",
     "codex": "supported:ESM CDN + DOM/CSS;仅 transcript 回放,不需要 PTY 或网络连接"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "globalStyleInjection=no: xterm creates <style> elements but appends them to its OWN subtree (`t.appendChild(this._styleElement)` and `this._screenElement.appendChild(...)` for the dimensions/theme styles) — zero `document.head` references — so styles stay inside the terminal container (the shadowRoot for widgets); the external xterm.css is boot-placed. globalDomMutation=no: terminal DOM renders inside the element passed to open(). globalEvents=yes: registers document-level listeners via `this._document.addEventListener('mouseup', ...)` (text selection), where `_document` = container.ownerDocument (shadow-aware); these are removed on terminal.dispose(), and for the disableStdin:true transcript-replay usage they are minimal. shadowCompatible=yes: uses `ownerDocument` throughout (18 refs) instead of hard `document`, and is widely used inside shadow DOM.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

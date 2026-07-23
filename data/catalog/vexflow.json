@@ -48,5 +48,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:原生 Renderer 接收 shadow 内 div,输出容器内 SVG,无 CSS/head 注入",
     "codex": "supported:ESM CDN + SVG,无 worker/wasm/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "vexflow@5 +esm exports named Factory (le), Renderer (U), EasyScore (be), System (Ai) — {Factory,Renderer} import correct. build/types confirms full boot chain: Factory.EasyScore()/System()/setContext()/getContext()/draw(); EasyScore.notes(line,options)/voice(notes,{time?:string}); System.addStave({voices}) returns Stave whose addClef/addTimeSignature complete the chain. schema easyScore/clef/time all map to consumed args. Grep of the 1.1MB bundle: 0 document.head, 0 createElement('style'), 0 body.append, 0 document/window listeners; SVGContext draws createElementNS nodes into the provided div (shadow-safe), fonts embedded in-bundle.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

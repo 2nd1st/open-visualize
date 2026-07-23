@@ -64,5 +64,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:主题 CSS 放入 shadowRoot,Grid.js DOM 全落 shadow 容器",
     "codex": "supported:ESM CDN + 同源 CSS,无上行依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "gridjs@6.2.0 +esm(52KB,document.addEventListener 出现 4 次即未别名化,故 0 计数可信):0 document.head、0 document.body、0 createElement(style)、0 insertRule → 无全局样式/DOM 注入;4 处 document.addEventListener(列宽拖拽/指针跟踪类,低危、通常随手势)。Preact 渲入容器,主题为独立静态 CSS;widget boot 把主题 CSS 与容器全落 shadowRoot,shadow 内可用。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

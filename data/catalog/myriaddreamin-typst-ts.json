@@ -34,5 +34,14 @@
     "artifact": "inferred-not-tested:WASM H0 探针尚未闭合",
     "widget": "conditional:需允许 wasm、@myriaddreamin/typst-ts-web-compiler 与 typst-ts-renderer 的 ESM 依赖；加载字体时还需 font-cdn",
     "codex": "conditional:需 wasm + 多包 ESM；默认纯源码可编译，外部字体/Typst package 另受网络策略约束"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "unknown",
+    "globalEvents": "unknown",
+    "evidence": "Main +esm: 0 `document.head` and 0 createElement(style/link) -> no global CSS injection; output of $typst.svg() is an SVG STRING the consumer mounts (boot: DOMParser+importNode into shadowRoot), so the mount target stays clean. globalDomMutation=unknown: 2 `document.body` refs in main bundle (likely offscreen font-metric measurement); WASM peer packages (typst-ts-web-compiler/renderer) not scanned. globalEvents=unknown: 1 addEventListener in main bundle (low), peers not scanned. shadowCompatible=conditional: SVG-string output mounts fine in shadow, but compiler is WASM requiring CSP wasm support + ESM peer deps (matches entry 'conditional: 需允许 wasm').",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

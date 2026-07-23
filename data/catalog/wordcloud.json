@@ -77,5 +77,14 @@
     "artifact": "inferred-not-tested:主线程 canvas,无 worker/font CDN 或外部 CSS",
     "widget": "supported:显式 canvas 落 shadowRoot,默认字体使用系统 font stack,无 document.head 注入",
     "codex": "supported:ESM CDN + canvas,无上行依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "Pure canvas — no head/style injection. `document.body.appendChild(fcanvas)` exists (src/wordcloud2.js:606) but is gated behind `if (debug)` (:604), off by default, so no body mutation in normal use. The one persistent window listener is `window.addEventListener('message', ...)` (:37) — a one-time module-load setImmediate/setZeroTimeout polyfill (singleton, harmless, doesn't cross the shadow boundary), hence globalEvents=yes-but-benign. Render-time hover/click listeners are attached to the CANVAS element and gated by settings.hover/settings.click (default off), auto-removed on 'wordcloudstart'. Catalog passes the canvas as an ELEMENT so the `document.getElementById` string-id branch (:185) is never hit — all drawing stays in-canvas within the shadow container.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

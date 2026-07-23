@@ -63,5 +63,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:React/Mantine 多 peer + 五份 CSS;须按 boot 把 CSS 全放进 shadow,菜单 portal 由 BlockNoteView 管理",
     "codex": "supported:sandbox iframe + ESM CDN;协同/Yjs 与文件上传未在本条启用"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "unknown",
+    "globalDomMutation": "yes",
+    "globalEvents": "unknown",
+    "evidence": "API 全对:@blocknote/core@0.52.1/+esm 导出 cu as BlockNoteEditor 且 static create(t) 确认,@blocknote/mantine@0.52.1/+esm 导出 le as BlockNoteView;5 份 CSS(@mantine/core@9/styles.css、@blocknote/core@0/dist/style.css、@blocknote/react@0/dist/style.css、@blocknote/mantine@0/src/mantineStyles.css、@blocknote/mantine@0/src/blocknoteStyles.css)全部 HTTP 200;data_in blocks=PartialBlock[](id/type/props/content/children)与默认 block specs 一致。隔离:@blocknote/mantine +esm 含 12 处 createPortal/Portal → SideMenu/FormattingToolbar/SlashMenu 浮层默认 portal 到 document.body、逃出 shadow(globalDomMutation=yes);Mantine v9/ProseMirror 样式注入目标与 document 级监听未活体验证(globalStyleInjection/globalEvents=unknown)。shadowCompatible=conditional:editor 主体可渲进 shadow,但菜单 portal 到 body 带不到 shadow 内 CSS → 浮层无样式(经典 React-portal-in-shadow),需把 portal 容器重定向进 shadow。",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

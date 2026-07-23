@@ -38,8 +38,8 @@
     "note": "Application.init({resizeTo:el}) 从容器 clientWidth/clientHeight 取像素尺寸；boot 把容器显式固定为 400px 高,禁止 vh/百分比高。ResizePlugin 会跟随容器尺寸变化。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:PixiJS v8 必须先 new Application 再 await init\n+import { Application, Graphics } from 'https://cdn.jsdelivr.net/npm/pixi.js@8/+esm';\n+const el = document.getElementById('pixi'); el.style.height = '400px';\n+const app = new Application(); await app.init({ resizeTo: el, background: data.background ?? '#0b1020', antialias: data.antialias ?? true });\n+app.canvas.style.display = 'block'; el.appendChild(app.canvas);\n+for (const s of data.shapes) { const g = new Graphics(); if (s.type === 'circle') g.circle(s.x, s.y, s.radius ?? 40); else g.rect(s.x, s.y, s.width ?? 80, s.height ?? 80); g.fill({ color: s.fill, alpha: s.alpha ?? 1 }); app.stage.addChild(g); }",
-    "widget": "// canvas 与场景树全部落 shadow 内普通容器,无 CSS/head 注入\n+import { Application, Graphics } from 'https://cdn.jsdelivr.net/npm/pixi.js@8/+esm';\n+const el = document.createElement('div'); el.style.height = '400px'; shadowRoot.appendChild(el);\n+const app = new Application(); await app.init({ resizeTo: el, background: data.background ?? '#0b1020', antialias: data.antialias ?? true });\n+app.canvas.style.display = 'block'; el.appendChild(app.canvas);\n+for (const s of data.shapes) { const g = new Graphics(); if (s.type === 'circle') g.circle(s.x, s.y, s.radius ?? 40); else g.rect(s.x, s.y, s.width ?? 80, s.height ?? 80); g.fill({ color: s.fill, alpha: s.alpha ?? 1 }); app.stage.addChild(g); }",
+    "artifact": "// inferred-not-tested:PixiJS v8 必须先 new Application 再 await init\nimport { Application, Graphics } from 'https://cdn.jsdelivr.net/npm/pixi.js@8/+esm';\nconst el = document.getElementById('pixi'); el.style.height = '400px';\nconst app = new Application(); await app.init({ resizeTo: el, background: data.background ?? '#0b1020', antialias: data.antialias ?? true });\napp.canvas.style.display = 'block'; el.appendChild(app.canvas);\nfor (const s of data.shapes) { const g = new Graphics(); if (s.type === 'circle') g.circle(s.x, s.y, s.radius ?? 40); else g.rect(s.x, s.y, s.width ?? 80, s.height ?? 80); g.fill({ color: s.fill, alpha: s.alpha ?? 1 }); app.stage.addChild(g); }",
+    "widget": "// canvas 与场景树全部落 shadow 内普通容器,无 CSS/head 注入\nimport { Application, Graphics } from 'https://cdn.jsdelivr.net/npm/pixi.js@8/+esm';\nconst el = document.createElement('div'); el.style.height = '400px'; shadowRoot.appendChild(el);\nconst app = new Application(); await app.init({ resizeTo: el, background: data.background ?? '#0b1020', antialias: data.antialias ?? true });\napp.canvas.style.display = 'block'; el.appendChild(app.canvas);\nfor (const s of data.shapes) { const g = new Graphics(); if (s.type === 'circle') g.circle(s.x, s.y, s.radius ?? 40); else g.rect(s.x, s.y, s.width ?? 80, s.height ?? 80); g.fill({ color: s.fill, alpha: s.alpha ?? 1 }); app.stage.addChild(g); }",
     "codex": "同 artifact(sandbox iframe):pixi.js@8/+esm 命名导入,await app.init({resizeTo:固定高容器}),挂 app.canvas 后向 app.stage 加 Graphics。"
   },
   "example": {
@@ -75,5 +75,14 @@
     "artifact": "inferred-not-tested:需 WebGL 或 Canvas renderer；基础 Graphics 无图片/CDN CSS/uplink",
     "widget": "supported:Application 生成的 canvas 可直接挂 shadow 内容器,无 document.head 注入；外部纹理另受图片 CDN/CORS 能力约束",
     "codex": "supported:ESM + WebGL/Canvas；外部 Assets URL 需另行满足 CORS"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "NO document.head.appendChild/insertRule in the bundle (confirmed absent) — style-clean. Render path appends the canvas to the given (shadow) container. However the default AccessibilitySystem registers a globalThis `keydown` and, on Tab, appends its accessibility <div> to document.body; ResizePlugin adds a window `resize` (resizeTo is used); EventSystem adds pointer/mouse listeners; image-extract appends a temp <a> only on explicit call. These are lazy/opt-in, not in the basic draw path — so the catalog's widget:'supported' is slightly optimistic; rendering is shadow-safe but accessibility adds a global keydown + body div ⇒ conditional. Cleaned on app.destroy().",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

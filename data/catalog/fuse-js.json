@@ -45,5 +45,14 @@
   "boot": {
     "shared": "// 三载体一致:纯 JS、无 DOM/uplink/shadow 足迹\nimport Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js@7/+esm';\nconst fuse = new Fuse(data.records, { keys: data.keys, includeScore: true, includeMatches: data.includeMatches ?? false, threshold: data.threshold ?? 0.6, ignoreLocation: data.ignoreLocation ?? false, isCaseSensitive: data.isCaseSensitive ?? false, minMatchCharLength: data.minMatchCharLength ?? 1 });\nconst limitConfig = data.limit == null ? undefined : { limit: data.limit };\nconst results = fuse.search(data.query, limitConfig);",
     "note": "适合浏览器内中小数据集;记录数或长文本达到会阻塞主线程的规模时改用服务端检索或 worker 方案,不要把 Fuse 当数据库索引。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "headless-primitive 纯 JS 搜索,无渲染;fuse.d.ts 仅暴露算法/数据结构类型(IFuseOptions/FuseResult/Searcher),无任何 document/window/DOM API,可在任意上下文(含 shadow)内运行。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

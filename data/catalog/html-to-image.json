@@ -54,5 +54,14 @@
   "boot": {
     "shared": "// 三载体一致:输入节点先完成字体与图片加载,再调用所需导出函数\nimport { toPng } from 'https://cdn.jsdelivr.net/npm/html-to-image@1/+esm';\nawait document.fonts?.ready;\nconst dataUrl = await toPng(data.node, data.options ?? {});",
     "note": "默认示范 PNG;若要 SVG/JPEG/Blob/Canvas/PixelData,从同一 +esm 入口改导入对应具名函数。跨域资源无 CORS 时应先改成 data URL 或同源资源。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "es/index.js grep 无 document.body / document.head / appendChild / documentElement。工作方式为克隆传入节点→内联样式→序列化为 SVG data URI→Image 绘入离屏 canvas,全程操作脱离文档的克隆与 data URL,不向 body/head 追加、不挂全局监听。可捕获 shadow 内节点(遍历子树)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

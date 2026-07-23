@@ -54,5 +54,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:custom element 通过 JS createElement 落入 shadowRoot;内部使用 DOM、ResizeObserver 与 Lit,无外部 CSS/head 注入",
     "codex": "supported:ESM CDN + custom element + ResizeObserver,无 worker/wasm/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Lit custom element,渲染进自身 shadow root,无 document.head 注入、无 document.body 追加;内部用 DOM+ResizeObserver(测行高)+ scroller 自身 scroll 监听,不绑 document 全局。boot 以 JS createElement 建 <lit-virtualizer> 落 shadowRoot(铁律4)、显式定高 400px、无外部 CSS → 完全 shadow 内工作(与 entry supported 一致)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

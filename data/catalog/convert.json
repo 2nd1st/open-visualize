@@ -40,5 +40,14 @@
     "widget": "// widget 内纯计算,无需接触 shadow DOM\nimport convert from 'https://cdn.jsdelivr.net/npm/convert@7/+esm';\nif (!Number.isFinite(data.value)) throw new Error('value must be finite');\nconst result = convert(data.value, data.from).to(data.to);\nif (!Number.isFinite(result)) throw new Error('conversion failed');",
     "codex": "// sandbox iframe 内直接跑纯 ESM\nimport convert from 'https://cdn.jsdelivr.net/npm/convert@7/+esm';\nif (!Number.isFinite(data.value)) throw new Error('value must be finite');\nconst result = convert(data.value, data.from).to(data.to);\nif (!Number.isFinite(result)) throw new Error('conversion failed');",
     "note": "jsDelivr +esm 已核对 default/named convert 导出；上游包还支持 bigint,但 strict JSON data_in 无 bigint,故本条明确裁掉。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "convert@7.0.0 +esm exports 'l as convert,l as default,q as convertMany,z as getMeasureKind,v as ms,h as MeasureKind' — default IS convert, so 'import convert from ...' resolves to the function; matches convert.d.ts signature convert<Q,U>(quantity:Q, from:U):Converter, i.e. convert(value,from).to(to). All api_surface members (convertMany, ms, getMeasureKind) are real named exports. Schema correctly restricts to JSON number (bigint path cut). Headless-primitive, zero-dependency ESM, pure computation — no DOM/style/event side effects, fully shadow-safe.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

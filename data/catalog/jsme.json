@@ -8,10 +8,10 @@
   "level": "L1",
   "mode": "direct-import",
   "upstream": {
-    "version": null,
+    "version": "2024.04.29",
     "github": "jsme-editor/jsme-editor.github.io"
   },
-  "license": null,
+  "license": "BSD-3-Clause",
   "license_note": "picks 未给 SPDX 且要求复核,故不猜许可证;上游也未提供可钉住的 release/version,CDN 使用仓库 master 路径并在载体状态中保守标注。",
   "data_in": {
     "shape": "notation-string",
@@ -35,5 +35,14 @@
     "artifact": "inferred-not-tested",
     "widget": "unsupported:上游按 document id 挂载,与 widget 必须落 ShadowRoot 的约束冲突",
     "codex": "conditional:classic-script + document-id API;GitHub master 未版本钉住且许可证待核"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "unknown",
+    "globalDomMutation": "yes",
+    "globalEvents": "unknown",
+    "evidence": "GWT 编译应用:jsme.nocache.js 为 GWT bootstrap,载入时向 document 追加隐藏 iframe/selectScript(domMutation=yes);JSApplet.JSME(id,w,h,opts) 按全局 document 的 element id 解析挂载点,无法可靠命中 shadowRoot(shadow=no,与 catalog widget:unsupported 一致)。dist 内有 jsa.css 但是否自动注入 head 未证(styleInject=unknown);GWT 是否挂 document 级监听未证(events=unknown)。",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

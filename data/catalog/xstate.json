@@ -94,5 +94,14 @@
       },
       "events": []
     }
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Headless primitive — pure JS state-machine engine with zero DOM surface (declared supply_form: headless-primitive, no carriers matrix). It touches no document, no window, no styles; it only produces actor snapshots. Trivially shadow-safe because there is nothing to place in the DOM.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

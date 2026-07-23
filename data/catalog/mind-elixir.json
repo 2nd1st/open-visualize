@@ -83,5 +83,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:必须把 MindElixir.css 与显式高度容器放进 shadowRoot;构造器接收 HTMLElement,核心 SVG/DOM 留在该容器",
     "codex": "supported:ESM CDN + CSS + SVG/DOM,无 worker/wasm"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "mind-elixir +esm greps: `document.head` count 0 (CSS is a separate file the boot links into shadow); no `document.body` reference; all 15 `addEventListener` calls bind to the container or local element nodes — confirmed `e.container.addEventListener(\"keydown\",…)`, and NO `(document|window).addEventListener` match, so keypress/contextmenu/wheel are container-scoped. Node DOM, toolbar and context menu are built under `e.container`. Result: no global style/DOM/event side effects — fully shadow-safe once the boot places CSS + the sized container in shadowRoot (entry labels this 'conditional' but the evidence supports 'yes').",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

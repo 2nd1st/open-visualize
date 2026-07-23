@@ -38,8 +38,8 @@
     "note": "Voyager 的图面与侧栏依赖有尺寸的父容器；boot 默认显式 height 560px、宽度 100%,禁止 vh/百分比高。容器宽变化由其 SVG pan/zoom 视图处理,宿主仍须保证非零 clientWidth。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:CSS 进 document.head,组件用 React 18 原生入口\n+import React from 'https://cdn.jsdelivr.net/npm/react@18/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@18/client/+esm';\n+import { Voyager, sdlToSchema } from 'https://cdn.jsdelivr.net/npm/graphql-voyager@2/+esm';\n+const style = document.createElement('style'); style.textContent = await fetch('https://cdn.jsdelivr.net/npm/graphql-voyager@2.1.0/dist/voyager.css').then(r => r.text()); document.head.appendChild(style);\n+const el = document.getElementById('voyager'); el.style.height = '560px';\n+const { sdl, ...props } = data; createRoot(el).render(React.createElement(Voyager, { ...props, introspection: sdlToSchema(sdl) }));",
-    "widget": "// CSS 与 Emotion 动态样式都落 shadow,避免写 document.head\n+import React from 'https://cdn.jsdelivr.net/npm/react@18/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@18/client/+esm';\n+import { CacheProvider } from 'https://cdn.jsdelivr.net/npm/@emotion/react@11/+esm'; import createCache from 'https://cdn.jsdelivr.net/npm/@emotion/cache@11/+esm';\n+import { Voyager, sdlToSchema } from 'https://cdn.jsdelivr.net/npm/graphql-voyager@2/+esm';\n+const style = document.createElement('style'); style.textContent = await fetch('https://cdn.jsdelivr.net/npm/graphql-voyager@2.1.0/dist/voyager.css').then(r => r.text()); shadowRoot.appendChild(style);\n+const el = document.createElement('div'); el.style.height = '560px'; shadowRoot.appendChild(el); const cache = createCache({ key: 'voyager', container: shadowRoot });\n+const { sdl, ...props } = data; createRoot(el).render(React.createElement(CacheProvider, { value: cache }, React.createElement(Voyager, { ...props, introspection: sdlToSchema(sdl) })));",
+    "artifact": "// inferred-not-tested:CSS 进 document.head,组件用 React 18 原生入口\nimport React from 'https://cdn.jsdelivr.net/npm/react@18/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@18/client/+esm';\nimport { Voyager, sdlToSchema } from 'https://cdn.jsdelivr.net/npm/graphql-voyager@2/+esm';\nconst style = document.createElement('style'); style.textContent = await fetch('https://cdn.jsdelivr.net/npm/graphql-voyager@2.1.0/dist/voyager.css').then(r => r.text()); document.head.appendChild(style);\nconst el = document.getElementById('voyager'); el.style.height = '560px';\nconst { sdl, ...props } = data; createRoot(el).render(React.createElement(Voyager, { ...props, introspection: sdlToSchema(sdl) }));",
+    "widget": "// CSS 与 Emotion 动态样式都落 shadow,避免写 document.head\nimport React from 'https://cdn.jsdelivr.net/npm/react@18/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@18/client/+esm';\nimport { CacheProvider } from 'https://cdn.jsdelivr.net/npm/@emotion/react@11/+esm'; import createCache from 'https://cdn.jsdelivr.net/npm/@emotion/cache@11/+esm';\nimport { Voyager, sdlToSchema } from 'https://cdn.jsdelivr.net/npm/graphql-voyager@2/+esm';\nconst style = document.createElement('style'); style.textContent = await fetch('https://cdn.jsdelivr.net/npm/graphql-voyager@2.1.0/dist/voyager.css').then(r => r.text()); shadowRoot.appendChild(style);\nconst el = document.createElement('div'); el.style.height = '560px'; shadowRoot.appendChild(el); const cache = createCache({ key: 'voyager', container: shadowRoot });\nconst { sdl, ...props } = data; createRoot(el).render(React.createElement(CacheProvider, { value: cache }, React.createElement(Voyager, { ...props, introspection: sdlToSchema(sdl) })));",
     "codex": "同 artifact(sandbox iframe):React 18 createRoot + graphql-voyager@2/+esm 的 Voyager/sdlToSchema；voyager.css 放 iframe head,容器高 560px。"
   },
   "example": {
@@ -61,5 +61,14 @@
     "artifact": "inferred-not-tested:需允许 jsDelivr ESM 与 voyager.css；静态 CSS 必须进 head",
     "widget": "conditional:必须把 voyager.css 放 shadow,并用 Emotion CacheProvider 将 MUI 动态样式定向到同一 shadowRoot",
     "codex": "supported:iframe 内 React/ESM/SVG pan-zoom,无必需 worker/wasm/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "unknown",
+    "globalEvents": "unknown",
+    "evidence": "1MB 单包(document.* 被别名化,负计数不可信):硬证据 createElement('style')=1(Emotion/MUI 注样式)+ new Worker=1(graphviz 布局 worker,另触 CSP worker-src);entry 自身 widget boot 引 @emotion/react CacheProvider + @emotion/cache container:shadowRoot 重定向样式并把 voyager.css 落 shadow——正是 MUI-in-shadow 标准手法,反证 Emotion 默认注 head。document.body/addEventListener 字面 grep=0 但因 minify 别名不可信,故 DOM portal(MUI Popover/Settings/DocExplorer 惯例 portal 到 body)与全局事件标 unknown。shadowCompatible=conditional:须 Emotion cache 重定向 + voyager.css 入 shadow,MUI 弹层 DOM 仍可能逃逸 body。",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

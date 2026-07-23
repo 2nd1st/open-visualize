@@ -63,5 +63,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:EditorView 原生接受 ShadowRoot,style-mod 把样式挂到该 root;holder、搜索面板与编辑 DOM 不逃逸",
     "codex": "supported:单 ESM 根包会带入 basicSetup 依赖;具体语言包按需另引"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "codemirror@6.0.2 +esm exports 'j as EditorView,v as basicSetup,A as minimalSetup' — import{basicSetup,EditorView} correct (named). @codemirror/view d.ts: EditorViewConfig extends EditorStateConfig (so doc/selection/extensions inherited) + parent?:Element (L702) + root?:Document|ShadowRoot (L710); statics EditorView.editable:Facet (L1284), EditorView.theme(spec) (L1403), EditorView.lineWrapping:Extension (L1445) all real — every boot symbol checks out. selection {anchor,head} matches EditorSelection config. Isolation: style-mod mounts styles to view.root; widget boot passes root:shadowRoot so styles land in shadowRoot.adoptedStyleSheets not document.head (style-mod mount() L94/L129-130; view uses style-mod ^4.1.0). basicSetup autocomplete tooltips default into the editor DOM subtree (no body portal unless tooltips({parent}) configured). destroy() (view d.ts L1124) unregisters managed doc/window listeners.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -44,5 +44,14 @@
   "boot": {
     "shared": "import * as Tone from 'https://cdn.jsdelivr.net/npm/tone@15/+esm';\nawait Tone.start(); // 放在 click/tap 处理器内\nconst synth = new Tone.Synth().toDestination();\nconst part = new Tone.Part((time, e) => synth.triggerAttackRelease(e.note, e.duration ?? '8n', time, e.velocity ?? 1), data.events.map(e => [e.time, e])).start(0);\nTone.getTransport().bpm.value = data.bpm ?? 120;\nTone.getTransport().start();",
     "note": "保守用法:先 await Tone.start() 再启动 Transport;浏览器不会允许页面加载时自动出声。Part/synth 由消费 AI 在结束时 dispose,这里不焊接平台生命周期。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Web Audio 引擎,不触 DOM/style/body。Tone 15 的 Tone.start() 需显式在用户手势内调用(boot 已放在 click 处理器),不自动挂 document 点击监听(旧版 StartAudioContext 已移除)。注意:AudioContext/Transport 为页面级全局单例,多实例共享同一时钟(非 style/dom/event-listener 副作用,但同页多份需消费方自管 dispose)。headless 无渲染面→shadowCompatible=yes。API 已逐一验证,内部监听未逐字节反编译,故置信 med。",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

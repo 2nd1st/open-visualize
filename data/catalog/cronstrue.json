@@ -38,5 +38,14 @@
     "artifact": "// inferred-not-tested:纯 ESM 计算,使用 i18n 子入口载入全部 locale\nimport cronstrue from 'https://cdn.jsdelivr.net/npm/cronstrue@3/i18n/+esm';\nconst text = cronstrue.toString(data.expression, { locale: data.locale ?? 'en', use24HourTimeFormat: data.use24HourTimeFormat, verbose: data.verbose ?? false, throwExceptionOnParseError: data.throwExceptionOnParseError ?? true });\n// 把 text 写入消费方自己的文本节点。",
     "widget": "// headless:shadow 内外计算相同,不触碰 DOM\nimport cronstrue from 'https://cdn.jsdelivr.net/npm/cronstrue@3/i18n/+esm';\nconst text = cronstrue.toString(data.expression, { locale: data.locale ?? 'en', use24HourTimeFormat: data.use24HourTimeFormat, verbose: data.verbose ?? false, throwExceptionOnParseError: data.throwExceptionOnParseError ?? true });\n// 消费 AI 自行显示 text。",
     "codex": "// sandbox iframe/worker 均可\nimport cronstrue from 'https://cdn.jsdelivr.net/npm/cronstrue@3/i18n/+esm';\nconst text = cronstrue.toString(data.expression, { locale: data.locale ?? 'en', use24HourTimeFormat: data.use24HourTimeFormat, verbose: data.verbose ?? false, throwExceptionOnParseError: data.throwExceptionOnParseError ?? true });"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "cronstrue@3.24.0/i18n/+esm exports a default (dist/cronstrue-i18n.d.ts: 'export default ExpressionDescriptor'), and ExpressionDescriptor has static toString(expression, {throwExceptionOnParseError,verbose,dayOfWeekStartIndexZero,monthStartIndexZero,use24HourTimeFormat,trimHoursLeadingZero,locale,logicalAndDayFields}) (expressionDescriptor.d.ts L14) — so 'import cronstrue from .../i18n/+esm; cronstrue.toString(expr,opts)' is correct. All schema option keys (locale, use24HourTimeFormat, verbose, throwExceptionOnParseError) are real Options fields. i18n subpath bundles all locales; zh_CN locale exists (dist/i18n/locales/zh_CN.d.ts) so the schema's 'simplified Chinese uses zh_CN' note is accurate. Headless-primitive: returns a plain string, touches no DOM/style/events — trivially shadow-safe.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -36,5 +36,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:ESM CDN + WebGL canvas 可完全落 ShadowRoot;无 CSS/head/uplink 依赖",
     "codex": "supported:需宿主提供 WebGL;纯几何不依赖图片或字体 CDN"
+  },
+  "isolation": {
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "shadowCompatible": "yes",
+    "evidence": "renderer.domElement(WebGL canvas)只落传入容器;无 document/window 监听(webglcontextlost 挂自身 canvas);纯几何无 CSS/字体/head 依赖",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

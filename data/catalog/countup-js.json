@@ -55,5 +55,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:只写 shadowRoot 内目标节点的 text/innerHTML，无 CSS、canvas、worker、图片或字体依赖",
     "codex": "supported:ESM CDN + requestAnimationFrame + DOM 文本"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "countup.js@2.10.1 +esm exports 'v as CountUp' — import{CountUp} correct. dist/countUp.d.ts: constructor(target:string|HTMLElement|HTMLInputElement, endVal?:number|null, options?:CountUpOptions) — boot's new CountUp(el,value,options) correct; .error:string, .start(callback?), .update(newEndVal) all real (uplink counter.update(newValue) valid). All 16 schema option keys AND their defaults match CountUpOptions exactly (startVal 0, decimalPlaces 0, duration 2, useEasing true, useGrouping true, useIndianSeparators false, smartEasingThreshold 999, smartEasingAmount 333, separator ',', decimal '.', autoAnimate false, autoAnimateDelay 200, autoAnimateOnce false, numerals []). Isolation: writes only to the target element's text/innerHTML (printValue/formatNumber) — no style injection, no body append. Default autoAnimate=false means no IntersectionObserver; when enabled it is disconnected via unobserve()/onDestroy(). Widget boot creates the span inside shadowRoot, so all writes are shadow-scoped.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

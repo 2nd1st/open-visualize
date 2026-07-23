@@ -43,5 +43,14 @@
     "widget": "unsupported:pick 未固定 npm/version,GitHub CommonJS 源不能在 widget 里作为原生 ESM 直接导入；先固定发布版本或提供审计过的 ESM 包装。",
     "codex": "unsupported:pick 未固定 npm/version；Codex 不应从浮动 master 安装。先把一个审计过的 commit/version 写回 pick,再以 package-manager import 调用 new Finance()。",
     "note": "保守校准:远端 registry 当前可见同名 0.3.0,但 picks 的 npm=null、version=null 是本条必须遵守的来源事实,因此这里不擅自把 0.3.0 写成已固定上游。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Headless CommonJS math engine (index.js: Finance.prototype.PV/FV/PMT/NPER/RATE + IPMT/PPMT/NPV/IRR, module.exports=Finance). Pure numeric computation, zero DOM/window/document access — trivially shadow-safe as it renders nothing.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

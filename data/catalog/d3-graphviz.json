@@ -33,5 +33,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:需宿主允许 @hpcc-js/wasm 的 WebAssembly 加载;useWorker:false,SVG 全落 shadow 容器",
     "codex": "conditional:需 sandbox CSP 开放 WebAssembly;主线程布局可用但大图会阻塞"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "README L161-163: d3.graphviz(selector[,options]) — 'if the selector is not a string, instead creates the renderer on the specified node', so boot's graphviz(el,{...}) with a DOM node is valid. Supported-options table + src/options.js (`this._options[option]=options[option]` for every key) confirm engine(default dot)/fit(default false)/zoom(default true)/useWorker(default true) are all real constructor options; .width()/.height()/.renderDot(dotSrc) are real methods; engine enum values (dot/neato/fdp/sfdp/circo/twopi) are a valid subset. build/d3-graphviz.js grep for document.head/document.body/getElementById/insertRule/style-injection → empty (renders SVG into the passed node; d3-zoom binds to the in-container SVG with only transient window listeners during active drag). Requires @hpcc-js/wasm WebAssembly (useWorker:false → main thread); works in shadow DOM only if host CSP allows WASM → conditional.",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

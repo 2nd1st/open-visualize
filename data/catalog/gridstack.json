@@ -88,5 +88,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:须把官方 CSS 与 .grid-stack 容器一起放入 shadowRoot;DOM 拖放本身无 worker/wasm/图片依赖",
     "codex": "supported:ESM CDN + CSS + DOM 指针交互,无必需上行"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "gridstack@13.0.0 +esm(87KB,document.addEventListener 出现即未别名化,0 计数可信):0 document.head、0 createElement(style)(改用行内 CSS 变量 --gs-cell-height,不注 stylesheet)、0 document.body(拖拽 helper 不挂 body)→ 无全局样式/DOM 注入;document.addEventListener('mousemove'/'mouseup'/'keydown') 用于拖拽/缩放/Esc,全局但随手势临时挂载。shadowCompatible=conditional:widget boot 把 gridstack.min.css 与 .grid-stack 落 shadowRoot 可行,但拖放依赖 document.elementFromPoint,shadow 内需 retarget(掉落目标检测有已知 shadow 坑)。",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

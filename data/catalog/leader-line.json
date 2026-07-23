@@ -44,5 +44,14 @@
     "artifact": "inferred-not-tested",
     "widget": "unsupported:document 级 SVG overlay 不能收进 ShadowRoot",
     "codex": "supported:DOM + SVG overlay;端点必须在同一 sandbox document"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "leader-line.min.js 把 SVG overlay 追加到 document.body(document.body x5、.body.appendChild x3、insertBefore);绑 window `addEventListener(\"resize\")` 及 mouseenter/leave/out/over;无 head 样式注入(未见 createElement('style')/head.appendChild)。overlay 以绝对 document 坐标定位、逃逸到 body,无法收进 shadowRoot;boot 未在 teardown 调 line.remove() → resize 监听与 body SVG 会泄漏 → widget 不成立。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

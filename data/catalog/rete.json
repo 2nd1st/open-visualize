@@ -137,5 +137,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:需同时加载四个 ESM 包;Area 容器位于 shadowRoot,Lit renderer 内部元素自封装,但 customElements 注册仍是页面全局一次性副作用",
     "codex": "supported:ESM CDN + DOM/SVG/custom elements;启用 rete-engine 后仍为本地 JS,无 worker/wasm 硬依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "@retejs/lit-plugin@2 +esm: 16x customElements.define (page-global, irreversible one-time custom-element registration; Lit elements self-encapsulate styles in their own per-element shadow roots so no document.head style leak). rete-area-plugin@2 +esm: addEventListener pointerdown x3 / pointermove x3 / wheel x1 / resize x1 for pan/zoom/drag (pointer move/up bind to document during drag); AreaPlugin.destroy cleans these up. Editor/area/connection render into the passed container, which the catalog widget boot places inside shadowRoot — works, but the customElements.define registrations remain page-global (not shadow-scoped).",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

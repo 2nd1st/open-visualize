@@ -50,5 +50,14 @@
     "artifact": "inferred-not-tested",
     "widget": "unsupported:构造器依赖 document.querySelector,无法原生挂载 shadow 内节点;CSS 也不是 shadow-aware",
     "codex": "conditional:sandbox iframe 需允许固定 jsDelivr classic script 与 CSS;全局 Sakura 与样式被 iframe 隔离"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "sakura-js@1.1.1 dist/sakura.min.js: 'var Sakura=function(t,e){this.el=document.querySelector(t)...}'. Petals created with document.createElement('div') and appended to this.el (the target, set position:relative/overflow:hidden by boot) — not document.body/head; library injects no style (CSS loaded by boot <link>). Render loop uses window.requestAnimationFrame with window.cancelAnimationFrame cleanup (stop()); the only addEventListener is animationend on individual petal elements — no window/document resize/scroll listener. Constructor's document.querySelector(selector) cannot resolve shadow-internal nodes and .sakura CSS targets light-DOM petals -> shadow-incompatible.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

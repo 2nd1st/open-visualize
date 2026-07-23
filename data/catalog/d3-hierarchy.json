@@ -44,5 +44,14 @@
   "boot": {
     "shared": "import { cluster, hierarchy, pack, partition, tree, treemap } from 'https://cdn.jsdelivr.net/npm/d3-hierarchy@3/+esm';\nconst root = hierarchy(data.root).sum(d => d.value ?? 0);\nconst pad = data.padding ?? 1;\nconst layouts = { tree: () => tree().size(data.size), cluster: () => cluster().size(data.size), treemap: () => treemap().size(data.size).padding(pad), pack: () => pack().size(data.size).padding(pad), partition: () => partition().size(data.size) };\nconst layout = layouts[data.layout]; if (!layout) throw new Error(`Unknown hierarchy layout: ${data.layout}`);\nconst laidOutRoot = layout()(root); const nodes = laidOutRoot.descendants();",
     "note": "这是裁剪后的共同主路径。tree/cluster 的 sum 不影响坐标;treemap/pack/partition 必须给叶节点非负 value。下游自行按布局读取 x/y/r 或 x0/y0/x1/y1。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm confirms named exports cluster/hierarchy/pack/partition/tree/treemap — boot imports all match. hierarchy(data).sum() + tree/cluster.size([w,h]) + treemap/pack.size().padding() + partition.size() are standard d3-hierarchy v3; outputs pure node geometry (tree/cluster x/y/depth/height, treemap/partition x0/y0/x1/y1, pack x/y/r) via .descendants()/.links(). Zero DOM/CSS/event API — headless primitive, shadow-irrelevant (safe).",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

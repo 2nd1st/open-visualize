@@ -99,5 +99,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:样式 link 放入 shadowRoot,canvas/DOM 全落 shadow 容器",
     "codex": "supported:ESM CDN + canvas + 同源 CSS,无上行依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "+esm (51KB): zero `document.head`, zero `document.body`, zero `createElement('style')`/`insertRule` — all DOM (wrap/over/legend/canvas) is built inside the target container; uPlot.min.css is an external file the boot links into shadowRoot. Event names mousedown/mousemove/mouseup/mouseleave/dblclick/resize are bound via an internal helper, but their targets are minified variables — uPlot's known behavior binds transient document mousemove/mouseup during drag-select + a window rect-invalidation listener, all cleared by destroy(); not byte-confirmed in this bundle. document/window events are shadow-transparent regardless, so shadowCompatible stays yes on the confirmed no-injection facts.",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

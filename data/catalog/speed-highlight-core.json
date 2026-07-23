@@ -38,5 +38,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:需 fetch 小型主题 CSS 并注入 shadow;无 wasm/worker/字体 CDN",
     "codex": "supported:原生 ESM + CSS,无 wasm/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "highlightElement only sets elm.innerHTML (index.d.ts) — library injects no style itself. Theme CSS is a boot responsibility: widget boot does fetch(default.css)→<style>→shadowRoot (in-shadow, no head pollution); artifact boot uses document.head by convention. Library runtime-imports per-language modules from the CDN (loadLanguage) → needs CSP script/import allowance. Conditional only because theme CSS must be delivered into the shadow (widget boot does this).",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

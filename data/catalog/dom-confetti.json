@@ -48,5 +48,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:粒子只用内联样式且挂在 shadowRoot 内锚点,无 head/body/外部资产",
     "codex": "supported:纯 DOM + requestAnimationFrame,无 worker/wasm/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "lib/main.js createElements() styles each particle purely inline (element.style['background-color'|width|height|position|willChange|visibility]) and does `root.appendChild(element)` where root is the caller-supplied anchor (boot creates it inside the shadow container). No `document.head`, no `createElement('style')`, no `document.body`. Animation uses requestAnimationFrame only — zero document/window addEventListener. Fully self-contained under the caller's root.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

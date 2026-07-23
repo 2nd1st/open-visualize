@@ -52,5 +52,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:纯 ESM + SVG,所有生成 DOM 落传入的 shadow 容器,无 CSS/worker/font/uplink 足迹",
     "codex": "supported:ESM CDN + SVG,无 uplink 需求"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm scan: 0 `document.head`, 0 createElement('style') -> styling via inline SVG attributes/classes, no global stylesheet. 0 `document.body` -> all SVG rendered into the passed container el via d3. 0 document/window addEventListener -> hover handlers bind to SVG elements via d3 .on(); Fretboard.d.ts exposes removeEventListeners() for cleanup. Pure ESM+SVG fully contained in the passed shadow container.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

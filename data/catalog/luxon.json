@@ -44,5 +44,14 @@
     "widget": "// widget 内纯计算,无需接触 shadow DOM\nimport { DateTime } from 'https://cdn.jsdelivr.net/npm/luxon@3/+esm';\nconst source = DateTime.fromISO(data.local_iso, { zone: data.from_zone,\n  locale: data.locale });\nif (!source.isValid) throw new Error(source.invalidExplanation);\nconst target = source.setZone(data.to_zone);\nconst result = { iso: target.toISO(), zone: target.zoneName, offset_minutes: target.offset,\n  possible_source_offsets: source.getPossibleOffsets().map(d => d.toISO()) };",
     "codex": "// sandbox iframe 内直接跑纯 ESM\nimport { DateTime } from 'https://cdn.jsdelivr.net/npm/luxon@3/+esm';\nconst source = DateTime.fromISO(data.local_iso, { zone: data.from_zone,\n  locale: data.locale });\nif (!source.isValid) throw new Error(source.invalidExplanation);\nconst target = source.setZone(data.to_zone);\nconst result = { iso: target.toISO(), zone: target.zoneName, offset_minutes: target.offset,\n  possible_source_offsets: source.getPossibleOffsets().map(d => d.toISO()) };",
     "note": "jsDelivr +esm 已核对 named DateTime；getPossibleOffsets 为 v3 API。宿主 Intl 若缺少某 IANA zone,DateTime 会 invalid,调用方必须展示错误而非猜 offset。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Headless pure-computation primitive. esm exports only date/zone classes (DateTime, Duration, Interval, Zone variants, Info, Settings); zone resolution goes through Intl.DateTimeFormat (README: no external tzdata). No DOM, document, window, style, or event references. Fully shadow-safe (never touches the DOM).",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

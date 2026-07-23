@@ -45,5 +45,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:纯 DOM/Pointer 拖拽,无 CSS/head/worker/wasm 依赖;跨列表时各列表须在同一 shadow 内并由消费 AI 配同名 group",
     "codex": "supported:单 ESM + DOM,无额外 peer"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "modular/sortable.esm.js: fallbackOnBody default false (README l.146) → drag ghost appended to rootEl.parentNode, not document.body (body ref at l.448 only used when fallbackOnBody:true, which boot never sets). Drag listeners bound via element.ownerDocument on dragstart and removed on drop; destroy() clears element listeners → no persistent leak. No <style> injected (chosen/ghost classes styled by user CSS; animation via inline transform/transition). Works within a single shadow tree; touch uses in-shadow fallback; cross-list needs same shadow+group (catalog notes this).",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

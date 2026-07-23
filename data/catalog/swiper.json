@@ -52,5 +52,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:bundle 注册的元素自带内部 shadow CSS,外层元素通过 JS createElement 挂入 widget shadowRoot;无 head 污染",
     "codex": "supported:ESM CDN + custom elements + Pointer Events,无外置 CSS/worker/wasm"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Swiper Element adopts its CSS into each element's OWN internal shadow root, not document.head (catalog note correct); navigation arrows/pagination bullets render inside that element shadow, not body. Touch and the default ResizeObserver are element-scoped. register() mutates the global customElements registry via define (benign, guarded). Only global listener is the opt-in keyboard module's document 'keydown' (keyboard default false; Swiper destroy() removes it). A swiper-container upgrades correctly when created via JS and appended to a widget shadowRoot.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

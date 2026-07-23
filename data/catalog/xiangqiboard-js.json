@@ -34,5 +34,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:静态展示可落 shadow 且 CSS 进 shadow;拖子依赖 document 级 jQuery id 选择器,shadow 下不承诺",
     "codex": "conditional:需允许 pinned /gh/ JS、CSS、棋盘 SVG 与棋子 img-cdn;无 uplink 需求"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "The library renders board DOM into the target container via jQuery `.append()` (x7) — not document.body — so no global DOM mutation. Its required CSS is an external stylesheet the boot places (document.head for artifact/codex, shadowRoot for widget); the library itself does not auto-inject style. Drag is bound via jQuery mousedown on pieces (x3) with mousemove/mouseup escalating to document/window level during an ACTIVE drag; with the boot's `draggable:false` no drag initiates, so no document-level listeners attach for static display (globalEvents=no here). shadowCompatible=conditional: static render works in shadow with CSS in the shadowRoot, but the drag path relies on document-level jQuery id selectors and isn't guaranteed in shadow (hence catalog keeps draggable:false).",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

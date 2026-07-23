@@ -68,5 +68,14 @@
       "answers": {}
     },
     "empty": { "survey": { "pages": [] }, "answers": {} }
+  },
+  "isolation": {
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "shadowCompatible": "yes",
+    "evidence": "boot 只构造 Model/设 data/validate/读 data 不渲染;bundle 里 body/resize 属未触及的 UI/ResponsivityManager;SurveyJS Model SSR/Node-safe",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

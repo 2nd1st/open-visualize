@@ -36,5 +36,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:目录生成与 scroll-spy 可用,元素和 CSS 均在 shadowRoot;上游 hash 平滑定位不穿透 ShadowRoot,boot 关闭 scrollSmooth,点击跳转若需要由消费 AI 自行处理",
     "codex": "supported:ESM CDN + CSS + document 滚动监听,标题须预先带唯一 id"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "+esm grep 无 document.head/createElement('style')/.body.appendChild(CSS 为 opt-in dist/tocbot.css,boot 手动加 <link>,widget 落 shadowRoot)→globalStyleInjection=no;目录构建于传入 tocElement 内,不 append body→globalDomMutation=no。注册 addEventListener('scroll')×2、('resize')×2、('click')×3,需 tocbot.destroy() 才清理(默认 enableUrlHashUpdateOnScroll 还会改 location.hash)→globalEvents=yes。元素+CSS 可入 shadowRoot,但 scroll-spy 依赖 document/window 滚动与 getBoundingClientRect,shadow 内部滚动可能不追踪→conditional(boot 已关 scrollSmooth)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

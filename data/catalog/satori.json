@@ -57,5 +57,14 @@
   "boot": {
     "shared": "// 三载体一致:纯布局计算;字体必须先 fetch 为 ArrayBuffer\nimport satori from 'https://cdn.jsdelivr.net/npm/satori@0/+esm';\nconst font = await fetch('https://cdn.jsdelivr.net/npm/@fontsource/inter@5/files/inter-latin-400-normal.woff').then(r => r.arrayBuffer());\nconst options = { ...data.options, fonts: data.options.fonts?.length ? data.options.fonts : [{ name: 'Inter', data: font, weight: 400, style: 'normal' }] };\nconst svg = await satori(data.element, options);",
     "note": "保守默认字体 URL 已核对且为 WOFF;只覆盖 Inter Latin。中文、阿拉伯文等必须在 data.options.fonts 传入覆盖相应字符的字体,否则不能保证 shaping。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "satori@0.28.2 is a headless-primitive: satori(element, options):Promise<string> returns an SVG string and never mounts to the DOM (exports are only default satori, init, and type-only Font/FontStyle/FontWeight/Locale/SatoriNode/SatoriOptions). No DOM, no global style/event/mutation surface; the emitted <svg> string can be placed anywhere including inside a shadow root -> fully shadow-compatible.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

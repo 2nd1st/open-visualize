@@ -39,5 +39,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:无依赖;样式 link 与 DOM 均可封闭在 shadowRoot",
     "codex": "supported:ESM CDN + CSS,无 worker/wasm/uplink 硬依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "+esm scan: 0 `document.head` and no style injection -> CSS is a separate file (nouislider.min.css) that the boot loads into shadowRoot; lib never injects styles. 0 `document.body` -> DOM built inside the target el, tooltips render inside the slider element (no body portals). globalEvents=yes: during drag it attaches pointer/mouse/touch listeners to element.ownerDocument (uses ownerDocument, not hardcoded document) and removes them on release/destroy (removeEventListener present) — transient and cleaned, not leaked. shadowCompatible=conditional: works in shadow DOM (drag tracking via ownerDocument resolves to the host document, events still fire) provided the separate CSS is loaded into the shadow root as the boot does.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

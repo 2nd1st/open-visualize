@@ -51,5 +51,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:vanilla DOM + Pointer Events,挂载点可完全位于 shadowRoot,无外部 CSS/worker/wasm",
     "codex": "supported:单一 ESM CDN,无外部资产"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "Base dragAndDrop injects no CSS (no createElement('style')/insertRule; document.head is only *queried* by the opt-in animations plugin, unused by the boot). Global footprint is transient and drag-scoped: synthetic/touch drag builds a popover='manual' div of cloned rows (top layer) that is .remove()d on drop; window 'resize' + scroll-parent 'scroll' listeners are added on dragStart and torn down via an AbortController (Pe.abort() on dragEnded). At rest there is zero footprint, so mouse-drag sorting works cleanly inside shadow.",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

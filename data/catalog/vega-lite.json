@@ -107,5 +107,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:默认 actions:false、tooltip:false 时 SVG/canvas 落 shadow 容器;开启 embed 菜单或 tooltip 会产生 shadow 外样式/DOM 足迹",
     "codex": "supported:ESM CDN + SVG/canvas;默认关闭菜单与 tooltip,无上行依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "vega-embed@7 +esm injects `<style id='vega-embed-style'>` (gated by `defaultStyle!==false`) BUT is shadow-aware: the internal root resolver returns `{root: shadowRoot, rootContainer: shadowRoot}` when `el.getRootNode()` is a ShadowRoot, else `document.head`. The widget boot appends el to shadowRoot BEFORE calling embed(), so the style scopes to shadow — no document.head footprint on that path (artifact/codex non-shadow paths do hit head). With actions:false the action menu renders inside the .vega-embed container; tooltip:false avoids the body `#vg-tooltip` element (only the head/body fallback ref is `document.head??document.body`). globalEvents=no is for the default self-contained config (view binds to its own scenegraph); not exhaustively byte-traced.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

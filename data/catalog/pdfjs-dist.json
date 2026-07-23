@@ -36,5 +36,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:canvas 可落 shadow,但宿主 CSP 必须允许从 jsDelivr 启动 module worker;worker 探针未通过时不可降格宣称 supported",
     "codex": "conditional:sandbox iframe 须允许跨源 module worker;无 uplink 需求"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Render output is a <canvas> appended to the given (shadow) container; PDF decoding runs in a Web Worker (build/pdf.worker.min.mjs, thread-based postMessage, not DOM). The single-page getDocument+render path writes nothing to document.head/body and registers no persistent window/document listeners (TextLayer/AnnotationLayer — which would — are out of scope for this canvas-only entry). Only host caveat is CSP allowing a jsDelivr module worker, not a shadow-DOM issue.",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

@@ -70,5 +70,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:React 根落 shadow,core.css 文本也只进 shadow；纯 SVG,无 worker/wasm/uplink",
     "codex": "supported:React ESM + SVG；需让 React、react-dom、Mafs 使用同一 18.3.1 实例"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "esm grep: ZERO document.head / createElement('style'/'link') / adoptedStyleSheets — all styling comes from external core.css that the boot inlines into the shadow root. No document.body / createPortal — SVG renders into the React root within the given container. Only global listener is a single `window.addEventListener('scroll')` for viewport tracking, which is React-managed (added in useEffect, torn down on unmount) — no uncleaned document-level handlers, hence globalEvents=no. shadowCompatible=yes: React root + SVG live in the shadow container and CSS text is inlined to shadow; requires (and boot ensures) a single shared React 18.3.1 instance. Confidence med — scroll-listener cleanup relies on the React effect idiom rather than a runtime-observed removeEventListener.",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

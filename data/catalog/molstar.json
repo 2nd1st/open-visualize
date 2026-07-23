@@ -35,5 +35,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:需 WebGL 且允许在 document.head 加载 classic JS;组件 UI 与 CSS 落 shadow,全屏/门户行为未探针验证",
     "codex": "conditional:需 sandbox WebGL,官方 viewer bundle 较大但数据内联时无需结构 CDN"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "unknown",
+    "globalEvents": "yes",
+    "evidence": "Full 5.03MB build/viewer/molstar.js: 0 `document.head` refs and 0 createElement('style') -> no global CSS injection, relies on external molstar.css (boot loads it into shadowRoot). globalEvents=yes: registers window blur/keydown/keypress/keyup/message/mousemove/mouseup/resize/touchend AND document fullscreenchange/pointerlock*/mousemove/mouseup/touchmove/webkitfullscreenchange (keyboard shortcuts on window persist while mounted). globalDomMutation=unknown: 4 `document.body` refs (likely fullscreen/drag-drop targets); Mol* renders UI/tooltips/menus inside the container root passed to Viewer.create, but body touchpoints exist and portal behavior was not probe-tested. shadowCompatible=conditional: external CSS loads into shadow root and rendering is container-scoped, but global window/document listeners + WebGL requirement + fullscreen body refs = non-zero footprint (matches entry's honest 'conditional; 全屏/门户行为未探针验证').",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

@@ -51,5 +51,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:需允许 Handlebars ESM、两次 pinned jsDelivr fetch 与 iframe srcdoc;所有模板 CSS 留在 shadowRoot 内的 iframe",
     "codex": "conditional:ESM CDN + pinned /gh/ 文本 fetch + iframe srcdoc 可用"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Handlebars is pure JS (no DOM). It compiles the pinned template to a full HTML string; the generated CSS lives inside that returned document via the style.css partial, and the boot mounts it through iframe srcdoc — no host head injection, no listeners. Whole-document output mandates an iframe wrapper (placed in shadowRoot); requires Handlebars ESM + two pinned /gh/ text fetches.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -68,5 +68,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:需允许 jsDelivr ESM/CSS、WebAssembly 与 blob: URL;CSS link 和播放器均在 shadowRoot,采用单体 ESM 因而无 worker 足迹",
     "codex": "conditional:需允许 WebAssembly 与 blob: URL;CSS 留在 sandbox iframe head,无 uplink 需求"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm 真实导出 ng as create → import {create} 正确(README 的 AsciinemaPlayer.create 只是 UMD 全局名)。create(src,el,{cols,rows,autoplay,speed,loop,controls,fit,idleTimeLimit}):fit/idleTimeLimit 见 README、其余标准选项;header.width→cols/height→rows 映射正确;CSS dist/bundle/asciinema-player.css 存在;asciicast v2 header{version,width,height}+events[time,'o'|'i'|'m'|'r',payload] 正确。隔离:bundle 内 0 document.body、0 document.head 注入、0 window/document 全局监听(控件监听绑自身可聚焦元素)。shadowCompatible=conditional:组件渲进 shadow 可行,但需 CSP 放行内联 WebAssembly + blob: URL。",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

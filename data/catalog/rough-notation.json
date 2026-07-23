@@ -41,5 +41,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:目标位于 shadowRoot 时,生成的绝对定位 SVG 作为同树 sibling 插入;无外置 CSS",
     "codex": "supported:ESM CDN + SVG/DOM 几何,应在字体和目标布局稳定后 show"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "rough-notation@0.5.1 +esm: createElement('style') with textContent '@keyframes rough-notation-dash { to { stroke-dashoffset... }}' appended to document.head (ensureKeyframes, one-time/idempotent). Annotation svg (createElementNS 'svg'/'path') is appended to target.parentElement as an absolutely-positioned sibling (uses .style.position + parentElement) — stays in the target's subtree (inside shadow if the target is), no document.body portal. No document/window event listeners; animation is pure CSS keyframes. Shadow works for the SVG sibling but the head-level @keyframes is unreachable from shadow -> default-animate annotation won't render unless animate:false or keyframes replicated in-shadow.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -108,5 +108,14 @@
       },
       "filename": "document.pdf"
     }
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Headless PDF byte generation: construct → setFont/setFontSize/setTextColor/text → output('blob'):Blob, with no DOM output. The plain-text path uses AFM font metrics (not a canvas), so no temp elements are appended to document.body and nothing touches head/style/events. Context-agnostic and trivially shadow-safe (produces a Blob the consumer previews/downloads).",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -44,5 +44,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:挂载容器位于 shadowRoot;Cropper.js 2.x 内部元素自带 shadow 样式,无外置 CSS",
     "codex": "supported:ESM CDN + DOM/canvas,图片 URL 仍须满足宿主 CORS"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "cropper.d.ts: constructor(element,options?:CropperOptions); CropperOptions{container?:Element|string} (L1583) so boot's {container:el} is valid; getCropperSelection():CropperSelection|null; CropperSelection has x/y/width/height (L1600-03) + $change(x,y,width?,height?) (L1677) — boot usage exact. Bundled cropper.esm.js: attachShadow (L462) + per-element shadowRoot.adoptedStyleSheets (L348/L526) so styles stay inside each custom element's own shadow root, no document.head write; customElements.define (L569) is global but custom elements function in shadow DOM; no document.body.appendChild in bundle (mounts into the container). Keyboard nav attaches a document KeyDown listener ($onDocumentKeyDown; keydown/KeyDown L1859-65) but bound via connected/disconnectedCallback, so removing the shadow container cleans it up — not a leak. Web-components mount inside our shadow container = shadow-safe.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

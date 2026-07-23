@@ -45,5 +45,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:必须 JS createElement;每个上游元素自带 Shadow DOM 与样式,可挂入 widget 的 shadow 容器",
     "codex": "supported:ESM import 只负责注册 custom elements,无外部 CSS/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "LIVE: the rendered <wokwi-led> carries its OWN shadowRoot (childCount 1, styles inside the shadow — led_shadowHasStyle=true) and document.head was unchanged (stayed at example.com's baseline count of 1). Lit uses per-element shadow styling, not document.head injection; nothing appended to document.body. LED/7segment are pure passive display elements (no document/window listeners). Each element is a self-contained custom element that drops straight into a widget shadow container.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

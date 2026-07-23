@@ -43,5 +43,14 @@
   "boot": {
     "shared": "// 三载体一致:字符串同步解析,不启用 worker/download/uplink\nimport Papa from 'https://cdn.jsdelivr.net/npm/papaparse@5/+esm';\nconst result = Papa.parse(data.csv, { header: data.header ?? true, dynamicTyping: data.dynamicTyping ?? false, delimiter: data.delimiter ?? '', skipEmptyLines: data.skipEmptyLines ?? false, comments: data.comments ?? false, preview: data.preview ?? 0 });\nconst rows = result.data;\nconst parseErrors = result.errors;\nconst meta = result.meta;",
     "note": "errors 非空不必然表示完全失败;消费 AI 应先展示或处理错误行再把 rows 喂给表格/图表。超大 File 的 step/chunk 流式分支需要回调,不在本条同步文本 schema 内。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "headless-primitive. Boot uses only the synchronous string path (no worker/download/step/chunk enabled), which is pure computation returning ParseResult — no DOM, no document.head/body, no listeners. Trivially shadow-compatible (nothing to render).",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

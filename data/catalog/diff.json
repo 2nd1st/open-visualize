@@ -41,5 +41,14 @@
   },
   "boot": {
     "shared": "// 三载体一致:纯 JS 计算,无 DOM/shadow/uplink\nimport { diffChars, diffWords, diffLines, diffSentences, diffJson, diffCss } from 'https://cdn.jsdelivr.net/npm/diff@9/+esm';\nconst methods = { chars: diffChars, words: diffWords, lines: diffLines, sentences: diffSentences, json: diffJson, css: diffCss };\nconst fn = methods[data.granularity ?? 'lines'];\nconst changes = fn(data.oldText, data.newText, { ignoreCase: data.ignoreCase ?? false });"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified: +esm exports ce/pe/z/We/Se/Ee as diffChars/diffWords/diffLines/diffSentences/diffJson/diffCss and `ae as createTwoFilesPatch` — all six method imports + patch fn are real named exports in 9.0.0. README confirms `{ignoreCase: true}` option on diffChars/diffWords/diffLines. types.d.ts ChangeObject = {value, added, removed, count} (matches provides output {value,count?,added?,removed?}). +esm bundle: 0 DOM/style/event APIs — pure Myers diff.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

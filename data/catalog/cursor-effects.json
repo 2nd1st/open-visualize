@@ -50,5 +50,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:canvas 与指针监听落指定 shadow 容器,但尺寸监听挂在 window;卸载时必须调用 handle.destroy()",
     "codex": "supported:sandbox iframe 隔离 canvas 与 window 尺寸监听,无 CSS/worker/wasm/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "dist/esm.js: each factory sets c=element||document.body and, when element is supplied (boot always passes {element:el}), the canvas is c.appendChild(e) into the shadow container (only the element-omitted fallback does document.body.appendChild). Styling is inline canvas.style only — no document.head/<link>/<style>. mousemove/touchmove/touchstart are bound to the element (scoped to the shadow container). BUT every factory does window.addEventListener('resize',m) and destroy() re-adds rather than removes it (confirmed leak). Works inside shadow DOM but leaves an un-removable global window resize listener → conditional.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

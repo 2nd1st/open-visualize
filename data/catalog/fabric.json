@@ -98,5 +98,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:canvas 与上游包裹 DOM 可完整落入 shadowRoot,核心无 CSS/worker/wasm/字体依赖",
     "codex": "supported:单一 ESM CDN + Canvas 2D,无必需外部资产"
+  },
+  "isolation": {
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "shadowCompatible": "yes",
+    "evidence": "index.min.mjs 零 head/style 注入、零静态 document/window 监听;canvas 包 .canvas-container 落父容器(shadow 内);拖拽期 doc 监听 per-gesture 且 dispose 清理",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

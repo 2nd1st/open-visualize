@@ -35,5 +35,14 @@
   "boot": {
     "shared": "// 三载体一致:纯 JS 转换;渲染容器与 CSS 由消费 AI 自己写\nimport { AnsiUp } from 'https://cdn.jsdelivr.net/npm/ansi_up@6/+esm';\nconst ansi = new AnsiUp();\nansi.use_classes = data.useClasses ?? false;\nconst html = ansi.ansi_to_html(data.text);",
     "note": "useClasses=true 时消费端必须自备 ansi-black-fg 等调色板 CSS;若不需要主题复用,保持默认 false 让库输出行内颜色最稳。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "纯 JS 字符串转换器,.d.ts 全为 class 方法/getter-setter,完全不碰 DOM/document.head/body/监听;`ansi_to_html` 返回 HTML fragment 由消费侧放入自备 <pre>。useClasses=true 时需消费方自备 ansi-*-fg/bg 调色板 CSS(非库注入,entry note 已注明)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

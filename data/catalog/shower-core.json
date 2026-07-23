@@ -38,5 +38,14 @@
     "artifact": "inferred-not-tested",
     "widget": "unsupported:document 查询、history/location 与全局主题样式无法收束到 shadow",
     "codex": "supported:独占 sandbox iframe 可容纳 document/history/打印能力;主题 CSS 进入 iframe head"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "Verified vs jsDelivr @shower/core@3.6.0: boot correctly avoids the +esm entry (its export list is EMPTY — reads document.currentScript) and imports lib/shower.js which is `export default Shower` / `class Shower extends EventTarget { constructor(options) }`. `containerSelector` is a real default-options.js key (default '.shower'); `start()` exists and calls `document.querySelector(containerSelector)` (shower.js:42) — this is the concrete disqualifier for shadow DOM (container must live in the main document, unreachable inside shadowRoot), backing widget:unsupported. Isolation: core itself injects no style, but the deck REQUIRES an external theme — boot appends @shower/ribbon link to document.head, and Ribbon uses document-level .full/.list/.print selectors (globalStyleInjection yes). modules/location.js uses history.pushState/replaceState + window popstate listener + location.hash/href/pathname/search; modules/touch.js binds a document listener (globalEvents yes). keys/mouse bind to the container, not document. codex/artifact (own document) supported and honestly marked.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

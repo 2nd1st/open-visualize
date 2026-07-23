@@ -97,5 +97,14 @@
     "widget": "conditional:React 根与 index.css 必须放入 shadowRoot,并允许 Excalidraw 默认字体 CDN;文件选择/全屏等宿主能力可能降级",
     "codex": "conditional:需 React/ReactDOM 19.2.5 与当前 jsDelivr +esm 内的 React peer 完全一致,并允许 CSS、canvas 与字体 CDN"
   },
-  "boot_note": "保守校准:核对时 @excalidraw/excalidraw@0/+esm 固定引用 react@19.2.5,故 boot 同步钉住 React/ReactDOM 19.2.5;若 jsDelivr 重建后 peer 路径变化,三处版本必须一起改。"
+  "boot_note": "保守校准:核对时 @excalidraw/excalidraw@0/+esm 固定引用 react@19.2.5,故 boot 同步钉住 React/ReactDOM 19.2.5;若 jsDelivr 重建后 peer 路径变化,三处版本必须一起改。",
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "+esm grep: `createPortal` x1 + `document.body` x17 → dialogs/context-menus/tooltips portal to document.body and ESCAPE the shadow root (not mitigated by boot). `addEventListener('keydown')` x10, `pointermove` x6, `pointerup` x8, `resize` x1 → heavy global keyboard/pointer/resize listeners. Runtime CSS hint (`type='text/css'` + appendChild) plus 13 `excalidraw.com` refs → loads fonts/assets from an external CDN (CSP + font-src concern). Main React root + index.css work inside shadow, but portaled overlays + external fonts make it conditional; entry's 'conditional' widget/codex marking is correct.",
+    "confidence": "med",
+    "audited": "2026-07-23"
+  }
 }

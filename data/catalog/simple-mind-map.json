@@ -85,5 +85,14 @@
     "artifact": "inferred-not-tested",
     "widget": "unsupported:运行时动态样式硬写 document.head,不能作用于 shadowRoot 内的导图 DOM",
     "codex": "supported-with-global-style:iframe 内允许上游向 document.head 写实例样式;另需官方 CSS"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "Verified vs jsDelivr simple-mind-map@0.14.0-fix.3: `D as default` export matches `import MindMap from`. Constructor option keys all real in +esm: this.opt.el, this.opt.data, this.opt.layout, this.opt.readonly, this.opt.fit — matching boot `new MindMap({el,data:data.root,layout,readonly,fit:true})`; data.root is the single root node {data:{text},children} (note correctly warns against passing getData(true)). All 8 schema layout enum strings (logicalStructure/logicalStructureLeft/mindMap/organizationStructure/catalogOrganization/timeline/verticalTimeline/fishbone) found as literals in the bundle. Isolation confirms widget:unsupported: `document.head.appendChild(this.cssEl)` with `createElement('style')` (globalStyleInjection yes, cannot be redirected to shadowRoot via native API); `document.body.appendChild(this.noteEl)` tooltip + `document.body.appendChild(this.textEditNode)` edit overlay + document.body.style.cursor (globalDomMutation yes); 7 window.addEventListener + document.body click/mousedown listeners (globalEvents yes, partial removeEventListener cleanup).",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

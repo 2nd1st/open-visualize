@@ -75,5 +75,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:ESM + SVG,传 shadow 内 DOM 节点作 target,不依赖全局 CSS 或 uplink",
     "codex": "supported:ESM CDN + SVG,无 worker/wasm/uplink 需求"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "function-plot@1.25.4 +esm shows no document.head, no document.body, and no window/document.addEventListener at module/init; the d3 SVG is rendered into the passed target and the hover tip is drawn inside that target SVG; Chart extends an internal EventEmitter (not DOM). d3-zoom adds only transient listeners during active pan/zoom, so the target subtree is fully shadow-contained.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

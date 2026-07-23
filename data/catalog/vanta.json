@@ -61,5 +61,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:需 WebGL + ESM CDN;effect canvas 挂进 shadow 容器且零 head CSS 注入",
     "codex": "supported:iframe 内 WebGL + ESM CDN,无 uplink 需求"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "src/_base.js: WebGL canvas mounts via `this.el.appendChild(this.renderer.domElement)` (l.185) and text-wrap <span>s go into el's own childNodes (l.137-140) — nothing appended to document.body/head; it only sets `el.style.position='relative'`. It registers `window.addEventListener('resize'|'scroll'|'mousemove')` (l.110-117), but `destroy()` removes all three via `window.removeEventListener` (l.391-397) — the mousemove-on-window is intentional (pointer response when el sits under other elements). It sets `window.VANTA={}` (l.6) — a global JS namespace object, not DOM. No CSS/head injection. Canvas in a shadow-hosted el works; listeners are global-by-design and cleaned on destroy.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

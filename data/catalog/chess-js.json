@@ -43,5 +43,14 @@
   "boot": {
     "shared": "import { Chess } from 'https://cdn.jsdelivr.net/npm/chess.js@1/+esm';\nconst chess = new Chess();\nif ((data.notation_type ?? 'fen') === 'pgn') chess.loadPgn(data.notation, { strict: data.strict ?? false });\nelse chess.load(data.notation);\nfor (const ply of data.plies ?? []) chess.move(ply, { strict: data.strict ?? false });\nconst result = { fen: chess.fen(), pgn: chess.pgn(), legalMoves: chess.moves({ verbose: data.verbose_moves ?? false }), turn: chess.turn(), inCheck: chess.inCheck(), isCheckmate: chess.isCheckmate(), isStalemate: chess.isStalemate(), isDraw: chess.isDraw(), isGameOver: chess.isGameOver() };",
     "note": "三载体一致:纯 JS、无 DOM/worker/wasm/uplink；具名 Chess 导出及 v1.4.0 方法名已按上游 README 校对。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm exports `As as Chess` (named) — boot import {Chess} correct. README confirms all consumed methods: .load(fen,{skipValidation}) (l.555), .loadPgn(pgn,{strict}) (l.576), .move(move,{strict}) (l.661,697,718), .moves({verbose}) (l.732), .inCheck (l.416), .isCheckmate (l.449), .isDraw (l.461), .isStalemate (l.514), .isGameOver (l.53), .fen()/.pgn(). Uses v1.x camelCase (loadPgn/isGameOver) matching 1.4.0. Headless rule engine, no DOM in bundle.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -60,5 +60,14 @@
     "artifact": "inferred-not-tested",
     "widget": "unsupported:发布 ESM 固定向 document.head 注入内置 CSS,违反 shadow 零足迹要求",
     "codex": "supported:iframe 内 head 注样式可接受;ESM CDN + canvas,无 worker/wasm 硬依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "force-graph@1.51.4 +esm contains the style-inject helper (document.head||getElementsByTagName('head')[0] + createElement('style') + styleSheet) that runs at module-eval to push .force-graph-container/.graph-tooltip CSS into document.head — confirmed. That head CSS both violates zero-footprint and never reaches shadow content, so the widget carrier is correctly unsupported. Tooltip stays in the container (no document.body); d3 zoom/drag add only transient listeners.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -75,5 +75,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:需 fetch 上游 CSS 后在 shadowRoot 内把 :root 主题变量改为 :host;主时间线 DOM 留在 React 挂载容器内",
     "codex": "supported:React 19.2.3 peer、ESM CDN 与同源 CSS 均在 sandbox iframe 内"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "+esm injects Google-Fonts <link> into document.head 3x (\"...fonts.googleapis.com']')||document.head.appendChild(t)\", plus a per-font link), and attaches document.addEventListener('keydown'/'fullscreenchange'...) + window resize/scroll listeners. Its visual CSS is the static dist/style.css (catalog rewrites :root->:host into shadow, workable), but the Google-Font head injection leaks out of shadow and the external font URL may be CSP-blocked in artifact/widget; fonts degrade gracefully.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -98,5 +98,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:core 的 SVG/DOM 都挂入所给 container,官方 dist CSS 放进同一 shadow;未包含会另有足迹的 extension 插件",
     "codex": "supported:ESM CDN + SVG/DOM,无 React/worker/wasm peer"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "esm (278KB) grep: zero document.head / createElement('style'/'link') / adoptedStyleSheets / insertRule — CSS is external dist/index.css (boot links into shadow). Renders SVG/DOM into `this.container` via preact `.render()` (4× this.container); `document.body` appears 4× but only as READS (no body.appendChild, no createPortal) — coordinate/bounds math during drag, not a portal. globalEvents=yes: registers `document.addEventListener` keydown/keyup (keyboard shortcuts) + pointermove/pointerup (drag) and `window.addEventListener('resize')`; however removeEventListener×9 confirms cleanup on drag-end/destroy (registered-but-cleaned, not a leak). shadowCompatible=yes: mount+CSS stay in the container/shadow and drag/keyboard function (clientX/Y are viewport-relative; document keydown fires regardless of shadow) — confidence med because document-level listeners + document.body coordinate reads weren't runtime-tested for drag accuracy inside a shadow root.",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

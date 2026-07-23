@@ -37,5 +37,14 @@
     "artifact": "inferred-not-tested:依赖 WebAssembly 能力,须待 H0 wasm 探针闭合",
     "widget": "conditional:宿主 CSP/能力必须允许 WebAssembly;HTML/CSS 本身可完全落 shadow",
     "codex": "conditional:sandbox 必须允许 WebAssembly 编译和 jsDelivr ESM 依赖链"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr @4.3.1: named export `u as codeToHtml` (import { codeToHtml } correct); signature `codeToHtml(code: string, options: CodeToHastOptions<BundledLanguage,BundledTheme>) => Promise<string>` per dist/bundle-full.d.mts:22, with lang+theme as the real option keys (codeToTokensBase RequireKeys 'theme'|'lang'). Schema fields code/lang/theme map 1:1 to the API. Isolation: +esm shows 0 document.head, 0 createElement('style'), 0 document/window addEventListener, 0 adoptedStyleSheets — output HTML carries inline styles, no head injection, fully shadow-safe DOM-wise. shadowCompatible=conditional only because default bundle initializes Oniguruma WebAssembly, so host CSP/capabilities must permit WASM (honestly disclosed in entry).",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

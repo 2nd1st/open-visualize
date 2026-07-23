@@ -48,5 +48,14 @@
     "empty": {
       "src": null
     }
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Default import correct (+esm export{E as default}); constructor reads opt.{quality,voices,useReverb} (verified: 'if(opt){if(opt.useReverb!=undefined)...if(opt.quality!=undefined)...') and creates its own AudioContext (internalcontext -> this.actx). Methods loadMIDI/playMIDI/stopMIDI/setMasterVol/setProgram/noteOn/noteOff + .actx/.loop all present — matches provides.api_surface and boot. Headless audio: grep shows 0 document.head, 0 body.append, 0 document/window listeners. Caveat: module load runs customElements.define('webaudio-tinysynth') once (optional GUI element + a createElement('div') GUI path that the boot never invokes; a double-import could throw 'already defined'). shadowCompatible=yes because it emits audio, not DOM.",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

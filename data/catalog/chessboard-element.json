@@ -39,5 +39,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:JS createElement 绕过 sanitizer,组件自带 shadow 与内嵌棋子 SVG,无 head CSS",
     "codex": "supported:ESM CDN + custom elements"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "+esm tail `c=p([Z(\"chess-board\")],c)` confirms side-effect import registers the <chess-board> custom element (class ChessBoardElement). lib/chessboard-element.d.ts confirms boot's props/method: `orientation: SquareColor` (l.182), `draggablePieces: boolean` (l.186), `setPosition(position, useAnimation?): void` (l.274). It is a LitElement with its own shadow DOM; grep found ZERO document.head/document.body/createElement('style') — pieces are inline SVG (renderWikipediaSVGPiece export). globalEvents=yes: 4 window.addEventListener (mousemove/mouseup/touchmove drag tracking) but 8 removeEventListener present (cleaned up), and draggable defaults false in boot. Fully self-contained in shadow.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

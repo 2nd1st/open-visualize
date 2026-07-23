@@ -111,5 +111,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:主 Canvas 可落 shadow 且 CSS 进 shadow;0.7.18 的 ContextMenu/search dialog 原生追加到 document.body,完整菜单层会逃逸且失去 shadow CSS",
     "codex": "supported:ESM CDN + Canvas2D;执行含 audio/webgl 的特定节点时另受对应浏览器能力约束"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "build/litegraph.js `document.body.appendChild` x6 → ContextMenu(右键菜单)与节点 search dialog 挂 document.body,逃逸 shadow 且丢失 shadow 内 CSS;库不自动注入样式表(build 未见 head.appendChild/createElement('style')/insertRule,故 boot 手动 link css/litegraph.css)。LGraphCanvas 经 ownerDocument(x3)绑拖拽/键盘事件,boot 无 destroy/unbindEvents。主 Canvas2D+CSS 可落 shadow → 主体 conditional,菜单层受限(与 entry conditional 一致)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

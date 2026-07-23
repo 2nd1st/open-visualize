@@ -34,5 +34,14 @@
     "artifact": "inferred-not-tested:依赖 WebAssembly,须待 H0 wasm 探针闭合",
     "widget": "conditional:宿主 CSP/能力必须允许 WebAssembly;生成 SVG 可完全落 shadow",
     "codex": "conditional:sandbox 必须允许 WebAssembly 编译与 jsDelivr ESM 依赖链"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "graphviz.layout() 返回 SVG 字符串,纯函数,不触碰 document.head/body、不挂全局监听;boot 把 SVG 以 innerHTML 落 shadow 容器。唯一条件是宿主须允许 WebAssembly(Graphviz.load 编译 wasm)——能力约束非 DOM 隔离风险。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

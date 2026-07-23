@@ -33,8 +33,8 @@
     "note": "Game config 必须收到明确 pixel width/height；boot 默认宽取容器 clientWidth(取不到时 640px)、高 400px,禁止 vh/百分比高。若宿主宽变化,由消费 AI 配 Scale Manager 或重建 game。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:Phaser v4 ESM default 导出,原生 new Phaser.Game(config)\n+import Phaser from 'https://cdn.jsdelivr.net/npm/phaser@4/+esm';\n+const el = document.getElementById('game'); el.style.height = '400px';\n+const renderer = { auto: Phaser.AUTO, webgl: Phaser.WEBGL, canvas: Phaser.CANVAS }[data.renderer ?? 'auto'];\n+const game = new Phaser.Game({ type: renderer, parent: el, width: el.clientWidth || 640, height: 400,\n+  backgroundColor: data.backgroundColor ?? '#000000', pixelArt: data.pixelArt ?? false, physics: data.physics, scene: data.scene });",
-    "widget": "// parent 是 shadow 内 HTMLElement,Phaser canvas 留在该容器\n+import Phaser from 'https://cdn.jsdelivr.net/npm/phaser@4/+esm';\n+const el = document.createElement('div'); el.style.height = '400px'; shadowRoot.appendChild(el);\n+const renderer = { auto: Phaser.AUTO, webgl: Phaser.WEBGL, canvas: Phaser.CANVAS }[data.renderer ?? 'auto'];\n+const game = new Phaser.Game({ type: renderer, parent: el, width: el.clientWidth || 640, height: 400,\n+  backgroundColor: data.backgroundColor ?? '#000000', pixelArt: data.pixelArt ?? false, physics: data.physics, scene: data.scene });",
+    "artifact": "// inferred-not-tested:Phaser v4 ESM default 导出,原生 new Phaser.Game(config)\nimport Phaser from 'https://cdn.jsdelivr.net/npm/phaser@4/+esm';\nconst el = document.getElementById('game'); el.style.height = '400px';\nconst renderer = { auto: Phaser.AUTO, webgl: Phaser.WEBGL, canvas: Phaser.CANVAS }[data.renderer ?? 'auto'];\nconst game = new Phaser.Game({ type: renderer, parent: el, width: el.clientWidth || 640, height: 400,\n  backgroundColor: data.backgroundColor ?? '#000000', pixelArt: data.pixelArt ?? false, physics: data.physics, scene: data.scene });",
+    "widget": "// parent 是 shadow 内 HTMLElement,Phaser canvas 留在该容器\nimport Phaser from 'https://cdn.jsdelivr.net/npm/phaser@4/+esm';\nconst el = document.createElement('div'); el.style.height = '400px'; shadowRoot.appendChild(el);\nconst renderer = { auto: Phaser.AUTO, webgl: Phaser.WEBGL, canvas: Phaser.CANVAS }[data.renderer ?? 'auto'];\nconst game = new Phaser.Game({ type: renderer, parent: el, width: el.clientWidth || 640, height: 400,\n  backgroundColor: data.backgroundColor ?? '#000000', pixelArt: data.pixelArt ?? false, physics: data.physics, scene: data.scene });",
     "codex": "同 artifact(sandbox iframe):phaser@4/+esm 默认导入,给 new Phaser.Game 明确 parent/width/height 与原生 scene callbacks。"
   },
   "example": {
@@ -51,5 +51,14 @@
     "artifact": "inferred-not-tested:基础几何只需 ESM + WebGL/Canvas；音频、图片和 tilemap 会额外触发各自 CDN/CORS 能力",
     "widget": "conditional:canvas 可落 shadow 内 parent；若游戏用 DOMElement 插件、全局键盘或外部资产,须逐项验证 shadow/CORS,基础 Graphics/Input 路径可用",
     "codex": "conditional:sandbox iframe 支持 ESM/WebGL/Canvas；外部资产与音频自动播放仍受浏览器策略约束"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "Canvas is appended to the given `parent` (shadow container) — no document.body append in the basic path (fallback-to-body only when parent omitted, but boot always sets parent). Registers many PERSISTENT global listeners: window resize/orientationchange/load/touchstart/end/cancel/mousedown/up and document visibilitychange/pointerlockchange (removed only on game.destroy()). document.head <style>/<script> injection occurs ONLY via opt-in this.load.css/this.load.script loader plugins, not the Graphics/geometry path this entry covers.",
+    "confidence": "med",
+    "audited": "2026-07-23"
   }
 }

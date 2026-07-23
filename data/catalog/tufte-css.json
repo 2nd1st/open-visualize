@@ -24,7 +24,7 @@
   "boot": {
     "artifact": "// inferred-not-tested:样式必须进入 document.head\nconst css = document.createElement('link'); css.rel = 'stylesheet';\ncss.href = 'https://cdn.jsdelivr.net/npm/tufte-css@1.9.0/tufte.min.css';\ndocument.head.appendChild(css);\nconst el = document.getElementById('document'); el.style.maxWidth = `${data.max_width ?? 1400}px`;\nel.innerHTML = data.html;",
     "widget": "// 样式与内容都落在 widget 的 shadow 容器内\nconst css = document.createElement('link'); css.rel = 'stylesheet';\ncss.href = 'https://cdn.jsdelivr.net/npm/tufte-css@1.9.0/tufte.min.css';\nconst el = document.createElement('article'); el.style.maxWidth = `${data.max_width ?? 1400}px`;\nel.innerHTML = data.html;\nshadowRoot.append(css, el);",
-    "codex": "// sandbox iframe:同 artifact，把 CSS link 放进 iframe document.head\nconst el = document.getElementById('document');\nel.style.maxWidth = `${data.max_width ?? 1400}px`;\nel.innerHTML = data.html;"
+    "codex": "// sandbox iframe:同 artifact,把 CSS link 放进 iframe document.head\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/tufte-css@1.9.0/tufte.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('document');\nel.style.maxWidth = `${data.max_width ?? 1400}px`;\nel.innerHTML = data.html;"
   },
   "example": {
     "_why": "边注 DOM 配对高歧义；minimal 固定上游真正识别的 class/for/id 结构。",
@@ -40,5 +40,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:CSS link 必须放入 shadowRoot；ET Book 字体由该 CSS 相对路径继续从同一 jsDelivr 包加载，宿主需允许 font-cdn",
     "codex": "supported:纯 CSS + 语义 HTML；无 wasm、worker 或 uplink 需求"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "纯 CSS 无 JS 运行时,不自行注入任何位置;widget boot 把 <link> 落 shadowRoot(shadowRoot.append(css, el))而非 document.head→无全局注入=globalStyleInjection no。边注开关用 input.margin-toggle 复选框 + CSS :checked,无 JS→globalEvents no;仅 innerHTML 进 article,不动 body→globalDomMutation no。conditional 原因:tufte.min.css 含 html{font-size:15px}/body{width:87.5%} 等裸元素基样式,shadowRoot 内无 html/body 匹配→基准字号/宽度失效(.sidenote/.marginnote 类规则仍生效),widget 已如实标 conditional。警示:若误落 document.head,article/p/section/blockquote 等裸选择器会全局重排宿主页。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -38,5 +38,14 @@
     }
   },
   "status": "blocked-until-forked",
-  "fork_note": "@fullcalendar/core@7.0.1 的发布说明为 Core Types,其 index.js 只打印“should not be imported directly”,没有 Calendar 构造器或视图实现。必须另建并探测 @fullcalendar/web-component@7.0.1 等可渲染 upstream,或做一个组合视图封装后再升为可消费条目;禁止偷偷借用 v6 API 或虚构 boot。"
+  "fork_note": "@fullcalendar/core@7.0.1 的发布说明为 Core Types,其 index.js 只打印“should not be imported directly”,没有 Calendar 构造器或视图实现。必须另建并探测 @fullcalendar/web-component@7.0.1 等可渲染 upstream,或做一个组合视图封装后再升为可消费条目;禁止偷偷借用 v6 API 或虚构 boot。",
+  "isolation": {
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "shadowCompatible": "no",
+    "evidence": "import 仅跑 console.log('should not be imported directly');包无 Calendar 构造/渲染器,无法在任何地方挂载",
+    "confidence": "high",
+    "audited": "2026-07-23"
+  }
 }

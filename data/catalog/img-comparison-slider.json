@@ -46,5 +46,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:组件自带内部 shadow 样式,防 FOUC CSS 与宿主节点另落外层 shadowRoot;图片源须获宿主 CSP 许可",
     "codex": "supported:ESM CDN + custom elements + ResizeObserver;远程图片源须可加载"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "组件结构/样式在自带内部 shadow(name=first/second slot 佐证);外部 dist/styles.css(防 FOUC 的 [slot] 规则)由 boot 加载,非库向 head 注入。globalEvents=yes:onMouseDown 时 window.addEventListener('mousemove'/'mouseup'),onWindowMouseUp 内 removeEventListener 全部清理,另有 disconnectedCallback → 瞬时自清理(非泄漏)但运行时确实触碰 window;拖拽时还瞬时置 document.body.style.userSelect='none' 并在 mouseup 还原(非节点追加,故 globalDomMutation=no)。自注册+内部 shadow,append 进外层 shadowRoot 正常(carriers.widget=supported)。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

@@ -74,5 +74,14 @@
         "duration": 0
       }
     }
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "headless。+esm:无 document.head/body、无 createElement('style');engine 向 document 注册一次 `visibilitychange`(全局但单例、标准做法,标签隐藏时暂停时钟)。mouse/touch/scroll/selectstart 监听属 Draggable/ScrollObserver 模块,animate() 路径不触发。驱动的是消费侧传入的元素(含 shadow 内 Element),entry note 已正确要求传 shadowRoot 实际元素而非全局 selector。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

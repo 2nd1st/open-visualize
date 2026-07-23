@@ -81,5 +81,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:canvas、legend 与 tooltip 均封闭在 shadow 容器内,不需要 document.head 样式",
     "codex": "supported:ESM CDN + canvas,无上行依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm exports include `cn as Chart` and `zc as registerables` (named) — boot import {Chart, registerables} correct; new Chart(canvas,{...config,options}) with type/data/options is the canonical v4 API. grep of chart.js@4.5.1 +esm for document.head/document.body/createElement('style')/adoptedStyleSheets returned ZERO hits — canvas-only, tooltip/legend drawn on canvas, responsive via ResizeObserver on container; all shadow-safe.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

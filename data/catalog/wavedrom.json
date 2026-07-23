@@ -56,5 +56,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:renderAny 纯 JS 生成 SVG 字符串并写入 shadow 内 host；无 CSS/head/图片/font CDN 注入",
     "codex": "supported:ESM CDN + SVG,不需要 worker/wasm/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Imports verified: +esm exports renderAny, waveSkin, onml (all named). renderAny source is function r(s,a,c,d) — a 4-arg pure builder (index, source, waveSkin, notFirst) returning an onml array with i[1].class='WaveDrom'; matches boot renderAny(0,source,waveSkin,false) then onml.stringify(...). schema wavejson->JSON.parse->{signal[].name/wave/data/phase/period/node, edge, head, foot, config} are the real WaveJSON fields consumed by renderSignal. The bundle DOES contain document.head.insertAdjacentHTML and a document.body.appendChild('Save as PNG/SVG' context menu), but both live in the ProcessAll/interactive-menu paths which the boot deliberately avoids (uses renderAny+onml.stringify, never processAll/eval). Boot path writes only an SVG string into the shadow host.innerHTML.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

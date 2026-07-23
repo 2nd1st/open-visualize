@@ -77,5 +77,14 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:React ESM + pure CSS,按 boot 将 CSS 落 shadow;默认关闭语法高亮以减轻大文件成本",
     "codex": "supported:React ESM + CSS CDN,无必需 uplink/wasm"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "@git-diff-view/react@0.1.7 +esm(67KB,document.* 未被别名化,负计数可信)grep:0 document.head、0 document.body、0 createElement(style/link)、0 insertRule、0 document/window.addEventListener、0 Worker。样式为独立静态文件 diff-view-pure.css,widget boot 将其落入 shadowRoot;React 19 事件挂在传入 root(shadow 内)。add-widget/portal 特性 opt-in 且默认关闭。",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

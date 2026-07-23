@@ -42,5 +42,14 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:Emotion 会默认注入 document.head,须按 boot 用 MutationObserver 把 react-diff style 搬进 shadow;默认关闭 worker",
     "codex": "supported:React ESM + 同步 diff;启用 useWorker 前须另验 Blob Worker"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "deps @emotion/css + @emotion/react inject <style data-emotion> into document.head; +esm defines two caches key:\"react-diff\" and key:\"highlighted-diff\". Diff table renders inside the React mount container; no global document/window listeners (optional diff worker is Blob-based and disabled by default via disableWorker). Shadow works only if BOTH emotion caches are relocated into the shadow root.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

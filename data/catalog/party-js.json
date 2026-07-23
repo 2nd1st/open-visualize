@@ -46,5 +46,14 @@
     "artifact": "inferred-not-tested:DOM 粒子根注入 document.body,元素锚点必须已完成布局",
     "widget": "unsupported:粒子根固定越出 shadowRoot 且使用全局 id,无法满足 widget 零足迹",
     "codex": "supported:sandbox iframe 内 document.body 隔离可承接全局粒子根；无 CSS/图片/font CDN"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "no",
+    "evidence": "Bundle appends its particle-root container to document.body (`...userSelect:'none',zIndex:...},document.body)` + appendChild x2; container id prefix `party-js`), corroborating catalog's #party-js-container claim. Styles are inline on that container (not a document.head <style>), so no head injection. No persistent window/document listener found (grep empty); it drives a global requestAnimationFrame loop instead. Particle root is fixed to document.body and cannot be redirected into a shadowRoot via the public API — catalog widget=unsupported is correct.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }

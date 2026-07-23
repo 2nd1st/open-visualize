@@ -44,5 +44,14 @@
     "widget": "// widget 内纯计算,无需接触 shadow DOM\nimport Finance from 'https://cdn.jsdelivr.net/npm/financejs@4/+esm';\nconst finance = new Finance();\nconst allowed = new Set(['PV','FV','NPV','IRR','AM','CAGR','PMT']);\nif (!allowed.has(data.formula)) throw new Error('Unknown finance.js formula');\nconst result = finance[data.formula](...data.args);",
     "codex": "// sandbox iframe 内直接跑纯 JS\nimport Finance from 'https://cdn.jsdelivr.net/npm/financejs@4/+esm';\nconst finance = new Finance();\nconst allowed = new Set(['PV','FV','NPV','IRR','AM','CAGR','PMT']);\nif (!allowed.has(data.formula)) throw new Error('Unknown finance.js formula');\nconst result = finance[data.formula](...data.args);",
     "note": "jsDelivr /npm/ +esm 已核对为 default Finance,同时也导出 named Finance；白名单只用于限制动态方法名,不建立事件契约。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Pure-JS formula engine (provides.shape=financial-scalar, headless-primitive). finance.js is `Finance.prototype.<method>=function(){...}` numeric math only — no DOM, no document/window, no styles, no events. boot only does `new Finance()` + `finance[formula](...args)`. No isolation concerns; runs anywhere including inside shadow.",
+    "confidence": "high",
+    "audited": "2026-07-23"
   }
 }
