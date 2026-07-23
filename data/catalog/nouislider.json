@@ -1,0 +1,43 @@
+{
+  "entry_version": "thin-1",
+  "id": "nouislider",
+  "name": "noUiSlider",
+  "when_to_use": "需要多柄范围、柄间 margin/limit/padding 约束或非线性刻度时用它,而非叠两个原生 range——原生在多柄碰撞、键盘可达与约束同步上失败。",
+  "why_valuable": "AI 默认只能正确写单柄 range;多柄最小距离、上限距离、边界 padding、触控和非线性区间会漂移,noUiSlider 用一个确定配置同时闭合这些约束。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": { "npm": "nouislider", "version": "15.8.1", "github": "leongersen/noUiSlider" },
+  "license": "MIT",
+  "data_in": {
+    "shape": "scalar",
+    "note": "整个 data 对象直接传 noUiSlider.create(target,data);start 的标量数量决定手柄数,get() 返回单值或同长度数组。",
+    "schema": {
+      "start": "number | number[] —— 每个手柄一个初值",
+      "range": "{min:number,max:number} | Record<string,number|[number,number]> —— 必填值域/非线性刻度",
+      "step?": "number —— 默认连续",
+      "connect?": "'lower'|'upper'|boolean|boolean[] —— 默认 false",
+      "margin?": "number —— 默认 0",
+      "limit?": "number —— 默认不限制柄间最大距离",
+      "padding?": "number | [number,number] —— 默认 0",
+      "orientation?": "'horizontal'|'vertical' —— 默认 'horizontal'",
+      "direction?": "'ltr'|'rtl' —— 默认 'ltr'",
+      "tooltips?": "boolean —— 默认 false"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:CSS 进入 artifact document.head(铁律 2)\nimport noUiSlider from 'https://cdn.jsdelivr.net/npm/nouislider@15/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/nouislider@15/dist/nouislider.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('slider');\nconst slider = noUiSlider.create(el, data);\n// 当前标量/数组读取 slider.get()",
+    "widget": "// CSS 与 slider 节点都落到 shadowRoot(铁律 2)\nimport noUiSlider from 'https://cdn.jsdelivr.net/npm/nouislider@15/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/nouislider@15/dist/nouislider.min.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); shadowRoot.appendChild(el);\nconst slider = noUiSlider.create(el, data);\n// 不在条目里预接回调",
+    "codex": "// sandbox iframe 的 CSS 放入本 iframe head\nimport noUiSlider from 'https://cdn.jsdelivr.net/npm/nouislider@15/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/nouislider@15/dist/nouislider.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('slider');\nconst slider = noUiSlider.create(el, data);\nconst current = slider.get();"
+  },
+  "uplink": {
+    "widget": "消费 AI 自行在确认控件处理器中读取 slider.get(),再拼 sendPrompt 文案;本条不预设统一事件出口。",
+    "codex": "消费 AI 自行读取 slider.get() 并调用 sendFollowUpMessage。",
+    "artifact": "artifact 无上行;提供当前标量/数组 JSON 下载导出兜底。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:无依赖;样式 link 与 DOM 均可封闭在 shadowRoot",
+    "codex": "supported:ESM CDN + CSS,无 worker/wasm/uplink 硬依赖"
+  }
+}

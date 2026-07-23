@@ -1,0 +1,117 @@
+{
+  "entry_version": "thin-1",
+  "id": "lucky-canvas",
+  "name": "lucky-canvas",
+  "when_to_use": "需要大转盘、九宫格跑马灯或老虎机三种抽奖形态之一时用它,而非手写 canvas 状态机——原生手写在加速/匀速/减速、指定奖项停靠和多端高清绘制上容易失败。非做可信随机、支付或奖品核销后端。",
+  "why_valuable": "AI 默认只能写僵硬的 rotate 或定时器跑格子,做不到三种抽奖形态共享的高清 canvas、阶段动画和精确停奖;lucky-canvas 用同一组 prize records 覆盖轮盘、九宫格与滚轴。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "lucky-canvas",
+    "version": "1.7.27",
+    "github": "buuing/lucky-canvas"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "tabular",
+    "note": "data_in 是 LuckyWheel/LuckyGrid/SlotMachine 构造器第二参数的裁剪联合体;variant 决定真实上游构造器,宿主 HTMLElement 由 boot 作为第一参数传入。回调函数不是 strict JSON 数据,由消费 AI 在挂载后自行接。",
+    "schema": {
+      "variant?": "'wheel' | 'grid' | 'slot' —— catalog 默认 'wheel'",
+      "width?": "number | px string —— catalog 默认 '400px'",
+      "height?": "number | px string —— catalog 默认 '400px'",
+      "prizes": [
+        {
+          "range?": "number —— 默认 1",
+          "background?": "CSS color string —— 默认透明",
+          "fonts?": {
+            "_default": "默认 []",
+            "items": [
+              {
+                "text": "string",
+                "top?": "number | CSS length string —— 默认 0px",
+                "fontColor?": "CSS color string —— 默认 #000",
+                "fontSize?": "CSS length string —— 默认 22px"
+              }
+            ]
+          },
+          "imgs?": "上游 image descriptor[] —— 默认 []"
+        }
+      ],
+      "blocks?": "上游背景块 object[] —— 默认 []",
+      "buttons?": "wheel/grid 的按钮 object[] —— 默认 []",
+      "rows?": "number —— grid 默认 3",
+      "cols?": "number —— grid 默认 3",
+      "slots?": "slot 的滚轴 object[] —— 默认 []",
+      "defaultConfig?": "所选 variant 的原生 config object —— 默认 {}",
+      "defaultStyle?": "所选 variant 的原生 style object —— 默认 {}"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "lucky-canvas 的 width/height 是 canvas 几何输入而非普通 CSS;boot 默认明确传 '400px'×'400px'。禁用 vh/百分比高(铁律 3);AI 覆盖时仍应给固定 px 数值。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:HTMLElement 可直接作第一参数,避免 selector 歧义\nimport { LuckyWheel, LuckyGrid, SlotMachine } from 'https://cdn.jsdelivr.net/npm/lucky-canvas@1/+esm';\nconst el = document.getElementById('lucky');\nconst { variant = 'wheel', ...config } = data;\nconst Ctor = { wheel: LuckyWheel, grid: LuckyGrid, slot: SlotMachine }[variant];\nconst lucky = new Ctor(el, { width: '400px', height: '400px', ...config });",
+    "widget": "// 直接传 shadow 内 HTMLElement;内部 canvas 因而落在 shadow 容器\nimport { LuckyWheel, LuckyGrid, SlotMachine } from 'https://cdn.jsdelivr.net/npm/lucky-canvas@1/+esm';\nconst el = document.createElement('div'); shadowRoot.appendChild(el);\nconst { variant = 'wheel', ...config } = data;\nconst Ctor = { wheel: LuckyWheel, grid: LuckyGrid, slot: SlotMachine }[variant];\nconst lucky = new Ctor(el, { width: '400px', height: '400px', ...config });",
+    "codex": "同 artifact(sandbox iframe fragment):从 lucky-canvas@1/+esm 取三个原生构造器,按 variant 选 Ctor,传 HTMLElement 与带固定 px width/height 的 config。"
+  },
+  "example": {
+    "_why": "三构造器联合体、prize 字体数组与尺寸字段属于高歧义 config;minimal 先钉死最常用 LuckyWheel 分支。",
+    "minimal": {
+      "variant": "wheel",
+      "width": "400px",
+      "height": "400px",
+      "blocks": [
+        {
+          "padding": "12px",
+          "background": "#617df2"
+        }
+      ],
+      "prizes": [
+        {
+          "background": "#e9e8fe",
+          "fonts": [
+            {
+              "text": "咖啡",
+              "top": "12%"
+            }
+          ]
+        },
+        {
+          "background": "#b8c5f2",
+          "fonts": [
+            {
+              "text": "甜点",
+              "top": "12%"
+            }
+          ]
+        }
+      ],
+      "buttons": [
+        {
+          "radius": "32%",
+          "pointer": true,
+          "background": "#ff7a00",
+          "fonts": [
+            {
+              "text": "开始",
+              "top": "-10px",
+              "fontColor": "#fff"
+            }
+          ]
+        }
+      ]
+    },
+    "empty": {
+      "variant": "wheel",
+      "prizes": []
+    }
+  },
+  "uplink": "local-interact 类;消费 AI 自行给按钮接 lucky.play(),收到可信 index 后调用 lucky.stop(index),并按载体分别回传结果。本条不生成统一回调协议。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:canvas 可留在 shadow;若 prizes/blocks 使用远程 imgs,还需对应 image CDN 与 CORS",
+    "codex": "supported:纯文字/颜色配置只需 ESM CDN + canvas;远程图片另判"
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "entry_version": "thin-1",
+  "id": "seatchart",
+  "name": "Seatchart.js",
+  "when_to_use": "需要带类型、价格、保留态、过道和购物篮的座位网格时用它,而非手写 button 矩阵——原生在座位状态、图例、价格汇总和布局间距同步上失败。",
+  "why_valuable": "AI 默认只能糊一个无类型的按钮网格;做不到让座位类型、不可用态、过道、图例、已选集合与总价始终一致,Seatchart.js 直接维护紧凑 SeatInfo[] 购物篮。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": { "npm": "seatchart", "version": "0.1.0", "github": "omahili/seatchart.js" },
+  "license": "MIT",
+  "data_in": {
+    "shape": "grid",
+    "note": "整个 data 对象就是上游 Options;所有 SeatIndex 均为零基 {row,col},seatTypes.default 必填。",
+    "schema": {
+      "map": {
+        "rows": "integer >= 0",
+        "columns": "integer >= 0",
+        "seatTypes": {
+          "default": { "label": "string", "price": "number >= 0", "cssClass": "string" },
+          "<typeKey>?": {
+            "label": "string",
+            "price": "number >= 0",
+            "cssClass": "string",
+            "seats?": "{row:integer,col:integer}[] —— 默认 []",
+            "seatRows?": "integer[] —— 默认 []",
+            "seatColumns?": "integer[] —— 默认 []"
+          }
+        },
+        "selectedSeats?": "{row:integer,col:integer}[] —— 默认 []",
+        "reservedSeats?": "{row:integer,col:integer}[] —— 默认 []",
+        "disabledSeats?": "{row:integer,col:integer}[] —— 默认 []",
+        "columnSpacers?": "integer[] —— 默认 []",
+        "rowSpacers?": "integer[] —— 默认 []",
+        "frontVisible?": "boolean —— 默认 true"
+      },
+      "cart?": {
+        "visible?": "boolean —— 默认 true",
+        "currency?": "string —— 默认 '€'",
+        "submitLabel?": "string —— 默认 'Checkout'",
+        "_default": "省略 cart 时仍显示默认购物篮"
+      },
+      "legendVisible?": "boolean —— 默认 true"
+    }
+  },
+  "spec": {
+    "height": 420,
+    "note": "座位网格为 DOM 几何布局,给宿主至少 420px 的显式 min-height 作为默认画布;行列多时允许内容自然增高。禁止 vh/百分比高(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:CSS 进入 artifact document.head(铁律 2)\nimport Seatchart from 'https://cdn.jsdelivr.net/npm/seatchart@0/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/seatchart@0/dist/seatchart.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('seats'); el.style.minHeight = '420px';\nconst chart = new Seatchart(el, data);\n// 当前选择读取 chart.getCart(),总价读取 chart.getCartTotal()",
+    "widget": "// CSS 与座位 DOM 都落到 shadowRoot(铁律 2)\nimport Seatchart from 'https://cdn.jsdelivr.net/npm/seatchart@0/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/seatchart@0/dist/seatchart.min.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); el.style.minHeight = '420px'; shadowRoot.appendChild(el);\nconst chart = new Seatchart(el, data);\n// cssClass 若用自定义座位色,对应 style 也必须追加到同一 shadowRoot",
+    "codex": "// sandbox iframe 内使用上游原生构造器\nimport Seatchart from 'https://cdn.jsdelivr.net/npm/seatchart@0/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/seatchart@0/dist/seatchart.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('seats'); el.style.minHeight = '420px';\nconst chart = new Seatchart(el, data);\nconst cart = chart.getCart();"
+  },
+  "example": {
+    "_why": "grid + seatTypes + 多组 SeatIndex 层级高歧义,最小样例用于钉死零基 row/col 与 default 类型。",
+    "minimal": {
+      "map": {
+        "rows": 2,
+        "columns": 3,
+        "seatTypes": {
+          "default": { "label": "Standard", "price": 20, "cssClass": "standard-seat" }
+        },
+        "reservedSeats": [{ "row": 0, "col": 1 }],
+        "columnSpacers": [1]
+      },
+      "cart": { "visible": true, "currency": "$", "submitLabel": "Confirm" },
+      "legendVisible": true
+    },
+    "empty": {
+      "map": {
+        "rows": 0,
+        "columns": 0,
+        "seatTypes": {
+          "default": { "label": "Standard", "price": 0, "cssClass": "standard-seat" }
+        }
+      },
+      "cart": { "visible": false },
+      "legendVisible": false
+    }
+  },
+  "uplink": {
+    "widget": "消费 AI 自行在确认控件处理器中读取 chart.getCart() 与 chart.getCartTotal(),再拼 sendPrompt 文案;不焊接统一事件出口。",
+    "codex": "消费 AI 自行读取同一购物篮并调用 sendFollowUpMessage。",
+    "artifact": "artifact 无上行;提供 SeatInfo[] 与总价 JSON 下载导出兜底。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:零依赖 DOM;基础 CSS 与自定义 seat cssClass 规则都须留在 shadowRoot",
+    "codex": "supported:jsDelivr +esm 默认导出与官方 dist CSS 路径已核对"
+  }
+}

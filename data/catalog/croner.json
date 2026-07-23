@@ -1,0 +1,44 @@
+{
+  "entry_version": "thin-1",
+  "id": "croner",
+  "name": "croner",
+  "when_to_use": "需要枚举 cron 的下一次或未来 N 次触发时间时用它,而非手算——原生手算在 IANA 时区、DST 跳变和 L/W/# 边界上会失败。",
+  "why_valuable": "AI 默认无法可靠计算跨 DST/时区的 next-run 序列;本库把 cron 解析和日期推进闭环成确定性的 Date[]。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "croner",
+    "version": "10.0.1",
+    "github": "Hexagon/croner"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "schema": {
+      "pattern": "string —— 5/6/7 段 cron 或受支持的日期/昵称表达式",
+      "count?": "integer,1..1000 —— 枚举条数,默认 5",
+      "from?": "string(ISO 8601) —— 起算时刻,默认当前时刻",
+      "timezone?": "string(IANA,如 'Australia/Melbourne') —— 默认宿主本地时区",
+      "mode?": "'auto'|'5-part'|'6-part'|'7-part'|'5-or-6-parts'|'6-or-7-parts' —— 默认 'auto'",
+      "domAndDow?": "boolean —— 月日与星期同时受限时是否 AND;默认 false(OR)"
+    }
+  },
+  "provides": {
+    "shape": "temporal",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers;paused 只阻止真实定时回调,不影响 nextRuns 求值。",
+    "outputs": "Date[] —— 严格递增的未来触发时刻;无后续时刻时数组可短于 count",
+    "api_surface": {
+      "nextRun": "new Cron(pattern, options).nextRun(from?) → Date | null",
+      "nextRuns": "new Cron(pattern, options).nextRuns(count, from?) → Date[]"
+    }
+  },
+  "peer": {
+    "id": "cronstrue",
+    "note": "cronstrue 负责把同一 cron 翻译成人话;本条产出 Date[] 供时间轴、日历或列表消费。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:纯 ESM 求值;paused 避免注册真实定时任务\nimport { Cron } from 'https://cdn.jsdelivr.net/npm/croner@10/+esm';\nconst cron = new Cron(data.pattern, { paused: true, timezone: data.timezone, mode: data.mode ?? 'auto', domAndDow: data.domAndDow ?? false });\nconst runs = cron.nextRuns(data.count ?? 5, data.from ? new Date(data.from) : undefined);",
+    "widget": "// headless:无 DOM/shadow 足迹\nimport { Cron } from 'https://cdn.jsdelivr.net/npm/croner@10/+esm';\nconst cron = new Cron(data.pattern, { paused: true, timezone: data.timezone, mode: data.mode ?? 'auto', domAndDow: data.domAndDow ?? false });\nconst runs = cron.nextRuns(data.count ?? 5, data.from ? new Date(data.from) : undefined);",
+    "codex": "// sandbox iframe/worker 均可\nimport { Cron } from 'https://cdn.jsdelivr.net/npm/croner@10/+esm';\nconst cron = new Cron(data.pattern, { paused: true, timezone: data.timezone, mode: data.mode ?? 'auto', domAndDow: data.domAndDow ?? false });\nconst runs = cron.nextRuns(data.count ?? 5, data.from ? new Date(data.from) : undefined);"
+  }
+}

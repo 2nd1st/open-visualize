@@ -1,0 +1,45 @@
+{
+  "entry_version": "thin-1",
+  "id": "tweakpane",
+  "name": "Tweakpane",
+  "when_to_use": "需要高密度参数面板处理数值、颜色、布尔、二维点与区间时用它,而非手写一排 input——原生在复合值控件、折叠组织和一致的微调体验上失败。",
+  "why_valuable": "AI 默认只能写松散的 range/checkbox,做不到紧凑且一致的 point2d、color、interval、folder 与状态快照;Tweakpane 将绑定值持续留在同一个参数对象中。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": { "npm": "tweakpane", "version": "4.0.5", "github": "cocopon/tweakpane" },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "params 是被原地绑定的对象;bindings 只声明要暴露哪些键及数值约束,不要把回调塞进数据。",
+    "schema": {
+      "params": "Record<string, number|string|boolean|{x:number,y:number}>",
+      "bindings": [
+        {
+          "key": "string —— 必须存在于 params",
+          "label?": "string —— 默认使用 key",
+          "min?": "number —— 默认无下界",
+          "max?": "number —— 默认无上界",
+          "step?": "number —— 默认由上游按值域自动决定"
+        }
+      ],
+      "title?": "string —— 默认不显示标题",
+      "expanded?": "boolean —— 默认 true"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:Tweakpane 自带 CSS,构造时注入 artifact document.head\nimport { Pane } from 'https://cdn.jsdelivr.net/npm/tweakpane@4/+esm';\nconst el = document.getElementById('pane');\nconst pane = new Pane({ container: el, title: data.title, expanded: data.expanded ?? true });\nfor (const b of data.bindings) { const { key, ...options } = b; pane.addBinding(data.params, key, options); }\n// 当前值始终在 data.params;完整面板快照可 pane.exportState()",
+    "widget": "unsupported:Tweakpane 4.0.5 的 embedStyle() 无条件把 data-tp-style 写入 document.head;即使节点落 shadowRoot,head 规则也不会跨 shadow,不满足 widget 零足迹/铁律 2。",
+    "codex": "// sandbox iframe 允许样式写入该 iframe 的 head\nimport { Pane } from 'https://cdn.jsdelivr.net/npm/tweakpane@4/+esm';\nconst el = document.getElementById('pane');\nconst pane = new Pane({ container: el, title: data.title, expanded: data.expanded ?? true });\nfor (const b of data.bindings) { const { key, ...options } = b; pane.addBinding(data.params, key, options); }\nconst snapshot = pane.exportState();"
+  },
+  "uplink": {
+    "widget": "unsupported:本版本无法满足 shadow 样式隔离,不要以复制 head 样式的临时补丁冒充支持。",
+    "codex": "消费 AI 自行读取 data.params 或 pane.exportState(),再调用 sendFollowUpMessage。",
+    "artifact": "artifact 无上行;提供 data.params 或 pane.exportState() JSON 下载导出兜底。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "unsupported:运行时强制 document.head 样式注入,与 shadow 零足迹约束冲突",
+    "codex": "supported:sandbox iframe 隔离了 document.head 注入"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "entry_version": "thin-1",
+  "id": "tone",
+  "name": "Tone.js",
+  "when_to_use": "需要在浏览器里合成音色、按拍号精确调度音符或做可交互乐理实验时用它,而非手写 Web Audio——原生在 AudioContext 解锁、节拍调度与合成器节点编排上昂贵且易漂移。",
+  "why_valuable": "AI 默认只能拼一次性 oscillator,做不到稳定 transport 调度、复音合成、包络与效果链;Tone.js 把音符序列直接变成可重复的 Web Audio 时间线,且不依赖外部音频素材。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "tone",
+    "version": "15.1.22",
+    "github": "Tonejs/Tone.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "sequence",
+    "note": "输入是交给 Tone.Part 的定时音符序列;time 使用 Tone.TransportTime 记法,note 使用 Tone.Frequency 记法。所有可选字段均在下方写明默认。",
+    "schema": {
+      "events": [
+        {
+          "time": "number | string —— Tone.TransportTime,必填",
+          "note": "number | string —— Tone.Frequency,必填",
+          "duration?": "number | string —— Tone.Time,默认 '8n'",
+          "velocity?": "number（0..1）,默认 1"
+        }
+      ],
+      "bpm?": "number（>0）,默认 120"
+    }
+  },
+  "provides": {
+    "shape": "audio-engine",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;它消费 sequence,产出 Web Audio 声音与 transport 时钟。",
+    "outputs": "AudioNode 音频链 / Transport 时间线 / 可供频谱或钢琴卷帘读取的播放时刻。",
+    "api_surface": {
+      "unlock": "await Tone.start() —— 必须由用户手势触发,解除浏览器自动播放锁。",
+      "instrument": "new Tone.Synth().toDestination()",
+      "schedule": "new Tone.Part(callback, events).start(0)",
+      "transport": "Tone.getTransport().bpm.value = bpm; Tone.getTransport().start()"
+    }
+  },
+  "peer": {
+    "note": "它是声音/时钟生产者,不画界面;可由钢琴键盘、频谱或时间轴组件消费播放状态。回调与任何上行由消费 AI 自行连接,不预设统一事件契约。"
+  },
+  "boot": {
+    "shared": "import * as Tone from 'https://cdn.jsdelivr.net/npm/tone@15/+esm';\nawait Tone.start(); // 放在 click/tap 处理器内\nconst synth = new Tone.Synth().toDestination();\nconst part = new Tone.Part((time, e) => synth.triggerAttackRelease(e.note, e.duration ?? '8n', time, e.velocity ?? 1), data.events.map(e => [e.time, e])).start(0);\nTone.getTransport().bpm.value = data.bpm ?? 120;\nTone.getTransport().start();",
+    "note": "保守用法:先 await Tone.start() 再启动 Transport;浏览器不会允许页面加载时自动出声。Part/synth 由消费 AI 在结束时 dispose,这里不焊接平台生命周期。"
+  }
+}

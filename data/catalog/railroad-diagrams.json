@@ -1,0 +1,88 @@
+{
+  "entry_version": "thin-1",
+  "id": "railroad-diagrams",
+  "name": "railroad-diagrams",
+  "when_to_use": "需要把 DSL、协议或配置文法渲成 JSON.org 风格 railroad SVG 时用它而非手写,因为原生在 Choice 回路、重复分支和端点对齐上失败。",
+  "why_valuable": "AI 默认能写 BNF 文本,但做不到对任意嵌套文法稳定计算分支宽高、弧线半径和 SVG 连线;库把结构树确定地变成可读语法图。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "railroad-diagrams",
+    "version": "1.0.0",
+    "github": "tabatkins/railroad-diagrams"
+  },
+  "license": "CC0-1.0",
+  "data_in": {
+    "shape": "hierarchy",
+    "note": "grammar 是下面的判别联合树,每个节点一一映射上游同名构造器；不是 BNF/EBNF 字符串,库本身不解析文法文本。",
+    "schema": {
+      "grammar": {
+        "type": "'terminal'|'nonterminal'|'sequence'|'choice'|'optional'|'oneOrMore'|'zeroOrMore'|'comment'|'skip'",
+        "text?": "string —— terminal、nonterminal、comment 必填；其他节点默认无",
+        "items?": "grammar[] —— sequence、choice 必填；其他节点默认 []",
+        "normal?": "integer —— choice 的主路径索引,默认 0,必须落在 items 范围内",
+        "item?": "grammar —— optional、oneOrMore、zeroOrMore 必填",
+        "repeat?": "grammar —— oneOrMore/zeroOrMore 的回程标签,默认 Skip",
+        "skip?": "boolean —— optional/zeroOrMore 是否把绕行作为主路径,默认 false"
+      }
+    }
+  },
+  "spec": {
+    "height": 360,
+    "note": "上游生成自然宽高 SVG;外层默认显式 360px 高并允许双向滚动,AI 可传其他像素高度。禁用 vh/百分比高度。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:CSS 放 artifact document.head(铁律 2)\nimport RR from 'https://cdn.jsdelivr.net/npm/railroad-diagrams@1/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/railroad-diagrams@1.0.0/railroad-diagrams.css'; document.head.appendChild(css);\nfunction build(n) { const xs = (n.items ?? []).map(build); const f = { terminal:()=>RR.Terminal(n.text), nonterminal:()=>RR.NonTerminal(n.text), comment:()=>RR.Comment(n.text), skip:()=>RR.Skip(), sequence:()=>RR.Sequence(...xs), choice:()=>RR.Choice(n.normal ?? 0, ...xs), optional:()=>RR.Optional(build(n.item), n.skip ? 'skip' : undefined), oneOrMore:()=>RR.OneOrMore(build(n.item), n.repeat ? build(n.repeat) : undefined), zeroOrMore:()=>RR.ZeroOrMore(build(n.item), n.repeat ? build(n.repeat) : undefined, n.skip ? 'skip' : undefined) }; return f[n.type](); }\nconst el = document.getElementById('grammar'); el.style.cssText = 'height:360px;overflow:auto';\nel.appendChild(RR.Diagram(build(data.grammar)).toSVG());",
+    "widget": "// CSS 与 SVG 都落 shadowRoot(铁律 2)\nimport RR from 'https://cdn.jsdelivr.net/npm/railroad-diagrams@1/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/railroad-diagrams@1.0.0/railroad-diagrams.css'; shadowRoot.appendChild(css);\nfunction build(n) { const xs = (n.items ?? []).map(build); const f = { terminal:()=>RR.Terminal(n.text), nonterminal:()=>RR.NonTerminal(n.text), comment:()=>RR.Comment(n.text), skip:()=>RR.Skip(), sequence:()=>RR.Sequence(...xs), choice:()=>RR.Choice(n.normal ?? 0, ...xs), optional:()=>RR.Optional(build(n.item), n.skip ? 'skip' : undefined), oneOrMore:()=>RR.OneOrMore(build(n.item), n.repeat ? build(n.repeat) : undefined), zeroOrMore:()=>RR.ZeroOrMore(build(n.item), n.repeat ? build(n.repeat) : undefined, n.skip ? 'skip' : undefined) }; return f[n.type](); }\nconst el = document.createElement('div'); el.style.cssText = 'height:360px;overflow:auto'; shadowRoot.appendChild(el);\nel.appendChild(RR.Diagram(build(data.grammar)).toSVG());",
+    "codex": "import RR from 'https://cdn.jsdelivr.net/npm/railroad-diagrams@1/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/railroad-diagrams@1.0.0/railroad-diagrams.css'; document.head.appendChild(css);\nfunction build(n) { const xs = (n.items ?? []).map(build); const f = { terminal:()=>RR.Terminal(n.text), nonterminal:()=>RR.NonTerminal(n.text), comment:()=>RR.Comment(n.text), skip:()=>RR.Skip(), sequence:()=>RR.Sequence(...xs), choice:()=>RR.Choice(n.normal ?? 0, ...xs), optional:()=>RR.Optional(build(n.item), n.skip ? 'skip' : undefined), oneOrMore:()=>RR.OneOrMore(build(n.item), n.repeat ? build(n.repeat) : undefined), zeroOrMore:()=>RR.ZeroOrMore(build(n.item), n.repeat ? build(n.repeat) : undefined, n.skip ? 'skip' : undefined) }; return f[n.type](); }\nconst el = document.getElementById('grammar'); el.style.cssText = 'height:360px;overflow:auto';\nel.appendChild(RR.Diagram(build(data.grammar)).toSVG());"
+  },
+  "example": {
+    "_why": "嵌套文法树的构造器对应关系有歧义,minimal 固定 Sequence + Choice + repetition 的真实层级。",
+    "minimal": {
+      "grammar": {
+        "type": "sequence",
+        "items": [
+          {
+            "type": "terminal",
+            "text": "SELECT"
+          },
+          {
+            "type": "oneOrMore",
+            "item": {
+              "type": "nonterminal",
+              "text": "column"
+            },
+            "repeat": {
+              "type": "terminal",
+              "text": ","
+            }
+          },
+          {
+            "type": "choice",
+            "normal": 0,
+            "items": [
+              {
+                "type": "terminal",
+                "text": "FROM"
+              },
+              {
+                "type": "skip"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "empty": {
+      "grammar": {
+        "type": "skip"
+      }
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:纯 DOM/SVG;样式 link 与渲染容器都挂入 shadowRoot,无 worker/wasm/font/uplink",
+    "codex": "supported:jsDelivr +esm 默认导出构造器集合,外加 pinned CSS"
+  }
+}

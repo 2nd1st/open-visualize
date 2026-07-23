@@ -1,0 +1,111 @@
+{
+  "entry_version": "thin-1",
+  "id": "vega-lite",
+  "name": "Vega-Lite (+vega-embed)",
+  "when_to_use": "需要用声明式 JSON 做多视图刷选联动、交叉过滤、分面或复合统计图时用它而非手写事件化 SVG,因为原生手写在视图间信号、尺度与过滤状态同步上失败;静态单一柱线饼非做它。",
+  "why_valuable": "AI 默认只能仿静态图,做不到多视图刷选、交叉过滤和尺度/信号一致性;Vega-Lite 把这些逻辑封进可校验 JSON spec,避免徒手事件代码。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "vega-lite",
+    "version": "6.4.3",
+    "github": "vega/vega-lite"
+  },
+  "license": "BSD-3-Clause",
+  "data_in": {
+    "shape": "tabular",
+    "note": "data_in.spec 是 Vega-Lite v6 原生 JSON spec,由 vega-embed 编译并挂载;不是 Vega runtime spec,也不是自造图表 schema。",
+    "schema": {
+      "spec": {
+        "$schema": "'https://vega.github.io/schema/vega-lite/v6.json'",
+        "data": {
+          "values": "Record<string, string | number | boolean | null>[]"
+        },
+        "mark?": "Vega-Lite Mark | MarkDef —— unit spec 必填,compound spec 默认无顶层 mark",
+        "encoding?": {
+          "_default": "{};unit spec 的通道映射",
+          "x?": "FieldDef | DatumDef | ValueDef —— 默认无 x 通道",
+          "y?": "FieldDef | DatumDef | ValueDef —— 默认无 y 通道",
+          "color?": "FieldDef | DatumDef | ValueDef —— 默认无 color 通道",
+          "size?": "FieldDef | DatumDef | ValueDef —— 默认无 size 通道",
+          "tooltip?": "FieldDef | FieldDef[] | ValueDef —— 默认无 tooltip 编码"
+        },
+        "layer?": "Vega-Lite LayerSpec[] —— 默认无;与 mark 单元分支二选一",
+        "hconcat?": "Vega-Lite Spec[] —— 默认无;横向多视图分支",
+        "vconcat?": "Vega-Lite Spec[] —— 默认无;纵向多视图分支",
+        "transform?": "Vega-Lite Transform[] —— 默认 []",
+        "params?": "Vega-Lite Parameter[] —— 默认 [];其中 select 是上游原生刷选语法,不是平台事件契约",
+        "width?": "number | 'container' —— 默认由 Vega-Lite 推断",
+        "height?": "number —— boot 默认 400",
+        "config?": "Vega-Lite Config —— 默认 {}"
+      },
+      "embed_options?": {
+        "_default": "{actions:false,renderer:'svg',tooltip:false}",
+        "actions?": "boolean —— boot 默认 false",
+        "renderer?": "'svg' | 'canvas' —— boot 默认 'svg'",
+        "tooltip?": "boolean —— boot 默认 false,开启时会产生 shadow 外的 tooltip 足迹"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "Vega-Lite spec 的 height 省略时由 boot 注入 400px;只传数值像素,铁律 3 禁 vh/百分比高。组合/分面图的子视图尺寸仍由原生 spec 控制。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:使用 vega-embed 7 编译 Vega-Lite 6 spec\nimport embed from 'https://cdn.jsdelivr.net/npm/vega-embed@7/+esm';\nconst el = document.getElementById('vis');\nconst spec = { height: 400, ...data.spec };\nconst opts = { actions: false, renderer: 'svg', tooltip: false, ...(data.embed_options ?? {}) };\nawait embed(el, spec, opts);",
+    "widget": "import embed from 'https://cdn.jsdelivr.net/npm/vega-embed@7/+esm';\nconst el = document.createElement('div'); shadowRoot.appendChild(el);\nconst spec = { height: 400, ...data.spec };\nconst opts = { actions: false, renderer: 'svg', tooltip: false, ...(data.embed_options ?? {}) };\nawait embed(el, spec, opts);",
+    "codex": "import embed from 'https://cdn.jsdelivr.net/npm/vega-embed@7/+esm';\nconst el = document.getElementById('vis');\nconst spec = { height: 400, ...data.spec };\nconst opts = { actions: false, renderer: 'svg', tooltip: false, ...(data.embed_options ?? {}) };\nawait embed(el, spec, opts);"
+  },
+  "example": {
+    "_why": "Vega-Lite 是深 config / 高歧义图表语法,必须给可直接编译的最小 v6 spec。",
+    "minimal": {
+      "spec": {
+        "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+        "data": {
+          "values": [
+            {
+              "category": "A",
+              "value": 12
+            },
+            {
+              "category": "B",
+              "value": 19
+            }
+          ]
+        },
+        "mark": "bar",
+        "encoding": {
+          "x": {
+            "field": "category",
+            "type": "nominal"
+          },
+          "y": {
+            "field": "value",
+            "type": "quantitative"
+          }
+        }
+      }
+    },
+    "empty": {
+      "spec": {
+        "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+        "data": {
+          "values": []
+        },
+        "mark": "point",
+        "encoding": {}
+      }
+    }
+  },
+  "peer": {
+    "npm": "vega-embed",
+    "major": "7",
+    "note": "boot 通过兼容 Vega-Lite 6 的 vega-embed 7 完成编译和挂载;本条 upstream 版本仍严格记录 picks 中的 vega-lite 6.4.3。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:默认 actions:false、tooltip:false 时 SVG/canvas 落 shadow 容器;开启 embed 菜单或 tooltip 会产生 shadow 外样式/DOM 足迹",
+    "codex": "supported:ESM CDN + SVG/canvas;默认关闭菜单与 tooltip,无上行依赖"
+  }
+}

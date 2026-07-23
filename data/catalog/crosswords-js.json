@@ -1,0 +1,49 @@
+{
+  "entry_version": "thin-1",
+  "id": "crosswords-js",
+  "name": "crosswords-js",
+  "when_to_use": "需要把结构化横纵线索变成带黑格、编号、键盘导航和可填单元格的填字网格时用它,而非手写表格状态机——原生在交叉校验、编号、焦点移动与无障碍键盘行为上失败。非谜题生成器或答案判分服务。",
+  "why_valuable": "AI 默认只能列出线索,做不到稳定编译交叉格、检测越界/冲突并生成可键盘填写的网格；该上游的 definition→model→DOM 路径可补齐这段能力,但当前 npm 产物不可直接上载体。",
+  "supply_form": "app-needs-fork",
+  "mode": "our-entry",
+  "upstream": {
+    "npm": "crosswords-js",
+    "version": "0.1.14",
+    "github": "dwmkerr/crosswords-js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "grid",
+    "note": "未来 fork 应原样消费上游 Crossword Definition；x/y 为一基网格坐标,答案长度从 clue 末尾的括号结构读取。",
+    "schema": {
+      "width": "positive integer —— 网格列数",
+      "height": "positive integer —— 网格行数",
+      "acrossClues?": "{x:positive integer,y:positive integer,clue:string}[] —— 横向线索,默认 []",
+      "downClues?": "{x:positive integer,y:positive integer,clue:string}[] —— 纵向线索,默认 []",
+      "_clue_rule": "clue 应以编号开头并以答案结构结尾,如 '1. Tiny feline (3)'；编译器据 (3) 或 (4,5) 推导占格长度"
+    }
+  },
+  "status": "blocked-until-forked",
+  "fork_note": "已按 0.1.14 实包核对:package main 指向 src/index.js,其入口 require('./crosswords.less')；npm 包未包含 README 声称的 dist/crosswords.js 与 dist/crosswords.css,jsDelivr /npm/crosswords-js@0/+esm 返回内部导入解析失败。需 fork 后编译并发布浏览器 ESM+CSS,再以 compileCrossword(definition) → new CrosswordDOM(model, element) 原生 API 建 L1 条目；当前不伪造 boot、不作可消费上架。",
+  "example": {
+    "_why": "线索起点、方向与括号长度共同决定网格,属于高歧义表格配置；保留一个最小 definition 供未来 fork dry-run。",
+    "minimal": {
+      "width": 3,
+      "height": 3,
+      "acrossClues": [
+        {
+          "x": 1,
+          "y": 1,
+          "clue": "1. Tiny feline (3)"
+        }
+      ],
+      "downClues": []
+    },
+    "empty": {
+      "width": 1,
+      "height": 1,
+      "acrossClues": [],
+      "downClues": []
+    }
+  }
+}

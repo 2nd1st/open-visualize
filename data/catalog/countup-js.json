@@ -1,0 +1,59 @@
+{
+  "entry_version": "thin-1",
+  "id": "countup-js",
+  "name": "CountUp.js",
+  "when_to_use": "需要让 KPI、里程碑或最终结果以精确终值的数字滚动揭晓时用它而非手写 CSS/requestAnimationFrame，因为原生在小数进位、千位分组、重复改值与 easing 终点精度上失败。",
+  "why_valuable": "AI 默认只能写一次性的整数递增循环，做不到负数/小数格式、分组符、超大跨度 smart easing、暂停恢复与无漂移终值；CountUp.js 用一个标量和浅 options 稳定覆盖。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "countup.js",
+    "version": "2.10.1",
+    "github": "inorganik/countUp.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "scalar",
+    "note": "value 直接作为 CountUp 构造器 endVal；schema 只保留纯数据 options，函数回调、formattingFn 与 plugin 由消费 AI 自己接原生 API。",
+    "schema": {
+      "value": "finite number —— 动画终值",
+      "options?": {
+        "_default": "{} —— 从 0 起、2 秒、整数、easeOutExpo、启用三位分组",
+        "startVal?": "finite number —— 默认 0",
+        "decimalPlaces?": "non-negative integer —— 默认 0",
+        "duration?": "non-negative number seconds —— 默认 2",
+        "useEasing?": "boolean —— 默认 true",
+        "useGrouping?": "boolean —— 默认 true",
+        "useIndianSeparators?": "boolean —— 默认 false",
+        "smartEasingThreshold?": "non-negative number —— 默认 999",
+        "smartEasingAmount?": "non-negative number —— 默认 333",
+        "separator?": "string —— 默认 ','",
+        "decimal?": "string —— 默认 '.'",
+        "prefix?": "string —— 默认空字符串",
+        "suffix?": "string —— 默认空字符串",
+        "numerals?": "恰含 10 项的 string[] —— 默认 []，即使用西文数字",
+        "autoAnimate?": "boolean —— 默认 false",
+        "autoAnimateDelay?": "non-negative integer milliseconds —— 默认 200",
+        "autoAnimateOnce?": "boolean —— 默认 false"
+      }
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:纯 DOM 文本，无样式注入\nimport { CountUp } from 'https://cdn.jsdelivr.net/npm/countup.js@2/+esm';\nconst el = document.getElementById('count');\nconst counter = new CountUp(el, data.value, data.options ?? {});\nif (counter.error) throw new Error(counter.error);\ncounter.start();",
+    "widget": "// 目标节点落在 shadowRoot，构造器直接吃元素引用\nimport { CountUp } from 'https://cdn.jsdelivr.net/npm/countup.js@2/+esm';\nconst el = document.createElement('span'); el.setAttribute('aria-live','polite'); shadowRoot.appendChild(el);\nconst counter = new CountUp(el, data.value, data.options ?? {});\nif (counter.error) throw new Error(counter.error);\ncounter.start();",
+    "codex": "import { CountUp } from 'https://cdn.jsdelivr.net/npm/countup.js@2/+esm';\nconst el = document.getElementById('count');\nconst counter = new CountUp(el, data.value, data.options ?? {});\nif (counter.error) throw new Error(counter.error);\ncounter.start();"
+  },
+  "example": {
+    "_why_no_minimal": "输入是单标量加浅 options，字段默认值已钉死，无需 minimal config。",
+    "empty": {
+      "value": 0
+    }
+  },
+  "uplink": "纯显示动效，默认无需上行；后续改值可由消费 AI 直接调用 counter.update(newValue)，完成回调不封装成平台事件。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:只写 shadowRoot 内目标节点的 text/innerHTML，无 CSS、canvas、worker、图片或字体依赖",
+    "codex": "supported:ESM CDN + requestAnimationFrame + DOM 文本"
+  }
+}

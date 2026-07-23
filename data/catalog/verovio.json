@@ -1,0 +1,39 @@
+{
+  "entry_version": "thin-1",
+  "id": "verovio",
+  "name": "Verovio",
+  "when_to_use": "需要把 MEI、MusicXML、ABC 或 PAE 刻成出版级可缩放 SVG 乐谱时用它,而非手写 SVG——原生手写在复杂符号、分页、字体度量与学术记谱细节上失败;它非做交互谱面编辑器。",
+  "why_valuable": "AI 默认能写部分音乐记法,但无法产出出版级谱面,复杂分页与 glyph 对齐成功率接近 0%;Verovio 用 WASM 刻版引擎把多种文本记法稳定转成 SVG。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "verovio",
+    "version": "6.2.0",
+    "github": "rism-digital/verovio"
+  },
+  "license": "LGPL-3.0-or-later",
+  "license_note": "弱 copyleft:本条直接加载未修改的上游 JS/WASM;若分发修改版或静态合并,消费方仍须自行满足 LGPL-3.0-or-later 的重链接/源码等义务。",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "MEI/MusicXML/ABC/PAE 都是 AI 可直接书写的既有记法,loadData 会识别完整源文档;schema 足矣,不附 minimal。",
+    "schema": {
+      "notation": "string —— 一份完整且可自识别的 MEI XML、MusicXML XML、ABC 文本(X: 头)或 PAE 文本(@ 头);不要混合格式或只传脱离文档头的片段",
+      "scale?": "number —— Verovio 刻版缩放百分比,本条默认 40"
+    }
+  },
+  "spec": {
+    "height": 600,
+    "note": "boot 给滚动容器固定 600px 高并渲染第 1 页;禁 vh/百分比高。多页由消费 AI 调用 getPageCount() 后逐页 renderToSVG(page) 或自行加翻页,本条不预设事件契约。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:Verovio 是 ESM 包装 + WASM 模块双入口\nimport createVerovioModule from 'https://cdn.jsdelivr.net/npm/verovio@6/dist/verovio-module.mjs';\nimport { VerovioToolkit } from 'https://cdn.jsdelivr.net/npm/verovio@6/dist/verovio.mjs';\nconst module = await createVerovioModule(), toolkit = new VerovioToolkit(module);\ntoolkit.setOptions({ scale: data.scale ?? 40, adjustPageHeight: true }); toolkit.loadData(data.notation);\nconst el = document.getElementById('score'); el.style.cssText = 'height:600px;overflow:auto';\nel.innerHTML = toolkit.renderToSVG(1);",
+    "widget": "import createVerovioModule from 'https://cdn.jsdelivr.net/npm/verovio@6/dist/verovio-module.mjs';\nimport { VerovioToolkit } from 'https://cdn.jsdelivr.net/npm/verovio@6/dist/verovio.mjs';\nconst module = await createVerovioModule(), toolkit = new VerovioToolkit(module);\ntoolkit.setOptions({ scale: data.scale ?? 40, adjustPageHeight: true }); toolkit.loadData(data.notation);\nconst el = document.createElement('div'); el.style.cssText = 'height:600px;overflow:auto';\nel.innerHTML = toolkit.renderToSVG(1); shadowRoot.appendChild(el);",
+    "codex": "同 artifact(sandbox iframe):加载 pinned-major ESM/WASM 双入口,await module 后 new VerovioToolkit,loadData + renderToSVG(1)。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:需宿主允许 wasm 初始化与较大 CDN 模块;输出仅落 shadow 容器内 SVG",
+    "codex": "conditional:需 wasm + ESM CDN;无字体 CDN、uplink 或 worker"
+  }
+}

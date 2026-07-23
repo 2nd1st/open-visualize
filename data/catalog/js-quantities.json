@@ -1,0 +1,49 @@
+{
+  "entry_version": "thin-1",
+  "id": "js-quantities",
+  "name": "JS-quantities",
+  "when_to_use": "需要解析复合单位、做量纲一致性检查或换算 km/h、N·m、kWh 等带量纲数量时用它而非手写,因为原生在单位指数、复合量纲和不兼容运算上会失败。",
+  "why_valuable": "AI 默认做不到可靠的复合单位代数,会把量纲不兼容的值直接相加并在指数单位中漏因子；该库能解析单位字符串、校验兼容性并保留量纲。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "js-quantities",
+    "version": "1.8.0",
+    "github": "gentooboontoo/js-quantities"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "scalar",
+    "note": "data_in 精确构造 Qty(value, unit),再按可选 target_unit 调用 to；unit 使用 JS-quantities 原生语法,乘法可写空格或 *,指数可写 m^2 或 m2。",
+    "schema": {
+      "value": "number —— 数量的标量部分",
+      "unit": "string —— 原生单位表达式,例如 'km/h'|'m/s'|'N*m'|'kWh'|'m^2/s^2'",
+      "target_unit?": "string —— 兼容量纲的目标单位表达式,默认省略；省略时仅解析并规范化原单位"
+    }
+  },
+  "provides": {
+    "shape": "dimensioned-quantity",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵；纯 JS 量纲代数。",
+    "outputs": "{scalar:number, units:string, kind:string}；目标单位不兼容时抛错,不会静默给出伪结果。",
+    "api_surface": {
+      "construct": "Qty(value, unit) → Qty",
+      "convert": "qty.to(targetUnit) → 新 Qty",
+      "compatible": "qty.isCompatible(otherQty) → boolean",
+      "algebra": "qty.mul(other) / qty.div(other) / qty.sub(other) → 新 Qty",
+      "fast_series": "Qty.swiftConverter(fromUnit, toUnit)(number[]) → number[]"
+    }
+  },
+  "peer": {
+    "ids": [
+      "function-plot",
+      "echarts"
+    ],
+    "note": "本条生产带单位结果；批量换算后的 [x,y][] 可交给绘图组件,单位输入与错误提示由消费 AI 负责。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact H0 探针未闭合；纯 ESM、无 DOM\nimport Qty from 'https://cdn.jsdelivr.net/npm/js-quantities@1/esm/+esm';\nconst source = Qty(data.value, data.unit);\nconst quantity = data.target_unit ? source.to(data.target_unit) : source;\nconst result = { scalar: quantity.scalar,\n  units: quantity.units(), kind: quantity.kind() };",
+    "widget": "// widget 内纯计算,无需接触 shadow DOM\nimport Qty from 'https://cdn.jsdelivr.net/npm/js-quantities@1/esm/+esm';\nconst source = Qty(data.value, data.unit);\nconst quantity = data.target_unit ? source.to(data.target_unit) : source;\nconst result = { scalar: quantity.scalar,\n  units: quantity.units(), kind: quantity.kind() };",
+    "codex": "// sandbox iframe 内直接跑纯 ESM\nimport Qty from 'https://cdn.jsdelivr.net/npm/js-quantities@1/esm/+esm';\nconst source = Qty(data.value, data.unit);\nconst quantity = data.target_unit ? source.to(data.target_unit) : source;\nconst result = { scalar: quantity.scalar,\n  units: quantity.units(), kind: quantity.kind() };",
+    "note": "使用包的原生 ESM 子入口 /esm/+esm,已核对 default Qty；不要用 parse 失败后返回 null 的宽松路径吞掉坏输入。"
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "entry_version": "thin-1",
+  "id": "mind-elixir",
+  "name": "mind-elixir",
+  "when_to_use": "需要用户直接编辑、拖排并导出 JSON 思维导图时用它而非手写 SVG/Mermaid,因为原生在节点编辑、分支重排、自动布局和可逆历史上失败。非做只读的小型静态树图,静态树继续用 Mermaid。",
+  "why_valuable": "AI 默认只能输出静态 Mermaid mindmap;默认做不到画布内节点编辑、分支拖排、左右布局、缩放漫游与结构 JSON 回读,手写后也难保持树和画面同步。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "mind-elixir",
+    "version": "5.14.0",
+    "github": "SSShooter/mind-elixir-core"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "hierarchy",
+    "note": "data.map 直接采用 MindElixirData:根必须位于 nodeData,不是裸 children 数组。id 与 topic 是每个节点的必需字段;parent 是运行时字段,输入中不要提供。",
+    "schema": {
+      "map": {
+        "nodeData": {
+          "id": "string —— 全图唯一",
+          "topic": "string",
+          "children?": "Node[] —— 递归同结构,默认 []",
+          "expanded?": "boolean —— 分支是否展开,默认 true",
+          "direction?": "0 | 1 —— 左/右分支,默认由根布局分配",
+          "tags?": "(string | {text:string})[] —— 默认 []"
+        },
+        "direction?": "0 | 1 | 2 —— LEFT/RIGHT/SIDE,默认 2(SIDE)",
+        "meta?": "Record<string, JSONValue> —— 默认省略"
+      },
+      "editable?": "boolean —— 是否可编辑,默认 true"
+    }
+  },
+  "spec": {
+    "height": 480,
+    "note": "导图 SVG/HTML 混合布局必须在初始化前拿到非零容器尺寸;默认 height 480px,AI 可覆盖为其他明确像素值,禁用 vh/百分比高(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:官方 CSS 进 document.head\nimport MindElixir from 'https://cdn.jsdelivr.net/npm/mind-elixir@5/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/mind-elixir@5/dist/MindElixir.css' });\ndocument.head.appendChild(css);\nconst el = document.getElementById('mindmap'); el.style.height = `${spec.height ?? 480}px`;\nconst mind = new MindElixir({ el, direction: data.map.direction ?? MindElixir.SIDE, editable: data.editable ?? true, contextMenu: true, toolBar: true, keypress: true });\nmind.init(data.map);",
+    "widget": "// CSS 与导图挂载点都落 shadowRoot\nimport MindElixir from 'https://cdn.jsdelivr.net/npm/mind-elixir@5/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/mind-elixir@5/dist/MindElixir.css' });\nconst el = document.createElement('div'); el.style.height = `${spec.height ?? 480}px`; shadowRoot.append(css, el);\nconst mind = new MindElixir({ el, direction: data.map.direction ?? MindElixir.SIDE, editable: data.editable ?? true, contextMenu: true, toolBar: true, keypress: true });\nmind.init(data.map);",
+    "codex": "// sandbox iframe 内按上游构造器 + init 挂载\nimport MindElixir from 'https://cdn.jsdelivr.net/npm/mind-elixir@5/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/mind-elixir@5/dist/MindElixir.css' });\ndocument.head.appendChild(css);\nconst el = document.getElementById('mindmap'); el.style.height = `${spec.height ?? 480}px`;\nconst mind = new MindElixir({ el, direction: data.map.direction ?? MindElixir.SIDE, editable: data.editable ?? true, contextMenu: true, toolBar: true, keypress: true });\nmind.init(data.map);"
+  },
+  "example": {
+    "_why": "MindElixir 要求 nodeData 包裹、稳定 id 与递归 NodeObj,属于编辑器高歧义输入;minimal 用原生 MindElixirData 消歧。",
+    "minimal": {
+      "map": {
+        "nodeData": {
+          "id": "root",
+          "topic": "Launch",
+          "children": [
+            {
+              "id": "research",
+              "topic": "Research"
+            },
+            {
+              "id": "delivery",
+              "topic": "Delivery"
+            }
+          ]
+        },
+        "direction": 2
+      },
+      "editable": true
+    },
+    "empty": {
+      "map": {
+        "nodeData": {
+          "id": "root",
+          "topic": "Untitled",
+          "children": []
+        }
+      }
+    }
+  },
+  "uplink": {
+    "_note": "本条不预置统一事件出口;消费 AI 需要回传时自行读取 mind.getData()。",
+    "widget": "消费 AI 自行把 mind.getData() 的 JSON 编入 sendPrompt 文案。",
+    "codex": "消费 AI 自行把 mind.getData() 交给 sendFollowUpMessage。",
+    "artifact": "artifact 无上行;提供把 mind.getData() 下载为 JSON 的兜底。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:必须把 MindElixir.css 与显式高度容器放进 shadowRoot;构造器接收 HTMLElement,核心 SVG/DOM 留在该容器",
+    "codex": "supported:ESM CDN + CSS + SVG/DOM,无 worker/wasm"
+  }
+}

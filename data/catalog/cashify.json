@@ -1,0 +1,49 @@
+{
+  "entry_version": "thin-1",
+  "id": "cashify",
+  "name": "Cashify",
+  "when_to_use": "需要基于调用方提供的汇率快照做多币种换算时用它而非手写,因为原生在基准币种反转、交叉汇率和快照时效传递上会失败。",
+  "why_valuable": "AI 默认只能做一次乘法,不能稳定判断汇率表相对哪个 base、何时取倒数或怎样求交叉汇率；Cashify 强制注入 rates,不臆造实时汇率。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "cashify",
+    "version": "4.0.0",
+    "github": "xxczaki/cashify"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "scalar",
+    "note": "data_in 精确映射到 convert(amount,{from,to,base,rates})；rates 是相对 base 的同一时点快照,rates[base] 应为 1；本条不联网抓取汇率。",
+    "schema": {
+      "amount": "number —— 有限金额",
+      "from": "string —— 汇率表中的币种代码,建议 ISO 4217 大写代码",
+      "to": "string —— 汇率表中的币种代码,建议 ISO 4217 大写代码",
+      "base": "string —— rates 的基准币种",
+      "rates": "Record<string, number> —— 每个值表示 1 base 可换多少该币种,必须同时覆盖 from/to,并令 rates[base]=1",
+      "as_of": "string —— 该 rates 快照的 ISO 8601 日期或时间；仅随结果传递,不传给 Cashify"
+    }
+  },
+  "provides": {
+    "shape": "fx-result",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵；纯 ESM,汇率数据由调用方负责。",
+    "outputs": "{value:number, from:string, to:string, as_of:string}；value 来自注入快照,不是实时行情。",
+    "api_surface": {
+      "stateless": "convert(amount, {from, to, base, rates}) → number",
+      "reusable": "new Cashify({base, rates}).convert(amount, {from, to}) → number",
+      "parse": "parse('10 EUR to GBP') → {amount, from, to}"
+    }
+  },
+  "peer": {
+    "ids": [
+      "gridjs"
+    ],
+    "note": "本条只算汇率；多币种对照表可交给 Grid.js,界面必须同时显示 as_of,消费 AI 不得把快照结果标成实时价。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact H0 探针未闭合；纯 ESM、无 DOM\nimport { convert } from 'https://cdn.jsdelivr.net/npm/cashify@4/+esm';\nif (data.rates[data.base] !== 1) throw new Error('rates[base] must equal 1');\nconst value = convert(data.amount, { from: data.from, to: data.to,\n  base: data.base, rates: data.rates });\nconst result = { value, from: data.from, to: data.to, as_of: data.as_of };",
+    "widget": "// widget 内纯计算,无需接触 shadow DOM\nimport { convert } from 'https://cdn.jsdelivr.net/npm/cashify@4/+esm';\nif (data.rates[data.base] !== 1) throw new Error('rates[base] must equal 1');\nconst value = convert(data.amount, { from: data.from, to: data.to,\n  base: data.base, rates: data.rates });\nconst result = { value, from: data.from, to: data.to, as_of: data.as_of };",
+    "codex": "// sandbox iframe 内直接跑纯 ESM\nimport { convert } from 'https://cdn.jsdelivr.net/npm/cashify@4/+esm';\nif (data.rates[data.base] !== 1) throw new Error('rates[base] must equal 1');\nconst value = convert(data.amount, { from: data.from, to: data.to,\n  base: data.base, rates: data.rates });\nconst result = { value, from: data.from, to: data.to, as_of: data.as_of };",
+    "note": "jsDelivr +esm 已核对 named convert/Cashify/parse；v4 的 big.js 是可选 peer,本条裁掉 BigJs 以保持 JSON 输入与默认 number 输出。"
+  }
+}

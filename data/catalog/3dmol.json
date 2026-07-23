@@ -1,0 +1,38 @@
+{
+  "entry_version": "thin-1",
+  "id": "3dmol",
+  "name": "3Dmol.js",
+  "when_to_use": "需要在浏览器中旋转、缩放并以 cartoon 或球棍方式查看 PDB/SDF/MOL2/XYZ 三维坐标时用它而非手写 WebGL,因为原生在分子解析、键连接、相机与着色上失败;非做 2D 结构编辑或化学性质计算。",
+  "why_valuable": "AI 默认只能复述坐标、原子或残基列表,无法传达分子折叠与空间邻近关系;3Dmol.js 把多格式解析、分子样式、相机控制和 WebGL 场景闭环。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "3dmol",
+    "version": "2.5.5",
+    "github": "3dmol/3Dmol.js"
+  },
+  "license": "BSD-3-Clause",
+  "data_in": {
+    "shape": "geometry",
+    "note": "source 必须是文件正文而非 URL;format 直接传给 GLViewer.addModel,避免让组件猜格式。",
+    "schema": {
+      "source": "string —— 完整分子坐标/结构文件正文",
+      "format": "'pdb' | 'sdf' | 'mol2' | 'xyz' | 'cif' | 'pqr' | 'gro' —— 与 source 精确匹配"
+    }
+  },
+  "spec": {
+    "height": 420,
+    "note": "WebGL canvas 依赖有像素高度的容器;默认 height 420px,width 由容器决定,禁用 vh/百分比高。容器尺寸变化后调用 viewer.resize()。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合\nimport $3Dmol from 'https://cdn.jsdelivr.net/npm/3dmol@2/+esm';\nconst el = document.getElementById('viewer'); el.style.height = '420px';\nconst viewer = $3Dmol.createViewer(el, { backgroundColor: 'white' });\nviewer.addModel(data.source, data.format);\nviewer.setStyle({}, data.format === 'pdb' || data.format === 'cif' ? { cartoon: { color: 'spectrum' } } : { stick: {} });\nviewer.zoomTo(); viewer.render();",
+    "widget": "// WebGL canvas 落到 shadow 容器,库无必需 CSS\nimport $3Dmol from 'https://cdn.jsdelivr.net/npm/3dmol@2/+esm';\nconst el = document.createElement('div'); el.style.height = '420px'; shadowRoot.appendChild(el);\nconst viewer = $3Dmol.createViewer(el, { backgroundColor: 'white' });\nviewer.addModel(data.source, data.format);\nviewer.setStyle({}, data.format === 'pdb' || data.format === 'cif' ? { cartoon: { color: 'spectrum' } } : { stick: {} });\nviewer.zoomTo(); viewer.render();",
+    "codex": "同 artifact(sandbox iframe):ESM 导入 3Dmol,显式 420px 容器,createViewer → addModel(source,format) → setStyle → zoomTo/render。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:需宿主 WebGL;canvas 落 shadow 容器,无 CSS/font/uplink 足迹",
+    "codex": "conditional:需 sandbox WebGL;数据内联时无额外网络请求"
+  }
+}

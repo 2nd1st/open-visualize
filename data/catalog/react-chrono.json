@@ -1,0 +1,79 @@
+{
+  "entry_version": "thin-1",
+  "id": "react-chrono",
+  "name": "react-chrono",
+  "when_to_use": "需要把行程、历史或版本事件排成可键盘浏览的 vertical、horizontal 或 alternating 卡片时间线时用它而非手写 CSS,因为原生手写在交替布局、媒体卡片和跨模式导航状态上失败;非做可缩放区间轴或甘特编辑器。",
+  "why_valuable": "AI 默认只能写约 70% 完成度的静态竖线卡片;做不到稳定的交替布局、横向模式、键盘导航、响应式卡片测量与媒体内容组合。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "react-chrono",
+    "version": "3.3.3",
+    "github": "prabhuignoto/react-chrono"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "interval-set",
+    "note": "本条使用 react-chrono 3.x 的 items + 小写 mode 原生 API;items 表示有序时间点卡片,不是带 start/end 的可拖拽区间。",
+    "schema": {
+      "items": [
+        {
+          "id?": "string —— 默认由上游按位置识别",
+          "title?": "string —— 默认不显示时间点标题",
+          "cardTitle?": "string —— 默认不显示卡片标题",
+          "cardSubtitle?": "string —— 默认不显示副标题",
+          "cardDetailedText?": "string | string[] —— 默认不显示正文",
+          "media?": {
+            "_default": "未提供时不显示媒体",
+            "type": "'IMAGE'|'VIDEO'",
+            "source": {
+              "url": "string"
+            },
+            "name?": "string —— 默认空字符串"
+          }
+        }
+      ],
+      "mode?": "'vertical'|'horizontal'|'alternating'|'horizontal-all' —— boot 默认 vertical"
+    }
+  },
+  "spec": {
+    "height": 480,
+    "note": "时间线模式切换和卡片测量需要确定容器高度;boot 默认 480px,AI 可传其他明确像素值,禁止百分比或视口单位。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:React 19 peer + react-chrono CSS 进入 document.head\nimport React from 'https://cdn.jsdelivr.net/npm/react@19.2.3/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19.2.3/client/+esm';\nimport { Chrono } from 'https://cdn.jsdelivr.net/npm/react-chrono@3/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/react-chrono@3/dist/style.css' }); document.head.appendChild(css);\nconst el = document.getElementById('timeline'); el.style.height = `${spec.height ?? 480}px`;\ncreateRoot(el).render(React.createElement(Chrono, { items: data.items, mode: data.mode ?? 'vertical', layout: { timelineHeight: spec.height ?? 480 } }));",
+    "widget": "// CSS 文本与 React 挂载点都落 shadow 容器;把主题变量的 :root 作用域改到 :host\nimport React from 'https://cdn.jsdelivr.net/npm/react@19.2.3/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19.2.3/client/+esm';\nimport { Chrono } from 'https://cdn.jsdelivr.net/npm/react-chrono@3/+esm';\nconst raw = await fetch('https://cdn.jsdelivr.net/npm/react-chrono@3/dist/style.css').then(r => r.text());\nconst style = document.createElement('style'); style.textContent = raw.replaceAll(':root', ':host');\nconst el = document.createElement('div'); el.style.height = `${spec.height ?? 480}px`; shadowRoot.append(style, el);\ncreateRoot(el).render(React.createElement(Chrono, { items: data.items, mode: data.mode ?? 'vertical', layout: { timelineHeight: spec.height ?? 480 } }));",
+    "codex": "// sandbox iframe:同 artifact 的 React 原生挂载\nimport React from 'https://cdn.jsdelivr.net/npm/react@19.2.3/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19.2.3/client/+esm';\nimport { Chrono } from 'https://cdn.jsdelivr.net/npm/react-chrono@3/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/react-chrono@3/dist/style.css' }); document.head.appendChild(css);\nconst el = document.getElementById('timeline'); el.style.height = `${spec.height ?? 480}px`;\ncreateRoot(el).render(React.createElement(Chrono, { items: data.items, mode: data.mode ?? 'vertical', layout: { timelineHeight: spec.height ?? 480 } }));"
+  },
+  "example": {
+    "_why": "时间线卡片字段、媒体对象和布局 mode 组合具有歧义,附最小原生 props 数据。",
+    "minimal": {
+      "items": [
+        {
+          "id": "kickoff",
+          "title": "23 Jul",
+          "cardTitle": "Kickoff",
+          "cardDetailedText": "确认范围与负责人。"
+        },
+        {
+          "id": "release",
+          "title": "30 Jul",
+          "cardTitle": "Release",
+          "cardSubtitle": "Production",
+          "cardDetailedText": "发布并观察核心指标。"
+        }
+      ],
+      "mode": "alternating"
+    },
+    "empty": {
+      "items": [],
+      "mode": "vertical"
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:需 fetch 上游 CSS 后在 shadowRoot 内把 :root 主题变量改为 :host;主时间线 DOM 留在 React 挂载容器内",
+    "codex": "supported:React 19.2.3 peer、ESM CDN 与同源 CSS 均在 sandbox iframe 内"
+  }
+}

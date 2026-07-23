@@ -1,0 +1,50 @@
+{
+  "entry_version": "thin-1",
+  "id": "img-comparison-slider",
+  "name": "img-comparison-slider",
+  "when_to_use": "需要可触摸、可键盘操作且随容器缩放的 before/after 图片拖拽对照时用它而非手写,因为原生在双图裁剪同步、指针坐标和移动端手势上失败。",
+  "why_valuable": "AI 默认只能写一个脆弱的 range+clip-path demo,做不到 resize、触摸方向判定、键盘可达与同一分割位置的稳定同步;该组件原生闭合这些状态。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "img-comparison-slider",
+    "version": "8.0.7",
+    "github": "sneas/img-comparison-slider"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "两张图片分别进入 custom element 的 first/second 命名 slot;boot 用 JS createElement 挂载,不会写声明式自定义标签。",
+    "schema": {
+      "before": {
+        "src": "string —— 第一张图片 URL 或 data URL",
+        "alt?": "string —— 默认空字符串"
+      },
+      "after": {
+        "src": "string —— 第二张图片 URL 或 data URL",
+        "alt?": "string —— 默认空字符串"
+      },
+      "position?": "number,0..100 —— 分割线百分比,默认 50",
+      "direction?": "'horizontal' | 'vertical' —— 默认 'horizontal'",
+      "keyboard?": "'enabled' | 'disabled' —— 默认 'enabled'",
+      "hover?": "boolean —— 指针移动即跟随,默认 false",
+      "object_fit?": "'cover' | 'contain' | 'fill' —— boot 默认 'cover'"
+    }
+  },
+  "spec": {
+    "height": 360,
+    "note": "两张图必须共享同一明确像素高度才能保持裁剪几何一致;boot 默认 360px、宽度跟随容器,AI 可覆盖为其他像素值,铁律 3 禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:custom element 必须 JS 创建;防 FOUC CSS 进入 document.head(铁律 2/4)\nimport 'https://cdn.jsdelivr.net/npm/img-comparison-slider@8/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/img-comparison-slider@8/dist/styles.css'; document.head.appendChild(css);\nconst slider = document.createElement('img-comparison-slider'); slider.style.width = '100%'; slider.direction = data.direction ?? 'horizontal'; slider.value = data.position ?? 50;\nfor (const [slot, image] of [['first', data.before], ['second', data.after]]) { const img = document.createElement('img'); img.slot = slot; img.src = image.src; img.alt = image.alt ?? ''; img.style.cssText = `width:100%;height:360px;object-fit:${data.object_fit ?? 'cover'}`; slider.appendChild(img); }\nif (data.hover) slider.setAttribute('hover', 'true'); if (data.keyboard === 'disabled') slider.setAttribute('keyboard', 'disabled');\ndocument.getElementById('comparison').appendChild(slider);",
+    "widget": "// custom element、两张图与防 FOUC CSS 全落 shadowRoot(铁律 2/4)\nimport 'https://cdn.jsdelivr.net/npm/img-comparison-slider@8/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/img-comparison-slider@8/dist/styles.css'; shadowRoot.appendChild(css);\nconst slider = document.createElement('img-comparison-slider'); slider.style.width = '100%'; slider.direction = data.direction ?? 'horizontal'; slider.value = data.position ?? 50;\nfor (const [slot, image] of [['first', data.before], ['second', data.after]]) { const img = document.createElement('img'); img.slot = slot; img.src = image.src; img.alt = image.alt ?? ''; img.style.cssText = `width:100%;height:360px;object-fit:${data.object_fit ?? 'cover'}`; slider.appendChild(img); }\nif (data.hover) slider.setAttribute('hover', 'true'); if (data.keyboard === 'disabled') slider.setAttribute('keyboard', 'disabled'); shadowRoot.appendChild(slider);",
+    "codex": "// sandbox iframe 内同样用 JS 创建 custom element\nimport 'https://cdn.jsdelivr.net/npm/img-comparison-slider@8/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/img-comparison-slider@8/dist/styles.css'; document.head.appendChild(css);\nconst slider = document.createElement('img-comparison-slider'); slider.style.width = '100%'; slider.direction = data.direction ?? 'horizontal'; slider.value = data.position ?? 50;\nfor (const [slot, image] of [['first', data.before], ['second', data.after]]) { const img = document.createElement('img'); img.slot = slot; img.src = image.src; img.alt = image.alt ?? ''; img.style.cssText = `width:100%;height:360px;object-fit:${data.object_fit ?? 'cover'}`; slider.appendChild(img); }\ndocument.getElementById('comparison').appendChild(slider);"
+  },
+  "uplink": "本条是本地对照交互,默认无需上行;若消费端要读取当前分割位置,直接读 slider.value 并自行按载体处理,不预设事件出口。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:组件自带内部 shadow 样式,防 FOUC CSS 与宿主节点另落外层 shadowRoot;图片源须获宿主 CSP 许可",
+    "codex": "supported:ESM CDN + custom elements + ResizeObserver;远程图片源须可加载"
+  }
+}

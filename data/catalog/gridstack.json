@@ -1,0 +1,92 @@
+{
+  "entry_version": "thin-1",
+  "id": "gridstack",
+  "name": "Gridstack.js",
+  "when_to_use": "需要让用户拖拽、缩放并保存 dashboard/版面网格时用它而非手写 CSS Grid,因为原生在碰撞消解、自动压缩、指针缩放与布局序列化上失败。非做一次性的静态网格排版,静态布局直接写 CSS。",
+  "why_valuable": "AI 默认只能生成静态 CSS Grid;默认做不到拖拽后的无重叠落位、跨行列缩放、紧凑回填和稳定 JSON 回放,手写命中测试与碰撞算法也不稳。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "gridstack",
+    "version": "13.0.0",
+    "github": "gridstack/gridstack.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "grid",
+    "note": "data.items 直接传给 GridStack.load;坐标与尺寸均以网格单元计。content 会被上游作为 HTML 内容处理,这里只允许可信短文本,不把未清洗的用户 HTML 喂入。",
+    "schema": {
+      "items": [
+        {
+          "id": "string —— 稳定部件标识",
+          "content": "string —— 可信短文本或已清洗 HTML",
+          "x?": "integer >= 0 —— 列坐标,默认 0",
+          "y?": "integer >= 0 —— 行坐标,默认 0",
+          "w?": "integer >= 1 —— 宽度格数,默认 1",
+          "h?": "integer >= 1 —— 高度格数,默认 1",
+          "minW?": "integer >= 1 —— 最小宽度,默认不约束",
+          "minH?": "integer >= 1 —— 最小高度,默认不约束",
+          "locked?": "boolean —— 是否锁定位姿,默认 false"
+        }
+      ],
+      "options?": {
+        "column?": "integer >= 1 —— 列数,默认 12",
+        "cellHeight?": "number | string —— 行高,默认 'auto'",
+        "margin?": "number | string —— 格间距,默认 10",
+        "float?": "boolean —— 是否允许部件悬空,默认 false"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "网格拖放依赖稳定几何区域;容器默认 min-height 400px,AI 可传其他明确像素高度,禁用 vh/百分比高(铁律 3)。实际内容可随行数向下增长。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合前按此推断写\nimport { GridStack } from 'https://cdn.jsdelivr.net/npm/gridstack@13/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/gridstack@13/dist/gridstack.min.css' });\ndocument.head.appendChild(css);\nconst el = document.getElementById('grid'); el.classList.add('grid-stack'); el.style.minHeight = `${spec.height ?? 400}px`;\nconst grid = GridStack.init(data.options ?? {}, el);\ngrid.load(data.items);",
+    "widget": "// GridStack CSS 与挂载点都落 shadow 容器\nimport { GridStack } from 'https://cdn.jsdelivr.net/npm/gridstack@13/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/gridstack@13/dist/gridstack.min.css' });\nconst el = document.createElement('div'); el.className = 'grid-stack'; el.style.minHeight = `${spec.height ?? 400}px`;\nshadowRoot.append(css, el);\nconst grid = GridStack.init(data.options ?? {}, el);\ngrid.load(data.items);",
+    "codex": "// sandbox iframe 内使用上游原生 init/load API\nimport { GridStack } from 'https://cdn.jsdelivr.net/npm/gridstack@13/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/gridstack@13/dist/gridstack.min.css' });\ndocument.head.appendChild(css);\nconst el = document.getElementById('grid'); el.classList.add('grid-stack'); el.style.minHeight = `${spec.height ?? 400}px`;\nconst grid = GridStack.init(data.options ?? {}, el);\ngrid.load(data.items);"
+  },
+  "example": {
+    "_why": "x/y/w/h 与列数共同决定碰撞和压缩结果,属于几何高歧义配置;minimal 固定原生 load 输入形状。",
+    "minimal": {
+      "items": [
+        {
+          "id": "overview",
+          "content": "Overview",
+          "x": 0,
+          "y": 0,
+          "w": 8,
+          "h": 2
+        },
+        {
+          "id": "alerts",
+          "content": "Alerts",
+          "x": 8,
+          "y": 0,
+          "w": 4,
+          "h": 2
+        }
+      ],
+      "options": {
+        "column": 12,
+        "cellHeight": 72,
+        "margin": 8
+      }
+    },
+    "empty": {
+      "items": []
+    }
+  },
+  "uplink": {
+    "_note": "本条不绑定统一事件出口;消费 AI 需要回传时自行读取 grid.save(false) 的布局数组。",
+    "widget": "消费 AI 自行把 grid.save(false) 的 JSON 编入 sendPrompt 文案。",
+    "codex": "消费 AI 自行把 grid.save(false) 交给 sendFollowUpMessage。",
+    "artifact": "artifact 无上行;提供把 grid.save(false) 下载为 JSON 的兜底。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:须把官方 CSS 与 .grid-stack 容器一起放入 shadowRoot;DOM 拖放本身无 worker/wasm/图片依赖",
+    "codex": "supported:ESM CDN + CSS + DOM 指针交互,无必需上行"
+  }
+}

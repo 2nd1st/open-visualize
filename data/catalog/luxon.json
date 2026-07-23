@@ -1,0 +1,48 @@
+{
+  "entry_version": "thin-1",
+  "id": "luxon",
+  "name": "Luxon",
+  "when_to_use": "需要把带来源时区的本地时间可靠换到另一 IANA 时区、跨越 DST 边界或计算 duration 时用它而非手写,因为原生在歧义时刻、夏令时跳变和历史时区规则上会失败。",
+  "why_valuable": "AI 默认做不到可靠推算 DST 边界与历史 offset,并常把墙上时间当成 UTC；Luxon 通过浏览器 Intl 使用 IANA 时区数据,无需外部 tzdata fetch。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "luxon",
+    "version": "3.7.2",
+    "github": "moment/luxon"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "scalar",
+    "note": "data_in 钉死为“无 Z/offset 的 ISO 本地墙上时间 + 明确来源 IANA zone + 目标 IANA zone”；这样 fromISO 的 zone 语义唯一,不会重复应用字符串内 offset。",
+    "schema": {
+      "local_iso": "string —— 不含 Z 或 ±HH:mm offset 的 ISO 8601 本地时间,例如 YYYY-MM-DDTHH:mm:ss",
+      "from_zone": "string —— IANA 时区名,例如 'Australia/Melbourne'；不得用 EST/PST 这类歧义缩写",
+      "to_zone": "string —— IANA 时区名,例如 'Europe/London'",
+      "locale?": "string —— BCP 47 locale,默认浏览器 locale；仅影响展示,不影响 instant"
+    }
+  },
+  "provides": {
+    "shape": "zoned-datetime",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵；时区规则来自宿主 Intl。",
+    "outputs": "{iso:string, zone:string, offset_minutes:number, possible_source_offsets:string[]}；possible_source_offsets 长度大于 1 表示 DST 回拨歧义时刻。",
+    "api_surface": {
+      "parse_local": "DateTime.fromISO(localIso, {zone: fromZone}) → DateTime",
+      "convert_zone": "dateTime.setZone(toZone) → 同一 instant 的目标时区表示",
+      "ambiguity": "dateTime.getPossibleOffsets() → DateTime[]",
+      "duration": "end.diff(start, ['days','hours','minutes']) → Duration"
+    }
+  },
+  "peer": {
+    "ids": [
+      "vis-timeline"
+    ],
+    "note": "本条只生产时区化时间；会议时段可映射为 timeline item,时区选择器与歧义提示由消费 AI 自行实现。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact H0 探针未闭合；纯 ESM、无 DOM\nimport { DateTime } from 'https://cdn.jsdelivr.net/npm/luxon@3/+esm';\nconst source = DateTime.fromISO(data.local_iso, { zone: data.from_zone,\n  locale: data.locale });\nif (!source.isValid) throw new Error(source.invalidExplanation);\nconst target = source.setZone(data.to_zone);\nconst result = { iso: target.toISO(), zone: target.zoneName, offset_minutes: target.offset,\n  possible_source_offsets: source.getPossibleOffsets().map(d => d.toISO()) };",
+    "widget": "// widget 内纯计算,无需接触 shadow DOM\nimport { DateTime } from 'https://cdn.jsdelivr.net/npm/luxon@3/+esm';\nconst source = DateTime.fromISO(data.local_iso, { zone: data.from_zone,\n  locale: data.locale });\nif (!source.isValid) throw new Error(source.invalidExplanation);\nconst target = source.setZone(data.to_zone);\nconst result = { iso: target.toISO(), zone: target.zoneName, offset_minutes: target.offset,\n  possible_source_offsets: source.getPossibleOffsets().map(d => d.toISO()) };",
+    "codex": "// sandbox iframe 内直接跑纯 ESM\nimport { DateTime } from 'https://cdn.jsdelivr.net/npm/luxon@3/+esm';\nconst source = DateTime.fromISO(data.local_iso, { zone: data.from_zone,\n  locale: data.locale });\nif (!source.isValid) throw new Error(source.invalidExplanation);\nconst target = source.setZone(data.to_zone);\nconst result = { iso: target.toISO(), zone: target.zoneName, offset_minutes: target.offset,\n  possible_source_offsets: source.getPossibleOffsets().map(d => d.toISO()) };",
+    "note": "jsDelivr +esm 已核对 named DateTime；getPossibleOffsets 为 v3 API。宿主 Intl 若缺少某 IANA zone,DateTime 会 invalid,调用方必须展示错误而非猜 offset。"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "entry_version": "thin-1",
+  "id": "financejs",
+  "name": "finance.js",
+  "when_to_use": "需要复算 PV/FV/NPV/IRR、分期付款、CAGR 或复利等经典金融公式时用它而非手写,因为原生在利率口径、参数顺序和舍入惯例上会失败。",
+  "why_valuable": "AI 默认只能复述金融公式,不能稳定处理百分数与小数利率混用、变长现金流参数和库内两位小数舍入,同一问题重算还可能得到不同结果。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "financejs",
+    "version": "4.1.0",
+    "github": "ebradyjobory/finance.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "scalar",
+    "note": "data_in 精确映射到 new Finance()[formula](...args)；各方法的 rate 口径并不统一,必须按下面签名传值,不可自行归一化。",
+    "schema": {
+      "formula": "'PV' | 'FV' | 'NPV' | 'IRR' | 'AM' | 'CAGR' | 'PMT'",
+      "args": "number[] —— 精确签名:PV=[ratePercent,cashFlow,numPeriods?（默认 1）],FV=[ratePercent,cashFlow,numPeriods],NPV=[ratePercent,initialInvestment,...cashFlows],IRR=[...cashFlows],AM=[principal,annualRatePercent,period,yearOrMonth,payAtBeginning?（默认 false）],CAGR=[beginningValue,endingValue,numPeriods],PMT=[fractionalRate,numPayments,principal]"
+    }
+  },
+  "provides": {
+    "shape": "financial-scalar",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵；纯 JS 公式引擎。",
+    "outputs": "所选公式的 number 结果；PV/FV/NPV/IRR/AM/CAGR 等方法通常按库内规则舍入到两位小数,PMT 使用原始浮点结果。",
+    "api_surface": {
+      "present_value": "finance.PV(ratePercent, cashFlow, numPeriods = 1)",
+      "net_present_value": "finance.NPV(ratePercent, initialInvestment, ...cashFlows)",
+      "internal_rate": "finance.IRR(...cashFlows)",
+      "amortized_payment": "finance.AM(principal, annualRatePercent, period, yearOrMonth, payAtBeginning = false)",
+      "loan_payment": "finance.PMT(fractionalRate, numPayments, principal)"
+    }
+  },
+  "peer": {
+    "ids": [
+      "echarts",
+      "gridjs"
+    ],
+    "note": "本条只产金融标量；多组情景结果可交给 ECharts,现金流与敏感性明细可交给 Grid.js,输入控件和回调由消费 AI 自行编写。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact H0 探针未闭合；纯 JS、无 DOM\nimport Finance from 'https://cdn.jsdelivr.net/npm/financejs@4/+esm';\nconst finance = new Finance();\nconst allowed = new Set(['PV','FV','NPV','IRR','AM','CAGR','PMT']);\nif (!allowed.has(data.formula)) throw new Error('Unknown finance.js formula');\nconst result = finance[data.formula](...data.args);",
+    "widget": "// widget 内纯计算,无需接触 shadow DOM\nimport Finance from 'https://cdn.jsdelivr.net/npm/financejs@4/+esm';\nconst finance = new Finance();\nconst allowed = new Set(['PV','FV','NPV','IRR','AM','CAGR','PMT']);\nif (!allowed.has(data.formula)) throw new Error('Unknown finance.js formula');\nconst result = finance[data.formula](...data.args);",
+    "codex": "// sandbox iframe 内直接跑纯 JS\nimport Finance from 'https://cdn.jsdelivr.net/npm/financejs@4/+esm';\nconst finance = new Finance();\nconst allowed = new Set(['PV','FV','NPV','IRR','AM','CAGR','PMT']);\nif (!allowed.has(data.formula)) throw new Error('Unknown finance.js formula');\nconst result = finance[data.formula](...data.args);",
+    "note": "jsDelivr /npm/ +esm 已核对为 default Finance,同时也导出 named Finance；白名单只用于限制动态方法名,不建立事件契约。"
+  }
+}

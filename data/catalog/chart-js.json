@@ -1,0 +1,85 @@
+{
+  "entry_version": "thin-1",
+  "id": "chart-js",
+  "name": "Chart.js",
+  "when_to_use": "需要轻量的混合系列、hover 命中、tooltip/legend 与容器自适应图表时用它而非手写 canvas,因为原生手写在交互命中和可靠重绘上失败;静态单一柱线饼非做它,原生 SVG 足够。",
+  "why_valuable": "AI 默认只能画一次性的静态柱线饼,做不到稳定的元素命中、混合系列尺度协调和响应式 canvas 重绘;Chart.js 用浅 config 补齐这层。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "chart.js",
+    "version": "4.5.1",
+    "github": "chartjs/Chart.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "sequence",
+    "note": "data_in.config 直接传给 new Chart(canvas, config);下面只钉死常用笛卡尔/饼图路径,不另造图表 DSL。",
+    "schema": {
+      "config": {
+        "type": "'bar' | 'line' | 'scatter' | 'bubble' | 'pie' | 'doughnut' | 'radar' | 'polarArea'",
+        "data": {
+          "labels?": "string[] —— 默认 [],scatter/bubble 可省略",
+          "datasets": [
+            {
+              "label?": "string —— 默认空字符串",
+              "data": "number[] | {x:number|string,y:number}[] | {x:number,y:number,r:number}[]",
+              "type?": "与 config.type 相同的图型字符串 —— 默认继承 config.type",
+              "backgroundColor?": "string | string[] —— 默认由已注册 Colors 插件分配",
+              "borderColor?": "string | string[] —— 默认由已注册 Colors 插件分配"
+            }
+          ]
+        },
+        "options?": {
+          "_default": "{};boot 另注入 responsive:true 与 maintainAspectRatio:false",
+          "responsive?": "boolean —— boot 默认 true",
+          "maintainAspectRatio?": "boolean —— boot 默认 false",
+          "indexAxis?": "'x' | 'y' —— 默认 'x'",
+          "plugins?": "Chart.js 原生 plugins 配置对象 —— 默认使用上游默认值",
+          "scales?": "Chart.js 原生 scales 配置对象 —— 默认按图型推断"
+        }
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "canvas 的父容器必须有显式像素高度;boot 默认 400px并关闭 maintainAspectRatio,铁律 3 禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针尚未闭合\nimport { Chart, registerables } from 'https://cdn.jsdelivr.net/npm/chart.js@4/+esm';\nChart.register(...registerables);\nconst host = document.getElementById('chart'); host.style.height = '400px';\nconst canvas = document.createElement('canvas'); host.appendChild(canvas);\nnew Chart(canvas, { ...data.config, options: { responsive: true, maintainAspectRatio: false, ...(data.config.options ?? {}) } });",
+    "widget": "import { Chart, registerables } from 'https://cdn.jsdelivr.net/npm/chart.js@4/+esm';\nChart.register(...registerables);\nconst host = document.createElement('div'); host.style.height = '400px';\nconst canvas = document.createElement('canvas'); host.appendChild(canvas); shadowRoot.appendChild(host);\nnew Chart(canvas, { ...data.config, options: { responsive: true, maintainAspectRatio: false, ...(data.config.options ?? {}) } });",
+    "codex": "import { Chart, registerables } from 'https://cdn.jsdelivr.net/npm/chart.js@4/+esm';\nChart.register(...registerables);\nconst host = document.getElementById('chart'); host.style.height = '400px';\nconst canvas = document.createElement('canvas'); host.appendChild(canvas);\nnew Chart(canvas, { ...data.config, options: { responsive: true, maintainAspectRatio: false, ...(data.config.options ?? {}) } });"
+  },
+  "example": {
+    "_why": "图表 config 虽浅但仍有 type/data/options 三层,附最小原生配置避免把 labels 与 datasets 对错层。",
+    "minimal": {
+      "config": {
+        "type": "line",
+        "data": {
+          "labels": ["Mon", "Tue", "Wed"],
+          "datasets": [
+            {
+              "label": "Requests",
+              "data": [12, 19, 15]
+            }
+          ]
+        }
+      }
+    },
+    "empty": {
+      "config": {
+        "type": "bar",
+        "data": {
+          "labels": [],
+          "datasets": []
+        }
+      }
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:canvas、legend 与 tooltip 均封闭在 shadow 容器内,不需要 document.head 样式",
+    "codex": "supported:ESM CDN + canvas,无上行依赖"
+  }
+}

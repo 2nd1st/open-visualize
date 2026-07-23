@@ -1,0 +1,52 @@
+{
+  "entry_version": "thin-1",
+  "id": "dom-confetti",
+  "name": "dom-confetti",
+  "when_to_use": "需要从某个按钮、徽章或坐标锚点爆出轻量 DOM 彩屑且不想引入 canvas 时用它而非手写绝对定位节点,因为原生在随机 3D 弹道、淡出和无残留清理上失败。",
+  "why_valuable": "AI 默认能堆出彩色 div,但做不到稳定的 3D wobble、速度摩擦、错峰淡出与结束后完整清理;这个小包以一个锚点和浅配置闭环。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "dom-confetti",
+    "version": "0.2.2",
+    "github": "daniel-lundin/dom-confetti"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "_why_no_example": "单层配置与锚点语义明确,裁剪 schema 足以校准,不附 minimal example。",
+    "note": "data_in.options 精确传给 confetti(root, config);root 是 boot 创建的零尺寸发射锚点,不把回调或上行协议写入条目。",
+    "schema": {
+      "options?": {
+        "_default": "{} —— 全部采用上游默认值",
+        "angle?": "number —— 发射方向(度),默认 90",
+        "spread?": "number —— 发散角(度),默认 45",
+        "startVelocity?": "number —— 初速度,默认 45",
+        "width?": "CSS length string —— 单片宽度,默认 '10px'",
+        "height?": "CSS length string —— 单片高度,默认 '10px'",
+        "perspective?": "CSS perspective string —— 写入锚点,默认 ''",
+        "elementCount?": "integer —— 粒子数,默认 50",
+        "dragFriction?": "number —— 每帧按当前速度衰减,默认 0.1",
+        "duration?": "number —— 毫秒时长,默认 3000",
+        "stagger?": "number —— 每片错峰毫秒数,默认 0",
+        "colors?": "string[] —— 默认 ['#a864fd','#29cdff','#78ff44','#ff718d','#fdff6a']",
+        "decay?": "number —— 旧兼容速度系数,默认不传并使用 dragFriction"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "DOM 粒子的空间边界由外层 stage 决定;boot 显式给默认 400px 高并在 50%/70% 放锚点,禁用 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:全部粒子是锚点的内联样式子节点\nimport { confetti } from 'https://cdn.jsdelivr.net/npm/dom-confetti@0/+esm';\nconst el = document.getElementById('dom-confetti');\nel.style.cssText = `position:relative;height:${spec.height ?? 400}px;overflow:hidden`;\nconst root = document.createElement('div'); root.style.cssText = 'position:absolute;left:50%;top:70%;width:0;height:0'; el.appendChild(root);\nawait confetti(root, data.options ?? {});",
+    "widget": "// DOM 粒子与锚点全部落 shadow 容器,无外部 CSS\nimport { confetti } from 'https://cdn.jsdelivr.net/npm/dom-confetti@0/+esm';\nconst el = document.createElement('div'); el.style.cssText = `position:relative;height:${spec.height ?? 400}px;overflow:hidden`; shadowRoot.appendChild(el);\nconst root = document.createElement('div'); root.style.cssText = 'position:absolute;left:50%;top:70%;width:0;height:0'; el.appendChild(root);\nawait confetti(root, data.options ?? {});",
+    "codex": "import { confetti } from 'https://cdn.jsdelivr.net/npm/dom-confetti@0/+esm';\nconst el = document.getElementById('dom-confetti');\nel.style.cssText = `position:relative;height:${spec.height ?? 400}px;overflow:hidden`;\nconst root = document.createElement('div'); root.style.cssText = 'position:absolute;left:50%;top:70%;width:0;height:0'; el.appendChild(root);\nawait confetti(root, data.options ?? {});"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:粒子只用内联样式且挂在 shadowRoot 内锚点,无 head/body/外部资产",
+    "codex": "supported:纯 DOM + requestAnimationFrame,无 worker/wasm/uplink"
+  }
+}

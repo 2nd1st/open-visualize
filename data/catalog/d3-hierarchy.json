@@ -1,0 +1,48 @@
+{
+  "entry_version": "thin-1",
+  "id": "d3-hierarchy",
+  "name": "d3-hierarchy",
+  "when_to_use": "需要从嵌套数据计算 tidy tree、cluster、treemap、pack 或 partition/sunburst 几何时用它而非手写布局,因为原生在面积守恒、节点避碰、紧凑排布与层级坐标计算上失败。",
+  "why_valuable": "AI 默认只能写嵌套列表,做不到面积正确的 treemap、无重叠圆形 pack、紧凑 tidy tree 或 partition 坐标;本 primitive 稳定把 hierarchy 变成下游 SVG/Canvas 可画的节点几何。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "d3-hierarchy",
+    "version": "3.1.2",
+    "github": "d3/d3-hierarchy"
+  },
+  "license": "ISC",
+  "data_in": {
+    "shape": "hierarchy",
+    "note": "root 是递归嵌套对象;children 缺省表示叶节点。treemap/pack/partition 以 value 求和并要求非负;tree/cluster 只用拓扑关系。size 精确对应各布局的 .size([width,height])。",
+    "_why_no_example": "递归 hierarchy JSON 是 AI 原生结构,布局分支已由 schema 钉死,无需 minimal example。",
+    "schema": {
+      "root": {
+        "name": "string",
+        "value?": "number >= 0 —— 叶节点权重,默认 0",
+        "children?": "同结构节点[] —— 默认 []",
+        "其余业务字段?": "string | number | boolean | null —— 默认无额外字段"
+      },
+      "layout": "'tree' | 'cluster' | 'treemap' | 'pack' | 'partition'",
+      "size": "[number, number] —— tree/cluster 为 [width,height],treemap/pack/partition 为布局画布尺寸",
+      "padding?": "number(px) —— treemap/pack 的节点间距,默认 1;其余布局忽略"
+    }
+  },
+  "provides": {
+    "shape": "hierarchy",
+    "_note": "headless-primitive:只计算几何、不直接渲染、无 L 级、无 carriers 矩阵。",
+    "outputs": {
+      "tree_cluster": "HierarchyPointNode[] —— 每节点 x/y/depth/height/data",
+      "treemap_partition": "HierarchyRectangularNode[] —— 每节点 x0/y0/x1/y1/value/data",
+      "pack": "HierarchyCircularNode[] —— 每节点 x/y/r/value/data",
+      "links": "root.links() → {source,target}[]"
+    }
+  },
+  "peer": {
+    "note": "消费者是 AI 创建的 SVG/Canvas marks,或 ECharts custom series;本条不负责 DOM、样式、缩放或下钻交互。"
+  },
+  "boot": {
+    "shared": "import { cluster, hierarchy, pack, partition, tree, treemap } from 'https://cdn.jsdelivr.net/npm/d3-hierarchy@3/+esm';\nconst root = hierarchy(data.root).sum(d => d.value ?? 0);\nconst pad = data.padding ?? 1;\nconst layouts = { tree: () => tree().size(data.size), cluster: () => cluster().size(data.size), treemap: () => treemap().size(data.size).padding(pad), pack: () => pack().size(data.size).padding(pad), partition: () => partition().size(data.size) };\nconst layout = layouts[data.layout]; if (!layout) throw new Error(`Unknown hierarchy layout: ${data.layout}`);\nconst laidOutRoot = layout()(root); const nodes = laidOutRoot.descendants();",
+    "note": "这是裁剪后的共同主路径。tree/cluster 的 sum 不影响坐标;treemap/pack/partition 必须给叶节点非负 value。下游自行按布局读取 x/y/r 或 x0/y0/x1/y1。"
+  }
+}

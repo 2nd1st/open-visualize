@@ -1,0 +1,38 @@
+{
+  "entry_version": "thin-1",
+  "id": "katex",
+  "name": "KaTeX",
+  "when_to_use": "需要把 LaTeX 快速排成稳定的行内或块级公式时用它,而非手写 HTML/SVG 字形——原生手写在分式、根式、上下标基线和伸缩定界符上失败。",
+  "why_valuable": "AI 默认只能回显 LaTeX 源码或拼出脆弱的 Unicode 近似,做不到一致的数学间距、基线、伸缩括号与可访问 MathML；KaTeX 用一次 render 闭环这些排版细节。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "katex",
+    "version": "0.18.1",
+    "github": "KaTeX/KaTeX"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "LaTeX 是 AI 原生记法,schema 足矣；不附 minimal example,避免把某条公式误当固定内容。",
+    "schema": {
+      "latex": "string —— 单条 KaTeX 支持的 LaTeX 公式,不含外层 $ 或 $$",
+      "displayMode?": "boolean —— true 为块级公式,false 为行内公式；默认 false",
+      "throwOnError?": "boolean —— 解析失败是否抛错；entry 默认 false,以错误颜色回显源码",
+      "output?": "'htmlAndMathml' | 'html' | 'mathml' —— 默认 'htmlAndMathml'",
+      "trust?": "boolean —— 是否允许受信任命令；默认 false",
+      "macros?": "Record<string,string> —— 自定义宏表；默认 {}"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact font-src 不放行 jsDelivr 字体,须由既有打包器把 katex.min.css 的 fonts/* 转成 data: URI\n+import katex from 'https://cdn.jsdelivr.net/npm/katex@0/+esm';\n+const style = document.createElement('style'); style.textContent = KATEX_CSS_WITH_DATA_URI_FONTS; document.head.appendChild(style);\n+const el = document.getElementById('math');\n+katex.render(data.latex, el, { displayMode: data.displayMode ?? false, throwOnError: data.throwOnError ?? false,\n+  output: data.output ?? 'htmlAndMathml', trust: data.trust ?? false, macros: data.macros ?? {} });",
+    "widget": "// CSS 进 shadow；先把相对字体 URL 改成 pinned 绝对 URL\n+import katex from 'https://cdn.jsdelivr.net/npm/katex@0/+esm';\n+const base = 'https://cdn.jsdelivr.net/npm/katex@0.18.1/dist/';\n+const css = (await fetch(base + 'katex.min.css').then(r => r.text())).replaceAll('url(fonts/', `url(${base}fonts/`);\n+const style = document.createElement('style'); style.textContent = css; shadowRoot.appendChild(style);\n+const el = document.createElement('span'); shadowRoot.appendChild(el);\n+katex.render(data.latex, el, { displayMode: data.displayMode ?? false, throwOnError: data.throwOnError ?? false, output: data.output ?? 'htmlAndMathml', trust: data.trust ?? false, macros: data.macros ?? {} });",
+    "codex": "同 artifact(sandbox iframe):katex@0/+esm + pinned katex.min.css；若 iframe font-src 不放行 CDN,同样内联字体为 data: URI。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:仅在打包阶段把 KaTeX webfont 转成 data: URI 后可用；不可把 jsDelivr font URL 直接留给 artifact",
+    "widget": "conditional:katex.min.css 必须放 shadowRoot,且需允许 pinned jsDelivr woff2；不允许字体 CDN 时也要内联 data: URI",
+    "codex": "conditional:ESM + CSS 可用；字体 CSP 严格时须走同一内联字体打包步骤"
+  }
+}

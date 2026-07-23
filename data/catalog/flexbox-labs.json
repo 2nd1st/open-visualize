@@ -1,0 +1,20 @@
+{
+ "entry_version": "thin-1",
+ "id": "flexbox-labs",
+ "name": "Flexbox Labs",
+ "supply_form": "app-needs-fork",
+ "status": "blocked-until-forked",
+ "upstream": {
+  "github": "prazzon/Flexbox-Labs"
+ },
+ "license": "MIT",
+ "scenarios": [
+  "dev-artifacts"
+ ],
+ "fork_note": "应用态,需 fork+改造+发 npm 才过白名单;不作可消费条目上架。one_liner: 可视化 flexbox playground,拖控件实时看布局变化并出码",
+ "data_in": {
+  "shapes": [
+   "key-value"
+  ]
+ }
+}

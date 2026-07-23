@@ -1,0 +1,55 @@
+{
+  "entry_version": "thin-1",
+  "id": "jsonresume-themes-panasenco",
+  "name": "jsonresume-themes (panasenco)",
+  "when_to_use": "需要在纯浏览器把旧版 JSON Resume 字段渲成一页式 Handlebars 简历 HTML 时用它而非手写,因为原生在模板条件分支、打印 CSS 与密集时间线排版上失败;非做任意 Handlebars 模板执行器。",
+  "why_valuable": "AI 默认做不到同时维护 JSON Resume 各可空章节、日期右对齐、分页避让与打印态;该仓库把这些条件固化为无业务逻辑模板,避免每次重新发明简历排版。",
+  "supply_form": "component",
+  "level": "L2",
+  "mode": "our-entry",
+  "upstream": {
+    "github": "panasenco/jsonresume-themes"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "上游模板调用形状精确为 {resume:{...}}。本 onepage 模板使用旧字段 work[].company/work[].website,不是现代 schema 的 name/url;boot 固定源码 commit 并注册名为 style.css 的 Handlebars partial。",
+    "_why_no_example": "resume.json 是 AI 原生 JSON 记法;这里用 schema 钉死旧字段差异,不附 minimal example。",
+    "schema": {
+      "resume": {
+        "basics": {
+          "name": "string —— 必填姓名",
+          "label?": "string —— 默认不显示职业标题",
+          "email?": "string —— 默认不显示邮箱",
+          "phone?": "string —— 默认不显示电话",
+          "summary?": "string —— 默认不显示简介",
+          "location?": "{city?:string,region?:string,countryCode?:string} —— 默认不显示地点",
+          "profiles?": "{network?:string,url?:string}[] —— 默认 []"
+        },
+        "work?": "{company?:string,position?:string,website?:string,startDate?:string,endDate?:string,highlights?:string[],details?:{text?:string,comment?:string}[]}[] —— 默认 []",
+        "publications?": "JSON Resume publication[]（模板读取 website/highlights）—— 默认 []",
+        "awards?": "JSON Resume award[]（模板读取 title/awarder/date/highlights）—— 默认 []",
+        "volunteer?": "JSON Resume volunteer[]（模板读取 organization/position/website）—— 默认 []",
+        "education?": "JSON Resume education[] —— 默认 []",
+        "skills?": "JSON Resume skill[]（可含 details）—— 默认 []",
+        "languages?": "JSON Resume language[] —— 默认 []",
+        "interests?": "JSON Resume interest[] —— 默认 []"
+      }
+    }
+  },
+  "spec": {
+    "height": 900,
+    "note": "完整简历 HTML 放入默认 900px 高的滚动 iframe;AI 可给其他明确像素值,禁止 vh 或百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:仓库未提交 README 所称 dist,保守编译 pinned Handlebars 源\nimport Handlebars from 'https://cdn.jsdelivr.net/npm/handlebars@4/+esm';\nconst base = 'https://cdn.jsdelivr.net/gh/panasenco/jsonresume-themes@805e0acd385babf68d8f49f53622004c141e4ae2/template-onepage/';\nconst [tpl, css] = await Promise.all(['index.html.hbs', 'style.css.hbs'].map(x => fetch(base + x).then(r => r.text())));\nHandlebars.registerPartial('style.css', css); const html = Handlebars.compile(tpl)({ resume: data.resume });\nconst frame = document.createElement('iframe'); frame.style.cssText = `width:100%;height:${spec.height ?? 900}px;border:0`; frame.srcdoc = html;\ndocument.getElementById('resume').appendChild(frame);",
+    "widget": "// 生成文档的 CSS 位于 iframe head;iframe 本身落 shadowRoot,不污染宿主\nimport Handlebars from 'https://cdn.jsdelivr.net/npm/handlebars@4/+esm';\nconst base = 'https://cdn.jsdelivr.net/gh/panasenco/jsonresume-themes@805e0acd385babf68d8f49f53622004c141e4ae2/template-onepage/';\nconst [tpl, css] = await Promise.all(['index.html.hbs', 'style.css.hbs'].map(x => fetch(base + x).then(r => r.text())));\nHandlebars.registerPartial('style.css', css); const html = Handlebars.compile(tpl)({ resume: data.resume });\nconst frame = document.createElement('iframe'); frame.style.cssText = `width:100%;height:${spec.height ?? 900}px;border:0`; frame.srcdoc = html;\nshadowRoot.appendChild(frame);",
+    "codex": "// sandbox iframe:同 artifact,从固定 commit 拉两份模板并编译\nimport Handlebars from 'https://cdn.jsdelivr.net/npm/handlebars@4/+esm';\nconst base = 'https://cdn.jsdelivr.net/gh/panasenco/jsonresume-themes@805e0acd385babf68d8f49f53622004c141e4ae2/template-onepage/';\nconst [tpl, css] = await Promise.all(['index.html.hbs', 'style.css.hbs'].map(x => fetch(base + x).then(r => r.text())));\nHandlebars.registerPartial('style.css', css); const html = Handlebars.compile(tpl)({ resume: data.resume });\nconst frame = document.createElement('iframe'); frame.style.cssText = `width:100%;height:${spec.height ?? 900}px;border:0`; frame.srcdoc = html;\ndocument.getElementById('resume').appendChild(frame);"
+  },
+  "raw_source_url": "https://cdn.jsdelivr.net/gh/panasenco/jsonresume-themes@805e0acd385babf68d8f49f53622004c141e4ae2/template-onepage/index.html.hbs",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:需允许 Handlebars ESM、两次 pinned jsDelivr fetch 与 iframe srcdoc;所有模板 CSS 留在 shadowRoot 内的 iframe",
+    "codex": "conditional:ESM CDN + pinned /gh/ 文本 fetch + iframe srcdoc 可用"
+  }
+}

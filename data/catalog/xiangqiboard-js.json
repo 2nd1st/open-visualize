@@ -1,0 +1,38 @@
+{
+  "entry_version": "thin-1",
+  "id": "xiangqiboard-js",
+  "name": "xiangqiboard.js",
+  "when_to_use": "需要把中国象棋 FEN 渲成含九宫、河界和中文棋子的 9×10 棋盘时用它,而非拿西洋棋盘或手写 SVG 凑——原生手写在专用盘面几何、棋子资源、翻转与位置动画上失败;规则、合法走子和棋谱解析不在本条。",
+  "why_valuable": "AI 默认最多画出约 20% 可用的象棋盘,常漏九宫斜线、河界或把 9×10 坐标画错,更做不到稳定棋子资源与动画;该库把象棋专用棋盘 UI 闭环。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "version": null,
+    "github": "lengyanyu258/xiangqiboardjs"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "象棋 FEN 是 AI 原生记法,schema 钉死为库实际读取的 10 横行摆放段,不附 minimal example。",
+    "note": "picks 未给发布版本且仓库无公共 npm;boot 保留 version:null,资源固定到仓库提交 c36e1046c424e7abf1405904006043f6426b8ee8,并使用该提交自带的 0.3.3 构建产物。",
+    "schema": {
+      "fen": "string —— 中国象棋 FEN 的 piece-placement 段:恰好 10 个以 / 分隔的横行,每行展开为 9 格,棋子字母限 rnbakcp/RNBAKCP 与空格计数 1..9;不要传其余回合字段",
+      "orientation?": "'red' | 'black' —— 底边视角,默认 red"
+    }
+  },
+  "spec": {
+    "height": 540,
+    "note": "9×10 盘面默认容器 480×540px;必须用固定 px 高度,禁 vh/百分比高。此老式 jQuery 组件的拖子实现用 document 级选择器,thin-1 保守 boot 只开静态展示。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:repo-only 0.3.3 构建固定到提交 SHA\nimport $ from 'https://cdn.jsdelivr.net/npm/jquery@3/+esm'; globalThis.$ = globalThis.jQuery = $;\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/gh/lengyanyu258/xiangqiboardjs@c36e1046c424e7abf1405904006043f6426b8ee8/docs/css/xiangqiboard.min.css' });\ndocument.head.appendChild(css); await import('https://cdn.jsdelivr.net/gh/lengyanyu258/xiangqiboardjs@c36e1046c424e7abf1405904006043f6426b8ee8/docs/js/xiangqiboard.min.js');\nconst el = document.getElementById('board'); el.style.cssText = 'width:480px;max-width:100%;height:540px';\nglobalThis.Xiangqiboard(el, { position: data.fen, orientation: data.orientation ?? 'red', draggable: false, pieceTheme: 'https://cdn.jsdelivr.net/gh/lengyanyu258/xiangqiboardjs@c36e1046c424e7abf1405904006043f6426b8ee8/docs/img/xiangqipieces/wikimedia/{piece}.svg', boardTheme: 'https://cdn.jsdelivr.net/gh/lengyanyu258/xiangqiboardjs@c36e1046c424e7abf1405904006043f6426b8ee8/docs/img/xiangqiboards/wikimedia/xiangqiboard.svg' });",
+    "widget": "import $ from 'https://cdn.jsdelivr.net/npm/jquery@3/+esm'; globalThis.$ = globalThis.jQuery = $;\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/gh/lengyanyu258/xiangqiboardjs@c36e1046c424e7abf1405904006043f6426b8ee8/docs/css/xiangqiboard.min.css' });\nshadowRoot.appendChild(css); await import('https://cdn.jsdelivr.net/gh/lengyanyu258/xiangqiboardjs@c36e1046c424e7abf1405904006043f6426b8ee8/docs/js/xiangqiboard.min.js');\nconst el = document.createElement('div'); el.style.cssText = 'width:480px;max-width:100%;height:540px'; shadowRoot.appendChild(el);\nglobalThis.Xiangqiboard(el, { position: data.fen, orientation: data.orientation ?? 'red', draggable: false, pieceTheme: 'https://cdn.jsdelivr.net/gh/lengyanyu258/xiangqiboardjs@c36e1046c424e7abf1405904006043f6426b8ee8/docs/img/xiangqipieces/wikimedia/{piece}.svg', boardTheme: 'https://cdn.jsdelivr.net/gh/lengyanyu258/xiangqiboardjs@c36e1046c424e7abf1405904006043f6426b8ee8/docs/img/xiangqiboards/wikimedia/xiangqiboard.svg' });",
+    "codex": "同 artifact(sandbox iframe):先 ESM import jQuery,再 import pinned /gh/ 经典脚本与 head CSS;调用全局 Xiangqiboard(el,config)。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:静态展示可落 shadow 且 CSS 进 shadow;拖子依赖 document 级 jQuery id 选择器,shadow 下不承诺",
+    "codex": "conditional:需允许 pinned /gh/ JS、CSS、棋盘 SVG 与棋子 img-cdn;无 uplink 需求"
+  }
+}

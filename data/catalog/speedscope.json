@@ -1,0 +1,40 @@
+{
+  "entry_version": "thin-1",
+  "id": "speedscope",
+  "name": "speedscope",
+  "when_to_use": "需要缩放、搜索并在 time-order、left-heavy 与 sandwich 视图间检查性能 profile 时用它而非手写,因为原生在多格式解析和交互 flamegraph 上失败。",
+  "why_valuable": "AI 默认最多画小型静态 flamegraph,做不到解析 Chrome、Firefox、collapsed stacks 等 profile,也做不到搜索、缩放、left-heavy/sandwich 聚合和大调用栈交互。",
+  "supply_form": "app-needs-fork",
+  "mode": "our-entry",
+  "upstream": {
+    "npm": "speedscope",
+    "version": "1.25.0",
+    "github": "jlfwong/speedscope"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "hierarchy",
+    "note": "未来 fork 的核心输入应直接接受 speedscope 官方 file-format-schema,而不是自造 flamegraph 节点；frame 索引必须命中 shared.frames。当前 npm 包只发布整站资源与 CLI,没有可嵌入 mount API。",
+    "schema": {
+      "profile_file": {
+        "$schema": "字面量 'https://www.speedscope.app/file-format-schema.json'",
+        "shared": {
+          "frames": [
+            {
+              "name": "string",
+              "file?": "string —— 默认未知/不显示",
+              "line?": "number —— 默认未知/不显示",
+              "col?": "number —— 默认未知/不显示"
+            }
+          ]
+        },
+        "profiles": "({type:'evented',name:string,unit:'bytes'|'microseconds'|'milliseconds'|'nanoseconds'|'none'|'seconds',startValue:number,endValue:number,events:{type:'O'|'C',at:number,frame:number}[]} | {type:'sampled',name:string,unit:同前,startValue:number,endValue:number,samples:number[][],weights:number[]})[] —— profile 各字段均为官方格式必填",
+        "activeProfileIndex?": "number —— 默认 0",
+        "exporter?": "string —— 默认不标注",
+        "name?": "string —— 默认不标注文件名"
+      }
+    }
+  },
+  "status": "blocked-until-forked",
+  "fork_note": "1.25.0 的 npm files 只有 bin/cli.mjs 与 dist/release 整站(index.html、hash JS/CSS、字体、WASM),package main 指向未发布的 index.js,无稳定组件导出。需 fork 抽出 viewer mount(el, profileFile, options)、封住路由/文件打开 UI、发布可 ESM 导入的包后才上架；当前不作可消费条目。"
+}

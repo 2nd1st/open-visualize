@@ -1,0 +1,74 @@
+{
+  "entry_version": "thin-1",
+  "id": "cytoscape",
+  "name": "Cytoscape.js",
+  "when_to_use": "需要几十个以上节点的关系图、依赖图或知识网络,并要 force/层次/同心圆布局、pan/zoom、按数据样式和邻域查询时用它,而非手写 SVG 或 Mermaid——原生手写在自动布局、遮挡控制和大图交互上失败;少于 10 节点的静态小图直接用 Mermaid。",
+  "why_valuable": "AI 默认只能写小型静态 Mermaid,几十节点以上的稳定布局、边路由、pan/zoom、数据驱动样式和图算法查询做不到;Cytoscape.js 用浅 nodes/edges JSON 同时补齐布局引擎、canvas 交互与图论 API。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "cytoscape",
+    "version": "3.34.0",
+    "github": "cytoscape/cytoscape.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "graph",
+    "note": "主结构是 graph;也可把 relational-ref 先投影成 nodes/edges。下面只裁剪 Cytoscape.js 高频输入类型,不另造数据协议;source/target 必须引用 node id。",
+    "schema": {
+      "elements": {
+        "nodes": [
+          {
+            "data": {
+              "id": "string",
+              "label?": "string",
+              "其余字段?": "string | number | boolean"
+            },
+            "position?": {
+              "x": "number",
+              "y": "number"
+            },
+            "classes?": "string"
+          }
+        ],
+        "edges": [
+          {
+            "data": {
+              "id?": "string",
+              "source": "string",
+              "target": "string",
+              "label?": "string",
+              "其余字段?": "string | number | boolean"
+            },
+            "classes?": "string"
+          }
+        ]
+      },
+      "layout?": {
+        "name": "'grid' | 'circle' | 'concentric' | 'breadthfirst' | 'cose' | 'random' | 'preset'",
+        "其余布局参数?": "string | number | boolean"
+      },
+      "style?": [
+        {
+          "selector": "string",
+          "style": "Record<string, string | number>"
+        }
+      ]
+    }
+  },
+  "spec": {
+    "height": 420,
+    "note": "canvas 渲染器要求挂载容器在初始化前已有明确尺寸;默认 height 420px,AI 可传其他像素值,禁用 vh/百分比高(铁律 3)。容器尺寸变化后调用 cy.resize()。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合前按此推断写\nimport cytoscape from 'https://cdn.jsdelivr.net/npm/cytoscape@3/+esm';\nconst el = document.getElementById('graph'); el.style.height = '420px';\nconst cy = cytoscape({ container: el, elements: data.elements, style: data.style, layout: data.layout ?? { name: 'cose' } });\nnew ResizeObserver(() => cy.resize()).observe(el);",
+    "widget": "import cytoscape from 'https://cdn.jsdelivr.net/npm/cytoscape@3/+esm';\nconst el = document.createElement('div'); el.style.height = '420px';\nshadowRoot.appendChild(el); // 必须落 shadow 容器\nconst cy = cytoscape({ container: el, elements: data.elements, style: data.style, layout: data.layout ?? { name: 'cose' } });\nnew ResizeObserver(() => cy.resize()).observe(el);",
+    "codex": "import cytoscape from 'https://cdn.jsdelivr.net/npm/cytoscape@3/+esm';\nconst el = document.getElementById('graph'); el.style.height = '420px';\nconst cy = cytoscape({ container: el, elements: data.elements, style: data.style, layout: data.layout ?? { name: 'cose' } });\nnew ResizeObserver(() => cy.resize()).observe(el);\n// sandbox iframe 内直接使用上游原生实例 cy"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:需先把显式像素高度的 div 落入 shadowRoot,再把该 div 传给 container;核心 canvas 渲染与内置布局无需额外 CDN 资产",
+    "codex": "supported:ESM CDN + canvas,无 worker/wasm/字体或上行依赖"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "entry_version": "thin-1",
+  "id": "chess-gchessboard",
+  "name": "gchessboard",
+  "when_to_use": "需要把一个 FEN 盘面渲成可读、可交互(可选拖子)的棋盘时用它,而非 ASCII/unicode 棋盘——纯文本棋盘是全网嘲笑的经典失败场景,piece sprite + 坐标 + 高亮徒手表达力为零。规则/合法走子/复盘树不在本条,配 peer chess.js。",
+  "why_valuable": "AI 只能输出 unicode 棋盘或 FEN 文本,交互零能力;静态 HTML table 勉强 60% 但无拖子/高亮/动画。FEN 是 AI 原生记法,一步命中。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": { "npm": "gchessboard", "version": "1.4.0", "github": "mganjoo/gchessboard" },
+  "license": "MIT",
+  "license_note": "MIT——刻意规避 Chessground/pgn-viewer 家族的 GPL-3.0 传染(那几条虽生产级但合并作品受 copyleft,收录须重 flag)。同类 MIT 备选:cm-chessboard。",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "FEN 是 AI 原生记法(它张口就会写),schema 足矣、不必附 minimal example。",
+    "schema": {
+      "fen": "string —— FEN 棋子摆放字段(FEN 第一段);可传完整 6 字段 FEN 或仅摆放段,boot 里统一 fen.split(' ')[0] 取摆放段最稳(gchessboard 只读这一段)。字面量 'start'(初始局)/ 'empty' 亦可",
+      "orientation?": "'white' | 'black' —— 视角,默认 white",
+      "interactive?": "boolean —— 是否允许拖子,默认 false(省略即纯展示;设 true 需配 peer chess.js 校验合法性,否则可拖成非法局)"
+    }
+  },
+  "spec": {
+    "note": "棋盘 1:1 方形,尺寸跟随容器宽度、高度自动等宽。给容器/元素一个 width 或 max-width(如 480px)即可,不要传 vh(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested。custom element:import 即注册 <g-chess-board>\nimport 'https://cdn.jsdelivr.net/npm/gchessboard@1/+esm';\nconst b = document.createElement('g-chess-board');   // 铁律 4:JS 创建,不写声明式标签\nb.setAttribute('fen', data.fen.split(' ')[0]); // 只喂 FEN 摆放段(完整/摆放皆可)\nif (data.orientation) b.setAttribute('orientation', data.orientation);\nb.style.maxWidth = '480px';\ndocument.getElementById('board').appendChild(b);",
+    "widget": "// 关键教材:widget sanitizer 禁声明式自定义标签 + 行内事件(铁律 4)⇒ 必须 createElement 挂载。\n// gchessboard 内部自带 shadow root,样式自封闭 → ZF 安全,直接挂进我们的 shadowRoot 容器\nimport 'https://cdn.jsdelivr.net/npm/gchessboard@1/+esm';\nconst b = document.createElement('g-chess-board');\nb.setAttribute('fen', data.fen.split(' ')[0]); // 只喂 FEN 摆放段(完整/摆放皆可)\nb.style.maxWidth = '480px';\nshadowRoot.appendChild(b);",
+    "codex": "同 artifact(sandbox iframe):ESM import 注册 + createElement + setAttribute('fen')。"
+  },
+  "peer": {
+    "id": "chess-js",
+    "note": "规则引擎(合法走子/将杀判定/PGN 解析)由 chess.js headless 承担,本条只渲盘面。若 interactive 拖子要校验合法性,AI 自己接 chess.js —— 不预设统一事件契约。"
+  },
+  "uplink": "display 类,默认无需上行。若做交互答题(用户走一步回传),由 AI 自行 carrier-branch 写(widget sendPrompt / codex sendFollowUpMessage),不焊接统一事件出口。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:custom element 自带 shadow、样式自封闭 = 天然零足迹;经 JS createElement 挂载(铁律 4)",
+    "codex": "supported"
+  }
+}

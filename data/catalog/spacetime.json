@@ -1,0 +1,43 @@
+{
+  "entry_version": "thin-1",
+  "id": "spacetime",
+  "name": "spacetime",
+  "when_to_use": "需要跨 IANA 时区换算、DST 边界日期算术或口语化日期格式时用它而非手写,因为原生 AI 在夏令时跳变、闰年与跨月边界上失败。",
+  "why_valuable": "AI 默认会把时区当固定 UTC offset,也会在 DST、月底与闰日附近算错;spacetime 自带精简时区数据并以不可变对象闭环同一 instant 的换区、格式化和差值。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "spacetime",
+    "version": "7.13.0",
+    "github": "spencermountain/spacetime"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "scalar",
+    "note": "instant 与 timeZone 直接传给 spacetime(instant, timeZone);数字时间戳必须是毫秒,不是 Unix 秒。换区用 goto 保持同一 instant。",
+    "schema": {
+      "instant": "string | number | Date —— ISO/可解析日期字符串、毫秒 epoch 或 Date",
+      "timeZone": "string —— IANA zone;用于解释 instant",
+      "targetTimeZone?": "string —— 目标 IANA zone,默认与 timeZone 相同(不换区)",
+      "format?": "'iso'|'iso-short'|'iso-utc'|'sql'|'nice'|'nice-full'|string —— spacetime format token,默认 'iso'"
+    }
+  },
+  "provides": {
+    "shape": "temporal-values",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;纯 JS 逻辑且自带时区数据。",
+    "outputs": "目标时区的格式化字符串、ISO 字符串、毫秒 epoch、两个日期间的单位差值或继续供日期算术使用的 Spacetime 对象。",
+    "api_surface": {
+      "construct": "spacetime(instant, timeZone)",
+      "timezone": "dt.goto(targetTimeZone) —— 保持同一 instant 换显示时区",
+      "format": "dt.format(format)",
+      "difference": "dt.diff(other, 'days'|'hours'|'minutes')"
+    }
+  },
+  "peer": {
+    "note": "本条只产 temporal 值;格式化结果可交给文本/表格,按时间采样的 [x,y][] 可交给图表组件。若运行环境必须完全跟随系统 Intl 时区库,可改用 date-fns-tz。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS、无 DOM/uplink/shadow 足迹\nimport spacetime from 'https://cdn.jsdelivr.net/npm/spacetime@7/+esm';\nlet dt = spacetime(data.instant, data.timeZone);\ndt = dt.goto(data.targetTimeZone ?? data.timeZone);\nconst result = dt.format(data.format ?? 'iso');",
+    "note": "spacetime 的数字构造参数是毫秒 epoch;秒 epoch 必须先乘 1000,或改用 spacetime.fromUnixSeconds。"
+  }
+}

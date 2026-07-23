@@ -1,0 +1,332 @@
+{
+  "meta": {
+    "generated": "2026-07-22",
+    "source": "internal tooling",
+    "axes": [
+      "structural",
+      "modifier"
+    ],
+    "note": "复合形态(timeseries=sequence+temporal, choropleth=tabular/geometry+geospatial, weighted-graph=graph+weighted, schedule=interval-set+temporal)作 alias 索引,非原语;模块声明可接受的多签名"
+  },
+  "shapes": [
+    {
+      "name": "tabular",
+      "axis": "structural",
+      "definition": "扁平记录集,行=实体、列=字段(每列带类型/角色)。data-explore 的主形态。与 grid 的区别:行是实体不是坐标;与 sequence 的区别:多字段、无强制序。",
+      "data_in_example": "{\"records\":[{\"date\":\"2024-01\",\"region\":\"East\",\"revenue\":120}],\"fields\":{\"date\":\"temporal\",\"region\":\"nominal\",\"revenue\":\"quantitative\"}}",
+      "example_modules": [
+        "Vega-Lite",
+        "Observable Plot",
+        "ECharts",
+        "Chart.js",
+        "Tabulator",
+        "Grid.js",
+        "AG Grid Community",
+        "AntV S2",
+        "Perspective",
+        "simple-statistics"
+      ],
+      "composes_with": [
+        "temporal",
+        "quantitative",
+        "categorical",
+        "geospatial",
+        "relational-ref"
+      ]
+    },
+    {
+      "name": "sequence",
+      "axis": "structural",
+      "definition": "单轴有序数组/序列(index 有序)。timeseries = sequence + temporal(复合别名,非原语);不带 temporal 就是普通信号/折线序列。",
+      "data_in_example": "{\"series\":[{\"id\":\"cpu\",\"points\":[[0,12],[1,18],[2,9]]}]}",
+      "example_modules": [
+        "uPlot",
+        "Chart.js(line)",
+        "ECharts(line)",
+        "sparkline 类"
+      ],
+      "composes_with": [
+        "temporal",
+        "quantitative"
+      ]
+    },
+    {
+      "name": "hierarchy",
+      "axis": "structural",
+      "definition": "有根树、单父节点(parent-child)。是 graph 的受约束子集(无环、单入边);data-first 匹配时优先于 graph。",
+      "data_in_example": "{\"root\":{\"name\":\"src\",\"children\":[{\"name\":\"index.ts\",\"value\":320}]}}",
+      "example_modules": [
+        "d3-hierarchy(tree/treemap/pack)",
+        "markmap",
+        "mind-elixir",
+        "simple-mind-map",
+        "@andypf/json-viewer(树视角)"
+      ],
+      "composes_with": [
+        "quantitative",
+        "weighted"
+      ]
+    },
+    {
+      "name": "graph",
+      "axis": "structural",
+      "definition": "节点+边、多对多拓扑、无固有坐标(布局由引擎算)。AI 纯文本对图结构表达力≈零(三家共识),是差异化最硬的形态。与 geometry 区别:拓扑无坐标。",
+      "data_in_example": "{\"nodes\":[{\"id\":\"a\",\"label\":\"A\"}],\"edges\":[{\"id\":\"e1\",\"source\":\"a\",\"target\":\"b\",\"weight\":3}]}",
+      "example_modules": [
+        "Cytoscape.js",
+        "vis-network",
+        "Sigma.js+graphology",
+        "force-graph",
+        "elkjs",
+        "d3-graphviz",
+        "JSON Crack",
+        "graphql-voyager"
+      ],
+      "composes_with": [
+        "weighted",
+        "categorical",
+        "relational-ref"
+      ]
+    },
+    {
+      "name": "key-value",
+      "axis": "structural",
+      "definition": "扁平/嵌套对象、配置 map、metadata。键即语义,无行列/序结构。config 面板与 JSON 树的主形态。",
+      "data_in_example": "{\"theme\":\"dark\",\"limits\":{\"tokens\":8192,\"depth\":6},\"flags\":[\"beta\"]}",
+      "example_modules": [
+        "@alenaksu/json-viewer",
+        "json-formatter-js",
+        "form-js(bpmn.io)",
+        "JSON Editor",
+        "Tweakpane(参数绑定)"
+      ],
+      "composes_with": []
+    },
+    {
+      "name": "scalar",
+      "axis": "structural",
+      "definition": "单个数值/量,常带值域 min/max/step。参数、读数、gauge、单值。是 tune-scalar 原语的 data_in。",
+      "data_in_example": "{\"value\":2.4,\"min\":0,\"max\":5,\"step\":0.1,\"unit\":\"×\"}",
+      "example_modules": [
+        "noUiSlider",
+        "Tweakpane",
+        "CountUp.js",
+        "gauge 类"
+      ],
+      "composes_with": [
+        "quantitative"
+      ]
+    },
+    {
+      "name": "interval-set",
+      "axis": "structural",
+      "definition": "区间/时段集合(start/end 或 start/duration),事件条/任务/泳道。event、schedule、gantt 的主形态。schedule = interval-set + temporal(复合别名)。",
+      "data_in_example": "{\"items\":[{\"id\":\"t1\",\"label\":\"Design\",\"start\":\"2024-01-01\",\"end\":\"2024-01-05\",\"group\":\"team-a\"}],\"groups\":[{\"id\":\"team-a\"}]}",
+      "example_modules": [
+        "vis-timeline",
+        "Frappe Gantt",
+        "timelines-chart",
+        "FullCalendar",
+        "react-chrono"
+      ],
+      "composes_with": [
+        "temporal",
+        "categorical",
+        "relational-ref",
+        "weighted"
+      ]
+    },
+    {
+      "name": "grid",
+      "axis": "structural",
+      "definition": "二维定位单元矩阵(行、列坐标本身有意义),固定格。棋盘/填字/座位/电子表格/矩阵热力。与 tabular 区别:行不是实体、是坐标。",
+      "data_in_example": "{\"rows\":9,\"cols\":9,\"cells\":[{\"r\":0,\"c\":0,\"v\":5,\"fixed\":true}]}",
+      "example_modules": [
+        "crosswords-js",
+        "iPuzzler",
+        "Seatchart.js",
+        "x-spreadsheet",
+        "cal-heatmap(日历格)",
+        "矩阵 heatmap"
+      ],
+      "composes_with": [
+        "quantitative",
+        "categorical"
+      ]
+    },
+    {
+      "name": "text-span",
+      "axis": "structural",
+      "definition": "一段字符串 + 锚在其上的字符偏移/区间(offset/range)。标注、diff、tokenization、批改。data = 「文本 + 结构化 span」。",
+      "data_in_example": "{\"text\":\"Hello 世界\",\"spans\":[{\"start\":0,\"end\":5,\"tag\":\"greeting\"}]}",
+      "example_modules": [
+        "Recogito text-annotator",
+        "diff2html",
+        "jsondiffpatch",
+        "htmldiff.js",
+        "gpt-tokenizer",
+        "CodeMirror Merge",
+        "Rough Notation"
+      ],
+      "composes_with": [
+        "categorical"
+      ]
+    },
+    {
+      "name": "geometry",
+      "axis": "structural",
+      "definition": "自由空间场景:2D/3D 里的形状/坐标/路径(canvas scene、GeoJSON 多边形)。有固有坐标,区别于 graph(拓扑无坐标)。",
+      "data_in_example": "{\"shapes\":[{\"type\":\"rect\",\"x\":40,\"y\":20,\"w\":120,\"h\":60},{\"type\":\"path\",\"points\":[[0,0],[10,10]]}]}",
+      "example_modules": [
+        "Excalidraw",
+        "Fabric.js",
+        "d3-geo(GeoJSON)",
+        "Drawflow",
+        "leader-line",
+        "Cropper.js"
+      ],
+      "composes_with": [
+        "geospatial"
+      ]
+    },
+    {
+      "name": "notation-string",
+      "axis": "structural",
+      "definition": "领域专用文本 DSL,一串即编码整件产物(FEN/PGN/ABC/MusicXML/SMILES/DOT/SGF/WaveJSON/LaTeX/mermaid)。AI 训练原生覆盖,一次写对概率全框架最高。",
+      "data_in_example": "{\"format\":\"fen\",\"source\":\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\"}",
+      "example_modules": [
+        "cm-chessboard/chessground(FEN)",
+        "pgn-viewer(PGN)",
+        "abcjs/VexFlow/OSMD(ABC/MusicXML)",
+        "smiles-drawer/RDKit.js(SMILES)",
+        "WGo.js(SGF)",
+        "d3-graphviz(DOT)",
+        "WaveDrom(WaveJSON)",
+        "KaTeX/MathJax(LaTeX)",
+        "Mermaid"
+      ],
+      "composes_with": []
+    },
+    {
+      "name": "expression",
+      "axis": "structural",
+      "definition": "数学函数/公式 + 参数定义 + 定义域([equation-set, parameter-set, numeric-domain])。带活参数绑定与本地重算语义,区别于 notation-string(静态编码)。「传参不传结果」的载体形态。",
+      "data_in_example": "{\"series\":[{\"id\":\"f\",\"expression\":\"a*sin(b*x)+c\",\"domain\":[-10,10]}],\"parameters\":[{\"id\":\"a\",\"value\":2,\"min\":0,\"max\":5,\"step\":0.1}]}",
+      "example_modules": [
+        "JSXGraph",
+        "function-plot",
+        "Nerdamer",
+        "Tangle",
+        "jStat"
+      ],
+      "composes_with": [
+        "quantitative"
+      ]
+    },
+    {
+      "name": "temporal",
+      "axis": "modifier",
+      "definition": "某字段承载 日期/时间/instant 语义(ISO 8601 + 显式时区)。把 sequence→timeseries、interval-set→schedule。带 DST/时区歧义风险,须存绝对时间 + 显式 tz,事件同返 instant + formatted local。",
+      "data_in_example": "{\"field\":\"ts\",\"type\":\"temporal\",\"tz\":\"UTC\",\"values\":[\"2024-01-01T09:00:00Z\"]}",
+      "example_modules": [
+        "uPlot",
+        "vis-timeline",
+        "Frappe Gantt",
+        "FullCalendar",
+        "cal-heatmap"
+      ],
+      "attaches_to": [
+        "sequence",
+        "tabular",
+        "interval-set"
+      ]
+    },
+    {
+      "name": "quantitative",
+      "axis": "modifier",
+      "definition": "可度量数值字段(magnitude),可编码为位置/尺寸/颜色/角度。图表 channel 匹配的核心判别。",
+      "data_in_example": "{\"field\":\"revenue\",\"type\":\"quantitative\",\"domain\":[0,500]}",
+      "example_modules": [
+        "Vega-Lite",
+        "ECharts",
+        "Chart.js",
+        "pchart(percentile 参考带)"
+      ],
+      "attaches_to": [
+        "tabular",
+        "sequence",
+        "scalar",
+        "hierarchy",
+        "grid"
+      ]
+    },
+    {
+      "name": "categorical",
+      "axis": "modifier",
+      "definition": "名义/序数分组字段(nominal/ordinal),用于着色/分面/分组/图例。带基数(cardinality)。",
+      "data_in_example": "{\"field\":\"region\",\"type\":\"nominal\",\"cardinality\":5}",
+      "example_modules": [
+        "Vega-Lite(color/facet)",
+        "ECharts(series)",
+        "Tabulator(group)"
+      ],
+      "attaches_to": [
+        "tabular",
+        "graph",
+        "interval-set",
+        "text-span",
+        "grid"
+      ]
+    },
+    {
+      "name": "geospatial",
+      "axis": "modifier",
+      "definition": "坐标/区域绑定地球或投影空间(lat/lng、topojson region id)。choropleth = tabular/geometry + geospatial。瓦片被 CSP 拦,走 topojson 数据包 + d3-geo/ECharts map 无瓦片路线。",
+      "data_in_example": "{\"field\":\"state\",\"type\":\"geo-id\",\"topology\":\"us-atlas/states\"}",
+      "example_modules": [
+        "d3-geo",
+        "us-atlas",
+        "topojson-client",
+        "ECharts map",
+        "d3-celestial"
+      ],
+      "attaches_to": [
+        "tabular",
+        "geometry"
+      ]
+    },
+    {
+      "name": "weighted",
+      "axis": "modifier",
+      "definition": "边/连线/流量携带数值权重或流量值。weighted-graph、Sankey/流向、火焰图耗时。决定图能否做权阈筛选/流量编码。",
+      "data_in_example": "{\"edges\":[{\"source\":\"a\",\"target\":\"b\",\"flow\":42}]}",
+      "example_modules": [
+        "chartjs-chart-sankey",
+        "Sigma.js+graphology",
+        "force-graph",
+        "d3-flame-graph"
+      ],
+      "attaches_to": [
+        "graph",
+        "hierarchy",
+        "interval-set"
+      ]
+    },
+    {
+      "name": "relational-ref",
+      "axis": "modifier",
+      "definition": "外键/id 引用,把记录跨集合关联(source/target、item.group、foreign key)。决定 tabular 能否升成 graph 或被分组;是 data_in 签名里最易被漏、却决定匹配成败的约束。",
+      "data_in_example": "{\"items\":[{\"id\":\"t1\",\"group\":\"g1\"}],\"groups\":[{\"id\":\"g1\"}]}",
+      "example_modules": [
+        "Cytoscape(edges)",
+        "vis-timeline(item.group)",
+        "多集合 join"
+      ],
+      "attaches_to": [
+        "tabular",
+        "graph",
+        "interval-set"
+      ]
+    }
+  ]
+}

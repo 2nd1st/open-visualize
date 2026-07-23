@@ -1,0 +1,77 @@
+{
+  "entry_version": "thin-1",
+  "id": "sequential-workflow-designer",
+  "name": "Sequential Workflow Designer",
+  "when_to_use": "需要顺序、容器与分支步骤的结构化工作流设计器时用它而非手写嵌套列表,因为原生在跨层拖放、分支嵌套和 definition JSON 双向一致性上失败;非做自由节点图、工作流执行引擎或审批后端。",
+  "why_valuable": "AI 默认只能输出静态步骤列表,做不到跨嵌套序列的拖放约束、分支可视化与可撤销 definition 更新;该库直接消费并返回紧凑 Definition JSON。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "sequential-workflow-designer",
+    "version": "0.40.0",
+    "github": "nocode-js/sequential-workflow-designer"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "sequence",
+    "note": "data_in 是 sequential-workflow-model 的 Definition:根 properties 与 sequence 都必填;每个 step 的 properties 也必填,分支或子序列仅按 componentType 出现。",
+    "schema": {
+      "properties": "Record<string, string|string[]|number|number[]|boolean|boolean[]|null|object>",
+      "sequence": [
+        {
+          "id": "string —— 全 definition 唯一",
+          "componentType": "string —— 常用 'task'|'container'|'switch'",
+          "type": "string —— 业务步骤类型",
+          "name": "string",
+          "properties": "Record<string, JSON value>",
+          "sequence?": "Step[] —— componentType 为 container 时使用;默认不出现",
+          "branches?": "Record<string, Step[]> —— componentType 为 switch 时使用;默认不出现"
+        }
+      ]
+    }
+  },
+  "spec": {
+    "height": 480,
+    "layout": "vertical-sequence",
+    "note": "设计器工作区需要显式容器高度,本条默认 480px;铁律 3 禁 vh/百分比高。布局变化后可调用 designer.updateLayout()。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合\nimport { Designer } from 'https://cdn.jsdelivr.net/npm/sequential-workflow-designer@0/+esm';\nfor (const file of ['designer.css', 'designer-light.css']) { const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = `https://cdn.jsdelivr.net/npm/sequential-workflow-designer@0/css/${file}`; document.head.appendChild(css); }\nconst el = document.getElementById('workflow'); el.style.height = '480px';\nconst config = { steps: {}, toolbox: false, editors: false, controlBar: true, contextMenu: true, theme: 'light', undoStackSize: 10 };\nconst designer = Designer.create(el, data, config);",
+    "widget": "import { Designer } from 'https://cdn.jsdelivr.net/npm/sequential-workflow-designer@0/+esm';\nfor (const file of ['designer.css', 'designer-light.css']) { const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = `https://cdn.jsdelivr.net/npm/sequential-workflow-designer@0/css/${file}`; shadowRoot.appendChild(css); }\nconst el = document.createElement('div'); el.style.height = '480px'; shadowRoot.appendChild(el);\nconst config = { steps: {}, toolbox: false, editors: false, controlBar: true, contextMenu: true, theme: 'light', undoStackSize: 10, shadowRoot };\nconst designer = Designer.create(el, data, config);",
+    "codex": "import { Designer } from 'https://cdn.jsdelivr.net/npm/sequential-workflow-designer@0/+esm';\nfor (const file of ['designer.css', 'designer-light.css']) { const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = `https://cdn.jsdelivr.net/npm/sequential-workflow-designer@0/css/${file}`; document.head.appendChild(css); }\nconst el = document.getElementById('workflow'); el.style.height = '480px';\nconst config = { steps: {}, toolbox: false, editors: false, controlBar: true, contextMenu: true, theme: 'light', undoStackSize: 10 };\nconst designer = Designer.create(el, data, config);"
+  },
+  "example": {
+    "_why": "Definition 的 componentType/type/properties 与条件 children 容易混淆,minimal 钉死一个原生 task。",
+    "minimal": {
+      "properties": {
+        "name": "Review flow"
+      },
+      "sequence": [
+        {
+          "id": "review",
+          "componentType": "task",
+          "type": "review",
+          "name": "Review",
+          "properties": {
+            "owner": "editor"
+          }
+        }
+      ]
+    },
+    "empty": {
+      "properties": {},
+      "sequence": []
+    }
+  },
+  "uplink": {
+    "artifact": "artifact 无上行;消费 AI 可把 designer.getDefinition() 的 JSON 做下载或复制兜底。",
+    "widget": "消费 AI 自行读取 designer.getDefinition() 并拼 sendPrompt 文案;本条不绑定统一回调。",
+    "codex": "消费 AI 自行读取 designer.getDefinition() 后调用 sendFollowUpMessage;本条不绑定统一回调。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:0.40.0 原生 DesignerConfiguration.shadowRoot,样式与拖拽层均可绑定同一 shadow",
+    "codex": "supported:ESM CDN + SVG/DOM,无框架 peer"
+  }
+}

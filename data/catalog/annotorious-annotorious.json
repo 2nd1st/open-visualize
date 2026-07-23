@@ -1,0 +1,111 @@
+{
+  "entry_version": "thin-1",
+  "id": "annotorious-annotorious",
+  "name": "Annotorious",
+  "when_to_use": "需要用户在图片上画矩形/多边形区域并得到 W3C Web Annotation JSON 时用它而非手写 SVG 覆盖层,因为原生在绘制手势、缩放坐标换算、形状编辑和标准化序列化上失败。非做普通图片查看器或裁剪器。",
+  "why_valuable": "AI 默认只能在静态图上画预先给定的框;默认做不到用户多边形绘制、控制点编辑、响应式图像坐标换算及 W3C 注释 JSON 往返。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@annotorious/annotorious",
+    "version": "3.8.8",
+    "github": "annotorious/annotorious"
+  },
+  "license": "BSD-3-Clause",
+  "data_in": {
+    "shape": "geometry",
+    "note": "boot 显式启用上游 W3CImageFormat adapter,所以 annotations 吃 W3CImageAnnotation,而不是 Annotorious 内部的 geometry/bounds 对象。矩形用 Media Fragments FragmentSelector,多边形用 SvgSelector;target.source 必须等于 image.src。",
+    "schema": {
+      "image": {
+        "src": "string URL",
+        "alt?": "string —— 默认空串"
+      },
+      "annotations?": [
+        {
+          "@context": "'http://www.w3.org/ns/anno.jsonld'",
+          "type": "'Annotation'",
+          "id": "string",
+          "body": [
+            {
+              "id": "string",
+              "type": "string",
+              "purpose": "string",
+              "value": "string"
+            }
+          ],
+          "target": {
+            "source": "string —— 必须等于 image.src",
+            "selector": {
+              "type": "'FragmentSelector'|'SvgSelector'",
+              "conformsTo?": "'http://www.w3.org/TR/media-frags/' —— FragmentSelector 必填,SvgSelector 默认省略",
+              "value": "string —— 矩形为 'xywh=pixel:x,y,w,h';多边形为含 <polygon> 或 <path> 的 SVG XML"
+            }
+          }
+        }
+      ],
+      "drawingTool?": "'rectangle'|'polygon' —— 默认 'rectangle'",
+      "drawingEnabled?": "boolean —— 默认 true"
+    }
+  },
+  "spec": {
+    "height": 420,
+    "note": "图片标注的几何换算要求图像在初始化前完成解码;默认把可视图像最大高度钉为 420px 并保持原始宽高比,禁用 vh/百分比高(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:官方 CSS 进入 document.head\nimport { createImageAnnotator, W3CImageFormat } from 'https://cdn.jsdelivr.net/npm/@annotorious/annotorious@3/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@annotorious/annotorious@3/dist/annotorious.css' }); document.head.appendChild(css);\nconst host = document.getElementById('annotator'); host.style.minHeight = `${spec.height ?? 420}px`;\nconst img = document.createElement('img'); img.src = data.image.src; img.alt = data.image.alt ?? ''; img.style.cssText = `display:block;max-width:100%;max-height:${spec.height ?? 420}px`; host.appendChild(img);\nawait img.decode().catch(() => {});\nconst anno = createImageAnnotator(img, { adapter: W3CImageFormat(data.image.src), drawingEnabled: data.drawingEnabled ?? true });\nanno.setDrawingTool(data.drawingTool ?? 'rectangle'); anno.setAnnotations(data.annotations ?? []);",
+    "widget": "// 官方 CSS、图像与 SVG 标注层都落 shadowRoot\nimport { createImageAnnotator, W3CImageFormat } from 'https://cdn.jsdelivr.net/npm/@annotorious/annotorious@3/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@annotorious/annotorious@3/dist/annotorious.css' });\nconst host = document.createElement('div'); host.style.minHeight = `${spec.height ?? 420}px`; const img = document.createElement('img'); img.src = data.image.src; img.alt = data.image.alt ?? ''; img.style.cssText = `display:block;max-width:100%;max-height:${spec.height ?? 420}px`; host.appendChild(img); shadowRoot.append(css, host);\nawait img.decode().catch(() => {});\nconst anno = createImageAnnotator(img, { adapter: W3CImageFormat(data.image.src), drawingEnabled: data.drawingEnabled ?? true });\nanno.setDrawingTool(data.drawingTool ?? 'rectangle'); anno.setAnnotations(data.annotations ?? []);",
+    "codex": "// sandbox iframe 内等待图像解码后再初始化坐标层\nimport { createImageAnnotator, W3CImageFormat } from 'https://cdn.jsdelivr.net/npm/@annotorious/annotorious@3/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@annotorious/annotorious@3/dist/annotorious.css' }); document.head.appendChild(css);\nconst host = document.getElementById('annotator'); host.style.minHeight = `${spec.height ?? 420}px`;\nconst img = document.createElement('img'); img.src = data.image.src; img.alt = data.image.alt ?? ''; img.style.cssText = `display:block;max-width:100%;max-height:${spec.height ?? 420}px`; host.appendChild(img);\nawait img.decode().catch(() => {});\nconst anno = createImageAnnotator(img, { adapter: W3CImageFormat(data.image.src), drawingEnabled: data.drawingEnabled ?? true });\nanno.setDrawingTool(data.drawingTool ?? 'rectangle'); anno.setAnnotations(data.annotations ?? []);"
+  },
+  "example": {
+    "_why": "W3C body/target/selector 层次与 FragmentSelector 字符串容易拼错,属于标注编辑器高歧义输入;minimal 钉住矩形的标准格式。",
+    "minimal": {
+      "image": {
+        "src": "https://images.example.org/sample.jpg",
+        "alt": "Sample"
+      },
+      "annotations": [
+        {
+          "@context": "http://www.w3.org/ns/anno.jsonld",
+          "type": "Annotation",
+          "id": "anno-1",
+          "body": [
+            {
+              "id": "body-1",
+              "type": "TextualBody",
+              "purpose": "commenting",
+              "value": "Check this region"
+            }
+          ],
+          "target": {
+            "source": "https://images.example.org/sample.jpg",
+            "selector": {
+              "type": "FragmentSelector",
+              "conformsTo": "http://www.w3.org/TR/media-frags/",
+              "value": "xywh=pixel:120,80,240,160"
+            }
+          }
+        }
+      ],
+      "drawingTool": "rectangle",
+      "drawingEnabled": true
+    },
+    "empty": {
+      "image": {
+        "src": "https://images.example.org/sample.jpg"
+      },
+      "annotations": []
+    }
+  },
+  "uplink": {
+    "_note": "本条不绑定统一事件出口;消费 AI 需要回传时自行读取 anno.getAnnotations(),adapter 会返回 W3C JSON。",
+    "widget": "消费 AI 自行把 anno.getAnnotations() 的 JSON 编入 sendPrompt 文案。",
+    "codex": "消费 AI 自行把 anno.getAnnotations() 交给 sendFollowUpMessage。",
+    "artifact": "artifact 无上行;提供把 anno.getAnnotations() 下载为 JSON 的兜底。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:官方 CSS、img 与 SVG 覆盖层须一起放入 shadowRoot;远程图像域必须可加载",
+    "codex": "conditional:ESM CDN + CSS + SVG,并依赖 image.src 可访问;跨域像素导出另受 CORS 限制"
+  }
+}

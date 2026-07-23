@@ -1,0 +1,72 @@
+{
+  "entry_version": "thin-1",
+  "id": "asciinema-player",
+  "name": "asciinema-player",
+  "when_to_use": "需要按真实终端帧时序回放 CLI 教程、支持 seek/倍速/主题与复制时用它而非 CSS 打字动画,因为原生手写在 VT 状态、帧时钟和随机定位上失败;非做可执行 shell 或实时 PTY。",
+  "why_valuable": "AI 默认只能输出静态代码块或逐字动画,做不到终端控制序列状态机、精确帧时序、任意时间 seek 与长录像闲时压缩;asciicast 把 AI 可生成的文本事件序列直接变成真终端回放。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "asciinema-player",
+    "version": "3.17.0",
+    "github": "asciinema/asciinema-player"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "sequence",
+    "note": "主输入严格是 asciicast v2 的 NDJSON 逻辑结构:首行 header,随后每行一个 [time,code,payload] 事件;boot 才序列化成 Blob URL,不把普通 JSON 数组直接交给 create。",
+    "schema": {
+      "header": {
+        "version": "2 —— 必须是数字字面量 2",
+        "width": "integer > 0 —— 终端列数",
+        "height": "integer > 0 —— 终端行数"
+      },
+      "events": "[number, 'o'|'i'|'m'|'r', string][] —— time 为从 0 开始的非递减秒数;o/i 为终端文本,m 为 marker,r 为 '<cols>x<rows>' 尺寸字符串",
+      "options?": {
+        "_default": "{} —— 默认空对象,各项采用下列默认",
+        "autoplay?": "boolean —— 默认 false",
+        "speed?": "number > 0 —— 默认 1",
+        "loop?": "boolean | integer —— 默认 false",
+        "controls?": "boolean | 'auto' —— 默认 'auto'",
+        "fit?": "'width'|'height'|'both'|'none'|false —— 本条默认 'both'(上游默认 'width')",
+        "idleTimeLimit?": "number —— 最大静默秒数,默认省略(沿用 header 或不限)"
+      }
+    }
+  },
+  "spec": {
+    "height": 420,
+    "note": "终端播放器属于几何布局,容器须显式像素高度;默认 420px,AI 可覆盖,铁律 3 禁 vh/百分比高。boot 默认 fit='both' 以同时利用固定宽高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:CSS 进 artifact head;单体 ESM 内含 WASM,不启 worker\nimport { create } from 'https://cdn.jsdelivr.net/npm/asciinema-player@3/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/asciinema-player@3/dist/bundle/asciinema-player.css' }); document.head.appendChild(css); await new Promise((ok, fail) => { css.onload = ok; css.onerror = fail; });\nconst el = document.getElementById('player'); el.style.height = `${spec.height ?? 420}px`;\nconst cast = [data.header, ...data.events].map(JSON.stringify).join('\\n') + '\\n'; const src = URL.createObjectURL(new Blob([cast], { type: 'application/x-asciicast' }));\nconst player = create(src, el, { cols: data.header.width, rows: data.header.height, autoplay: data.options?.autoplay ?? false, speed: data.options?.speed ?? 1, loop: data.options?.loop ?? false, controls: data.options?.controls ?? 'auto', fit: data.options?.fit ?? 'both', idleTimeLimit: data.options?.idleTimeLimit });",
+    "widget": "// CSS 与挂载点都落 shadow;单体 ESM 路径无 worker\nimport { create } from 'https://cdn.jsdelivr.net/npm/asciinema-player@3/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/asciinema-player@3/dist/bundle/asciinema-player.css' }); const el = document.createElement('div'); el.style.height = `${spec.height ?? 420}px`; shadowRoot.append(css, el); await new Promise((ok, fail) => { css.onload = ok; css.onerror = fail; });\nconst cast = [data.header, ...data.events].map(JSON.stringify).join('\\n') + '\\n'; const src = URL.createObjectURL(new Blob([cast], { type: 'application/x-asciicast' }));\nconst player = create(src, el, { cols: data.header.width, rows: data.header.height, autoplay: data.options?.autoplay ?? false, speed: data.options?.speed ?? 1, loop: data.options?.loop ?? false, controls: data.options?.controls ?? 'auto', fit: data.options?.fit ?? 'both', idleTimeLimit: data.options?.idleTimeLimit });",
+    "codex": "// sandbox iframe:CSS 进 iframe head,cast 由 Blob URL 内嵌\nimport { create } from 'https://cdn.jsdelivr.net/npm/asciinema-player@3/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/asciinema-player@3/dist/bundle/asciinema-player.css' }); document.head.appendChild(css); await new Promise((ok, fail) => { css.onload = ok; css.onerror = fail; });\nconst el = document.getElementById('player'); el.style.height = `${spec.height ?? 420}px`;\nconst cast = [data.header, ...data.events].map(JSON.stringify).join('\\n') + '\\n'; const src = URL.createObjectURL(new Blob([cast], { type: 'application/x-asciicast' }));\nconst player = create(src, el, { cols: data.header.width, rows: data.header.height, autoplay: data.options?.autoplay ?? false, speed: data.options?.speed ?? 1, loop: data.options?.loop ?? false, controls: data.options?.controls ?? 'auto', fit: data.options?.fit ?? 'both', idleTimeLimit: data.options?.idleTimeLimit });"
+  },
+  "example": {
+    "_why": "asciicast 是时序 NDJSON 且 header/event 层级高歧义;minimal 校准首行对象、三元事件与终端换行。",
+    "minimal": {
+      "header": { "version": 2, "width": 80, "height": 24 },
+      "events": [
+        [0, "o", "$ echo hello\r\n"],
+        [0.4, "o", "hello\r\n"]
+      ],
+      "options": {
+        "autoplay": false,
+        "speed": 1,
+        "loop": false,
+        "controls": "auto",
+        "fit": "both"
+      }
+    },
+    "empty": {
+      "header": { "version": 2, "width": 80, "height": 24 },
+      "events": []
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:需允许 jsDelivr ESM/CSS、WebAssembly 与 blob: URL;CSS link 和播放器均在 shadowRoot,采用单体 ESM 因而无 worker 足迹",
+    "codex": "conditional:需允许 WebAssembly 与 blob: URL;CSS 留在 sandbox iframe head,无 uplink 需求"
+  }
+}

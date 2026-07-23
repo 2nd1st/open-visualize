@@ -1,0 +1,64 @@
+{
+  "entry_version": "thin-1",
+  "id": "force-graph",
+  "name": "force-graph",
+  "when_to_use": "需要用最浅的 nodes/links 契约快速得到可缩放、可拖拽的中等规模 canvas 力导向图时用它,而非手写物理模拟——原生在力学迭代、命中测试和视口交互上失败;非做严格层级、正交连线或万级节点 WebGL 图。",
+  "why_valuable": "AI 默认能写静态节点与连线,但做不到持续收敛的力导向模拟、canvas 命中测试和拖拽缩放协同;单包单调用把该 0% 区压成浅契约。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": { "npm": "force-graph", "version": "1.51.4", "github": "vasturiano/force-graph" },
+  "license": "MIT",
+  "data_in": {
+    "shape": "graph",
+    "note": "这是 graphData 的原生形状:边数组名是 links,端点字段是 source/target。",
+    "schema": {
+      "nodes": [
+        {
+          "id": "string | number",
+          "name?": "string —— 默认无悬停文字",
+          "val?": "number —— 默认按 1 计算节点面积",
+          "color?": "string —— 默认使用库的节点颜色"
+        }
+      ],
+      "links": [
+        {
+          "source": "string | number —— 必须引用 nodes.id",
+          "target": "string | number —— 必须引用 nodes.id",
+          "name?": "string —— 默认无悬停文字"
+        }
+      ]
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "canvas 必须显式收到像素 height;默认 400px,宽度取容器 clientWidth,禁用 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:上游 ESM 会向 iframe document.head 注入作用域化 .force-graph-container CSS\nimport ForceGraph from 'https://cdn.jsdelivr.net/npm/force-graph@1/+esm';\nconst el = document.getElementById('force'); el.style.height = '400px';\nconst graph = new ForceGraph(el)\n  .width(el.clientWidth).height(400)\n  .graphData({ nodes: data.nodes, links: data.links });",
+    "widget": "unsupported:force-graph@1 的发布 ESM 在模块求值时固定向 document.head 注入内置 CSS,无法满足 widget CSS 必须落 shadow 的零足迹铁律;需先做无 head 注入的 fork 才能上架该载体。",
+    "codex": "import ForceGraph from 'https://cdn.jsdelivr.net/npm/force-graph@1/+esm';\nconst el = document.getElementById('force'); el.style.height = '400px';\nconst graph = new ForceGraph(el)\n  .width(el.clientWidth).height(400)\n  .graphData({ nodes: data.nodes, links: data.links });"
+  },
+  "example": {
+    "_why": "网络图库对 links/edges 与 source/target/from/to 分歧大,minimal 固定本库最浅原生契约。",
+    "minimal": {
+      "nodes": [
+        { "id": "a", "name": "Alpha" },
+        { "id": "b", "name": "Beta" }
+      ],
+      "links": [
+        { "source": "a", "target": "b" }
+      ]
+    },
+    "empty": {
+      "nodes": [],
+      "links": []
+    }
+  },
+  "uplink": "display/local-interact 默认不上行;节点焦点若要进入对话,由消费 AI 接原生回调并按载体实现。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "unsupported:发布 ESM 固定向 document.head 注入内置 CSS,违反 shadow 零足迹要求",
+    "codex": "supported:iframe 内 head 注样式可接受;ESM CDN + canvas,无 worker/wasm 硬依赖"
+  }
+}

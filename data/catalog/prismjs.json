@@ -1,0 +1,40 @@
+{
+  "entry_version": "thin-1",
+  "id": "prismjs",
+  "name": "Prism",
+  "when_to_use": "需要稳定高亮长代码、嵌套语法或多段代码时用它,而非手写 token span——原生手写在字符串/注释嵌套、转义和跨语言文法上会失败。非做可编辑代码编辑器或代码执行器。",
+  "why_valuable": "AI 默认只能给短片段做约 80% 的手工着色;长代码、多语言与嵌套 token 会错分且难保持主题一致,Prism 文法确定性产出分类 span。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "prismjs",
+    "version": "1.30.0",
+    "github": "PrismJS/prism"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "text-span",
+    "note": "根入口只保证内置 markup/css/clike/javascript 文法;其他语言须另载对应 components/prism-<lang> 模块,本条不假定已载入。",
+    "schema": {
+      "code": "string —— 原始源码文本,不要预转义 HTML",
+      "language?": "'markup'|'css'|'clike'|'javascript' —— 默认 'javascript'"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 的主题 CSS 必须进 document.head(铁律 2)\nimport Prism from 'https://cdn.jsdelivr.net/npm/prismjs@1/+esm';\nconst link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism.css'; document.head.appendChild(link);\nconst pre = document.createElement('pre'); const code = document.createElement('code'); const lang = data.language ?? 'javascript';\ncode.className = `language-${lang}`; code.innerHTML = Prism.highlight(data.code, Prism.languages[lang], lang); pre.appendChild(code);\ndocument.getElementById('code').replaceChildren(pre);",
+    "widget": "// 主题 CSS 取回后只落 shadow 容器(铁律 2),不污染 document.head\nimport Prism from 'https://cdn.jsdelivr.net/npm/prismjs@1/+esm';\nconst style = document.createElement('style'); style.textContent = await fetch('https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism.css').then(r => r.text()); shadowRoot.appendChild(style);\nconst pre = document.createElement('pre'); const code = document.createElement('code'); const lang = data.language ?? 'javascript';\ncode.className = `language-${lang}`; code.innerHTML = Prism.highlight(data.code, Prism.languages[lang], lang); pre.appendChild(code); shadowRoot.appendChild(pre);",
+    "codex": "// sandbox iframe:主题 CSS 进 iframe document.head\nimport Prism from 'https://cdn.jsdelivr.net/npm/prismjs@1/+esm';\nconst lang = data.language ?? 'javascript';\nconst html = Prism.highlight(data.code, Prism.languages[lang], lang);\n// 创建 pre>code.language-<lang>,写入 html;主题取 /npm/prismjs@1/themes/prism.css。"
+  },
+  "example": {
+    "empty": {
+      "code": "",
+      "language": "javascript"
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:需 fetch 主题 CSS 并注入 shadow;JS 只在目标 code 节点产出 span,无 worker/wasm",
+    "codex": "supported:ESM CDN + iframe head 主题 CSS"
+  }
+}

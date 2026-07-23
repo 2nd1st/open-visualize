@@ -1,0 +1,54 @@
+{
+  "entry_version": "thin-1",
+  "id": "lottie-web",
+  "name": "lottie-web",
+  "when_to_use": "已有 Bodymovin/Lottie JSON 资产,需要原样播放设计师级加载、庆祝或表情动画时用它,而非让 AI 重画 SVG/CSS——原生重建关键帧、遮罩、路径补间会彻底失真。非做动画创作器、Lottie 编辑器或任意 JSON 可视化。",
+  "why_valuable": "AI 默认做不到从截图重建 After Effects 关键帧、遮罩和形状补间,也无法保证跨帧设计质量;lottie-web 直接消费设计资产并提供稳定的 SVG/canvas 播放生命周期。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "lottie-web",
+    "version": "5.13.0",
+    "github": "airbnb/lottie-web"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geometry",
+    "_why_no_example": "Lottie JSON 是现成资产的原生 JSON 记法,不应由 minimal 人工伪造;schema 钉死播放器所需根字段即可。boot 只收 animationData 内联对象,不走 path/fetch。",
+    "note": "data_in.animationData 原样传给 lottie.loadAnimation。若资产含外链图片/字体,它仍可能触发对应 CDN 请求;零 fetch 场景应使用已内嵌 image data 的导出资产。",
+    "schema": {
+      "animationData": {
+        "v": "string —— Bodymovin/Lottie 版本",
+        "fr": "number —— 帧率",
+        "ip": "number —— 入点帧",
+        "op": "number —— 出点帧",
+        "w": "number —— 合成宽",
+        "h": "number —— 合成高",
+        "layers": "Lottie layer object[]",
+        "assets?": "Lottie asset object[] —— 默认 []",
+        "fonts?": "Lottie font list object —— 默认不提供",
+        "chars?": "Lottie glyph object[] —— 默认不提供"
+      },
+      "renderer?": "'svg' | 'canvas' | 'html' —— catalog 默认 'svg'",
+      "loop?": "boolean | number —— catalog 默认 true",
+      "autoplay?": "boolean —— catalog 默认 true",
+      "rendererSettings?": "object —— catalog 默认 {}"
+    }
+  },
+  "spec": {
+    "height": 320,
+    "note": "播放器按容器尺寸布局;boot 默认显式 height 320px、width 100%。禁用 vh/百分比高(铁律 3);SVG 默认按资产宽高比适配,卸载时调用 animation.destroy()。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:内联 animationData,不走 path/fetch\nimport lottie from 'https://cdn.jsdelivr.net/npm/lottie-web@5/+esm';\nconst el = document.getElementById('lottie'); el.style.cssText = 'width:100%;height:320px';\nconst animation = lottie.loadAnimation({ container: el, animationData: data.animationData,\n  renderer: data.renderer ?? 'svg', loop: data.loop ?? true, autoplay: data.autoplay ?? true,\n  rendererSettings: data.rendererSettings ?? {} });",
+    "widget": "// renderer 生成节点落在 shadow 容器;无外部 CSS 注入\nimport lottie from 'https://cdn.jsdelivr.net/npm/lottie-web@5/+esm';\nconst el = document.createElement('div'); el.style.cssText = 'width:100%;height:320px'; shadowRoot.appendChild(el);\nconst animation = lottie.loadAnimation({ container: el, animationData: data.animationData,\n  renderer: data.renderer ?? 'svg', loop: data.loop ?? true, autoplay: data.autoplay ?? true,\n  rendererSettings: data.rendererSettings ?? {} });",
+    "codex": "同 artifact(sandbox iframe fragment):从 lottie-web@5/+esm default import,固定 px 高容器,调用 loadAnimation({container,animationData,renderer,loop,autoplay})。"
+  },
+  "uplink": "纯 display/local playback,默认无需上行;play/pause/seek 或完成后的业务动作由消费 AI 直接使用 animation 实例自行编排。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:SVG/canvas 可落 shadow;若 animationData 引用外部 images/fonts,还需相应资源 CDN 能力",
+    "codex": "supported:内联 Lottie JSON + SVG/canvas;外链资产时按 URL 能力另判"
+  }
+}

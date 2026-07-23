@@ -1,0 +1,61 @@
+{
+  "entry_version": "thin-1",
+  "id": "jsonresume-theme-even",
+  "name": "jsonresume-theme-even",
+  "when_to_use": "需要把标准 resume.json 一步排成带 print 间距、分页控制与明暗配色的完整简历 HTML 时用它而非手写,因为原生在分栏密度、跨页断行和打印样式上失败;非做简历编辑器或多主题选择器。",
+  "why_valuable": "AI 默认只能拼出约 60% 可用的简历 HTML,做不到稳定控制 CSS grid 密度、page-break、打印背景与长条目跨页;该主题把 canonical JSON Resume 直接闭环成可打印文档。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "jsonresume-theme-even",
+    "version": "0.26.1",
+    "github": "rbardini/jsonresume-theme-even"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "data.resume 直接传给上游 render(resume),必须是 JSON Resume 对象;render 返回含 doctype、head、内联主题 CSS 与 body 的完整 HTML 字符串。",
+    "_why_no_example": "resume.json 是 AI 原生 JSON 记法且字段语义稳定,schema 足以校准输入,不附 minimal example。",
+    "schema": {
+      "resume": {
+        "basics": {
+          "name": "string —— 必填姓名",
+          "label?": "string —— 默认不显示职业标题",
+          "email?": "string —— 默认不显示邮箱",
+          "phone?": "string —— 默认不显示电话",
+          "url?": "string —— 默认不显示个人网址",
+          "summary?": "string（可含 Markdown）—— 默认不显示简介",
+          "location?": "JSON Resume location 对象 —— 默认不显示地点",
+          "profiles?": "JSON Resume profile[] —— 默认 []"
+        },
+        "work?": "JSON Resume work[] —— 默认 []",
+        "volunteer?": "JSON Resume volunteer[] —— 默认 []",
+        "education?": "JSON Resume education[] —— 默认 []",
+        "awards?": "JSON Resume award[] —— 默认 []",
+        "certificates?": "JSON Resume certificate[] —— 默认 []",
+        "publications?": "JSON Resume publication[] —— 默认 []",
+        "skills?": "JSON Resume skill[] —— 默认 []",
+        "languages?": "JSON Resume language[] —— 默认 []",
+        "interests?": "JSON Resume interest[] —— 默认 []",
+        "references?": "JSON Resume reference[] —— 默认 []",
+        "projects?": "JSON Resume project[] —— 默认 []",
+        "meta?": "JSON Resume meta;meta.themeOptions.colors 可覆盖配色,默认使用主题内置明暗色"
+      }
+    }
+  },
+  "spec": {
+    "height": 900,
+    "note": "boot 的文档预览 iframe 默认显式高 900px 并内部滚动,AI 可改成其他像素值;禁止 vh 或百分比高。打印时以主题自己的 print CSS 为准。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:render 返回完整文档,CSS 位于 iframe 自己的 head\nimport { render } from 'https://cdn.jsdelivr.net/npm/jsonresume-theme-even@0/+esm';\nconst frame = document.createElement('iframe');\nframe.style.cssText = `width:100%;height:${spec.height ?? 900}px;border:0`;\nframe.srcdoc = render(data.resume);\ndocument.getElementById('resume').appendChild(frame);",
+    "widget": "// 完整文档放进 iframe,iframe 本身落 shadow 容器,不向宿主 head 泄漏主题 CSS\nimport { render } from 'https://cdn.jsdelivr.net/npm/jsonresume-theme-even@0/+esm';\nconst frame = document.createElement('iframe');\nframe.style.cssText = `width:100%;height:${spec.height ?? 900}px;border:0`;\nframe.srcdoc = render(data.resume);\nshadowRoot.appendChild(frame);",
+    "codex": "// sandbox iframe 内再用 srcdoc 隔离完整简历文档\nimport { render } from 'https://cdn.jsdelivr.net/npm/jsonresume-theme-even@0/+esm';\nconst frame = document.createElement('iframe');\nframe.style.cssText = `width:100%;height:${spec.height ?? 900}px;border:0`;\nframe.srcdoc = render(data.resume);\ndocument.getElementById('resume').appendChild(frame);"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:iframe 必须挂进 shadowRoot;主题 HTML 会请求 Google Fonts,字体 CDN 未放行时回退系统字体但布局仍可读",
+    "codex": "conditional:ESM CDN + iframe srcdoc 可用;外部 Google Fonts 受限时仅发生字体回退"
+  }
+}

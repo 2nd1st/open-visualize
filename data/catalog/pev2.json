@@ -1,0 +1,51 @@
+{
+  "entry_version": "thin-1",
+  "id": "pev2",
+  "name": "PEV2",
+  "when_to_use": "需要把 PostgreSQL EXPLAIN 计划变成耗时热点、节点统计和可缩放执行树时用它而非手写,因为原生在计划解析、树布局和 buffer 指标联读上失败。",
+  "why_valuable": "AI 默认只能逐段文字解读 EXPLAIN,做不到可靠解析多种文本/JSON 计划、绘制执行树、按实际耗时突出热点并联动节点统计。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "pev2",
+    "version": "1.23.0",
+    "github": "dalibo/pev2"
+  },
+  "license": "PostgreSQL",
+  "data_in": {
+    "shape": "hierarchy",
+    "note": "Plan 组件的 planSource prop 精确类型是 string:传 psql 输出的 EXPLAIN 文本,或把 EXPLAIN (FORMAT JSON) 返回数组 JSON.stringify 后传入；不要直接传对象。planQuery 只用于对照显示。",
+    "schema": {
+      "plan_source": "string —— PostgreSQL EXPLAIN/EXPLAIN ANALYZE 文本,或 JSON.stringify 后的 FORMAT JSON 顶层数组",
+      "plan_query?": "string —— 对应 SQL 原文,默认 ''"
+    }
+  },
+  "spec": {
+    "height": 560,
+    "note": "PEV2 的 split panes、树画布和统计面板需要显式像素高度;默认 560px,AI 可覆盖。禁用上游 README 示例中的 vh-100,也不要用百分比高度。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:两份 CSS 都进 artifact document.head(铁律 2)\nimport { createApp } from 'https://cdn.jsdelivr.net/npm/vue@3/+esm';\nimport { Plan } from 'https://cdn.jsdelivr.net/npm/pev2@1/+esm';\nfor (const href of ['https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css','https://cdn.jsdelivr.net/npm/pev2@1.23.0/dist/pev2.css']) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; document.head.appendChild(l); }\nconst el = document.getElementById('plan'); el.style.cssText = 'height:560px;overflow:auto';\ncreateApp(Plan, { planSource: data.plan_source, planQuery: data.plan_query ?? '' }).mount(el);",
+    "widget": "// Vue mount 与两份 CSS 全落 shadow 容器(铁律 2)\nimport { createApp } from 'https://cdn.jsdelivr.net/npm/vue@3/+esm';\nimport { Plan } from 'https://cdn.jsdelivr.net/npm/pev2@1/+esm';\nfor (const href of ['https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css','https://cdn.jsdelivr.net/npm/pev2@1.23.0/dist/pev2.css']) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; shadowRoot.appendChild(l); }\nconst el = document.createElement('div'); el.style.cssText = 'height:560px;overflow:auto'; shadowRoot.appendChild(el);\ncreateApp(Plan, { planSource: data.plan_source, planQuery: data.plan_query ?? '' }).mount(el);",
+    "codex": "import { createApp } from 'https://cdn.jsdelivr.net/npm/vue@3/+esm';\nimport { Plan } from 'https://cdn.jsdelivr.net/npm/pev2@1/+esm';\nfor (const href of ['https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css','https://cdn.jsdelivr.net/npm/pev2@1.23.0/dist/pev2.css']) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; document.head.appendChild(l); }\nconst el = document.getElementById('plan'); el.style.cssText = 'height:560px;overflow:auto';\ncreateApp(Plan, { planSource: data.plan_source, planQuery: data.plan_query ?? '' }).mount(el);",
+    "note": "入口已按 1.23.0 README 与 d.ts 校对为具名 Plan；props 是 planSource/planQuery。上游还会读取 localStorage 视图选项并监听 window.hashchange,嵌入多实例时需消费方自行做生命周期隔离。"
+  },
+  "example": {
+    "_why": "计划输入既可为文本也可为序列化 JSON,且 Vue prop 名易写错;minimal 采用上游 README 可解析的文本计划。",
+    "minimal": {
+      "plan_source": "Aggregate  (cost=12.50..12.51 rows=1 width=8) (actual time=0.120..0.121 rows=1 loops=1)\n  ->  Seq Scan on employees  (cost=0.00..10.00 rows=1000 width=0) (actual time=0.010..0.080 rows=1000 loops=1)\nPlanning Time: 0.100 ms\nExecution Time: 0.150 ms",
+      "plan_query": "SELECT count(*) FROM employees;"
+    },
+    "empty": {
+      "plan_source": "",
+      "plan_query": ""
+    }
+  },
+  "uplink": "本条只做本地计划探索;若要把当前热点节点带回对话,由消费 AI 自己读取所需状态并按载体写回调,不焊接统一事件协议。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:CSS 可落 shadowRoot,但上游会访问 localStorage 与 window.hashchange,宿主须允许这些浏览器能力并正确卸载 Vue app",
+    "codex": "supported:Vue ESM + pinned Bootstrap/PEV2 CSS,无 worker/wasm/font CDN/uplink 需求"
+  }
+}

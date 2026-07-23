@@ -1,0 +1,42 @@
+{
+  "entry_version": "thin-1",
+  "id": "speed-highlight-core",
+  "name": "@speed-highlight/core",
+  "when_to_use": "需要在体积敏感载体里快速高亮常见语言时用它,而非手写 token span——原生手写在长代码、多语言边界和一致主题上会失败。非做 TextMate 级精度、可编辑代码编辑器或代码执行器。",
+  "why_valuable": "AI 默认无法以约 2KB 核心体积稳定完成多语言 token 分类;手工着色会漏转义、错注释边界,本库以原生 ESM 和按语言加载给出确定性 HTML。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@speed-highlight/core",
+    "version": "1.2.17",
+    "github": "speed-highlight/core"
+  },
+  "license": "CC0-1.0",
+  "data_in": {
+    "shape": "text-span",
+    "schema": {
+      "code": "string —— 原始源码文本",
+      "language?": "'asm'|'bash'|'c'|'css'|'diff'|'go'|'html'|'java'|'js'|'json'|'md'|'py'|'rs'|'sql'|'ts'|'xml'|'yaml' —— 默认 'js'",
+      "display?": "'multiline'|'inline' —— 默认 'multiline'",
+      "hideLineNumbers?": "boolean —— 默认 true"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 的主题 CSS 必须进 document.head(铁律 2)\nimport { highlightElement } from 'https://cdn.jsdelivr.net/npm/@speed-highlight/core@1/+esm';\nconst link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'https://cdn.jsdelivr.net/npm/@speed-highlight/core@1/dist/themes/default.css'; document.head.appendChild(link);\nconst el = document.createElement(data.display === 'inline' ? 'code' : 'div'); el.textContent = data.code;\nawait highlightElement(el, data.language ?? 'js', data.display ?? 'multiline', { hideLineNumbers: data.hideLineNumbers ?? true });\ndocument.getElementById('code').replaceChildren(el);",
+    "widget": "// 主题 CSS 取回后只落 shadow 容器(铁律 2)\nimport { highlightElement } from 'https://cdn.jsdelivr.net/npm/@speed-highlight/core@1/+esm';\nconst style = document.createElement('style'); style.textContent = await fetch('https://cdn.jsdelivr.net/npm/@speed-highlight/core@1/dist/themes/default.css').then(r => r.text()); shadowRoot.appendChild(style);\nconst el = document.createElement(data.display === 'inline' ? 'code' : 'div'); el.textContent = data.code;\nawait highlightElement(el, data.language ?? 'js', data.display ?? 'multiline', { hideLineNumbers: data.hideLineNumbers ?? true }); shadowRoot.appendChild(el);",
+    "codex": "// sandbox iframe:主题 CSS 进 iframe document.head\nimport { highlightElement } from 'https://cdn.jsdelivr.net/npm/@speed-highlight/core@1/+esm';\nconst el = document.createElement(data.display === 'inline' ? 'code' : 'div'); el.textContent = data.code;\nawait highlightElement(el, data.language ?? 'js', data.display ?? 'multiline', { hideLineNumbers: data.hideLineNumbers ?? true });"
+  },
+  "example": {
+    "empty": {
+      "code": "",
+      "language": "js",
+      "display": "multiline"
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:需 fetch 小型主题 CSS 并注入 shadow;无 wasm/worker/字体 CDN",
+    "codex": "supported:原生 ESM + CSS,无 wasm/uplink"
+  }
+}

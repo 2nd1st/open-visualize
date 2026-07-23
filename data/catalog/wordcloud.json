@@ -1,0 +1,81 @@
+{
+  "entry_version": "thin-1",
+  "id": "wordcloud",
+  "name": "wordcloud2.js",
+  "when_to_use": "需要把关键词权重排成支持中文、旋转与非矩形轮廓的词云时用它而非手写 canvas,因为原生在文字测量、碰撞搜索、权重缩放和密集布局上失败。",
+  "why_valuable": "AI 默认只能随机绝对定位文字,做不到像素级碰撞检测、字体宽度测量、权重到字号映射、旋转后占位和可复现的紧凑布局;wordcloud2.js 用 [word,weight] 列表闭环这些步骤。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "wordcloud",
+    "version": "1.2.3",
+    "github": "timdream/wordcloud2.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "list 是上游精确 tuple 形状:[词,权重,...可选附加值];weight 必须为有限数。boot 把该列表写入 WordCloud options.list,不接受词频对象。",
+    "schema": {
+      "list": [
+        "[string, finite number, ...unknown[]] —— 第一项词,第二项权重"
+      ],
+      "options?": {
+        "_default": "{};boot 只补 list",
+        "fontFamily?": "CSS font-family string —— 默认含 Trebuchet MS、Heiti TC、微软雅黑与通用 sans-serif",
+        "fontWeight?": "CSS font-weight —— 默认 'normal'",
+        "color?": "CSS color string | 'random-dark' | 'random-light' —— 默认 'random-dark'",
+        "backgroundColor?": "CSS color string —— 默认 '#fff'",
+        "weightFactor?": "positive number —— 默认 1,把权重乘成 px 字号",
+        "minSize?": "non-negative number —— 默认 0,表示不限制",
+        "gridSize?": "positive integer(px) —— 默认 8",
+        "shape?": "'circle' | 'cardioid' | 'diamond' | 'square' | 'triangle-forward' | 'triangle' | 'pentagon' | 'star' —— 默认 'circle'",
+        "ellipticity?": "positive number —— 默认 0.65",
+        "minRotation?": "number radians —— 默认 -Math.PI/2",
+        "maxRotation?": "number radians —— 默认 Math.PI/2",
+        "rotationSteps?": "non-negative integer —— 默认 0",
+        "rotateRatio?": "number 0..1 —— 默认 0.1",
+        "shuffle?": "boolean —— 默认 true",
+        "drawOutOfBound?": "boolean —— 默认 false",
+        "shrinkToFit?": "boolean —— 默认 false",
+        "clearCanvas?": "boolean —— 默认 true"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "canvas 的 CSS 尺寸与 width/height backing store 必须在绘制前写成明确像素值;boot 默认高 400px并量取容器宽。尺寸变化需清空并重绘,铁律 3 禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:原生 canvas,无外部 CSS\nimport WordCloud from 'https://cdn.jsdelivr.net/npm/wordcloud@1/+esm';\nconst host = document.getElementById('wordcloud'); host.style.height = `${spec.height ?? 400}px`;\nconst canvas = document.createElement('canvas'); canvas.width = host.clientWidth || 640; canvas.height = spec.height ?? 400; canvas.style.width = `${canvas.width}px`; canvas.style.height = `${canvas.height}px`;\nhost.replaceChildren(canvas);\nWordCloud(canvas, { ...(data.options ?? {}), list: data.list });",
+    "widget": "// canvas 与全部像素绘制落 shadowRoot,不需要 CSS/head\nimport WordCloud from 'https://cdn.jsdelivr.net/npm/wordcloud@1/+esm';\nconst host = document.createElement('div'); host.style.height = `${spec.height ?? 400}px`; shadowRoot.appendChild(host);\nconst canvas = document.createElement('canvas'); canvas.width = host.clientWidth || 640; canvas.height = spec.height ?? 400; canvas.style.width = `${canvas.width}px`; canvas.style.height = `${canvas.height}px`;\nhost.appendChild(canvas);\nWordCloud(canvas, { ...(data.options ?? {}), list: data.list });",
+    "codex": "import WordCloud from 'https://cdn.jsdelivr.net/npm/wordcloud@1/+esm';\nconst host = document.getElementById('wordcloud'); host.style.height = `${spec.height ?? 400}px`;\nconst canvas = document.createElement('canvas'); canvas.width = host.clientWidth || 640; canvas.height = spec.height ?? 400; canvas.style.width = `${canvas.width}px`; canvas.style.height = `${canvas.height}px`;\nhost.replaceChildren(canvas);\nWordCloud(canvas, { ...(data.options ?? {}), list: data.list });"
+  },
+  "example": {
+    "_why": "tuple 列表、权重到字号和弧度旋转容易被写成错误对象结构,minimal example 给出真实 WordCloud options。",
+    "minimal": {
+      "list": [
+        ["可视化", 42],
+        ["数据", 28],
+        ["交互", 20],
+        ["AI", 16]
+      ],
+      "options": {
+        "weightFactor": 2,
+        "shape": "circle",
+        "minRotation": 0,
+        "maxRotation": 0,
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "empty": {
+      "list": []
+    }
+  },
+  "uplink": "display/local-interact 类,默认无需上行。若需词项 hover 或点击,由消费 AI 通过上游 options 回调自行处理并按载体分支;本条不焊接统一事件出口。",
+  "carriers": {
+    "artifact": "inferred-not-tested:主线程 canvas,无 worker/font CDN 或外部 CSS",
+    "widget": "supported:显式 canvas 落 shadowRoot,默认字体使用系统 font stack,无 document.head 注入",
+    "codex": "supported:ESM CDN + canvas,无上行依赖"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "entry_version": "thin-1",
+  "id": "diff2html",
+  "name": "diff2html",
+  "when_to_use": "需要把 unified/git diff 渲成 GitHub 风格的 line-by-line 或 side-by-side 对照、文件列表、行号与词级高亮时用它而非手写表格,因为 AI 原生手写在长文件行配对、双栏对齐和词级差异上必然失败。",
+  "why_valuable": "AI 默认只能把短 diff 手写成约 60-70% 可用的双色表格,做不到长文件稳定行配对、双栏行号对齐和词级高亮;diff2html 把解析算法与 HTML 渲染一次闭环。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "diff2html",
+    "version": "3.4.56",
+    "github": "rtfpessoa/diff2html"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "text-span",
+    "note": "主输入是一个完整 unified/git diff 文本;其余字段只修饰上游 html(diff, config) 的输出形态。库会转义 diff 内容,消费侧把返回的库生成 HTML 放入专用容器。",
+    "schema": {
+      "diff": "string —— unified/git diff 文本,含文件头与 @@ hunk",
+      "outputFormat?": "'line-by-line' | 'side-by-side'",
+      "drawFileList?": "boolean —— 是否绘制文件列表",
+      "matching?": "'none' | 'lines' | 'words' —— 变化行匹配粒度",
+      "diffStyle?": "'word' | 'char' —— 行内高亮粒度"
+    }
+  },
+  "spec": {
+    "height": 480,
+    "note": "输出含宽表格与代码行,容器显式设 480px 高并 overflow:auto,避免长 diff 撑爆宿主;铁律 3 禁 vh/百分比高。side-by-side 在窄容器内允许横向滚动。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合前按此推断写\nimport { html as renderDiff } from 'https://cdn.jsdelivr.net/npm/diff2html@3/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/diff2html@3/bundles/css/diff2html.min.css'; document.head.append(css);\nconst el = document.getElementById('diff'); el.style.cssText = 'height:480px;overflow:auto';\nel.innerHTML = renderDiff(data.diff, { outputFormat: data.outputFormat ?? 'side-by-side', drawFileList: data.drawFileList ?? true, matching: data.matching ?? 'lines', diffStyle: data.diffStyle ?? 'word' });",
+    "widget": "// CSS 与结果都落 shadow 容器,不污染宿主 document\nimport { html as renderDiff } from 'https://cdn.jsdelivr.net/npm/diff2html@3/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/diff2html@3/bundles/css/diff2html.min.css'; shadowRoot.append(css);\nconst el = document.createElement('div'); el.style.cssText = 'height:480px;overflow:auto'; shadowRoot.append(el);\nel.innerHTML = renderDiff(data.diff, { outputFormat: data.outputFormat ?? 'side-by-side', drawFileList: data.drawFileList ?? true, matching: data.matching ?? 'lines', diffStyle: data.diffStyle ?? 'word' });",
+    "codex": "import { html as renderDiff } from 'https://cdn.jsdelivr.net/npm/diff2html@3/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/diff2html@3/bundles/css/diff2html.min.css'; document.head.append(css);\nconst el = document.getElementById('diff'); el.style.cssText = 'height:480px;overflow:auto';\nel.innerHTML = renderDiff(data.diff, { outputFormat: data.outputFormat ?? 'side-by-side', drawFileList: data.drawFileList ?? true, matching: data.matching ?? 'lines', diffStyle: data.diffStyle ?? 'word' });"
+  },
+  "example": {
+    "_why": "表格型高歧义组件:输出布局、文件列表与行匹配选项组合后,最小 unified diff fixture 能让 AI 一次拼对。",
+    "minimal": {
+      "diff": "diff --git a/greet.js b/greet.js\nindex 3b18e13..43b18e1 100644\n--- a/greet.js\n+++ b/greet.js\n@@ -1 +1 @@\n-console.log('hello');\n+console.log('hello, world');",
+      "outputFormat": "side-by-side",
+      "drawFileList": true,
+      "matching": "lines",
+      "diffStyle": "word"
+    },
+    "empty": {
+      "diff": ""
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:ESM 与 pinned CSS/font 需可访问 jsDelivr;link 和渲染容器均挂入 shadowRoot,无 document.head 注入",
+    "codex": "supported:ESM CDN + 静态 HTML/CSS,无 canvas/worker/wasm/uplink 需求"
+  }
+}

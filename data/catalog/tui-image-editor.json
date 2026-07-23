@@ -1,0 +1,56 @@
+{
+  "entry_version": "thin-1",
+  "id": "tui-image-editor",
+  "name": "Toast UI Image Editor",
+  "when_to_use": "需要用户在浏览器内裁剪、旋转、涂鸦、加文字或滤镜后继续交付图片时用它,而非手写 canvas 编辑器——原生在对象选取、变换手柄、撤销栈与导出一致性上会失败;非做图像生成、视频编辑或 PSD 兼容。",
+  "why_valuable": "AI 默认只能输出一张静态图片,做不到让用户在同一画布继续裁剪、绘制、排字、滤镜和导出;Toast UI Image Editor 把 Fabric 对象操作与完整工具栏封装成可消费编辑器。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "tui-image-editor",
+    "version": "3.15.3",
+    "github": "nhn/tui.image-editor"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geometry",
+    "note": "boot 把 source 映射到上游 includeUI.loadImage.path/name;url 必须是宿主允许的同源/blob/data URL 或带 CORS 的图片,否则 canvas 导出会被污染。所有可选字段均注明默认。",
+    "schema": {
+      "source?": {
+        "_default": "{} —— 使用内置透明 1024×768 SVG 与名称 'image'",
+        "url?": "string —— 图片 URL/data URL/blob URL,默认内置透明 1024×768 SVG data URL",
+        "name?": "string —— 图片名,默认 'image'"
+      },
+      "initMenu?": "'crop' | 'flip' | 'rotate' | 'draw' | 'shape' | 'icon' | 'text' | 'mask' | 'filter' —— 默认 'draw'",
+      "menuBarPosition?": "'top' | 'bottom' | 'left' | 'right' —— 默认 'bottom'"
+    }
+  },
+  "spec": {
+    "height": 620,
+    "note": "Fabric canvas 与完整 UI 需要明确像素高度;默认外层 620px、图片区 cssMaxHeight 520px、cssMaxWidth 900px,铁律 3 禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:两份 CSS 按铁律 2 进 head\nimport ImageEditor from 'https://cdn.jsdelivr.net/npm/tui-image-editor@3/+esm';\nfor (const href of ['https://cdn.jsdelivr.net/npm/tui-color-picker@2/dist/tui-color-picker.css','https://cdn.jsdelivr.net/npm/tui-image-editor@3.15.3/dist/tui-image-editor.css']) { const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = href; document.head.appendChild(css); }\nconst el = document.getElementById('editor'); el.style.height = '620px';\nconst blank = 'data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"1024\" height=\"768\"/%3E';\nconst editor = new ImageEditor(el, { includeUI: { loadImage: { path: data.source?.url ?? blank, name: data.source?.name ?? 'image' }, initMenu: data.initMenu ?? 'draw', menuBarPosition: data.menuBarPosition ?? 'bottom' }, cssMaxWidth: 900, cssMaxHeight: 520 });",
+    "widget": "import ImageEditor from 'https://cdn.jsdelivr.net/npm/tui-image-editor@3/+esm';\nfor (const href of ['https://cdn.jsdelivr.net/npm/tui-color-picker@2/dist/tui-color-picker.css','https://cdn.jsdelivr.net/npm/tui-image-editor@3.15.3/dist/tui-image-editor.css']) { const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = href; shadowRoot.appendChild(css); }\nconst el = document.createElement('div'); el.style.height = '620px'; shadowRoot.appendChild(el);\nconst blank = 'data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"1024\" height=\"768\"/%3E';\nconst editor = new ImageEditor(el, { includeUI: { loadImage: { path: data.source?.url ?? blank, name: data.source?.name ?? 'image' }, initMenu: data.initMenu ?? 'draw', menuBarPosition: data.menuBarPosition ?? 'bottom' }, cssMaxWidth: 900, cssMaxHeight: 520 });",
+    "codex": "import ImageEditor from 'https://cdn.jsdelivr.net/npm/tui-image-editor@3/+esm';\nfor (const href of ['https://cdn.jsdelivr.net/npm/tui-color-picker@2/dist/tui-color-picker.css','https://cdn.jsdelivr.net/npm/tui-image-editor@3.15.3/dist/tui-image-editor.css']) { const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = href; document.head.appendChild(css); }\nconst el = document.getElementById('editor'); el.style.height = '620px';\nconst blank = 'data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"1024\" height=\"768\"/%3E';\nconst editor = new ImageEditor(el, { includeUI: { loadImage: { path: data.source?.url ?? blank, name: data.source?.name ?? 'image' }, initMenu: data.initMenu ?? 'draw', menuBarPosition: data.menuBarPosition ?? 'bottom' }, cssMaxWidth: 900, cssMaxHeight: 520 });"
+  },
+  "example": {
+    "_why": "完整编辑器的 includeUI/loadImage 配置层级高且易把 path/name 放错;minimal 固定消费入口。",
+    "minimal": {
+      "source": {
+        "url": "data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"800\" height=\"600\"%3E%3Crect width=\"100%25\" height=\"100%25\" fill=\"white\"/%3E%3C/svg%3E",
+        "name": "canvas"
+      },
+      "initMenu": "draw",
+      "menuBarPosition": "bottom"
+    },
+    "empty": {}
+  },
+  "uplink": "编辑与导出留在 editor 实例;消费 AI 需要结果时调用 editor.toDataURL(),再自行按 carrier 写上行或下载,不焊接统一事件契约。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:编辑器 DOM/canvas 与两份 CSS 均落 ShadowRoot;需探针确认 includeUI 没有 document 级选择器或浮层泄漏",
+    "codex": "conditional:ESM + CSS + canvas;远程图片必须满足 CORS 才能导出"
+  }
+}

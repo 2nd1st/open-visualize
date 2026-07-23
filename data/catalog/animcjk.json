@@ -1,0 +1,25 @@
+{
+  "entry_version": "thin-1",
+  "id": "animcjk",
+  "name": "animCJK",
+  "when_to_use": "需要日文汉字、假名、韩文汉字或简繁汉字的现成笔顺 SVG 时用它,而非手写路径——原生实现在跨语言字形差异、逐画几何与动画顺序上完全失败。",
+  "why_valuable": "AI 默认无法生成任何可靠的 CJK 笔顺 SVG,也分不清同一 Unicode 在日中韩语境下的字形/笔顺差异；animCJK 提供按字符与语言分桶的已绘制动画几何。",
+  "supply_form": "data-asset",
+  "mode": "direct-import",
+  "upstream": {
+    "github": "parsimonhi/animCJK"
+  },
+  "license": null,
+  "license_note": "严格沿用 picks 的 license_spdx=null(license_verify=true),不可擅自宣称单一 SPDX；上游字符 SVG 涉及 Arphic Public License,假名/笔画等其他文件为 LGPL-3.0-or-later,上线前必须按目标文件复核。",
+  "data_in": {
+    "shape": "geometry",
+    "note": "资产是完整 SVG 文本,文件名为字符 Unicode code point 的十进制数加 .svg；folder 按语种取 svgsJa、svgsJaKana、svgsKo、svgsZhHans 或 svgsZhHant,不能只按字符猜语言。",
+    "schema": {
+      "svg_text": "string —— 一个完整的 <svg> document,内含笔画 path、median path 与逐画 CSS animation",
+      "folder": "'svgsJa' | 'svgsJaKana' | 'svgsKo' | 'svgsZhHans' | 'svgsZhHant'",
+      "unicode_decimal": "positive integer —— character.codePointAt(0) 的十进制值,直接组成文件名"
+    }
+  },
+  "fetch_url": "https://cdn.jsdelivr.net/gh/parsimonhi/animCJK@ec5e17cca76c87587790bcbce5ea0b4d4fb753d6/{folder}/{unicode_decimal}.svg",
+  "artifact_note": "此仓库没有 picks 可用的 npm/version,故只能用固定 commit 的 jsDelivr /gh/ 路径,不能伪造 /npm/ URL；artifact 发布前应 fetch 目标 SVG、校验 text 为 <svg> 后内联进 iframe,不要依赖运行时跨域 fetch。"
+}

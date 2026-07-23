@@ -1,0 +1,44 @@
+{
+  "entry_version": "thin-1",
+  "id": "d3-geo",
+  "name": "d3-geo",
+  "when_to_use": "需要把 GeoJSON 做球面投影并生成无瓦片 SVG/Canvas 路径时用它而非手写投影数学,因为原生在经纬度变换、反经线切割、球面插值与自动适配视口上失败。",
+  "why_valuable": "AI 默认做不到正确的球面投影、反经线裁切、球面面积/质心和稳定 path 生成;细微公式错误会让边界变形或错位,d3-geo 把 GeoJSON 精确变成投影坐标与 SVG path。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "d3-geo",
+    "version": "3.1.1",
+    "github": "d3/d3-geo"
+  },
+  "license": "ISC",
+  "data_in": {
+    "shape": "geometry",
+    "note": "输入必须是标准 GeoJSON Geometry、Feature 或 FeatureCollection;TopoJSON 不能直接喂 geoPath,须先经 topojson-client.feature 解码。非做在线地图瓦片、地名检索或行政区数据下载。",
+    "schema": {
+      "geojson": "GeoJSON Geometry | Feature | FeatureCollection —— 坐标顺序为 [longitude, latitude],角度制",
+      "viewport": {
+        "width": "number —— 输出视口宽度(px),必须 > 0",
+        "height": "number —— 输出视口高度(px),必须 > 0",
+        "padding?": "number —— fitExtent 四边内边距(px),默认 8"
+      },
+      "projection?": "'equalEarth' | 'naturalEarth1' | 'mercator' | 'albersUsa' —— 默认 equalEarth;albersUsa 仅适合美国"
+    }
+  },
+  "provides": {
+    "shape": "geometry",
+    "_note": "headless-primitive:不直接挂载、无 L 级、无 carriers 矩阵;它生成可交给 SVG path 的 d 字符串或 Canvas context 的绘制命令。",
+    "outputs": {
+      "projection": "D3 GeoProjection —— 可投影单点并做 invert",
+      "path": "GeoPath —— path(geojson) 产出 SVG d 字符串",
+      "centroid_bounds_area": "path.centroid / path.bounds / path.area 的投影平面测量值"
+    }
+  },
+  "peer": {
+    "note": "上游数据常由 topojson-client 解码;下游消费者是 AI 创建的 SVG <path d=...> 或传入 CanvasRenderingContext2D 的 geoPath.context(ctx)。"
+  },
+  "boot": {
+    "shared": "import { geoAlbersUsa, geoEqualEarth, geoMercator, geoNaturalEarth1, geoPath } from 'https://cdn.jsdelivr.net/npm/d3-geo@3/+esm';\nconst makers = { albersUsa: geoAlbersUsa, equalEarth: geoEqualEarth, mercator: geoMercator, naturalEarth1: geoNaturalEarth1 };\nconst pad = data.viewport.padding ?? 8;\nconst projection = makers[data.projection ?? 'equalEarth']().fitExtent([[pad, pad], [data.viewport.width - pad, data.viewport.height - pad]], data.geojson);\nconst path = geoPath(projection); const d = path(data.geojson);",
+    "note": "保守使用 projection.fitExtent + geoPath,不手填 scale/translate。若输入是 us-atlas 的 *-albers-10m.json,它已是 975×610 平面坐标,不要再经本投影链。"
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "entry_version": "thin-1",
+  "id": "x-data-spreadsheet",
+  "name": "x-spreadsheet",
+  "when_to_use": "需要轻量 Excel 风格网格、单元格编辑与多工作表时用它,而非手写 HTML table/canvas——原生在选区、冻结窗格、公式输入和剪贴板交互上会失败;非做长表单、数据库级虚拟表或完整 Excel 兼容。",
+  "why_valuable": "AI 默认只能生成静态 table,做不到可靠选区、键盘导航、单元格编辑、合并与工作表状态;x-spreadsheet 用单 bundle 提供可编辑 canvas 表格,补齐只有计算引擎而没有 UI 的空档。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "x-data-spreadsheet",
+    "version": "1.1.9",
+    "github": "myliang/x-spreadsheet"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "grid",
+    "note": "sheets 原样传给上游 Spreadsheet.loadData。rows/cells 的 key 是从 0 开始的十进制索引字符串;下面只保留稳定高频字段,不把二维数组误喂给它。所有可选字段均注明默认。",
+    "schema": {
+      "sheets": [
+        {
+          "name": "string —— 工作表名,必填",
+          "rows": {
+            "<rowIndex>": {
+              "height?": "number（px）—— 默认 25",
+              "cells": {
+                "<columnIndex>": {
+                  "text": "string —— 单元格显示/公式文本,必填"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "mode?": "'edit' | 'read' —— 默认 'edit'"
+    }
+  },
+  "spec": {
+    "height": 480,
+    "note": "canvas 表格必须显式得到 viewport 高度;默认 480px,宽度取容器 clientWidth,铁律 3 禁 vh/百分比高。上游 view.height/view.width 回调返回像素数。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:CSS 按铁律 2 进 document.head\nimport Spreadsheet from 'https://cdn.jsdelivr.net/npm/x-data-spreadsheet@1/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/x-data-spreadsheet@1.1.9/dist/xspreadsheet.css'; document.head.appendChild(css);\nconst el = document.getElementById('sheet'); el.style.height = '480px';\nconst sheet = new Spreadsheet(el, { mode: data.mode ?? 'edit', view: { height: () => 480, width: () => el.clientWidth } });\nsheet.loadData(data.sheets);",
+    "widget": "import Spreadsheet from 'https://cdn.jsdelivr.net/npm/x-data-spreadsheet@1/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/x-data-spreadsheet@1.1.9/dist/xspreadsheet.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); el.style.height = '480px'; shadowRoot.appendChild(el);\nconst sheet = new Spreadsheet(el, { mode: data.mode ?? 'edit', view: { height: () => 480, width: () => el.clientWidth } });\nsheet.loadData(data.sheets);",
+    "codex": "import Spreadsheet from 'https://cdn.jsdelivr.net/npm/x-data-spreadsheet@1/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/x-data-spreadsheet@1.1.9/dist/xspreadsheet.css'; document.head.appendChild(css);\nconst el = document.getElementById('sheet'); el.style.height = '480px';\nconst sheet = new Spreadsheet(el, { mode: data.mode ?? 'edit', view: { height: () => 480, width: () => el.clientWidth } });\nsheet.loadData(data.sheets);"
+  },
+  "example": {
+    "_why": "表格 data 采用稀疏 rows/cells 索引对象,高歧义且不是二维数组;minimal 让 AI 一次拼对 loadData 形状。",
+    "minimal": {
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "rows": {
+            "0": {
+              "cells": {
+                "0": { "text": "项目" },
+                "1": { "text": "数量" }
+              }
+            },
+            "1": {
+              "cells": {
+                "0": { "text": "示例" },
+                "1": { "text": "3" }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "empty": {
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "rows": {}
+        }
+      ]
+    }
+  },
+  "uplink": "编辑状态保留在 sheet 实例内;消费 AI 需要读取时调用 sheet.getData(),再自行按 carrier 写上行或下载导出,不焊接统一事件契约。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:容器与 xspreadsheet.css 均落 ShadowRoot;需探针确认上游浮层/右键菜单没有 document 级选择器泄漏",
+    "codex": "supported:ESM + pinned CSS + canvas,无 worker/wasm"
+  }
+}

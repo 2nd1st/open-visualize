@@ -1,0 +1,52 @@
+{
+  "entry_version": "thin-1",
+  "id": "coderline-alphatab",
+  "name": "alphaTab",
+  "when_to_use": "需要把 alphaTex 或 MusicXML 渲成同时含标准谱与吉他 tab、保留节奏/推弦/多轨信息的浏览器谱面时用它,而非 ASCII tab 或手写 SVG——原生手写在节奏对齐、吉他技法 glyph 和多轨排版上失败;它非做谱面编辑器。",
+  "why_valuable": "AI 默认只能写丢失节奏与技法的 ASCII tab,做不到标准谱/tab 联排、推弦等专用符号和可扩展播放管线;alphaTab 将文本/交换格式直接刻成生产级 SVG。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@coderline/alphatab",
+    "version": "1.8.4",
+    "github": "CoderLine/alphaTab"
+  },
+  "license": "MPL-2.0",
+  "data_in": {
+    "shape": "notation-string",
+    "note": "format 必填以消除 tex() 与二进制 importer 的歧义;alphaTex 是库专用 DSL,故附 minimal example。默认 boot 只刻谱,不自动开 WebAudio。",
+    "schema": {
+      "format": "'alphatex' | 'musicxml' —— 必填;alphatex 走 api.tex(string),musicxml 先 UTF-8 编码再走 api.load(Uint8Array)",
+      "notation": "string —— format=alphatex 时为从元数据到 . 分隔符及音符的完整 alphaTex;format=musicxml 时为完整 <score-partwise>/<score-timewise> 文档",
+      "playback?": "boolean —— 是否启用原生 WebAudio 播放器并加载随包 soundfont,默认 false;宿主仍须由消费 AI 提供播放 UI并处理用户手势"
+    }
+  },
+  "spec": {
+    "height": 560,
+    "note": "谱面容器默认固定 560px 高并滚动;禁 vh/百分比高。渲染端设 useWorkers:false 以避免 +esm 相对 worker URL 歧义;playback=true 仍要求 WebAudio、worklet/worker、soundfont CDN 与用户手势,需载体实测。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:默认同步 SVG 刻谱;player 关闭时不触发 WebAudio\nimport { AlphaTabApi } from 'https://cdn.jsdelivr.net/npm/@coderline/alphatab@1/+esm';\nconst base = 'https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/';\nconst el = document.getElementById('score'); el.style.cssText = 'height:560px;overflow:auto';\nconst api = new AlphaTabApi(el, { core: { engine: 'svg', useWorkers: false, scriptFile: base + 'alphaTab.mjs', fontDirectory: base + 'font/' }, player: { enablePlayer: data.playback ?? false, soundFont: base + 'soundfont/sonivox.sf2' } });\nif (data.format === 'alphatex') api.tex(data.notation); else api.load(new TextEncoder().encode(data.notation));",
+    "widget": "import { AlphaTabApi } from 'https://cdn.jsdelivr.net/npm/@coderline/alphatab@1/+esm';\nconst base = 'https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.8.4/dist/';\nconst el = document.createElement('div'); el.style.cssText = 'height:560px;overflow:auto'; shadowRoot.appendChild(el);\nconst api = new AlphaTabApi(el, { core: { engine: 'svg', useWorkers: false, scriptFile: base + 'alphaTab.mjs', fontDirectory: base + 'font/' }, player: { enablePlayer: data.playback ?? false, soundFont: base + 'soundfont/sonivox.sf2' } });\nif (data.format === 'alphatex') api.tex(data.notation); else api.load(new TextEncoder().encode(data.notation));",
+    "codex": "同 artifact(sandbox iframe):ESM import + pinned font/soundfont;默认 SVG/useWorkers:false,按 format 调 tex 或 load。"
+  },
+  "example": {
+    "_why": "alphaTex 是专用 DSL,点号前后语义和弦/弦号写法高歧义,minimal 用官方原生 api.tex 输入形态校准。",
+    "minimal": {
+      "format": "alphatex",
+      "notation": "\\title \"Practice\"\\n\\tempo 92\\n. 3.3 3.5 3.7 3.8",
+      "playback": false
+    },
+    "empty": {
+      "format": "alphatex",
+      "notation": ".",
+      "playback": false
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:刻谱需 ESM + Bravura font-cdn并可落 shadow;playback 额外要求 worker/worklet、WebAudio、soundfont 与用户手势",
+    "codex": "conditional:纯刻谱路径支持 ESM/SVG/font-cdn;playback 路径需单独通过 wasm+webaudio 能力探针"
+  }
+}

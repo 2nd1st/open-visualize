@@ -1,0 +1,62 @@
+{
+  "entry_version": "thin-1",
+  "id": "bpmn-io-form-js",
+  "name": "form-js (bpmn.io)",
+  "when_to_use": "需要把 bpmn.io form schema 稳定渲成带校验的 vanilla 输入面时用它,而非手写控件映射——原生在嵌套结构、统一校验与数据往返上失败;本条只取 Form viewer,非做 FormEditor/Playground 或长表单。",
+  "why_valuable": "AI 默认只能一次性拼短表单,做不到让 schema、初值、字段校验和最终 key-value 数据长期同构;form-js 用确定的 importSchema 路径完成这层映射。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": { "npm": "@bpmn-io/form-js", "version": "1.24.0", "github": "bpmn-io/form-js" },
+  "license": "SEE LICENSE IN LICENSE",
+  "license_note": "按 picks 原样标识。包内 bpmn.io license 为 MIT 式许可并附带水印不可移除/遮挡条款,使用时必须保留可见水印。",
+  "data_in": {
+    "shape": "key-value",
+    "note": "data.schema 直接传 Form#importSchema(schema,data);这不是 JSON Schema,字段名为 components/type/key/validate。",
+    "schema": {
+      "schema": {
+        "type": "'default'",
+        "components": [
+          {
+            "type": "'textfield'|'textarea'|'number'|'checkbox'|'select'|'radio'|'checklist'|'taglist'|'datetime'|'group'|'dynamiclist'|'table'|'text'",
+            "key": "string —— 数据对象中的唯一键;纯展示组件除外",
+            "label": "string —— 可见标签",
+            "validate?": {
+              "required?": "boolean —— 默认 false",
+              "_default": "省略 validate 时不加该裁剪版约束"
+            }
+          }
+        ]
+      },
+      "values?": "Record<string, unknown> —— 默认 {}"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:样式进入 artifact document.head(铁律 2)\nimport { Form } from 'https://cdn.jsdelivr.net/npm/@bpmn-io/form-js@1/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@bpmn-io/form-js@1/dist/assets/form-js.css'; document.head.appendChild(css);\nconst el = document.getElementById('form');\nconst form = new Form({ container: el });\nawait form.importSchema(data.schema, data.values ?? {});",
+    "widget": "// CSS 与 mount 节点都落到 shadowRoot(铁律 2)\nimport { Form } from 'https://cdn.jsdelivr.net/npm/@bpmn-io/form-js@1/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@bpmn-io/form-js@1/dist/assets/form-js.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); shadowRoot.appendChild(el);\nconst form = new Form({ container: el });\nawait form.importSchema(data.schema, data.values ?? {});",
+    "codex": "// sandbox iframe 内样式进本 iframe head\nimport { Form } from 'https://cdn.jsdelivr.net/npm/@bpmn-io/form-js@1/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@bpmn-io/form-js@1/dist/assets/form-js.css'; document.head.appendChild(css);\nconst form = new Form({ container: document.getElementById('form') });\nawait form.importSchema(data.schema, data.values ?? {});"
+  },
+  "example": {
+    "_why": "form-js schema 是深 config 且不是 JSON Schema,最小样例用于钉死 type/components/key/validate 层级。",
+    "minimal": {
+      "schema": {
+        "type": "default",
+        "components": [
+          { "type": "textfield", "key": "creditor", "label": "Creditor", "validate": { "required": true } }
+        ]
+      },
+      "values": { "creditor": "" }
+    },
+    "empty": { "schema": { "type": "default", "components": [] }, "values": {} }
+  },
+  "uplink": {
+    "widget": "消费 AI 自行从 form 的上游原生结果对象读取 {data,errors,files},再拼 sendPrompt 文案;不在条目中焊接统一事件契约。",
+    "codex": "消费 AI 自行读取同一原生结果对象并调用 sendFollowUpMessage。",
+    "artifact": "artifact 无上行;提供结果 JSON 下载导出兜底。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:基础字段可把 form-js.css 放入 shadowRoot;日期弹层、文件控件等复杂字段仍需单独做宿主探针",
+    "codex": "supported:ESM CDN + iframe head CSS;无 worker/wasm"
+  }
+}

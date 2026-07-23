@@ -1,0 +1,67 @@
+{
+  "entry_version": "thin-1",
+  "id": "codemirror",
+  "name": "CodeMirror 6",
+  "when_to_use": "需要在工件中编辑长代码并获得选区、撤销、搜索、补全框架与虚拟化视口时用它而非手写 textarea/contenteditable,因为原生在文档状态、IME/选区和长文本增量渲染上失败;非做代码执行、完整 IDE、LSP 工作区或项目文件树。",
+  "why_valuable": "AI 默认只能放一个 textarea 或脆弱 contenteditable,做不到事务化文档状态、多光标、可靠 IME、搜索面板和长文档视口虚拟化;CodeMirror 以 EditorState/EditorView 扩展模型闭环。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "codemirror",
+    "version": "6.0.2",
+    "github": "codemirror/dev"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "text-span",
+    "note": "doc 精确传给 EditorView 的初始文档;根 codemirror 包只提供 basicSetup 与核心视图,具体语言解析器不是字符串配置,须以 peer extension 追加。",
+    "schema": {
+      "doc": "string —— 初始文档全文",
+      "readOnly?": "boolean —— boot 默认 false",
+      "lineWrapping?": "boolean —— 默认 false",
+      "selection?": {
+        "_default": "省略时光标位于文档开头",
+        "anchor": "integer,0..doc.length",
+        "head?": "integer,0..doc.length —— 默认等于 anchor"
+      }
+    }
+  },
+  "spec": {
+    "height": 360,
+    "note": "CodeMirror 默认随内容增高;boot 用 EditorView.theme 把根编辑器固定为 360px并让 .cm-scroller 内滚动,AI 可换其他像素值但禁 vh/百分比高(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:CodeMirror style-mod 自动把样式挂入 artifact document root/head(铁律 2)\nimport { basicSetup, EditorView } from 'https://cdn.jsdelivr.net/npm/codemirror@6/+esm';\nconst extensions = [basicSetup, EditorView.editable.of(!(data.readOnly ?? false)), EditorView.theme({ '&': { height: '360px' }, '.cm-scroller': { overflow: 'auto' } })];\nif (data.lineWrapping) extensions.push(EditorView.lineWrapping);\nconst selection = data.selection ? { anchor: data.selection.anchor, head: data.selection.head ?? data.selection.anchor } : undefined;\nconst view = new EditorView({ doc: data.doc, selection, extensions, parent: document.getElementById('editor') });",
+    "widget": "// holder 与 style-mod 样式都落 widget shadowRoot;root 显式传入以固定样式/tooltip 所属根\nimport { basicSetup, EditorView } from 'https://cdn.jsdelivr.net/npm/codemirror@6/+esm';\nconst holder = document.createElement('div'); shadowRoot.appendChild(holder);\nconst extensions = [basicSetup, EditorView.editable.of(!(data.readOnly ?? false)), EditorView.theme({ '&': { height: '360px' }, '.cm-scroller': { overflow: 'auto' } })]; if (data.lineWrapping) extensions.push(EditorView.lineWrapping);\nconst selection = data.selection ? { anchor: data.selection.anchor, head: data.selection.head ?? data.selection.anchor } : undefined;\nconst view = new EditorView({ doc: data.doc, selection, extensions, parent: holder, root: shadowRoot });",
+    "codex": "// sandbox iframe 内使用根包的原生 EditorView/basicSetup\nimport { basicSetup, EditorView } from 'https://cdn.jsdelivr.net/npm/codemirror@6/+esm';\nconst extensions = [basicSetup, EditorView.editable.of(!(data.readOnly ?? false)), EditorView.theme({ '&': { height: '360px' }, '.cm-scroller': { overflow: 'auto' } })];\nif (data.lineWrapping) extensions.push(EditorView.lineWrapping);\nconst selection = data.selection ? { anchor: data.selection.anchor, head: data.selection.head ?? data.selection.anchor } : undefined;\nconst view = new EditorView({ doc: data.doc, selection, extensions, parent: document.getElementById('editor') });"
+  },
+  "example": {
+    "_why": "编辑器状态含文档、只读性、换行与选区四个容易混进 DOM props 的维度,minimal 钉死 EditorView 原生配置映射。",
+    "minimal": {
+      "doc": "const answer = 42;\n",
+      "readOnly": false,
+      "lineWrapping": false,
+      "selection": {
+        "anchor": 0,
+        "head": 0
+      }
+    },
+    "empty": {
+      "doc": ""
+    }
+  },
+  "peer": {
+    "note": "语法高亮须额外追加对应 @codemirror/lang-* extension;lint/自定义补全同理追加 @codemirror/lint 或 @codemirror/autocomplete 扩展,根 codemirror 包不会从 language 字符串自动加载。"
+  },
+  "uplink": {
+    "artifact": "artifact 无上行;消费 AI 可把 view.state.doc.toString() 下载为文本文件或复制。",
+    "widget": "消费 AI 自行在明确的确认控件中读取 view.state.doc.toString(),再拼 sendPrompt 文案;本条不绑定统一事件出口。",
+    "codex": "消费 AI 自行读取 view.state.doc.toString() 并调用 sendFollowUpMessage;本条不绑定统一事件出口。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:EditorView 原生接受 ShadowRoot,style-mod 把样式挂到该 root;holder、搜索面板与编辑 DOM 不逃逸",
+    "codex": "supported:单 ESM 根包会带入 basicSetup 依赖;具体语言包按需另引"
+  }
+}

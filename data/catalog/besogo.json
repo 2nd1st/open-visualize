@@ -1,0 +1,38 @@
+{
+  "entry_version": "thin-1",
+  "id": "besogo",
+  "name": "BesoGo",
+  "when_to_use": "需要轻量、零依赖的 SGF 棋谱查看器或编辑器并展示分支、注释与棋盘标记时用它而非手写 SVG,因为原生在棋树状态、坐标和响应式棋盘同步上失败;非做在线对弈、计时或 AI 形势判断。",
+  "why_valuable": "AI 默认只能输出 SGF 括号文本或静态棋盘,无法可靠提供分支导航、注释、标记和棋谱编辑;BesoGo 用零依赖 JS/CSS 把 SGF 状态树与 SVG UI 闭环。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "version": null,
+    "github": "yewang/besogo"
+  },
+  "license": "MIT",
+  "license_note": "本条固定使用 board-flat.css,不加载仓库 img/ 下另有 CC-BY-SA/CC-BY-NC 条款的写实棋子与木纹资产。",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "SGF 是 AI 原生记法;besogo.create 的 sgf 选项直接吃完整字符串,schema 足矣、不附 minimal example。",
+    "schema": {
+      "sgf": "string —— 完整 SGF collection,从 '(;' 开始;不要作为 innerHTML 注入,直接传给 create 选项"
+    }
+  },
+  "spec": {
+    "height": 620,
+    "note": "固定 resize:'fixed' 并给容器显式 620px 高;宽度由宿主提供,禁用 vh/百分比高。默认展示 control+names+comment+tree 四个面板。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:无 npm,固定核对 commit 4f03a3a;CSS 按铁律 2 进 head\nconst base = 'https://cdn.jsdelivr.net/gh/yewang/besogo@4f03a3a04bc632c49ca9b494cbcad5c7cfb3f6b2/';\nfor (const p of ['css/besogo.css','css/board-flat.css']) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = base + p; document.head.appendChild(l); }\nconst files = ['besogo','boardDisplay','commentPanel','controlPanel','coord','editor','filePanel','gameRoot','loadSgf','namesPanel','parseSgf','saveSgf','svgUtil','toolPanel','treePanel'];\nfor (const f of files) await new Promise((ok,bad) => { const s = document.createElement('script'); s.src = base + 'js/' + f + '.js'; s.onload = ok; s.onerror = bad; document.head.appendChild(s); });\nconst el = document.getElementById('besogo'); el.style.height = '620px';\nwindow.besogo.create(el, { sgf: data.sgf, panels: 'control+names+comment+tree', resize: 'fixed', coord: 'western', nowheel: true });",
+    "widget": "// repo-only classic JS 注册 window.besogo;两张 CSS 必须落 shadow\nconst base = 'https://cdn.jsdelivr.net/gh/yewang/besogo@4f03a3a04bc632c49ca9b494cbcad5c7cfb3f6b2/';\nfor (const p of ['css/besogo.css','css/board-flat.css']) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = base + p; shadowRoot.appendChild(l); }\nconst files = ['besogo','boardDisplay','commentPanel','controlPanel','coord','editor','filePanel','gameRoot','loadSgf','namesPanel','parseSgf','saveSgf','svgUtil','toolPanel','treePanel'];\nfor (const f of files) await new Promise((ok,bad) => { const s = document.createElement('script'); s.src = base + 'js/' + f + '.js'; s.onload = ok; s.onerror = bad; document.head.appendChild(s); });\nconst el = document.createElement('div'); el.style.height = '620px'; shadowRoot.appendChild(el);\nwindow.besogo.create(el, { sgf: data.sgf, panels: 'control+names+comment+tree', resize: 'fixed', coord: 'western', nowheel: true });",
+    "codex": "同 artifact(sandbox iframe):从固定 /gh/ commit 顺序加载官方 15 个 classic JS,把 besogo.css + board-flat.css 放 iframe head,再 besogo.create(el,{sgf,...})。",
+    "note": "picks 未提供 npm/version;上游 release 的单文件资产不在 git 树中,故不用不可审计的 latest/master,而固定已核对 commit 并按仓库 build.sh 的源码顺序加载。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:repo-only classic 脚本需写 document.head,但组件 DOM 与两张 CSS 落 shadow;fixed resize 避免全局窗口布局假设",
+    "codex": "conditional:需允许从 jsDelivr /gh/ 固定 commit 加载多文件 classic JS;使用 flat 主题无图片 CDN"
+  }
+}

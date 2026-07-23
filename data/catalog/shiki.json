@@ -1,0 +1,41 @@
+{
+  "entry_version": "thin-1",
+  "id": "shiki",
+  "name": "Shiki",
+  "when_to_use": "需要 TextMate 文法与 VS Code 主题级高亮精度时用它,而非手写 token span——原生手写在嵌套文法、语义作用域和主题映射上会失败。非做可编辑代码编辑器或代码执行器;普通高亮优先更轻的 Prism。",
+  "why_valuable": "AI 默认做不到 TextMate scope 级 tokenization 和 VS Code 主题映射;Shiki 把高精度结果预渲成带 inline style 的静态 HTML,消费端无需持续运行高亮器。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "shiki",
+    "version": "4.3.1",
+    "github": "shikijs/shiki"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "text-span",
+    "schema": {
+      "code": "string —— 原始源码文本",
+      "lang?": "string(Shiki bundled language id,如 'typescript'|'python'|'json'|'text') —— 默认 'text'",
+      "theme?": "string(Shiki bundled theme id,如 'github-dark'|'github-light'|'nord'|'monokai') —— 默认 'github-dark'"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:默认 bundle 会初始化 Oniguruma wasm;输出自身带 inline style,无需 CSS\nimport { codeToHtml } from 'https://cdn.jsdelivr.net/npm/shiki@4/+esm';\nconst html = await codeToHtml(data.code, { lang: data.lang ?? 'text', theme: data.theme ?? 'github-dark' });\nconst el = document.getElementById('code');\nel.innerHTML = html; // 只写 Shiki 生成且已转义源码的 HTML",
+    "widget": "// 落到 shadow 容器;无 document.head/CSS 足迹,但宿主必须允许 wasm\nimport { codeToHtml } from 'https://cdn.jsdelivr.net/npm/shiki@4/+esm';\nconst html = await codeToHtml(data.code, { lang: data.lang ?? 'text', theme: data.theme ?? 'github-dark' });\nconst el = document.createElement('div'); el.innerHTML = html;\nshadowRoot.appendChild(el);",
+    "codex": "// sandbox iframe 必须允许 WebAssembly 编译与 jsDelivr 依赖导入\nimport { codeToHtml } from 'https://cdn.jsdelivr.net/npm/shiki@4/+esm';\nconst html = await codeToHtml(data.code, { lang: data.lang ?? 'text', theme: data.theme ?? 'github-dark' });\ndocument.getElementById('code').innerHTML = html;"
+  },
+  "example": {
+    "empty": {
+      "code": "",
+      "lang": "text",
+      "theme": "github-dark"
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:依赖 WebAssembly 能力,须待 H0 wasm 探针闭合",
+    "widget": "conditional:宿主 CSP/能力必须允许 WebAssembly;HTML/CSS 本身可完全落 shadow",
+    "codex": "conditional:sandbox 必须允许 WebAssembly 编译和 jsDelivr ESM 依赖链"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "entry_version": "thin-1",
+  "id": "tippy-js",
+  "name": "tippy.js",
+  "when_to_use": "需要让批注、术语解释或富内容 popover 锚定任意元素并自动避开视口边缘时用它而非手写,因为原生 absolute 气泡在碰撞翻转、滚动容器和焦点可达上失败。",
+  "why_valuable": "AI 默认只能写 hover 时显示的绝对定位气泡,做不到 Popper 级 flip/shift、滚动重定位、触摸与键盘焦点的一致状态;tippy.js 把这些高失败区收敛为 anchor 加浅配置。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "tippy.js",
+    "version": "6.3.7",
+    "github": "atomiks/tippyjs"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "anchor_selector 在当前载体根内命中一个 HTMLElement;content 默认按纯文本处理,只有可信 HTML 才把 allow_html 设为 true。",
+    "schema": {
+      "anchor_selector": "string —— 唯一锚点的 CSS selector",
+      "content": "string —— tooltip/popover 内容",
+      "placement?": "'top'|'top-start'|'top-end'|'right'|'bottom'|'left'及对应 -start/-end —— 默认 'top'",
+      "trigger?": "string —— tippy 原生触发词组合,默认 'mouseenter focus'",
+      "interactive?": "boolean —— 内容是否可交互,默认 false",
+      "allow_html?": "boolean —— 是否把 content 当 HTML,默认 false",
+      "max_width?": "number | string —— 默认 350",
+      "delay?": "number | [number, number | null] —— 默认 0"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:tippy 核心 CSS 进入 document.head(铁律 2)\nimport tippy from 'https://cdn.jsdelivr.net/npm/tippy.js@6/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/tippy.js@6/dist/tippy.css'; document.head.appendChild(css);\nconst anchor = document.querySelector(data.anchor_selector);\nconst tip = tippy(anchor, { content: data.content, placement: data.placement ?? 'top', trigger: data.trigger ?? 'mouseenter focus', interactive: data.interactive ?? false, allowHTML: data.allow_html ?? false, maxWidth: data.max_width ?? 350, delay: data.delay ?? 0 });",
+    "widget": "// CSS、anchor 与 popper DOM 都封闭在 shadowRoot(铁律 2)\nimport tippy from 'https://cdn.jsdelivr.net/npm/tippy.js@6/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/tippy.js@6/dist/tippy.css'; shadowRoot.appendChild(css);\nconst anchor = shadowRoot.querySelector(data.anchor_selector);\nconst tip = tippy(anchor, { content: data.content, placement: data.placement ?? 'top', trigger: data.trigger ?? 'mouseenter focus', interactive: data.interactive ?? false, allowHTML: data.allow_html ?? false, maxWidth: data.max_width ?? 350, delay: data.delay ?? 0, appendTo: () => anchor.parentElement });",
+    "codex": "// sandbox iframe 内按上游原生 API 初始化\nimport tippy from 'https://cdn.jsdelivr.net/npm/tippy.js@6/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/tippy.js@6/dist/tippy.css'; document.head.appendChild(css);\nconst anchor = document.querySelector(data.anchor_selector);\nconst tip = tippy(anchor, { content: data.content, placement: data.placement ?? 'top', trigger: data.trigger ?? 'mouseenter focus', interactive: data.interactive ?? false, allowHTML: data.allow_html ?? false, maxWidth: data.max_width ?? 350, delay: data.delay ?? 0 });"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:显式 appendTo 锚点父元素,避免默认落 document.body;核心 CSS 放 shadowRoot,Popper DOM 不越界",
+    "codex": "supported:ESM CDN 会解析 @popperjs/core,另加载同版本核心 CSS"
+  }
+}

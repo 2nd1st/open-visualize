@@ -1,0 +1,141 @@
+{
+  "entry_version": "thin-1",
+  "id": "rete",
+  "name": "Rete.js",
+  "when_to_use": "需要让用户搭建带类型端口、可编辑连线且能继续接数据流执行引擎的节点管线时用它而非手写 SVG/Canvas,因为原生在端口命中、图状态与执行拓扑同步上失败;非做静态流程图、自动布局或多人协作。",
+  "why_valuable": "AI 默认只能画静态节点和曲线,做不到端口约束、交互连线、可序列化节点实例与数据流求值的一致模型;Rete 将编辑器、区域、连接与执行插件放在同一图语义上。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "rete",
+    "version": "2.0.6",
+    "github": "retejs/rete"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "graph",
+    "note": "Rete v2 没有通用 fromJSON;boot 按官方 ClassicPreset 显式重建 Node/Input/Output/InputControl/Connection,字段名就是这段裁剪导入格式。",
+    "schema": {
+      "nodes": [
+        {
+          "id": "string —— 图内唯一",
+          "label": "string",
+          "position?": {
+            "_default": "省略时按 nodes 数组下标横向排布",
+            "x": "number",
+            "y": "number"
+          },
+          "inputs?": [
+            {
+              "key": "string —— 节点内唯一",
+              "label?": "string —— 默认等于 key",
+              "multipleConnections?": "boolean —— 默认 false"
+            }
+          ],
+          "outputs?": [
+            {
+              "key": "string —— 节点内唯一",
+              "label?": "string —— 默认等于 key",
+              "multipleConnections?": "boolean —— 默认 true"
+            }
+          ],
+          "controls?": [
+            {
+              "key": "string —— 节点内唯一",
+              "type": "'text'|'number'",
+              "initial?": "string|number —— 默认 text 为空字符串、number 为 0",
+              "readonly?": "boolean —— 默认 false"
+            }
+          ]
+        }
+      ],
+      "connections": [
+        {
+          "id?": "string —— 默认由 ClassicPreset.Connection 生成",
+          "source": "string —— 必须引用 nodes.id",
+          "sourceOutput": "string —— 必须引用源节点 outputs.key",
+          "target": "string —— 必须引用 nodes.id",
+          "targetInput": "string —— 必须引用目标节点 inputs.key"
+        }
+      ]
+    }
+  },
+  "spec": {
+    "height": 480,
+    "layout": "freeform-node-area",
+    "note": "AreaPlugin 依赖明确容器几何计算平移/缩放;boot 默认 height 480px,AI 可改其他像素值,铁律 3 禁 vh/百分比高。节点位置使用画布坐标。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:Rete v2 可视化需 area/connection/Lit peers;无外置 CSS\nimport { ClassicPreset, NodeEditor } from 'https://cdn.jsdelivr.net/npm/rete@2/+esm'; import { AreaExtensions, AreaPlugin } from 'https://cdn.jsdelivr.net/npm/rete-area-plugin@2/+esm';\nimport { ConnectionPlugin, Presets as ConnectionPresets } from 'https://cdn.jsdelivr.net/npm/rete-connection-plugin@2/+esm'; import { LitPlugin, Presets as LitPresets } from 'https://cdn.jsdelivr.net/npm/@retejs/lit-plugin@2/+esm';\nconst el = document.getElementById('rete'); el.style.height = '480px'; const editor = new NodeEditor(); const area = new AreaPlugin(el); const render = new LitPlugin(); render.addPreset(LitPresets.classic.setup()); const wire = new ConnectionPlugin(); wire.addPreset(ConnectionPresets.classic.setup()); editor.use(area); area.use(wire); area.use(render);\nconst socket = new ClassicPreset.Socket('value'), byId = new Map(); for (const [i, n] of data.nodes.entries()) { const node = new ClassicPreset.Node(n.label); node.id = n.id; for (const p of n.inputs ?? []) node.addInput(p.key, new ClassicPreset.Input(socket, p.label ?? p.key, p.multipleConnections ?? false)); for (const p of n.outputs ?? []) node.addOutput(p.key, new ClassicPreset.Output(socket, p.label ?? p.key, p.multipleConnections ?? true)); for (const c of n.controls ?? []) node.addControl(c.key, new ClassicPreset.InputControl(c.type, { initial: c.initial ?? (c.type === 'number' ? 0 : ''), readonly: c.readonly ?? false })); await editor.addNode(node); byId.set(n.id, node); await area.translate(node.id, n.position ?? { x: i * 260, y: 40 }); }\nfor (const c of data.connections) { const edge = new ClassicPreset.Connection(byId.get(c.source), c.sourceOutput, byId.get(c.target), c.targetInput); if (c.id) edge.id = c.id; await editor.addConnection(edge); } await AreaExtensions.zoomAt(area, editor.getNodes());",
+    "widget": "// 容器先落 widget shadowRoot;Lit renderer 的自定义元素由上游插件内部创建,消费代码不写声明式标签(铁律 4)\nimport { ClassicPreset, NodeEditor } from 'https://cdn.jsdelivr.net/npm/rete@2/+esm'; import { AreaExtensions, AreaPlugin } from 'https://cdn.jsdelivr.net/npm/rete-area-plugin@2/+esm';\nimport { ConnectionPlugin, Presets as ConnectionPresets } from 'https://cdn.jsdelivr.net/npm/rete-connection-plugin@2/+esm'; import { LitPlugin, Presets as LitPresets } from 'https://cdn.jsdelivr.net/npm/@retejs/lit-plugin@2/+esm';\nconst el = document.createElement('div'); el.style.height = '480px'; shadowRoot.appendChild(el); const editor = new NodeEditor(); const area = new AreaPlugin(el); const render = new LitPlugin(); render.addPreset(LitPresets.classic.setup()); const wire = new ConnectionPlugin(); wire.addPreset(ConnectionPresets.classic.setup()); editor.use(area); area.use(wire); area.use(render);\nconst socket = new ClassicPreset.Socket('value'), byId = new Map(); for (const [i, n] of data.nodes.entries()) { const node = new ClassicPreset.Node(n.label); node.id = n.id; for (const p of n.inputs ?? []) node.addInput(p.key, new ClassicPreset.Input(socket, p.label ?? p.key, p.multipleConnections ?? false)); for (const p of n.outputs ?? []) node.addOutput(p.key, new ClassicPreset.Output(socket, p.label ?? p.key, p.multipleConnections ?? true)); for (const c of n.controls ?? []) node.addControl(c.key, new ClassicPreset.InputControl(c.type, { initial: c.initial ?? (c.type === 'number' ? 0 : ''), readonly: c.readonly ?? false })); await editor.addNode(node); byId.set(n.id, node); await area.translate(node.id, n.position ?? { x: i * 260, y: 40 }); }\nfor (const c of data.connections) { const edge = new ClassicPreset.Connection(byId.get(c.source), c.sourceOutput, byId.get(c.target), c.targetInput); if (c.id) edge.id = c.id; await editor.addConnection(edge); } await AreaExtensions.zoomAt(area, editor.getNodes());",
+    "codex": "// sandbox iframe 内同 artifact:四个原生 Rete ESM 包 + NodeEditor/AreaPlugin/LitPlugin/ConnectionPlugin。\n// 容器显式 height 480px,逐节点构造 ClassicPreset ports/controls 后 editor.addNode(),再构造 ClassicPreset.Connection。\n// 最后按 data.position 调 area.translate(),并用 AreaExtensions.zoomAt(area,editor.getNodes()) 适配视口。"
+  },
+  "example": {
+    "_why": "Rete v2 不内置通用 JSON 导入,节点端口与连接端点层级高度歧义;minimal 钉死本条显式重建格式。",
+    "minimal": {
+      "nodes": [
+        {
+          "id": "source",
+          "label": "Source",
+          "position": {
+            "x": 40,
+            "y": 80
+          },
+          "outputs": [
+            {
+              "key": "value",
+              "label": "Value"
+            }
+          ],
+          "controls": [
+            {
+              "key": "amount",
+              "type": "number",
+              "initial": 1
+            }
+          ]
+        },
+        {
+          "id": "sink",
+          "label": "Sink",
+          "position": {
+            "x": 320,
+            "y": 80
+          },
+          "inputs": [
+            {
+              "key": "value",
+              "label": "Value"
+            }
+          ]
+        }
+      ],
+      "connections": [
+        {
+          "source": "source",
+          "sourceOutput": "value",
+          "target": "sink",
+          "targetInput": "value"
+        }
+      ]
+    },
+    "empty": {
+      "nodes": [],
+      "connections": []
+    }
+  },
+  "peer": {
+    "note": "可视化必需 rete-area-plugin@2、rete-connection-plugin@2 与一种 renderer;boot 选择 @retejs/lit-plugin@2。真正执行数据流还须 rete-engine@2 并为节点实现 data(),核心 rete 包本身不自动求值。"
+  },
+  "uplink": {
+    "artifact": "artifact 无上行;消费 AI 可把 editor.getNodes()/getConnections() 映射回本条 schema 后下载 JSON。",
+    "widget": "消费 AI 自行在明确的确认控件中把 editor.getNodes()/getConnections() 映射回本条 schema,再拼 sendPrompt 文案;本条不绑定统一事件出口。",
+    "codex": "消费 AI 自行生成同一图快照并调用 sendFollowUpMessage;本条不绑定统一事件出口。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:需同时加载四个 ESM 包;Area 容器位于 shadowRoot,Lit renderer 内部元素自封装,但 customElements 注册仍是页面全局一次性副作用",
+    "codex": "supported:ESM CDN + DOM/SVG/custom elements;启用 rete-engine 后仍为本地 JS,无 worker/wasm 硬依赖"
+  }
+}

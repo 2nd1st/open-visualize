@@ -1,0 +1,101 @@
+{
+  "entry_version": "thin-1",
+  "id": "excalidraw-excalidraw",
+  "name": "Excalidraw",
+  "when_to_use": "需要用户自由画形状、箭头、文字并保留可读场景 JSON 的白板共创时用它而非手写 canvas,因为原生在自由绘制、变换手柄、框选、吸附和完整场景状态上失败。非做 AI 一次生成的静态示意图。",
+  "why_valuable": "AI 默认只能生成静态 SVG/图片;默认完全做不到自由笔迹、对象框选与缩放旋转、连线绑定、多对象场景编辑和可继续回放的几何 JSON。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@excalidraw/excalidraw",
+    "version": "0.18.1",
+    "github": "excalidraw/excalidraw"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geometry",
+    "note": "boot 先用上游 convertToExcalidrawElements 把裁剪后的 element skeleton 补成完整 ExcalidrawElement,再作为 initialData.elements 传给组件;这比要求 AI 手填 seed/versionNonce 等内部字段稳定。仅覆盖常用形状与文本,非做完整 Excalidraw 文件导入器。",
+    "schema": {
+      "scene": {
+        "elements?": [
+          {
+            "id?": "string —— 默认由上游生成",
+            "type": "'rectangle'|'ellipse'|'diamond'|'text'",
+            "x": "number",
+            "y": "number",
+            "width?": "number >= 0 —— 图形默认 0;为可见图形应显式给出",
+            "height?": "number >= 0 —— 图形默认 0;为可见图形应显式给出",
+            "text?": "string —— type='text' 时必填,其他类型默认省略",
+            "strokeColor?": "CSS color string —— 默认 '#1b1b1f'",
+            "backgroundColor?": "CSS color string —— 默认 'transparent'",
+            "fillStyle?": "'hachure'|'solid'|'cross-hatch' —— 默认 'hachure'",
+            "roughness?": "0 | 1 | 2 —— 默认 1"
+          }
+        ],
+        "appState?": {
+          "viewBackgroundColor?": "CSS color string —— 默认 '#ffffff'",
+          "theme?": "'light'|'dark' —— 默认 'light'"
+        }
+      },
+      "viewOnly?": "boolean —— 是否只读查看,默认 false"
+    }
+  },
+  "spec": {
+    "height": 520,
+    "note": "Excalidraw 自身占满父容器的宽高;父容器默认 height 520px,AI 可覆盖为其他明确像素值,禁用 vh/百分比高(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:React peer 必须与 jsDelivr 生成模块一致\nimport React from 'https://cdn.jsdelivr.net/npm/react@19.2.5/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19.2.5/client/+esm';\nimport { Excalidraw, convertToExcalidrawElements } from 'https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0/dist/prod/index.css' }); document.head.appendChild(css);\nconst el = document.getElementById('whiteboard'); el.style.height = `${spec.height ?? 520}px`;\nconst elements = convertToExcalidrawElements(data.scene.elements ?? [], { regenerateIds: false });\ncreateRoot(el).render(React.createElement(Excalidraw, { initialData: { elements, appState: data.scene.appState ?? {} }, viewModeEnabled: data.viewOnly ?? false }));",
+    "widget": "// React 根、官方 CSS 与白板都落 shadowRoot\nimport React from 'https://cdn.jsdelivr.net/npm/react@19.2.5/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19.2.5/client/+esm';\nimport { Excalidraw, convertToExcalidrawElements } from 'https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0/dist/prod/index.css' });\nconst el = document.createElement('div'); el.style.height = `${spec.height ?? 520}px`; shadowRoot.append(css, el);\nconst elements = convertToExcalidrawElements(data.scene.elements ?? [], { regenerateIds: false });\ncreateRoot(el).render(React.createElement(Excalidraw, { initialData: { elements, appState: data.scene.appState ?? {} }, viewModeEnabled: data.viewOnly ?? false }));",
+    "codex": "// sandbox iframe 内用 React.createElement,不依赖 JSX 编译\nimport React from 'https://cdn.jsdelivr.net/npm/react@19.2.5/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19.2.5/client/+esm';\nimport { Excalidraw, convertToExcalidrawElements } from 'https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0/dist/prod/index.css' }); document.head.appendChild(css);\nconst el = document.getElementById('whiteboard'); el.style.height = `${spec.height ?? 520}px`;\nconst elements = convertToExcalidrawElements(data.scene.elements ?? [], { regenerateIds: false });\ncreateRoot(el).render(React.createElement(Excalidraw, { initialData: { elements, appState: data.scene.appState ?? {} }, viewModeEnabled: data.viewOnly ?? false }));"
+  },
+  "example": {
+    "_why": "完整场景元素字段极深;使用官方 skeleton 转换器后仍需 type 与几何字段配对,minimal 用最小可见图形钉死输入。",
+    "minimal": {
+      "scene": {
+        "elements": [
+          {
+            "id": "box-1",
+            "type": "rectangle",
+            "x": 80,
+            "y": 70,
+            "width": 220,
+            "height": 120,
+            "backgroundColor": "#dbeafe",
+            "fillStyle": "solid"
+          },
+          {
+            "id": "label-1",
+            "type": "text",
+            "x": 120,
+            "y": 110,
+            "text": "Draft"
+          }
+        ],
+        "appState": {
+          "viewBackgroundColor": "#ffffff",
+          "theme": "light"
+        }
+      },
+      "viewOnly": false
+    },
+    "empty": {
+      "scene": {
+        "elements": []
+      }
+    }
+  },
+  "uplink": {
+    "_note": "条目不绑定 onChange;消费 AI 需要结构回传时自行使用上游 onChange(elements, appState, files) 并按载体发送。",
+    "widget": "消费 AI 自行把当前 elements/appState/files 的裁剪 JSON 编入 sendPrompt 文案。",
+    "codex": "消费 AI 自行把当前场景 JSON 交给 sendFollowUpMessage。",
+    "artifact": "artifact 无上行;优先使用 Excalidraw 内置 PNG/SVG 导出,需要结构时再提供 JSON 下载。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:React 根与 index.css 必须放入 shadowRoot,并允许 Excalidraw 默认字体 CDN;文件选择/全屏等宿主能力可能降级",
+    "codex": "conditional:需 React/ReactDOM 19.2.5 与当前 jsDelivr +esm 内的 React peer 完全一致,并允许 CSS、canvas 与字体 CDN"
+  },
+  "boot_note": "保守校准:核对时 @excalidraw/excalidraw@0/+esm 固定引用 react@19.2.5,故 boot 同步钉住 React/ReactDOM 19.2.5;若 jsDelivr 重建后 peer 路径变化,三处版本必须一起改。"
+}

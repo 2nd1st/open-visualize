@@ -1,0 +1,78 @@
+{
+  "entry_version": "thin-1",
+  "id": "svguitar",
+  "name": "svguitar",
+  "when_to_use": "需要把逐弦品位、空弦/闷弦与横按精确画成标准 SVG 吉他和弦图时用它,而非 ASCII 或手写 SVG——原生手写在品格几何、横按、指法标签和横竖布局上失败;它非做和弦识别、音频播放或完整 tab 谱。",
+  "why_valuable": "AI 默认只能给出约 50% 可用的 ASCII 和弦图,易把弦序、品位和横按画错,也没有标准视觉比例;该库直接消费结构化指法并稳定生成 SVG。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "svguitar",
+    "version": "2.5.4",
+    "github": "omnibrain/svguitar"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "grid",
+    "note": "输入是逐弦×品位 grid,不是只给和弦名;同名和弦可有多种指法,消费 AI 必须明确 fingers/barres。",
+    "schema": {
+      "chord": {
+        "fingers": "[string:number, fret:number|0|'x', labelOrOptions?:string|{text?:string,color?:string,textColor?:string}][] —— string 从 1 起;0=空弦,'x'=不弹",
+        "barres?": "{fromString:number,toString:number,fret:number,text?:string}[] —— 横按列表,默认 []",
+        "title?": "string —— 图标题,默认不显示",
+        "position?": "positive integer —— 起始品位,默认 1"
+      },
+      "config?": {
+        "orientation?": "'vertical' | 'horizontal' —— 默认 vertical",
+        "style?": "'normal' | 'handdrawn' —— 默认 normal",
+        "strings?": "positive integer —— 弦数,默认 6",
+        "frets?": "positive integer —— 显示品数,默认 4",
+        "tuning?": "string[] —— 弦标签,默认 ['E','A','D','G','B','E']"
+      }
+    }
+  },
+  "spec": {
+    "height": 360,
+    "note": "boot 给 SVG 容器固定 360px 高与 320px 宽;AI 可用固定 px 覆盖,禁 vh/百分比高。SVG 自带 viewBox,窄容器可设 max-width:100%。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:SVGuitarChord 原生接受 HTMLElement,不需全局 selector\nimport { SVGuitarChord } from 'https://cdn.jsdelivr.net/npm/svguitar@2/+esm';\nconst el = document.getElementById('chord'); el.style.cssText = 'width:320px;max-width:100%;height:360px';\nconst chord = { ...data.chord, barres: data.chord.barres ?? [] };\nnew SVGuitarChord(el).configure({ orientation: data.config?.orientation ?? 'vertical', style: data.config?.style ?? 'normal', strings: data.config?.strings ?? 6, frets: data.config?.frets ?? 4, tuning: data.config?.tuning ?? ['E','A','D','G','B','E'] }).chord(chord).draw();",
+    "widget": "import { SVGuitarChord } from 'https://cdn.jsdelivr.net/npm/svguitar@2/+esm';\nconst el = document.createElement('div'); el.style.cssText = 'width:320px;max-width:100%;height:360px';\nshadowRoot.appendChild(el);\nconst chord = { ...data.chord, barres: data.chord.barres ?? [] };\nnew SVGuitarChord(el).configure({ orientation: data.config?.orientation ?? 'vertical', style: data.config?.style ?? 'normal', strings: data.config?.strings ?? 6, frets: data.config?.frets ?? 4, tuning: data.config?.tuning ?? ['E','A','D','G','B','E'] }).chord(chord).draw();",
+    "codex": "同 artifact(sandbox iframe):ESM import jsDelivr /npm/ + new SVGuitarChord(el).configure(...).chord(...).draw()。"
+  },
+  "example": {
+    "_why": "逐弦索引、0/'x' 与横按对象容易混淆,结构化 grid 需 minimal 校准。",
+    "minimal": {
+      "chord": {
+        "fingers": [
+          [1, 0],
+          [2, 1, "1"],
+          [3, 0],
+          [4, 2, "2"],
+          [5, 3, "3"],
+          [6, "x"]
+        ],
+        "barres": [],
+        "title": "C",
+        "position": 1
+      },
+      "config": {
+        "orientation": "vertical",
+        "strings": 6,
+        "frets": 4
+      }
+    },
+    "empty": {
+      "chord": {
+        "fingers": [],
+        "barres": []
+      }
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:构造器直接接 shadow 内 HTMLElement,输出容器内 SVG,无 CSS/font/uplink",
+    "codex": "supported:ESM CDN + SVG"
+  }
+}

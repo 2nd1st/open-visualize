@@ -1,0 +1,79 @@
+{
+  "entry_version": "thin-1",
+  "id": "pixi-js",
+  "name": "PixiJS",
+  "when_to_use": "需要大量 2D 精灵、粒子、滤镜或稳定逐帧 WebGL 画面时用它,而非手写 canvas/WebGL——原生手写在批处理、纹理生命周期、GPU 渲染循环和交互命中上失败。非做统计图、完整游戏规则或 3D 场景。",
+  "why_valuable": "AI 默认只能画少量 Canvas2D 图元,做不到成百上千对象的 WebGL batching、纹理缓存、场景树变换与统一 ticker；PixiJS 把高性能 2D 渲染底座交给稳定上游。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "pixi.js",
+    "version": "8.19.0",
+    "github": "pixijs/pixijs"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geometry",
+    "note": "这是 PixiJS v8 Graphics 高频裁剪层：boot 用 async Application.init,再把每项精确映射到 Graphics.rect/circle().fill()；更复杂 Sprite/Assets/Filter 场景由消费 AI沿用同一 app/stage 原生 API 扩展。",
+    "schema": {
+      "background?": "CSS color string | number —— entry 默认 '#0b1020'",
+      "antialias?": "boolean —— 默认 true",
+      "shapes": [
+        {
+          "type": "'rectangle' | 'circle'",
+          "x": "number —— rectangle 左上角 x；circle 圆心 x",
+          "y": "number —— rectangle 左上角 y；circle 圆心 y",
+          "width?": "positive number —— rectangle 宽；默认 80",
+          "height?": "positive number —— rectangle 高；默认 80",
+          "radius?": "positive number —— circle 半径；默认 40",
+          "fill": "CSS color string | number —— 填充色",
+          "alpha?": "number 0..1 —— 默认 1"
+        }
+      ]
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "Application.init({resizeTo:el}) 从容器 clientWidth/clientHeight 取像素尺寸；boot 把容器显式固定为 400px 高,禁止 vh/百分比高。ResizePlugin 会跟随容器尺寸变化。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:PixiJS v8 必须先 new Application 再 await init\n+import { Application, Graphics } from 'https://cdn.jsdelivr.net/npm/pixi.js@8/+esm';\n+const el = document.getElementById('pixi'); el.style.height = '400px';\n+const app = new Application(); await app.init({ resizeTo: el, background: data.background ?? '#0b1020', antialias: data.antialias ?? true });\n+app.canvas.style.display = 'block'; el.appendChild(app.canvas);\n+for (const s of data.shapes) { const g = new Graphics(); if (s.type === 'circle') g.circle(s.x, s.y, s.radius ?? 40); else g.rect(s.x, s.y, s.width ?? 80, s.height ?? 80); g.fill({ color: s.fill, alpha: s.alpha ?? 1 }); app.stage.addChild(g); }",
+    "widget": "// canvas 与场景树全部落 shadow 内普通容器,无 CSS/head 注入\n+import { Application, Graphics } from 'https://cdn.jsdelivr.net/npm/pixi.js@8/+esm';\n+const el = document.createElement('div'); el.style.height = '400px'; shadowRoot.appendChild(el);\n+const app = new Application(); await app.init({ resizeTo: el, background: data.background ?? '#0b1020', antialias: data.antialias ?? true });\n+app.canvas.style.display = 'block'; el.appendChild(app.canvas);\n+for (const s of data.shapes) { const g = new Graphics(); if (s.type === 'circle') g.circle(s.x, s.y, s.radius ?? 40); else g.rect(s.x, s.y, s.width ?? 80, s.height ?? 80); g.fill({ color: s.fill, alpha: s.alpha ?? 1 }); app.stage.addChild(g); }",
+    "codex": "同 artifact(sandbox iframe):pixi.js@8/+esm 命名导入,await app.init({resizeTo:固定高容器}),挂 app.canvas 后向 app.stage 加 Graphics。"
+  },
+  "example": {
+    "_why": "PixiJS v8 的异步 init、rectangle 左上角与 circle 圆心语义容易混淆,minimal 固定两种几何和 fill 写法。",
+    "minimal": {
+      "background": "#0b1020",
+      "antialias": true,
+      "shapes": [
+        {
+          "type": "rectangle",
+          "x": 60,
+          "y": 80,
+          "width": 180,
+          "height": 90,
+          "fill": "#5eead4",
+          "alpha": 0.9
+        },
+        {
+          "type": "circle",
+          "x": 340,
+          "y": 150,
+          "radius": 56,
+          "fill": "#ff4d8d"
+        }
+      ]
+    },
+    "empty": {
+      "shapes": []
+    }
+  },
+  "uplink": "纯显示/本地交互引擎,不定义统一事件出口；指针命中、ticker 状态与业务上行由消费 AI 用 PixiJS 原生 API 自行连接。",
+  "carriers": {
+    "artifact": "inferred-not-tested:需 WebGL 或 Canvas renderer；基础 Graphics 无图片/CDN CSS/uplink",
+    "widget": "supported:Application 生成的 canvas 可直接挂 shadow 内容器,无 document.head 注入；外部纹理另受图片 CDN/CORS 能力约束",
+    "codex": "supported:ESM + WebGL/Canvas；外部 Assets URL 需另行满足 CORS"
+  }
+}

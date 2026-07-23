@@ -1,0 +1,43 @@
+{
+  "entry_version": "thin-1",
+  "id": "d3-flame-graph",
+  "name": "d3-flame-graph",
+  "when_to_use": "需要把性能剖析的层级耗时 JSON 渲成可下钻、缩放和搜索高亮的火焰图时用它而非手写 SVG,因为原生手写在层级宽度归一、深度布局和局部缩放上失败。",
+  "why_valuable": "AI 默认做不到按累计耗时精确分配帧宽、保持父子层级并提供本地下钻;Markdown/mermaid 对火焰图也为零能力,d3-flame-graph 补齐完整交互布局。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "d3-flame-graph",
+    "version": "5.0.0",
+    "github": "spiermar/d3-flame-graph"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "hierarchy",
+    "_why_no_example": "层级 JSON 是 AI 原生记法,字段与递归约束钉死后 schema 足矣,不附 minimal example。",
+    "schema": {
+      "root": {
+        "name": "string",
+        "value": "number —— 有限且 >= 0;默认 selfValue:false 时父节点值应包含全部子节点权重",
+        "children?": "递归 Node[] —— 默认 []"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "layout": "flame",
+    "direction": "bottom-up",
+    "note": "SVG 图宽从容器量取,boot 显式设 height 400px与 cellHeight 18px;只使用像素数值,铁律 3 禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:CSS 进入 document.head\nimport flamegraph from 'https://cdn.jsdelivr.net/npm/d3-flame-graph@5/+esm';\nimport { select } from 'https://cdn.jsdelivr.net/npm/d3-selection@3/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/d3-flame-graph@5/dist/d3-flamegraph.css'; document.head.appendChild(css);\nconst el = document.getElementById('flame'); const chart = flamegraph().width(el.clientWidth || 720).height(400).cellHeight(18);\nselect(el).datum(data.root).call(chart);",
+    "widget": "import flamegraph from 'https://cdn.jsdelivr.net/npm/d3-flame-graph@5/+esm';\nimport { select } from 'https://cdn.jsdelivr.net/npm/d3-selection@3/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/d3-flame-graph@5/dist/d3-flamegraph.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); shadowRoot.appendChild(el); const chart = flamegraph().width(el.clientWidth || 720).height(400).cellHeight(18);\nselect(el).datum(data.root).call(chart);",
+    "codex": "import flamegraph from 'https://cdn.jsdelivr.net/npm/d3-flame-graph@5/+esm';\nimport { select } from 'https://cdn.jsdelivr.net/npm/d3-selection@3/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/d3-flame-graph@5/dist/d3-flamegraph.css'; document.head.appendChild(css);\nconst el = document.getElementById('flame'); const chart = flamegraph().width(el.clientWidth || 720).height(400).cellHeight(18);\nselect(el).datum(data.root).call(chart);"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:主题 CSS 放入 shadowRoot,SVG 与交互 DOM 全落 shadow 容器;本 boot 未启用可选外置 tooltip",
+    "codex": "supported:两个 ESM CDN 入口 + 同源 CSS + SVG,无上行依赖"
+  }
+}

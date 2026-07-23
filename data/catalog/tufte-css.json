@@ -1,0 +1,44 @@
+{
+  "entry_version": "thin-1",
+  "id": "tufte-css",
+  "name": "Tufte CSS",
+  "when_to_use": "需要带边注、旁注编号和紧凑图文节奏的研究简报或讲义时用它而非手写 CSS，因为原生在边注浮动、窄屏回流和 ET Book 字感的一致性上失败；非做通用应用 UI。",
+  "why_valuable": "AI 默认只能仿出约 70% 的 Tufte 外观，做不到稳定复现 margin-toggle/sidenote 配对、边注编号、窄屏降级和字体度量；该 CSS 把这些易碎规则固化为可检索的语义 HTML 契约。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "tufte-css",
+    "version": "1.9.0",
+    "github": "edwardtufte/tufte-css"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "note": "输入是可信的语义 HTML 字符串；边注必须保持 label.margin-toggle + input.margin-toggle + span.sidenote/marginnote 的同级结构，CSS 不解析 Markdown。",
+    "schema": {
+      "html": "string —— 语义 HTML；正文通常放在 article 内，边注开关 label 的 for 必须等于相邻 input.margin-toggle 的 id",
+      "max_width?": "number —— 根容器最大宽度（px），默认 1400"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:样式必须进入 document.head\nconst css = document.createElement('link'); css.rel = 'stylesheet';\ncss.href = 'https://cdn.jsdelivr.net/npm/tufte-css@1.9.0/tufte.min.css';\ndocument.head.appendChild(css);\nconst el = document.getElementById('document'); el.style.maxWidth = `${data.max_width ?? 1400}px`;\nel.innerHTML = data.html;",
+    "widget": "// 样式与内容都落在 widget 的 shadow 容器内\nconst css = document.createElement('link'); css.rel = 'stylesheet';\ncss.href = 'https://cdn.jsdelivr.net/npm/tufte-css@1.9.0/tufte.min.css';\nconst el = document.createElement('article'); el.style.maxWidth = `${data.max_width ?? 1400}px`;\nel.innerHTML = data.html;\nshadowRoot.append(css, el);",
+    "codex": "// sandbox iframe:同 artifact，把 CSS link 放进 iframe document.head\nconst el = document.getElementById('document');\nel.style.maxWidth = `${data.max_width ?? 1400}px`;\nel.innerHTML = data.html;"
+  },
+  "example": {
+    "_why": "边注 DOM 配对高歧义；minimal 固定上游真正识别的 class/for/id 结构。",
+    "minimal": {
+      "html": "<article><h1>Research note</h1><section><p>正文<label for=\"sn-1\" class=\"margin-toggle sidenote-number\"></label><input type=\"checkbox\" id=\"sn-1\" class=\"margin-toggle\"><span class=\"sidenote\">边注内容</span></p></section></article>",
+      "max_width": 1400
+    },
+    "empty": {
+      "html": ""
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:CSS link 必须放入 shadowRoot；ET Book 字体由该 CSS 相对路径继续从同一 jsDelivr 包加载，宿主需允许 font-cdn",
+    "codex": "supported:纯 CSS + 语义 HTML；无 wasm、worker 或 uplink 需求"
+  }
+}

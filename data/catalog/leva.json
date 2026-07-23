@@ -1,0 +1,63 @@
+{
+  "entry_version": "thin-1",
+  "id": "leva",
+  "name": "Leva",
+  "when_to_use": "已有 React 组件树且需要把声明式 schema 变成实时调参面板时用它而非手写,因为原生在复合控件、store 联动和紧凑布局上失败;非做业务长表单或提交表单。",
+  "why_valuable": "AI 默认会重复写 useState 加 input,但做不到从同一 schema 稳定生成数值、颜色、区间与枚举控件并让 React store 同步;Leva 把面板和值读取收敛到 useControls。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "leva",
+    "version": "0.10.1",
+    "github": "pmndrs/leva"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "controls 原样交给 useControls(schema,{store});简单标量可直接作为值,需要约束时用 {value,...settings},不要把统一事件契约塞进 schema。",
+    "schema": {
+      "controls": "Record<string, string|number|boolean|{value:string|number|boolean|number[],min?:number,max?:number,step?:number,options?:string[]|number[]|Record<string,string|number>,label?:string}>;min/max 默认无显式边界,step 默认由 Leva 推断,options/label 默认省略",
+      "title?": "string —— 默认 'Controls'",
+      "collapsed?": "boolean —— 默认 false",
+      "flat?": "boolean —— 默认 false"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:Leva/Stitches 样式注入 artifact document.head\nimport React from 'https://cdn.jsdelivr.net/npm/react@19.2.0/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19.2.0/client/+esm';\nimport { LevaPanel, useControls, useCreateStore } from 'https://cdn.jsdelivr.net/npm/leva@0/+esm';\nfunction Panel(){ const store = useCreateStore(); const values = useControls(data.controls, { store }); globalThis.levaValues = values; return React.createElement(LevaPanel, { store, fill:true, flat:data.flat ?? false, collapsed:data.collapsed ?? false, titleBar:{ title:data.title ?? 'Controls' } }); }\ncreateRoot(document.getElementById('leva')).render(React.createElement(Panel));",
+    "widget": "unsupported:Leva 0.10.1 的 Stitches 规则注入 document.head,没有把完整动态样式表稳定定向到 widget shadowRoot 的原生选项;节点即使落 shadow 也会失去样式,不满足铁律 2。",
+    "codex": "同 artifact(sandbox iframe):React 19.2.0 与 Leva 的 jsDelivr peer URL 对齐,用 useCreateStore + useControls + LevaPanel 原生 API 挂载。"
+  },
+  "example": {
+    "_why": "Leva 控件既可写标量也可写深一层 settings,最小样例校准 useControls 的 schema 层级。",
+    "minimal": {
+      "controls": {
+        "speed": {
+          "value": 1,
+          "min": 0,
+          "max": 5,
+          "step": 0.1
+        },
+        "enabled": true,
+        "theme": {
+          "value": "light",
+          "options": [
+            "light",
+            "dark"
+          ]
+        }
+      },
+      "title": "Controls",
+      "collapsed": false,
+      "flat": false
+    },
+    "empty": {
+      "controls": {}
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "unsupported:Stitches 动态 CSS 固定写 document.head,无法满足 shadow 零足迹",
+    "codex": "supported:sandbox iframe 隔离 React 与 Stitches 的 document.head 足迹"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "entry_version": "thin-1",
+  "id": "zumer-snapdom",
+  "name": "SnapDOM",
+  "when_to_use": "需要把已渲染 DOM 连同计算样式、伪元素、字体与 shadow DOM 快速导出为 PNG/JPEG/WebP/SVG 时用它而非手写,因为原生在深克隆、资源内联和高保真栅格化上失败。",
+  "why_valuable": "AI 默认完全做不到可靠 DOM 截图:无法递归冻结 computed style、重建伪元素、嵌入实际使用的字体与跨 shadow root 内容,也无法稳定处理 DPR 和跨域资源;SnapDOM 把这些步骤收进单一异步调用。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@zumer/snapdom",
+    "version": "2.18.0",
+    "github": "zumerlab/snapdom"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geometry",
+    "note": "node 是已连接、完成布局且资源已就绪的 Element,不是 HTML 字符串或 CSS 定位器;库读取其实际像素几何并生成自包含快照。跨域图片/字体仍须 CORS 可读或提供 useProxy。",
+    "schema": {
+      "node": "Element —— 要捕获的已渲染根节点",
+      "options?": {
+        "_default": "{};单次快捷导出默认 PNG、scale=1、dpr=devicePixelRatio",
+        "scale?": "positive number —— 默认 1,优先于 width/height",
+        "dpr?": "positive number —— 默认 devicePixelRatio",
+        "width?": "positive number(px) —— 默认源节点边界宽;只给一边时保持比例",
+        "height?": "positive number(px) —— 默认源节点边界高;只给一边时保持比例",
+        "backgroundColor?": "CSS color string —— PNG/SVG 默认透明,JPEG/WebP 默认 #ffffff",
+        "quality?": "number 0..1 —— JPEG/WebP 默认 0.92",
+        "embedFonts?": "boolean —— 默认 false;图标字体仍始终嵌入",
+        "exclude?": "string[] —— 默认 [],匹配后从快照隐藏",
+        "excludeMode?": "'hide' | 'remove' —— 默认 'hide'",
+        "compress?": "boolean —— 默认 true",
+        "cache?": "'disabled' | 'full' | 'auto' | 'soft' —— 默认 'soft'",
+        "useProxy?": "string —— 默认不使用代理",
+        "debug?": "boolean —— 默认 false"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "仅作为消费端预览导出结果的默认像素高度 400px;SnapDOM 本身读取 node 的计算像素尺寸,不要用 vh 或百分比高,也不要拿本 spec 隐式裁剪源节点。"
+  },
+  "provides": {
+    "shape": "image-output",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;调用者选择一种原生导出结果。",
+    "outputs": "toPng/toJpeg/toJpg/toWebp/toSvg→HTMLImageElement;toCanvas→HTMLCanvasElement;toBlob→Blob;download→浏览器文件下载",
+    "api_surface": {
+      "single_png": "await snapdom.toPng(data.node, data.options ?? {})",
+      "single_blob": "await snapdom.toBlob(data.node, data.options ?? {})",
+      "reusable": "const shot = await snapdom(data.node, data.options ?? {}); await shot.toPng(); await shot.toBlob({type:'webp'})"
+    }
+  },
+  "peer": {
+    "note": "它消费任意已经渲染完成的 component DOM;预览、文件命名、下载或回传由消费 AI 自己写,本条不规定统一事件出口。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact H0 探针未闭合;源节点须先完成字体与图片加载\nimport { snapdom } from 'https://cdn.jsdelivr.net/npm/@zumer/snapdom@2/+esm';\nawait document.fonts?.ready;\nconst image = await snapdom.toPng(data.node, data.options ?? {});\ndocument.getElementById('preview')?.replaceChildren(image);",
+    "widget": "// headless 调用不挂全局 UI;若预览,只把返回的 img 放入 shadow 容器\nimport { snapdom } from 'https://cdn.jsdelivr.net/npm/@zumer/snapdom@2/+esm';\nawait document.fonts?.ready;\nconst image = await snapdom.toPng(data.node, data.options ?? {});\nshadowRoot.replaceChildren(image);",
+    "codex": "// sandbox iframe 内直接捕获已完成布局的节点\nimport { snapdom } from 'https://cdn.jsdelivr.net/npm/@zumer/snapdom@2/+esm';\nawait document.fonts?.ready;\nconst blob = await snapdom.toBlob(data.node, { type: 'png', ...(data.options ?? {}) });\nconst objectUrl = URL.createObjectURL(blob);"
+  }
+}

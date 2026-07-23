@@ -1,0 +1,100 @@
+{
+  "entry_version": "thin-1",
+  "id": "planck",
+  "name": "Planck.js",
+  "when_to_use": "需要 Box2D 级连续碰撞、fixture/joint 模型或连杆与车辆机构演示时用它,而非手写动力学求解器——原生实现在高速穿透、关节约束和堆叠稳定性上失败。",
+  "why_valuable": "AI 默认零能力实现 Box2D 级接触、连续碰撞和 joint 约束求解,徒手数值模拟会漂移或穿透；Planck.js 提供确定的 World/Body/Fixture 求解器和可交互 Testbed。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "planck",
+    "version": "1.5.0",
+    "github": "piqnt/planck.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geometry",
+    "note": "boot 使用 Planck v1 原生 World/createBody/createFixture；Box 的 halfWidth/halfHeight 是物理世界半尺寸,不是像素,Testbed 再按 viewbox 缩放到 canvas。",
+    "schema": {
+      "gravity?": "{ x: number, y: number } —— 默认 {x:0,y:-10}",
+      "bodies": [
+        {
+          "type?": "'static' | 'dynamic' | 'kinematic' —— 默认 static",
+          "position": "{ x: number, y: number }",
+          "angle?": "number radians —— 默认 0",
+          "shape": {
+            "kind": "'box' | 'circle'",
+            "halfWidth?": "positive number —— box 半宽,默认 1",
+            "halfHeight?": "positive number —— box 半高,默认 1",
+            "radius?": "positive number —— circle 半径,默认 1"
+          },
+          "density?": "number >= 0 —— dynamic 默认 1,其余默认 0",
+          "friction?": "number >= 0 —— 默认 0.2",
+          "restitution?": "number 0..1 —— 默认 0"
+        }
+      ],
+      "view?": "{ x?: number（默认 0）, y?: number（默认 -10）, width?: positive number（默认 80）, height?: positive number（默认 60） } —— Testbed 世界视窗,整体默认同括号值"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "Planck 原生 Testbed 的 Stage canvas 占其 document 视口且 mount 不接收目标容器；artifact/codex 必须把承载 iframe/fragment 固定为 400px 高,禁止 vh/百分比高。view.height 是物理世界单位,不是 CSS 高度。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:原生 Testbed 全局挂 document,仅在隔离 iframe 内使用\nimport { World, Box, Circle, Testbed } from 'https://cdn.jsdelivr.net/npm/planck@1/with-testbed/+esm';\ndocument.body.style.margin = '0'; document.body.style.height = '400px';\nconst world = new World({ gravity: data.gravity ?? { x: 0, y: -10 } });\nfor (const s of data.bodies) { const b = world.createBody({ type: s.type ?? 'static', position: s.position, angle: s.angle ?? 0 }); const shape = s.shape.kind === 'circle' ? new Circle(s.shape.radius ?? 1) : new Box(s.shape.halfWidth ?? 1, s.shape.halfHeight ?? 1); b.createFixture({ shape, density: s.density ?? (s.type === 'dynamic' ? 1 : 0), friction: s.friction ?? 0.2, restitution: s.restitution ?? 0 }); }\nconst testbed = Testbed.mount(); Object.assign(testbed, { x: 0, y: -10, width: 80, height: 60, ...(data.view ?? {}) });\ntestbed.start(world);",
+    "widget": "unsupported:Planck 1.5.0 原生 Testbed.mount() 无 element 参数,Stage.mount() 把单例 canvas 挂到全局 document,不能满足 widget 必须落 shadow 容器；需另做 Planck-core + shadow-canvas renderer 封装后再上架该载体。",
+    "codex": "同 artifact(sandbox iframe):import planck@1/with-testbed/+esm,固定 fragment 高 400px,创建 World/Body/Fixture 后 Testbed.mount().start(world)。"
+  },
+  "example": {
+    "_why": "fixture 几何使用半尺寸且动态刚体密度默认不同,属于高歧义 config；minimal 固定一个地面和一个自由落体盒。",
+    "minimal": {
+      "gravity": {
+        "x": 0,
+        "y": -10
+      },
+      "bodies": [
+        {
+          "type": "static",
+          "position": {
+            "x": 0,
+            "y": -5
+          },
+          "shape": {
+            "kind": "box",
+            "halfWidth": 12,
+            "halfHeight": 0.5
+          }
+        },
+        {
+          "type": "dynamic",
+          "position": {
+            "x": 0,
+            "y": 5
+          },
+          "shape": {
+            "kind": "box",
+            "halfWidth": 1,
+            "halfHeight": 1
+          },
+          "density": 1,
+          "friction": 0.3
+        }
+      ],
+      "view": {
+        "x": 0,
+        "y": 0,
+        "width": 30,
+        "height": 20
+      }
+    },
+    "empty": {
+      "bodies": []
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:Testbed 是 document 级单例 Stage canvas,需 iframe 隔离并由宿主固定 400px 高",
+    "widget": "unsupported:原生 Testbed.mount 无容器参数,无法落 shadowRoot；不能谎报零足迹",
+    "codex": "conditional:sandbox iframe 可容纳全局 Testbed canvas；须固定 fragment 高度且一个 document 只挂一个 Testbed"
+  }
+}

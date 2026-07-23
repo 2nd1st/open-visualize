@@ -1,0 +1,43 @@
+{
+  "entry_version": "thin-1",
+  "id": "mermaid",
+  "name": "Mermaid",
+  "when_to_use": "需要把 flowchart、sequence、state、ER、mindmap、gantt 或 gitGraph 文本 DSL 稳定转成 SVG 时用它而非手写节点连线,因为原生手写在自动布局、边路由和多图语法解析上失败;非做像素级自由排版或真地图。",
+  "why_valuable": "AI 默认会写 Mermaid DSL,但在没有宿主原生渲染时只能回显代码;默认做不到把多类 DSL 解析、自动布局、路由并安全产出可交互 SVG。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "mermaid",
+    "version": "11.16.0",
+    "github": "mermaid-js/mermaid"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "Mermaid DSL 是 AI 原生记法,definition 直传且 schema 足够,不附 minimal example。",
+    "note": "definition 是完整 Mermaid DSL 文本;initialize 配置是页面级全局状态,同一页面的多个实例应共用一致 config。",
+    "schema": {
+      "definition": "string —— 完整 Mermaid DSL,首行声明图类型",
+      "config?": {
+        "_default": "未提供时使用 {theme:'default',securityLevel:'strict'}",
+        "theme?": "'default'|'neutral'|'dark'|'forest'|'base' —— 默认 default",
+        "securityLevel?": "'strict'|'loose'|'antiscript'|'sandbox' —— boot 默认 strict"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "复杂图的 SVG 几何会随文本增长;boot 给滚动容器默认 400px 高,AI 可传其他明确像素值,禁止百分比或视口单位。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:传第三个容器参数,避免临时 SVG 落到 document.body\nimport mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/+esm';\nmermaid.initialize({ startOnLoad: false, securityLevel: 'strict', ...(data.config ?? {}) });\nconst el = document.getElementById('diagram'); el.style.cssText = `height:${spec.height ?? 400}px;overflow:auto`;\nconst { svg, bindFunctions } = await mermaid.render(`m-${crypto.randomUUID()}`, data.definition, el);\nel.innerHTML = svg;\nbindFunctions?.(el);",
+    "widget": "// 渲染容器与 Mermaid 临时节点都落 shadowRoot 内\nimport mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/+esm';\nmermaid.initialize({ startOnLoad: false, securityLevel: 'strict', ...(data.config ?? {}) });\nconst el = document.createElement('div'); el.style.cssText = `height:${spec.height ?? 400}px;overflow:auto`; shadowRoot.appendChild(el);\nconst { svg, bindFunctions } = await mermaid.render(`m-${crypto.randomUUID()}`, data.definition, el);\nel.innerHTML = svg;\nbindFunctions?.(el);",
+    "codex": "// sandbox iframe:原生异步 render API\nimport mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/+esm';\nmermaid.initialize({ startOnLoad: false, securityLevel: 'strict', ...(data.config ?? {}) });\nconst el = document.getElementById('diagram'); el.style.cssText = `height:${spec.height ?? 400}px;overflow:auto`;\nconst { svg, bindFunctions } = await mermaid.render(`m-${crypto.randomUUID()}`, data.definition, el);\nel.innerHTML = svg;\nbindFunctions?.(el);"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:必须把 shadow 内元素作为 render 第三个参数;ESM 会从 jsDelivr 懒载图类型与布局依赖",
+    "codex": "supported:ESM CDN + SVG;传显式容器后临时节点留在 sandbox iframe 内"
+  }
+}

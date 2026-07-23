@@ -1,0 +1,60 @@
+{
+  "entry_version": "thin-1",
+  "id": "wavedrom",
+  "name": "WaveDrom",
+  "when_to_use": "需要把 WaveJSON 信号描述渲成对齐的数字时序 SVG 时用它,而非手写线段与文字——原生在周期对齐、总线状态、边沿和跨信号标记上失败。非电路仿真器或逻辑验证器。",
+  "why_valuable": "AI 默认能生成 WaveJSON,却做不到把多路时钟、总线值、未知态与边沿稳定排成像素级对齐的 SVG；WaveDrom 将原生 JSON 记法确定性转为工程文档级时序图。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "wavedrom",
+    "version": "3.6.2",
+    "github": "wavedrom/wavedrom"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "note": "wavejson 必须是严格 JSON 字符串；boot 用 JSON.parse 后直接走 renderAny/onml.stringify,不创建 type=WaveDrom 的 script 标签,也不走会 eval 文本的 ProcessAll。",
+    "_why_no_minimal": "WaveJSON 是 AI 原生 JSON 记法,schema 已钉死高频字段,不需 minimal example。",
+    "schema": {
+      "wavejson": "string —— JSON.parse 后必须得到以下 decoded 结构",
+      "decoded": {
+        "signal": [
+          {
+            "name?": "string —— 默认空标签",
+            "wave": "string —— 每字符一个周期状态；高频符号 0/1=preset 电平,x=未知,z=高阻,p/n=时钟,.=延续,= 或 2..9=带 data 的总线段",
+            "data?": "string | (string|number)[] —— 依次标注 =/2..9 总线段,默认无",
+            "phase?": "number —— 周期相位偏移,默认 0",
+            "period?": "positive number —— 周期倍率,默认 1",
+            "node?": "string —— 每周期节点标记,默认无"
+          }
+        ],
+        "edge?": "string[] —— 节点间边/箭头说明,默认 []",
+        "head?": "{text?:string,tick?:number,tock?:number} —— 默认无",
+        "foot?": "{text?:string,tick?:number,tock?:number} —— 默认无",
+        "config?": "{hscale?:positive integer,hbounds?:[number,number],marks?:boolean} —— hscale 默认 1,marks 默认 true"
+      }
+    }
+  },
+  "spec": {
+    "height": 280,
+    "note": "WaveDrom 输出 SVG,宽度随周期数增长；boot 给承载区明确 280px 高并双向滚动,不把 SVG 强行压扁。AI 可覆盖像素高度,禁用 vh/百分比高度。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:直接走纯函数入口,不扫描/eval script 标签\nimport { renderAny, waveSkin, onml } from 'https://cdn.jsdelivr.net/npm/wavedrom@3/+esm';\nconst host = document.getElementById('wave'); host.style.cssText = `height:${spec.height ?? 280}px;overflow:auto`;\nconst source = JSON.parse(data.wavejson);\nhost.innerHTML = onml.stringify(renderAny(0, source, waveSkin, false));\nconst svg = host.querySelector('svg'); if (svg) svg.style.maxWidth = 'none';",
+    "widget": "// SVG 只写入 shadowRoot 内新建的 host\nimport { renderAny, waveSkin, onml } from 'https://cdn.jsdelivr.net/npm/wavedrom@3/+esm';\nconst host = document.createElement('div'); host.style.cssText = `height:${spec.height ?? 280}px;overflow:auto`; shadowRoot.appendChild(host);\nconst source = JSON.parse(data.wavejson);\nhost.innerHTML = onml.stringify(renderAny(0, source, waveSkin, false));\nconst svg = host.querySelector('svg'); if (svg) svg.style.maxWidth = 'none';",
+    "codex": "import { renderAny, waveSkin, onml } from 'https://cdn.jsdelivr.net/npm/wavedrom@3/+esm';\nconst host = document.getElementById('wave'); host.style.cssText = `height:${spec.height ?? 280}px;overflow:auto`;\nconst source = JSON.parse(data.wavejson);\nhost.innerHTML = onml.stringify(renderAny(0, source, waveSkin, false));\nconst svg = host.querySelector('svg'); if (svg) svg.style.maxWidth = 'none';"
+  },
+  "example": {
+    "_why_no_minimal": "WaveJSON 是 AI 原生 JSON 记法；按模板不重复喂示例,仅保留空态 fixture。",
+    "empty": {
+      "wavejson": "{\"signal\":[]}"
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:renderAny 纯 JS 生成 SVG 字符串并写入 shadow 内 host；无 CSS/head/图片/font CDN 注入",
+    "codex": "supported:ESM CDN + SVG,不需要 worker/wasm/uplink"
+  }
+}

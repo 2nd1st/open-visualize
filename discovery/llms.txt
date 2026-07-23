@@ -1,0 +1,296 @@
+# open-visualize — catalog index (llms.txt)
+
+open-visualize 是预打包上 CDN 的开源可视化组件 + 面向 AI 的用法描述。用法:先读 `install.md`(augment 原则 + 4 步),再「查本索引 → 选 id → 读 `data/catalog/<id>.json`(data schema + 按载体 boot + license)→ 拼 data → mount」。**只在原生写得烂/贵/不稳处用**(简单柱线饼/mermaid/tabs/长表单→原生手写)。
+
+全量 257 条。supply_form:component/headless-primitive/data-asset 可直接消费;app-needs-fork(⚠blocked)需先 fork。bonus = 装饰横切层(挂在别的 scene 上,非独立货架)。
+
+## data-first 索引(按数据形态 → id)
+- `tabular` → ag-grid-community, antv-s2, clusterize-js, finos-perspective, fuse-js, gridjs, lit-labs-virtualizer, lucky-canvas, observablehq-plot, papaparse, photoswipe, plotly-js-dist-min, react-custom-roulette, rough-viz, simple-statistics, spin-wheel, sql-js, swiper, vega-lite, virtua, weighteddecisionmatrix, wheel-fortune, winwheel, wordcloud
+- `sequence` → algorithm-visualizer, asciinema-player, blocknote-core, chart-js, driver-js, editorjs-editorjs, formkit-drag-and-drop, jsav, sequential-workflow-designer, sortablejs, tone, uplot
+- `hierarchy` → d3-flame-graph, d3-hierarchy, docx, jkanban, markmap-lib, mind-elixir, pdfmake, pev2, railroad-diagrams, react-email-components, react-pdf-renderer, satori, simple-mind-map, speedscope, tocbot
+- `graph` → antv-x6, chartjs-chart-sankey, cytoscape, d3-graphviz, d3-sankey, elkjs, force-graph, gitgraph-js, graphql-voyager, json-crack, litegraph-js, logicflow-core, loopy, rete, sigma, vis-network, xyflow-react
+- `key-value` → alenaksu-json-viewer, andypf-json-viewer, animejs, bpmn-io-form-js, canvas-confetti, canvas-nest-js, cerberus, cursor-effects, dom-confetti, emoji-blast, fireworks-js, flexbox-labs, html-resume-template-owengretzinger, img-comparison-slider, js-confetti, jsbarcode, json-editor-json-editor, json-formatter-js, jsonresume-component, jsonresume-theme-even, jsonresume-themes-panasenco, leva, lil-gui, magic-snowflakes, mojs-core, party-js, qr-code-styling, rapidoc, resumed, sakura-js, split-js, survey-core, tensorflow-playground, tippy-js, tsparticles-confetti, tweakpane, vanilla-jsoneditor, vanta, wokwi-elements, xstate
+- `scalar` → cashify, convert, convert-units, countup-js, currency-js, date-fns-tz, decimal-js, dinero-js, financejs, financial, formulajs-formulajs, js-quantities, loanjs, luxon, nouislider, spacetime, tvm-financejs
+- `interval-set` → frappe-gantt, fullcalendar-core, html-midi-player, perf-cascade, react-chrono, timelines-chart, toast-ui-calendar, vis-timeline, webaudio-tinysynth
+- `grid` → 2048, cal-heatmap, crosswords-js, cssgridgenerator, gridstack, moonwave99-fretboard-js, pathfinding, sabaki-shudan, seatchart, svguitar, x-data-spreadsheet
+- `text-span` → ansi-up, codemirror, codemirror-merge, diff, diff-match-patch, diff2html, docx-preview, git-diff-view-react, gpt-tokenizer, jsondiffpatch, littlefoot, node-htmldiff, prismjs, react-diff-viewer-continued, recogito-text-annotator, rough-notation, shiki, speed-highlight-core, xterm-xterm
+- `geometry` → 3dmol, animcjk, annotorious-annotorious, complexity-explorables, cropperjs, d3-celestial, d3-geo, drawflow, excalidraw-excalidraw, fabric, floppybird, html-to-image, jspdf, kaplay, leader-line, lottie-web, matter-js, molstar, myphysicslab, p5, pdfjs-dist, phaser, pixi-js, planck, pptxgenjs, signature-pad, t-rex-runner, three, topojson-client, tui-image-editor, us-atlas, world-atlas, zdog, zumer-snapdom
+- `notation-string` → abcjs, besogo, chess-gchessboard, chess-js, chessboard-element, cm-chessboard, coderline-alphatab, croner, cronstrue, github-markdown-css, gswap, gutenberg-css, hanzi-writer, hpcc-js-wasm, html-resume-mnjul, js-interpreter, jsme, katex, kifu-for-js, latex-css, latex-js, marp-team-marp-core, mathjax-full, mermaid, mjml-browser, myriaddreamin-typst-ts, nomnoml, openchemlib, opensheetmusicdisplay, pagedjs, paper-css, quizdown-js, rdkit-rdkit, regulex, remark-slides, reveal-js, shower-core, smiles-drawer, tonal, tufte-css, verovio, vexflow, wavedrom, wgo, xiangqiboard-js, zero-md
+- `expression` → cfiresim, cindyjs, epidemic-calculator-epcalc, function-plot, jstat, jsxgraph, mafs, mathbox, nerdamer, tangle
+
+## 条目清单(按 scene)
+
+### data-explore (36)
+- `ag-grid-community` — 需要十万行级虚拟滚动、列固定、客户端排序筛选与自定义单元格的数据网格时用它 · tabular · component L1 · MIT
+- `alenaksu-json-viewer` — 需要折叠展开、按路径或正则过滤搜索深嵌套 JSON 时用它 · key-value · component L1 · MIT
+- `antv-s2` — 需要多层行列维度树、交叉汇总、冻结表头与海量单元格虚拟滚动时用它 · tabular · component L1 · MIT
+- `cal-heatmap` — 需要把每日习惯、活跃度或提交量压成 GitHub contribution 风格的日历格网时用它 · grid · component L1 · MIT
+- `chart-js` — 需要轻量的混合系列、hover 命中、tooltip/legend 与容器自适应图表时用它 · sequence · component L1 · MIT
+- `chartjs-chart-sankey` — 需要把 {from · graph · component L1 · MIT
+- `cytoscape` — 需要几十个以上节点的关系图、依赖图或知识网络 · graph · component L1 · MIT
+- `d3-celestial` — 需要可缩放旋转的全天星图、星座线、银河、深空天体或指定时地的天空投影时用它 · geometry · component L1 · BSD-3-Clause
+- `d3-flame-graph` — 需要把性能剖析的层级耗时 JSON 渲成可下钻、缩放和搜索高亮的火焰图时用它 · hierarchy · component L1 · Apache-2.0
+- `d3-geo` — 需要把 GeoJSON 做球面投影并生成无瓦片 SVG/Canvas 路径时用它 · geometry · headless-primitive · ISC
+- `d3-graphviz` — AI 已能给出 DOT · graph · component L1 · BSD-3-Clause
+- `d3-hierarchy` — 需要从嵌套数据计算 tidy tree、cluster、treemap、pack 或 partiti… · hierarchy · headless-primitive · ISC
+- `d3-sankey` — 已有 nodes/links 加权图且需要可自定义渲染的 Sankey 几何时用它 · graph · headless-primitive · BSD-3-Clause
+- `echarts` — 需要 brush 联动筛选 / 下钻 / geo choropleth(registerMap 吃 … · config-object · component L1 · Apache-2.0
+- `elkjs` — 需要为依赖图、流程图或端口图计算分层、正交、端口感知坐标时用它 · graph · headless-primitive · EPL-2.0 OR GPL-3.0-or-later
+- `finos-perspective` — 需要在浏览器本地对大表做交互式分组、拆列、聚合、筛选并在数据网格与图形插件间切换时用它 · tabular · component L1 · Apache-2.0
+- `force-graph` — 需要用最浅的 nodes/links 契约快速得到可缩放、可拖拽的中等规模 canvas 力导向图时… · graph · component L1 · MIT
+- `frappe-gantt` — 需要任务区间、完成度、依赖箭头与日/周/月视图的交互甘特图时用它 · interval-set · component L1 · MIT
+- `fullcalendar-core` — 需要月/周/日多视图、重叠事件布局和日程拖拽几何时本应使用 FullCalendar · interval-set · app-needs-fork · MIT ⚠blocked
+- `gridjs` — 需要轻量框架无关的本地搜索、排序和分页数据表时用它 · tabular · component L1 · MIT
+- `markmap-lib` — 需要把 Markdown 大纲变成可折叠、可缩放思维导图的数据树时用它 · hierarchy · headless-primitive · MIT
+- `observablehq-plot` — 需要对表格数据做分箱、堆叠、分面小倍数或多 mark 分层 EDA 时用它 · tabular · component L1 · ISC
+- `plotly-js-dist-min` — 需要 3D scatter/surface、等高线、科学统计图或带缩放悬停的多轴探索图时用它 · tabular · component L1 · MIT
+- `rough-viz` — 需要刻意手绘感、可悬停且版式稳定的探索图时用它 · tabular · component L1 · MIT
+- `sigma` — 需要把已有坐标的千到万级关系图用 WebGL 流畅缩放、悬停和检索时用它 · graph · component L1 · MIT
+- `tabulator-tables` — 需要多列排序、表头筛选、分组、冻结列、分页、条件格式或大数据虚拟滚动的交互表格时用它 · categorical · component L1 · MIT
+- `timelines-chart` — 需要按组/实体展示离散或连续状态区间、颜色图例并用 brush 缩放的泳道图时用它 · interval-set · component L1 · MIT
+- `toast-ui-calendar` — 需要视觉完整的月/周/日程表、重叠时段布局和本地日历交互时用它 · interval-set · component L1 · MIT
+- `topojson-client` — 需要把 atlas 类 TopoJSON 解码成 GeoJSON、提取共享边界或合并行政区时用它 · geometry · headless-primitive · ISC
+- `uplot` — 需要十万点级时序曲线、双轴、十字光标或带区时用它 · sequence · component L1 · MIT
+- `us-atlas` — 需要美国州/县边界 choropleth 或全国轮廓时用它 · geometry · data-asset · ISC
+- `vega-lite` — 需要用声明式 JSON 做多视图刷选联动、交叉过滤、分面或复合统计图时用它 · tabular · component L1 · BSD-3-Clause
+- `vis-network` — 需要把 nodes/edges 两数组直接变成可拖拽、可缩放、可聚类的中小型物理网络图时用它 · graph · component L1 · (Apache-2.0 OR MIT)
+- `vis-timeline` — 需要在长时间跨度里探索点事件与区间、按 group 排成泳道并缩放平移时用它 · interval-set · component L1 · (Apache-2.0 OR MIT)
+- `wordcloud` — 需要把关键词权重排成支持中文、旋转与非矩形轮廓的词云时用它 · tabular · component L1 · MIT
+- `world-atlas` — 需要无瓦片的世界国家边界 choropleth 或陆地轮廓时用它 · geometry · data-asset · ISC
+
+### teach-sim (28)
+- `abcjs` — 需要把 ABC 记谱文本渲成可缩放五线谱 SVG · notation-string · component L1 · MIT
+- `algorithm-visualizer` — 应用态 · sequence · app-needs-fork · MIT ⚠blocked
+- `animcjk` — 需要日文汉字、假名、韩文汉字或简繁汉字的现成笔顺 SVG 时用它 · geometry · data-asset · unverified
+- `cindyjs` — 需要拖拽后仍保持射影几何约束、用 CindyScript 驱动参数化数学或物理演示时用它 · expression · component L1 · Apache-2.0
+- `complexity-explorables` — 应用态 · geometry · app-needs-fork · unverified ⚠blocked
+- `function-plot` — 需要正确表现渐近线、间断点、缩放和平移中的二维函数图或导数切线时用它 · expression · component L1 · MIT
+- `hanzi-writer` — 需要正确汉字笔顺动画、逐画高亮或描红判定时用它 · notation-string · component L1 · MIT
+- `js-interpreter` — 需要把 ES5 程序逐步执行、暂停并检查当前求值状态时用它 · notation-string · headless-primitive · Apache-2.0
+- `jsav` — 需要数据结构状态逐步播放、解释文字和可前后浏览的算法课件时用它 · sequence · component L1 · MIT
+- `jsme` — 需要让用户绘制或修改二维分子并读回 SMILES/MOL 时用它 · notation-string · component L1 · unverified
+- `jstat` — 需要正态以外的 pdf/cdf/分位数/抽样或参数变化曲线时用它 · expression · headless-primitive · MIT
+- `jsxgraph` — 需要可拖点、slider、约束几何或参数驱动函数图时用它 · expression · component L1 · (MIT OR LGPL-3.0-or-later)
+- `mafs` — 需要当代视觉品质的二维坐标系、函数曲线与 React 参数拖拽演示时用它 · expression · component L1 · MIT
+- `mathbox` — 需要可旋转的三维曲面、向量场、坐标系或线性变换动画时用它 · expression · component L1 · MIT
+- `mathjs` — 把算术/表达式求值从 AI 手里拿走时用它:AI 只传表达式字符串 + 变量 · compute-engine · headless-primitive · Apache-2.0
+- `matter-js` — 需要可拖拽的 2D 碰撞、重力、刚体约束或弹簧教学模拟时用它 · geometry · component L1 · MIT
+- `myphysicslab` — 应用态 · geometry · app-needs-fork · Apache-2.0 ⚠blocked
+- `nerdamer` — 需要可复算的代数化简、展开、因式分解、符号微积分或方程求解时用它 · expression · headless-primitive · MIT
+- `p5` — 需要教学 sketch、生成艺术或逐帧交互画布时用它 · geometry · component L1 · LGPL-2.1
+- `pathfinding` — 需要在障碍网格上可靠比较 A*、BFS、Dijkstra 或 JPS 并得到路径时用它 · grid · headless-primitive · MIT
+- `planck` — 需要 Box2D 级连续碰撞、fixture/joint 模型或连杆与车辆机构演示时用它 · geometry · component L1 · MIT
+- `smiles-drawer` — 需要把 SMILES 字符串渲成可读的 2D 分子结构式时用它 · notation-string · component L1 · MIT
+- `tangle` — 需要把讲解文字中的数字变成可拖动参数并让全文同步重算时用它 · expression · component L1 · unverified
+- `tensorflow-playground` — 应用态 · key-value · app-needs-fork · Apache-2.0 ⚠blocked
+- `three` — 需要可旋转相机、光照、材质或成组几何体来解释三维空间关系时用它 · geometry · component L1 · MIT
+- `tone` — 需要在浏览器里合成音色、按拍号精确调度音符或做可交互乐理实验时用它 · sequence · headless-primitive · MIT
+- `wokwi-elements` — 需要在电子入门讲解中显示 LED、七段管或按钮的真实元件外观与状态时用它 · key-value · component L1 · MIT
+- `xstate` — 需要真实执行带 guard、嵌套状态和事件序列的 statechart 时用它 · key-value · headless-primitive · MIT
+
+### input-cocreate (31)
+- `annotorious-annotorious` — 需要用户在图片上画矩形/多边形区域并得到 W3C Web Annotation JSON 时用它 · geometry · component L1 · BSD-3-Clause
+- `antv-x6` — 需要 ER 图、流程图或 DAG 编辑器中的连接桩、框选、吸附对齐与可扩展 SVG/HTML 节点时… · graph · component L1 · MIT
+- `blocknote-core` — 需要 Notion 风格的嵌套 block 编辑、拖拽与斜杠菜单并把文档保留为 JSON 时用它 · sequence · component L1 · MPL-2.0
+- `bpmn-io-form-js` — 需要把 bpmn.io form schema 稳定渲成带校验的 vanilla 输入面时用它 · key-value · component L1 · SEE LICENSE IN LICENSE
+- `cropperjs` — 需要让用户在图片上拖拽八向手柄并得到精确裁剪几何时用它 · geometry · component L1 · MIT
+- `drawflow` — 需要轻量、无框架的可拖拽节点流编辑器并把画布往返为紧凑 JSON 时用它 · geometry · component L1 · MIT
+- `editorjs-editorjs` — 需要把大纲或共创文档编辑成可直接交给 AI 的 block JSON 时用它 · sequence · component L1 · Apache-2.0
+- `excalidraw-excalidraw` — 需要用户自由画形状、箭头、文字并保留可读场景 JSON 的白板共创时用它 · geometry · component L1 · MIT
+- `fabric` — 需要自定义可选中、缩放旋转、分组并可 JSON 回放的对象画布时用它 · geometry · component L1 · MIT
+- `formkit-drag-and-drop` — 需要把一个或多个列表做成 data-first 拖拽排序/跨列转移时用它 · sequence · component L1 · MIT
+- `gridstack` — 需要让用户拖拽、缩放并保存 dashboard/版面网格时用它 · grid · component L1 · MIT
+- `jkanban` — 需要轻量 vanilla 看板的列/卡片拖拽和紧凑 boards JSON 初始化时用它 · hierarchy · component L1 · Apache-2.0
+- `json-editor-json-editor` — 需要由 JSON Schema 生成嵌套对象/数组表单并拿回结构化值时用它 · key-value · component L1 · MIT
+- `leader-line` — 需要在两个既有 DOM 元素之间画会随布局定位的箭头或连线时用它 · geometry · component L1 · MIT
+- `litegraph-js` — 需要带端口类型、可编辑且可执行的 Blueprint 式节点图时用它 · graph · component L1 · MIT
+- `logicflow-core` — 需要面向审批流/BPMN 风格语义的可编辑流程图、连线校验和撤销历史时用它 · graph · component L1 · Apache-2.0
+- `mind-elixir` — 需要用户直接编辑、拖排并导出 JSON 思维导图时用它 · hierarchy · component L1 · MIT
+- `nouislider` — 需要多柄范围、柄间 margin/limit/padding 约束或非线性刻度时用它 · scalar · component L1 · MIT
+- `quizdown-js` — 需要把 Markdown 式题目一次变成单选、多选、排序与本地判分测验时用它 · notation-string · component L1 · MIT
+- `recogito-text-annotator` — 需要用户在长文本中圈选原句并留下结构化批注时用它 · text-span · component L1 · BSD-3-Clause
+- `rete` — 需要让用户搭建带类型端口、可编辑连线且能继续接数据流执行引擎的节点管线时用它 · graph · component L1 · MIT
+- `seatchart` — 需要带类型、价格、保留态、过道和购物篮的座位网格时用它 · grid · component L1 · MIT
+- `sequential-workflow-designer` — 需要顺序、容器与分支步骤的结构化工作流设计器时用它 · sequence · component L1 · MIT
+- `signature-pad` — 需要在对话工件里采集平滑手写签名并保留可重放笔迹时用它 · geometry · component L1 · MIT
+- `simple-mind-map` — 需要多种布局、完整 JSON 回放和富功能大纲/思维导图编辑时用它 · hierarchy · component L1 · MIT
+- `sortablejs` — 需要触摸友好、带动画的列表重排或同一 shadow 内跨列表归类时用它 · sequence · component L1 · MIT
+- `survey-core` — 需要从题目 JSON 得到条件显隐、校验状态与紧凑答案对象时用它 · key-value · headless-primitive · MIT
+- `tui-image-editor` — 需要用户在浏览器内裁剪、旋转、涂鸦、加文字或滤镜后继续交付图片时用它 · geometry · component L1 · MIT
+- `tweakpane` — 需要高密度参数面板处理数值、颜色、布尔、二维点与区间时用它 · key-value · component L1 · MIT
+- `x-data-spreadsheet` — 需要轻量 Excel 风格网格、单元格编辑与多工作表时用它 · grid · component L1 · MIT
+- `xyflow-react` — 需要 React 内生产级节点图、受控或非受控状态、缩放平移和可嵌任意 UI 的自定义节点时用它 · graph · component L1 · MIT
+
+### browse-compare (27)
+- `clusterize-js` — 需要在 vanilla DOM 中显示成千上万条等高 HTML 行而不全量挂载时用它 · tabular · component L1 · MIT
+- `codemirror-merge` — 需要可编辑的双栏代码对照、同步垂直对齐、变更块导航与大文本滚动时用它 · text-span · component L1 · MIT
+- `diff` — 需要在运行时对任意两段文本、JSON 或 CSS 求可复算差异时用它 · text-span · headless-primitive · BSD-3-Clause
+- `diff-match-patch` — 需要给散文、合同或翻译对照做字符级 diff、语义清理和可容错 patch 时用它 · text-span · headless-primitive · Apache-2.0
+- `diff2html` — 需要把 unified/git diff 渲成 GitHub 风格的 line-by-line 或 … · text-span · component L1 · MIT
+- `docx-preview` — 需要在浏览器内把 DOCX 二进制渲成保留分页、页眉页脚、图片和样式的 HTML 预览时用它 · text-span · component L1 · Apache-2.0
+- `driver-js` — 需要在已渲染页面上做元素聚光、滚动定位与分步讲解时用它 · sequence · component L1 · MIT
+- `fuse-js` — 需要在内联中小型记录集上做容错拼写、加权多字段与相关度排序时用它 · tabular · headless-primitive · Apache-2.0
+- `git-diff-view-react` — 需要在 React 中查看带文件名、语言、完整 unified patch 与长文件高亮的 GitH… · text-span · component L1 · MIT
+- `img-comparison-slider` — 需要可触摸、可键盘操作且随容器缩放的 before/after 图片拖拽对照时用它 · key-value · component L1 · MIT
+- `json-formatter-js` — 需要渐进展开、折叠和类型着色地阅读深层对象或大数组时用它 · key-value · component L1 · MIT
+- `jsondiffpatch` — 需要把两个嵌套 JSON 值按对象键和数组身份对齐后渲成增删改树时用它 · text-span · component L1 · MIT
+- `lit-labs-virtualizer` — 需要以标准 custom element 虚拟化大量变高 DOM 项并直接落入 shadow tre… · tabular · component L1 · BSD-3-Clause
+- `littlefoot` — 需要把长文的标准脚注引用变成就地弹出、自动贴边且不打断阅读流的注释层时用它 · text-span · component L1 · MIT
+- `mermaid` — 需要把 flowchart、sequence、state、ER、mindmap、gantt 或 gi… · notation-string · component L1 · MIT
+- `node-htmldiff` — 需要比较两段渲染态 HTML 并保留标签层级、用 ins/del 标出文案或合同条款变化时用它 · text-span · headless-primitive · MIT
+- `pdfjs-dist` — 需要在浏览器内把 PDF 二进制稳定解析并渲成可缩放 canvas 页面时用它 · geometry · component L1 · Apache-2.0
+- `photoswipe` — 需要对技术截图或高分辨率图片做移动端手势缩放、惯性平移与全屏逐张检查时用它 · tabular · component L1 · MIT
+- `react-chrono` — 需要把行程、历史或版本事件排成可键盘浏览的 vertical、horizontal 或 altern… · interval-set · component L1 · MIT
+- `react-diff-viewer-continued` — 需要在 React 中把两个字符串直接渲成 GitHub 风格 split/unified、词级高亮… · text-span · component L1 · MIT
+- `rough-notation` — 需要让下划线、圈选、框选或高亮跨多行文字并在布局变化后仍贴住目标时用它 · text-span · component L1 · MIT
+- `split-js` — 需要把原文/译文或 A/B 条款做成用户可拖拽调宽的双栏或多栏对照时用它 · key-value · component L1 · MIT
+- `swiper` — 需要移动端嵌套滑动、触控阻尼、断点多卡与键盘/分页导航的内容轨道时用它 · tabular · component L1 · MIT
+- `tippy-js` — 需要让批注、术语解释或富内容 popover 锚定任意元素并自动避开视口边缘时用它 · key-value · component L1 · MIT
+- `tocbot` — 需要从长文标题自动生成层级目录并随滚动高亮当前章节时用它 · hierarchy · component L1 · MIT
+- `virtua` — 需要在 React 中虚拟化大量变高行、长段落或动态尺寸卡片时用它 · tabular · component L1 · MIT
+- `zero-md` — 需要把 AI 原生 Markdown 字符串直接渲成带一致排版、代码高亮、公式和 Mermaid 的… · notation-string · component L1 · ISC
+
+### local-tools (23)
+- `cashify` — 需要基于调用方提供的汇率快照做多币种换算时用它 · scalar · headless-primitive · MIT
+- `cfiresim` — 应用态 · expression · app-needs-fork · Apache-2.0 ⚠blocked
+- `convert` — 需要类型安全、可摇树且覆盖物理量与数据单位的现代单位换算核时用它 · scalar · headless-primitive · MIT
+- `convert-units` — 需要在长度、面积、质量、体积、温度、时间等单位间可靠换算时用它 · scalar · headless-primitive · MIT
+- `currency-js` — 需要小体积的单币种金额运算、分摊与格式化时用它 · scalar · headless-primitive · MIT
+- `date-fns-tz` — 需要用纯函数把 instant 格式化到指定 IANA 时区、或在 wall-clock 与 UTC… · scalar · headless-primitive · MIT
+- `decimal-js` — 需要复利、分期或高精度小数链式运算时用它 · scalar · headless-primitive · MIT
+- `dinero-js` — 需要带 ISO 币种与 scale 的不可变金额对象或严格比例分配时用它 · scalar · headless-primitive · MIT
+- `epidemic-calculator-epcalc` — 应用态 · expression · app-needs-fork · unverified ⚠blocked
+- `financejs` — 需要复算 PV/FV/NPV/IRR、分期付款、CAGR 或复利等经典金融公式时用它 · scalar · headless-primitive · MIT
+- `financial` — 需要零依赖且对齐 numpy-financial 语义的贷款、净现值或收益率计算核时用它 · scalar · headless-primitive · MIT
+- `formulajs-formulajs` — 需要在 JavaScript 里复算 Excel 风格的财务与统计函数时用它 · scalar · headless-primitive · MIT
+- `js-quantities` — 需要解析复合单位、做量纲一致性检查或换算 km/h、N·m、kWh 等带量纲数量时用它 · scalar · headless-primitive · MIT
+- `leva` — 已有 React 组件树且需要把声明式 schema 变成实时调参面板时用它 · key-value · component L1 · MIT
+- `lil-gui` — 需要用紧凑面板实时调数值、布尔、颜色和枚举参数时用它 · key-value · component L1 · MIT
+- `loanjs` — 需要生成等额本息、期初等额本息或等额本金的完整贷款分期表时用它 · scalar · headless-primitive · MIT
+- `loopy` — 应用态 · graph · app-needs-fork · CC0-1.0 ⚠blocked
+- `luxon` — 需要把带来源时区的本地时间可靠换到另一 IANA 时区、跨越 DST 边界或计算 duration … · scalar · headless-primitive · MIT
+- `papaparse` — 需要把用户粘贴的带引号、换行、自动分隔符与坏行的 CSV 稳定变成记录表时用它 · tabular · headless-primitive · MIT
+- `simple-statistics` — 需要百分位、样本方差、相关性或一元回归的可复算统计核时用它 · tabular · headless-primitive · ISC
+- `spacetime` — 需要跨 IANA 时区换算、DST 边界日期算术或口语化日期格式时用它 · scalar · headless-primitive · Apache-2.0
+- `tvm-financejs` — 需要按 Excel 参数语义复算 PV/FV/PMT/NPER/RATE 等货币时间价值函数时用它 · scalar · headless-primitive · MIT
+- `weighteddecisionmatrix` — 应用态 · tabular · app-needs-fork · MIT ⚠blocked
+
+### dev-artifacts (26)
+- `andypf-json-viewer` — 需要对大 JSON 做折叠层级、工具栏搜索、类型提示与复制时用它 · key-value · component L1 · MIT
+- `ansi-up` — 需要把 CI/build 日志中的 SGR 颜色、256 色与 truecolor 静态转成安全 H… · text-span · headless-primitive · MIT
+- `asciinema-player` — 需要按真实终端帧时序回放 CLI 教程、支持 seek/倍速/主题与复制时用它 · sequence · component L1 · Apache-2.0
+- `codemirror` — 需要在工件中编辑长代码并获得选区、撤销、搜索、补全框架与虚拟化视口时用它 · text-span · component L1 · MIT
+- `croner` — 需要枚举 cron 的下一次或未来 N 次触发时间时用它 · notation-string · headless-primitive · MIT
+- `cronstrue` — 需要把 cron 表达式变成可读说明时用它 · notation-string · headless-primitive · MIT
+- `cssgridgenerator` — 应用态 · grid · app-needs-fork · MIT ⚠blocked
+- `flexbox-labs` — 应用态 · key-value · app-needs-fork · MIT ⚠blocked
+- `gitgraph-js` — 需要讲清多分支、提交与合并拓扑时用它 · graph · component L1 · MIT
+- `gpt-tokenizer` — 需要在浏览器里精确计数或拆解 GPT 文本 token 时用它 · text-span · headless-primitive · MIT
+- `graphql-voyager` — 需要把 GraphQL SDL 展开成可缩放、可追踪字段关系的全景图时用它 · graph · component L1 · MIT
+- `hpcc-js-wasm` — 需要在浏览器把 DOT 渲成高质量层次图时用它 · notation-string · component L1 · Apache-2.0
+- `json-crack` — 需要把嵌套 JSON/YAML/CSV 变成可缩放、折叠和搜索的节点连线图时用它 · graph · app-needs-fork · Apache-2.0 ⚠blocked
+- `nomnoml` — 需要用极简 DSL 画 UML/框线关系图且在意体积时用它 · notation-string · component L1 · MIT
+- `perf-cascade` — 需要把 HAR 1.2 请求渲成带阶段着色、时间刻度和详情展开的瀑布图时用它 · interval-set · component L1 · MIT
+- `pev2` — 需要把 PostgreSQL EXPLAIN 计划变成耗时热点、节点统计和可缩放执行树时用它 · hierarchy · component L1 · PostgreSQL
+- `prismjs` — 需要稳定高亮长代码、嵌套语法或多段代码时用它 · text-span · component L1 · MIT
+- `railroad-diagrams` — 需要把 DSL、协议或配置文法渲成 JSON.org 风格 railroad SVG 时用它 · hierarchy · component L1 · CC0-1.0
+- `rapidoc` — 需要把 OpenAPI 3.x 文档变成可搜索、递归展开 schema 并带多语言请求样例的 API… · key-value · component L1 · MIT
+- `regulex` — 需要把 JavaScript 正则表达式解释成可缩放 railroad SVG 时用它 · notation-string · component L2 · MIT
+- `shiki` — 需要 TextMate 文法与 VS Code 主题级高亮精度时用它 · text-span · component L1 · MIT
+- `speed-highlight-core` — 需要在体积敏感载体里快速高亮常见语言时用它 · text-span · component L1 · CC0-1.0
+- `speedscope` — 需要缩放、搜索并在 time-order、left-heavy 与 sandwich 视图间检查性能… · hierarchy · app-needs-fork · MIT ⚠blocked
+- `sql-js` — 需要在浏览器沙箱里打开真实 SQLite 字节库或对内联表执行标准 SQL 时用它 · tabular · headless-primitive · MIT
+- `vanilla-jsoneditor` — 需要 tree/text/table 三模式编辑、JSON 修复、校验与大文档虚拟化时用它 · key-value · component L1 · ISC
+- `xterm-xterm` — 需要正确呈现 ANSI/CSI 光标移动、256 色/truecolor、scrollback 与可… · text-span · component L1 · MIT
+
+### notation (27)
+- `3dmol` — 需要在浏览器中旋转、缩放并以 cartoon 或球棍方式查看 PDB/SDF/MOL2/XYZ 三维… · geometry · component L1 · BSD-3-Clause
+- `besogo` — 需要轻量、零依赖的 SGF 棋谱查看器或编辑器并展示分支、注释与棋盘标记时用它 · notation-string · component L1 · MIT
+- `chess-gchessboard` — 需要把一个 FEN 盘面渲成可读、可交互(可选拖子)的棋盘时用它 · notation-string · component L1 · MIT
+- `chess-js` — 需要解析 FEN/PGN、生成合法着法、验证局面或判定将杀和棋时用它 · notation-string · headless-primitive · BSD-2-Clause
+- `chessboard-element` — 需要用 Web Component 把 FEN 盘面渲成可翻转、可选拖子的标准西洋棋盘时用它 · notation-string · component L1 · MIT
+- `cm-chessboard` — 需要把 FEN 盘面渲成带棋子、坐标、动画且可继续接走子输入的 SVG 棋盘时用它 · notation-string · component L1 · MIT
+- `coderline-alphatab` — 需要把 alphaTex 或 MusicXML 渲成同时含标准谱与吉他 tab、保留节奏/推弦/多轨… · notation-string · component L1 · MPL-2.0
+- `crosswords-js` — 需要把结构化横纵线索变成带黑格、编号、键盘导航和可填单元格的填字网格时用它 · grid · app-needs-fork · MIT ⚠blocked
+- `gswap` — 应用态 · notation-string · app-needs-fork · MIT ⚠blocked
+- `html-midi-player` — 需要让 MIDI/SMF 在页面里可播放并显示钢琴卷帘、瀑布或五线谱时用它 · interval-set · component L1 · BSD-2-Clause
+- `katex` — 需要把 LaTeX 快速排成稳定的行内或块级公式时用它 · notation-string · component L1 · MIT
+- `kifu-for-js` — 需要把日式将棋 KIF/KI2 棋谱变成可逐手回放的盘面时用它 · notation-string · component L1 · MIT
+- `mathjax-full` — 需要把复杂 LaTeX 排成自包含 SVG、避开 webfont/CSP 问题或覆盖 KaTeX 不… · notation-string · component L1 · Apache-2.0
+- `molstar` — 需要查看大型蛋白质或核酸的 PDB/mmCIF、装配体与复杂表示时用它 · geometry · component L1 · MIT
+- `moonwave99-fretboard-js` — 需要把音阶、和弦或 CAGED 把位画成带弦格与音符高亮的吉他指板时用它 · grid · component L1 · ISC
+- `openchemlib` — 需要把 SMILES 或 Molfile 校验并描绘成清晰 2D 化学结构时用它 · notation-string · component L1 · BSD-3-Clause
+- `opensheetmusicdisplay` — 已有完整 MusicXML 且要在浏览器里自动分页、排版成可读 SVG 五线谱时用它 · notation-string · component L1 · BSD-3-Clause
+- `rdkit-rdkit` — 需要工业级校验、规范化、描述符或子结构能力并把 SMILES/Molfile 描绘成 2D 结构时用… · notation-string · component L1 · BSD-3-Clause
+- `sabaki-shudan` — 需要把围棋落子矩阵渲成带坐标、标记、箭头或热力覆盖的高质量棋盘时用它 · grid · component L1 · MIT
+- `svguitar` — 需要把逐弦品位、空弦/闷弦与横按精确画成标准 SVG 吉他和弦图时用它 · grid · component L1 · MIT
+- `tonal` — 需要把和弦、音阶、音程或音名记法转换成可靠的音符集合与乐理属性时用它 · notation-string · headless-primitive · MIT
+- `verovio` — 需要把 MEI、MusicXML、ABC 或 PAE 刻成出版级可缩放 SVG 乐谱时用它 · notation-string · component L1 · LGPL-3.0-or-later
+- `vexflow` — 需要从音高、时值、和弦或吉他 tab 原语精确刻出一小段 SVG 五线谱时用它 · notation-string · component L1 · MIT
+- `wavedrom` — 需要把 WaveJSON 信号描述渲成对齐的数字时序 SVG 时用它 · notation-string · component L1 · MIT
+- `webaudio-tinysynth` — 需要在浏览器内把 SMF/MIDI 直接合成为声音且不能依赖远程 SoundFont 时用它 · interval-set · headless-primitive · Apache-2.0
+- `wgo` — 需要把 SGF 棋谱渲成可导航、带分支与讲评的围棋棋盘时用它 · notation-string · component L1 · MIT
+- `xiangqiboard-js` — 需要把中国象棋 FEN 渲成含九宫、河界和中文棋子的 9×10 棋盘时用它 · notation-string · component L1 · MIT
+
+### deliverables (31)
+- `cerberus` — 应用态 · key-value · app-needs-fork · MIT ⚠blocked
+- `docx` — 需要在浏览器把标题、段落、富文本层级和分节内容生成可继续编辑的 Word .docx Blob 时用… · hierarchy · headless-primitive · MIT
+- `github-markdown-css` — 需要让已经渲染的 Markdown 报告获得用户熟悉且跨页面稳定的 GitHub 外观时用它 · notation-string · component L1 · MIT
+- `gutenberg-css` — 需要给报告、讲义或文章补齐打印排版、孤行控制、表头复现和断页辅助类时用它 · notation-string · component L1 · MIT
+- `html-resume-mnjul` — 需要把已写好的单页简历 HTML 套进严格 Letter 纸张、左右栏与 print-to-PDF … · notation-string · component L2 · Apache-2.0
+- `html-resume-template-owengretzinger` — 应用态 · key-value · app-needs-fork · Unlicense ⚠blocked
+- `html-to-image` — 需要在浏览器把一个已渲染 DOM 节点带计算样式、伪元素、图片与字体导出为 PNG/JPEG/SVG… · geometry · headless-primitive · MIT
+- `jsbarcode` — 需要生成可扫描的 CODE128、EAN、UPC、CODE39、ITF 或 MSI 条形码 SVG … · key-value · component L1 · MIT
+- `jsonresume-component` — 需要在浏览器中把 resume.json 原生挂成带 microdata 与 Shadow DOM … · key-value · component L1 · MIT
+- `jsonresume-theme-even` — 需要把标准 resume.json 一步排成带 print 间距、分页控制与明暗配色的完整简历 HT… · key-value · component L1 · MIT
+- `jsonresume-themes-panasenco` — 需要在纯浏览器把旧版 JSON Resume 字段渲成一页式 Handlebars 简历 HTML … · key-value · component L2 · MIT
+- `jspdf` — 需要在浏览器按绝对坐标生成票据、证书、标签或固定版式 PDF Blob 时用它 · geometry · headless-primitive · MIT
+- `latex-css` — 需要把语义 HTML 稳定排成 LaTeX 论文式摘要、作者块、定理和参考文献时用它 · notation-string · component L1 · MIT
+- `latex-js` — 需要在浏览器把 AI 熟悉的 LaTeX 文档源码翻译成带数学、章节和文档类样式的 HTML5 时用… · notation-string · component L1 · MIT
+- `marp-team-marp-core` — 需要把窄输入面的 Markdown 确定性编译成等尺寸、可打印的整套幻灯时用它 · notation-string · component L1 · MIT
+- `mjml-browser` — 需要在浏览器把 MJML 源码编译为兼容 Outlook 等邮件客户端的完整 HTML 时用它 · notation-string · headless-primitive · MIT
+- `myriaddreamin-typst-ts` — 需要在浏览器把 AI 熟悉的 Typst 源码编译成专业多页 SVG 预览或 PDF 时用它 · notation-string · component L1 · Apache-2.0
+- `pagedjs` — 需要把长 HTML 按 CSS Paged Media 排成带断页、页码、running heade… · notation-string · component L1 · MIT
+- `paper-css` — 需要把一组语义 HTML 快速摆成 A3/A4/A5/Letter/Legal 的实体纸张预览与打印… · notation-string · component L1 · MIT
+- `pdfmake` — 需要在浏览器把声明式文档树稳定生成含多栏、表格、页眉页脚和自动分页的真 PDF 时用它 · hierarchy · component L1 · MIT
+- `pptxgenjs` — 需要在浏览器按幻灯片坐标生成公司可继续编辑的 .pptx Blob 时用它 · geometry · headless-primitive · MIT
+- `qr-code-styling` — 需要把 URL/文本做成带圆点、品牌色、渐变或 logo 且仍可扫码的 QR 交付物时用它 · key-value · component L1 · MIT
+- `react-email-components` — 需要用 React 组件树组合邮件并在浏览器渲成邮件安全 HTML 时用它 · hierarchy · component L1 · MIT
+- `react-pdf-renderer` — 已经在 React 组件模型里并需要把 Document/Page/View/Text 树稳定生成多… · hierarchy · component L1 · MIT
+- `remark-slides` — 需要最轻的浏览器内 Markdown 演示、讲者备注与克隆讲者视图时用它 · notation-string · component L1 · MIT
+- `resumed` — 需要以 JSON Resume 数据和主题生态稳定生成简历 HTML 时应在完成浏览器 fork 后… · key-value · app-needs-fork · MIT ⚠blocked
+- `reveal-js` — 需要从 Markdown 生成带横纵分组、fragment 递进、键盘导航和打印版式的演示 deck… · notation-string · component L1 · MIT
+- `satori` — 需要把固定尺寸的 React-like 元素树与 CSS 子集排成社交卡片、海报或 OG 图 SVG… · hierarchy · headless-primitive · MPL-2.0
+- `shower-core` — 需要 HTML-first 的 list/full 双模式演示并兼顾浏览与打印时用它 · notation-string · component L1 · MIT
+- `tufte-css` — 需要带边注、旁注编号和紧凑图文节奏的研究简报或讲义时用它 · notation-string · component L1 · MIT
+- `zumer-snapdom` — 需要把已渲染 DOM 连同计算样式、伪元素、字体与 shadow DOM 快速导出为 PNG/JPE… · geometry · headless-primitive · MIT
+
+### bonus(装饰/横切层) (28)
+- `2048` — 应用态 · grid · app-needs-fork · MIT ⚠blocked
+- `animejs` — 需要多属性补间、错峰队列或可暂停/倒放的 DOM/SVG 时间线时用它 · key-value · headless-primitive · MIT
+- `canvas-confetti` — 需要产品级纸屑爆发、emoji/自定义形状或多炮位序列时用它 · key-value · component L1 · ISC
+- `canvas-nest-js` — 需要极小体积的游动点阵、近邻连线与鼠标吸附背景时用它 · key-value · component L1 · MIT
+- `countup-js` — 需要让 KPI、里程碑或最终结果以精确终值的数字滚动揭晓时用它 · scalar · component L1 · MIT
+- `cursor-effects` — 需要复古 fairy-dust、emoji、彩虹、时钟或跟随点等有成熟手感的鼠标尾迹时用它 · key-value · component L1 · MIT
+- `dom-confetti` — 需要从某个按钮、徽章或坐标锚点爆出轻量 DOM 彩屑且不想引入 canvas 时用它 · key-value · component L1 · MIT
+- `emoji-blast` — 需要把对话语义绑定成一束有重力、旋转和可抓取手感的 emoji 礼花时用它 · key-value · component L1 · MIT
+- `fireworks-js` — 需要火箭升空、空中爆裂、拖尾与连续放映的节庆烟花时用它 · key-value · component L1 · MIT
+- `floppybird` — 应用态 · geometry · app-needs-fork · Apache-2.0 ⚠blocked
+- `js-confetti` — 需要零配置全幅纸屑或按对话语境换成 emoji 粒子时用它 · key-value · component L1 · MIT
+- `kaplay` — 需要在几十行内做出带碰撞、重力、键盘输入和游戏循环的 2D 可玩 demo 时用它 · geometry · component L1 · MIT
+- `lottie-web` — 已有 Bodymovin/Lottie JSON 资产 · geometry · component L1 · MIT
+- `lucky-canvas` — 需要大转盘、九宫格跑马灯或老虎机三种抽奖形态之一时用它 · tabular · component L1 · Apache-2.0
+- `magic-snowflakes` — 需要在限定容器内得到有层次、风向、旋转和自动尺寸响应的持续飘雪时用它 · key-value · component L1 · MIT
+- `mojs-core` — 需要点赞爆裂、点击涟漪、图标变形或多段 stagger 微动效时用它 · key-value · component L1 · MIT
+- `party-js` — 需要从某个按钮、答案或文字元素的实际几何位置发射 confetti/sparkles 时用它 · key-value · component L1 · MIT
+- `phaser` — 需要在对话里现写有场景、输入、碰撞、相机和游戏循环的 2D 小游戏时用它 · geometry · component L1 · MIT
+- `pixi-js` — 需要大量 2D 精灵、粒子、滤镜或稳定逐帧 WebGL 画面时用它 · geometry · component L1 · MIT
+- `react-custom-roulette` — 需要在 React 交付物里做带权扇区、指针和减速停靠的抽奖轮盘时用它 · tabular · component L1 · MIT
+- `sakura-js` — 需要自然旋转、横向吹拂且可换渐变色的春季花瓣雨时用它 · key-value · component L1 · MIT
+- `spin-wheel` — 需要可拖拽甩动、带减速手感且能精确停到指定项的决定轮盘时用它 · tabular · component L1 · MIT
+- `t-rex-runner` — 应用态 · geometry · app-needs-fork · BSD-3-Clause ⚠blocked
+- `tsparticles-confetti` — 需要一次性礼花、炮筒、坠落或 emoji/card 等异形彩屑且还要精确控制发射物理时用它 · key-value · component L1 · MIT
+- `vanta` — 需要给 hero、封面或演示页铺一层可随指针响应的 WebGL 波浪背景时用它 · key-value · component L1 · MIT
+- `wheel-fortune` — 已有轮盘 DOM/图片 · tabular · component L1 · MIT
+- `winwheel` — 需要图片扇区、丰富文字方向或预计算停点的老牌 canvas 奖轮时用它 · tabular · component L1 · ISC
+- `zdog` — 需要圆头、扁平着色、可拖拽旋转的伪 3D 小雕塑或概念模型时用它 · geometry · component L1 · MIT

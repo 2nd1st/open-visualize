@@ -1,0 +1,40 @@
+{
+  "entry_version": "thin-1",
+  "id": "pdfjs-dist",
+  "name": "PDF.js",
+  "when_to_use": "需要在浏览器内把 PDF 二进制稳定解析并渲成可缩放 canvas 页面时用它而非手写,因为原生在交叉引用表、字体、压缩流和页面几何上失败;非做 PDF 编辑、批注工作流或表单提交。",
+  "why_valuable": "AI 默认无法解析 PDF 二进制,更做不到字形定位、页面 viewport、增量加载与 worker 解码;PDF.js 把输入收敛为 URL/字节并给出可复算的页面画布。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "pdfjs-dist",
+    "version": "6.1.200",
+    "github": "mozilla/pdf.js"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "geometry",
+    "note": "主输入虽是 PDF URL/字节,组件产物按 PDF page viewport 的 geometry 渲染;本条只覆盖单页 canvas,不承诺 viewer 全套 text/annotation layer。",
+    "schema": {
+      "source": "string(URL) | Uint8Array | ArrayBuffer | null —— null 是空态,显示占位而不调用 getDocument",
+      "page?": "integer >= 1 —— 默认 1,且不得超过 pdf.numPages",
+      "scale?": "number > 0 —— 默认 1.25",
+      "worker_url?": "string —— 默认 https://cdn.jsdelivr.net/npm/pdfjs-dist@6.1.200/build/pdf.worker.min.mjs"
+    }
+  },
+  "spec": {
+    "height": 600,
+    "note": "canvas 外层必须显式像素高度并允许滚动(铁律 3 禁 vh/百分比高);默认 600px。canvas 自身像素高由 page.getViewport 与 devicePixelRatio 决定,不要用 CSS 强行拉伸页面。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:需宿主允许 jsDelivr module worker\nimport { getDocument, GlobalWorkerOptions } from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@6/+esm';\nGlobalWorkerOptions.workerSrc = data.worker_url ?? 'https://cdn.jsdelivr.net/npm/pdfjs-dist@6.1.200/build/pdf.worker.min.mjs';\nconst el = document.getElementById('pdf'); el.style.cssText = 'height:600px;overflow:auto';\nif (!data.source) el.textContent = '暂无 PDF'; else { const src = typeof data.source === 'string' ? data.source : { data: data.source instanceof Uint8Array ? data.source : new Uint8Array(data.source) };\n  const pdf = await getDocument(src).promise, page = await pdf.getPage(data.page ?? 1), viewport = page.getViewport({ scale: data.scale ?? 1.25 });\n  const canvas = document.createElement('canvas'), dpr = devicePixelRatio || 1; canvas.width = Math.floor(viewport.width * dpr); canvas.height = Math.floor(viewport.height * dpr); canvas.style.cssText = `width:${viewport.width}px;height:${viewport.height}px`; el.replaceChildren(canvas); await page.render({ canvasContext: canvas.getContext('2d'), viewport, transform: dpr === 1 ? null : [dpr,0,0,dpr,0,0] }).promise; }",
+    "widget": "// worker 与画布都留在 widget 能力边界内,容器落 shadow\nimport { getDocument, GlobalWorkerOptions } from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@6/+esm';\nGlobalWorkerOptions.workerSrc = data.worker_url ?? 'https://cdn.jsdelivr.net/npm/pdfjs-dist@6.1.200/build/pdf.worker.min.mjs';\nconst el = document.createElement('div'); el.style.cssText = 'height:600px;overflow:auto'; shadowRoot.appendChild(el);\nif (!data.source) el.textContent = '暂无 PDF'; else { const src = typeof data.source === 'string' ? data.source : { data: data.source instanceof Uint8Array ? data.source : new Uint8Array(data.source) };\n  const pdf = await getDocument(src).promise, page = await pdf.getPage(data.page ?? 1), viewport = page.getViewport({ scale: data.scale ?? 1.25 });\n  const canvas = document.createElement('canvas'), dpr = devicePixelRatio || 1; canvas.width = Math.floor(viewport.width * dpr); canvas.height = Math.floor(viewport.height * dpr); canvas.style.cssText = `width:${viewport.width}px;height:${viewport.height}px`; el.replaceChildren(canvas); await page.render({ canvasContext: canvas.getContext('2d'), viewport, transform: dpr === 1 ? null : [dpr,0,0,dpr,0,0] }).promise; }",
+    "codex": "同 artifact(sandbox iframe):用 jsDelivr /npm/pdfjs-dist@6/+esm,显式设置 pinned workerSrc,再以 getDocument → getPage → page.render 原生链渲染。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:canvas 可落 shadow,但宿主 CSP 必须允许从 jsDelivr 启动 module worker;worker 探针未通过时不可降格宣称 supported",
+    "codex": "conditional:sandbox iframe 须允许跨源 module worker;无 uplink 需求"
+  }
+}

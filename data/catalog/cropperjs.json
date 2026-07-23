@@ -1,0 +1,48 @@
+{
+  "entry_version": "thin-1",
+  "id": "cropperjs",
+  "name": "Cropper.js",
+  "when_to_use": "需要让用户在图片上拖拽八向手柄并得到精确裁剪几何时用它,而非手写指针交互——原生在缩放坐标换算、边界约束和多方向手柄同步上失败。",
+  "why_valuable": "AI 默认只能画静态框或写脆弱的单手柄 demo,做不到稳定的八向缩放、平移、触控与图像坐标闭环;Cropper.js 直接产出 x/y/width/height 并可生成裁剪 canvas。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": { "npm": "cropperjs", "version": "2.1.1", "github": "fengyuanchen/cropperjs" },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geometry",
+    "note": "Cropper.js 2.x 不再有 v1 的 getData();精确读法是 cropper.getCropperSelection() 后取 x/y/width/height,坐标属于 cropper-canvas 坐标系。",
+    "schema": {
+      "image": {
+        "src": "string —— 可加载的图片 URL 或 data URL",
+        "alt?": "string —— 默认空字符串"
+      },
+      "selection?": {
+        "x": "number",
+        "y": "number",
+        "width": "number > 0",
+        "height": "number > 0",
+        "_default": "省略时采用上游默认:居中且 initialCoverage=0.5"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "裁剪区需显式像素高度;默认 400px,AI 可覆盖。禁止 vh/百分比高(铁律 3),宽度可跟随容器。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:Cropper 构造器内部注册并插入自定义元素,消费代码不写声明式标签(铁律 4)\nimport Cropper from 'https://cdn.jsdelivr.net/npm/cropperjs@2/+esm';\nconst el = document.getElementById('cropper'); el.style.height = '400px';\nconst img = document.createElement('img'); img.src = data.image.src; img.alt = data.image.alt ?? ''; el.appendChild(img);\nconst cropper = new Cropper(img, { container: el });\nif (data.selection) { const s = data.selection; cropper.getCropperSelection()?.$change(s.x, s.y, s.width, s.height); }",
+    "widget": "// Cropper 的内部自定义元素各自封装样式;外层必须落在我们的 shadow 容器\nimport Cropper from 'https://cdn.jsdelivr.net/npm/cropperjs@2/+esm';\nconst el = document.createElement('div'); el.style.height = '400px'; shadowRoot.appendChild(el);\nconst img = document.createElement('img'); img.src = data.image.src; img.alt = data.image.alt ?? ''; el.appendChild(img);\nconst cropper = new Cropper(img, { container: el });\nif (data.selection) { const s = data.selection; cropper.getCropperSelection()?.$change(s.x, s.y, s.width, s.height); }",
+    "codex": "// sandbox iframe 内走上游原生 API\nimport Cropper from 'https://cdn.jsdelivr.net/npm/cropperjs@2/+esm';\nconst el = document.getElementById('cropper'); el.style.height = '400px';\nconst img = document.createElement('img'); img.src = data.image.src; img.alt = data.image.alt ?? ''; el.appendChild(img);\nconst cropper = new Cropper(img, { container: el });\n// 需要结果时读取 cropper.getCropperSelection() 的四个几何属性"
+  },
+  "uplink": {
+    "widget": "消费 AI 自行在确认控件处理器中读取 selection 的 x/y/width/height,再拼 sendPrompt 文案;本条不焊接统一事件出口。",
+    "codex": "消费 AI 自行读取同一几何对象并调用 sendFollowUpMessage。",
+    "artifact": "artifact 无上行;提供几何 JSON 或 selection.$toCanvas() 结果的下载导出兜底。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:挂载容器位于 shadowRoot;Cropper.js 2.x 内部元素自带 shadow 样式,无外置 CSS",
+    "codex": "supported:ESM CDN + DOM/canvas,图片 URL 仍须满足宿主 CORS"
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "entry_version": "thin-1",
+  "id": "uplot",
+  "name": "uPlot",
+  "when_to_use": "需要十万点级时序曲线、双轴、十字光标或带区时用它而非手写 SVG/canvas,因为原生手写在密集序列性能、尺度换算和命中同步上失败;稀疏 sparkline 非做它。",
+  "why_valuable": "AI 默认做不到十万点级时序的低延迟缩放、游标命中和多尺度对齐,徒手 SVG 会在节点量上直接崩溃;uPlot 用极小运行时提供稳定数据平面。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "uplot",
+    "version": "1.6.32",
+    "github": "leeoniya/uPlot"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "sequence",
+    "note": "uPlot 吃 aligned data:第一列为共享 x,后续每列为一个 y 系列,各列长度必须一致;它不是逐行对象数组。",
+    "schema": {
+      "data": "[number[], ...(number | null | undefined)[][]] —— 第一数组为升序 x 值,其余为与 x 等长的 y 数组",
+      "options": {
+        "series": [
+          {
+            "label?": "string —— 时间 x 系列默认 'Time'"
+          },
+          {
+            "label?": "string —— 默认 'Value'",
+            "stroke?": "CSS color string —— 默认 null,不绘制线",
+            "width?": "number —— 默认 1",
+            "fill?": "CSS color string —— 默认 null,无填充",
+            "scale?": "string —— 默认 'y'"
+          }
+        ],
+        "scales?": {
+          "_default": "x 为时间尺度、y 为自动线性尺度",
+          "x?": {
+            "_default": "{time:true}",
+            "time?": "boolean —— 默认 true"
+          },
+          "y?": {
+            "_default": "{auto:true}",
+            "auto?": "boolean —— 默认 true"
+          }
+        },
+        "axes?": "uPlot.Axis[] —— 默认生成 x/y 两轴",
+        "cursor?": "uPlot.Cursor —— 默认启用本地十字光标"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "uPlot 构造器要求整数 width/height;boot 从容器量取 width并固定默认 height 400px,尺寸变化用 setSize,铁律 3 禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:CSS 进入 document.head\nimport uPlot from 'https://cdn.jsdelivr.net/npm/uplot@1/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/uplot@1/dist/uPlot.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('chart');\nconst plot = new uPlot({ ...data.options, width: el.clientWidth || 720, height: 400 }, data.data, el);\nnew ResizeObserver(([e]) => plot.setSize({ width: Math.round(e.contentRect.width), height: 400 })).observe(el);",
+    "widget": "import uPlot from 'https://cdn.jsdelivr.net/npm/uplot@1/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/uplot@1/dist/uPlot.min.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); shadowRoot.appendChild(el);\nconst plot = new uPlot({ ...data.options, width: el.clientWidth || 720, height: 400 }, data.data, el);\nnew ResizeObserver(([e]) => plot.setSize({ width: Math.round(e.contentRect.width), height: 400 })).observe(el);",
+    "codex": "import uPlot from 'https://cdn.jsdelivr.net/npm/uplot@1/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/uplot@1/dist/uPlot.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('chart');\nconst plot = new uPlot({ ...data.options, width: el.clientWidth || 720, height: 400 }, data.data, el);\nnew ResizeObserver(([e]) => plot.setSize({ width: Math.round(e.contentRect.width), height: 400 })).observe(el);"
+  },
+  "example": {
+    "_why": "aligned 列式数组与 series 的一一对应容易被误写成逐行表,最小配置明确 x/y 对齐关系。",
+    "minimal": {
+      "data": [
+        [1710000000, 1710000060, 1710000120],
+        [12, 19, 15]
+      ],
+      "options": {
+        "series": [
+          {
+            "label": "Time"
+          },
+          {
+            "label": "Requests",
+            "stroke": "#2563eb"
+          }
+        ],
+        "scales": {
+          "x": {
+            "time": true
+          }
+        }
+      }
+    },
+    "empty": {
+      "data": [
+        [],
+        []
+      ],
+      "options": {
+        "series": [
+          {},
+          {
+            "label": "Series"
+          }
+        ]
+      }
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:样式 link 放入 shadowRoot,canvas/DOM 全落 shadow 容器",
+    "codex": "supported:ESM CDN + canvas + 同源 CSS,无上行依赖"
+  }
+}

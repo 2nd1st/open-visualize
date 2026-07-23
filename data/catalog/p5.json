@@ -1,0 +1,40 @@
+{
+  "entry_version": "thin-1",
+  "id": "p5",
+  "name": "p5.js",
+  "when_to_use": "需要教学 sketch、生成艺术或逐帧交互画布时用它,而非手写 canvas 生命周期——原生实现常在坐标变换、输入状态、draw loop 和实例清理上失败；非做刚体碰撞或统计图,前者用物理引擎、后者用图表组件。",
+  "why_valuable": "AI 默认能写局部 canvas 绘制,但做不到稳定复用的 setup/draw 生命周期、输入归一化与实例隔离,容易生成泄漏的 requestAnimationFrame 样板；p5 把这些高频失败面收进 AI 熟悉的统一 API。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "p5",
+    "version": "2.3.1",
+    "github": "processing/p5.js"
+  },
+  "license": "LGPL-2.1",
+  "data_in": {
+    "shape": "geometry",
+    "note": "输入采用 p5 instance mode 的 sketch 回调,不是 global mode 变量；boot 先按 spec 建 canvas,再把同一个 p 实例交给回调,避免污染 window。",
+    "schema": {
+      "sketch": {
+        "setup?": "(p: p5) => void —— canvas 建好后执行一次,默认 no-op",
+        "draw?": "(p: p5) => void —— 每帧执行,默认 no-op"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "canvas 默认高 400px、宽取容器 clientWidth(取不到时 640px),禁止 vh/百分比高；响应式变化由消费 AI 调 p.resizeCanvas(newWidth, 400)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:instance mode,不注册 window.setup/window.draw\nimport p5 from 'https://cdn.jsdelivr.net/npm/p5@2/+esm';\nconst el = document.getElementById('sketch'); el.style.height = '400px';\nconst instance = new p5(p => {\n  p.setup = () => { p.createCanvas(el.clientWidth || 640, 400); data.sketch.setup?.(p); };\n  p.draw = () => data.sketch.draw?.(p);\n}, el);",
+    "widget": "// 先建普通 div 落进 shadow；p5 第二参数接受 HTMLElement,canvas 会留在该容器\nimport p5 from 'https://cdn.jsdelivr.net/npm/p5@2/+esm';\nconst el = document.createElement('div'); el.style.height = '400px'; shadowRoot.appendChild(el);\nconst instance = new p5(p => {\n  p.setup = () => { p.createCanvas(el.clientWidth || 640, 400); data.sketch.setup?.(p); };\n  p.draw = () => data.sketch.draw?.(p);\n}, el);",
+    "codex": "同 artifact(sandbox iframe):p5 v2 default ESM import + instance mode new p5(sketch, element),显式 createCanvas(width, 400)。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:必须使用 instance mode 并把 shadow 内 HTMLElement 作为 new p5 的第二参数；不用 global mode,无 CSS/head 注入",
+    "codex": "supported:ESM CDN + canvas,无必需 worker/wasm/uplink"
+  }
+}

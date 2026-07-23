@@ -1,0 +1,196 @@
+{
+  "entry_version": "thin-1",
+  "id": "perf-cascade",
+  "name": "PerfCascade",
+  "when_to_use": "需要把 HAR 1.2 请求渲成带阶段着色、时间刻度和详情展开的瀑布图时用它而非手写,因为原生在跨请求对齐、timings 分段和响应详情联读上失败。",
+  "why_valuable": "AI 默认只能画近似长度的 div 条,做不到按 HAR 基准时间精确对齐 blocked/DNS/connect/TLS/send/wait/receive,也做不到多页面选择、警告指标和请求详情展开。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "perf-cascade",
+    "version": "3.0.3",
+    "github": "micmro/PerfCascade"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "interval-set",
+    "note": "har 必须是 HAR 1.2 document({log:{...}})或其 log 对象；本条固定传 document。PerfCascade 3.0.3 对完全空 entries 不稳,空态 fixture 用一个 204 about:blank 哨兵请求。",
+    "schema": {
+      "har": {
+        "log": {
+          "version": "string —— 通常 '1.2'",
+          "creator": {
+            "name": "string",
+            "version": "string"
+          },
+          "pages?": "Array<{id:string,title:string,startedDateTime:ISO-8601 string,pageTimings:{onContentLoad?:number（默认无）,onLoad?:number（默认无）}}> —— 默认由 entries 合成单页",
+          "entries": "Array<{pageref?:string（默认单页）,startedDateTime:ISO-8601 string,time:number,request:{method:string,url:string,httpVersion:string,headers:Array<{name:string,value:string}>,queryString:Array<{name:string,value:string}>,cookies:unknown[],headersSize:number,bodySize:number},response:{status:number,statusText:string,httpVersion:string,headers:Array<{name:string,value:string}>,cookies:unknown[],content:{size:number,mimeType:string,text?:string（默认无）},redirectURL:string,headersSize:number,bodySize:number},cache:object,timings:{blocked?:number（默认 -1）,dns?:number（默认 -1）,connect?:number（默认 -1）,ssl?:number（默认 -1）,send:number,wait:number,receive:number}}>"
+        }
+      },
+      "options?": {
+        "rowHeight?": "number —— 默认 23px",
+        "showAlignmentHelpers?": "boolean —— 默认 true",
+        "showMimeTypeIcon?": "boolean —— 默认 true",
+        "showIndicatorIcons?": "boolean —— 默认 true",
+        "leftColumnWidth?": "number —— 左信息列百分比,默认 25",
+        "selectedPage?": "integer —— 默认 0",
+        "showUserTiming?": "boolean | string[] —— 默认 false",
+        "showUserTimingEndMarker?": "boolean —— 默认 false"
+      }
+    }
+  },
+  "spec": {
+    "height": 520,
+    "note": "瀑布 SVG 的自然高度随请求数增长;外层默认显式 520px 高并纵向滚动,AI 可覆盖为其他像素值。禁用 vh/百分比高度。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:上游 CSS 放 artifact document.head(铁律 2)\nimport { fromHar } from 'https://cdn.jsdelivr.net/npm/perf-cascade@3/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/perf-cascade@3.0.3/dist/perf-cascade.css'; document.head.appendChild(css);\nconst el = document.getElementById('waterfall'); el.style.cssText = 'height:520px;overflow:auto';\nel.appendChild(fromHar(data.har, data.options ?? {}));",
+    "widget": "// CSS 与上游返回的 SVG 都落 shadowRoot(铁律 2)\nimport { fromHar } from 'https://cdn.jsdelivr.net/npm/perf-cascade@3/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/perf-cascade@3.0.3/dist/perf-cascade.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); el.style.cssText = 'height:520px;overflow:auto'; shadowRoot.appendChild(el);\nel.appendChild(fromHar(data.har, data.options ?? {}));",
+    "codex": "import { fromHar } from 'https://cdn.jsdelivr.net/npm/perf-cascade@3/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/perf-cascade@3.0.3/dist/perf-cascade.css'; document.head.appendChild(css);\nconst el = document.getElementById('waterfall'); el.style.cssText = 'height:520px;overflow:auto';\nel.appendChild(fromHar(data.har, data.options ?? {}));"
+  },
+  "example": {
+    "_why": "HAR 是深层时间数据且必填字段多,minimal 钉死 fromHar 实际需要的 document→log→pages/entries 结构。",
+    "minimal": {
+      "har": {
+        "log": {
+          "version": "1.2",
+          "creator": {
+            "name": "demo",
+            "version": "1"
+          },
+          "pages": [
+            {
+              "id": "page_1",
+              "title": "Example",
+              "startedDateTime": "2026-01-01T00:00:00.000Z",
+              "pageTimings": {
+                "onContentLoad": 120,
+                "onLoad": 240
+              }
+            }
+          ],
+          "entries": [
+            {
+              "pageref": "page_1",
+              "startedDateTime": "2026-01-01T00:00:00.010Z",
+              "time": 80,
+              "request": {
+                "method": "GET",
+                "url": "https://example.com/app.js",
+                "httpVersion": "HTTP/2",
+                "headers": [],
+                "queryString": [],
+                "cookies": [],
+                "headersSize": -1,
+                "bodySize": 0
+              },
+              "response": {
+                "status": 200,
+                "statusText": "OK",
+                "httpVersion": "HTTP/2",
+                "headers": [
+                  {
+                    "name": "Content-Type",
+                    "value": "application/javascript"
+                  }
+                ],
+                "cookies": [],
+                "content": {
+                  "size": 1200,
+                  "mimeType": "application/javascript"
+                },
+                "redirectURL": "",
+                "headersSize": -1,
+                "bodySize": 1200
+              },
+              "cache": {},
+              "timings": {
+                "blocked": 2,
+                "dns": 3,
+                "connect": 10,
+                "ssl": 6,
+                "send": 1,
+                "wait": 54,
+                "receive": 10
+              }
+            }
+          ]
+        }
+      },
+      "options": {
+        "showAlignmentHelpers": true,
+        "showIndicatorIcons": true
+      }
+    },
+    "empty": {
+      "har": {
+        "log": {
+          "version": "1.2",
+          "creator": {
+            "name": "empty-fixture",
+            "version": "1"
+          },
+          "pages": [
+            {
+              "id": "empty",
+              "title": "No requests",
+              "startedDateTime": "2026-01-01T00:00:00.000Z",
+              "pageTimings": {}
+            }
+          ],
+          "entries": [
+            {
+              "pageref": "empty",
+              "startedDateTime": "2026-01-01T00:00:00.000Z",
+              "time": 0,
+              "request": {
+                "method": "GET",
+                "url": "about:blank",
+                "httpVersion": "HTTP/1.1",
+                "headers": [],
+                "queryString": [],
+                "cookies": [],
+                "headersSize": -1,
+                "bodySize": 0
+              },
+              "response": {
+                "status": 204,
+                "statusText": "No Content",
+                "httpVersion": "HTTP/1.1",
+                "headers": [],
+                "cookies": [],
+                "content": {
+                  "size": 0,
+                  "mimeType": "text/plain"
+                },
+                "redirectURL": "",
+                "headersSize": -1,
+                "bodySize": 0
+              },
+              "cache": {},
+              "timings": {
+                "blocked": 0,
+                "dns": 0,
+                "connect": 0,
+                "ssl": 0,
+                "send": 0,
+                "wait": 0,
+                "receive": 0
+              }
+            }
+          ]
+        }
+      },
+      "options": {
+        "showIndicatorIcons": false
+      }
+    }
+  },
+  "uplink": "本条是本地性能检查器,默认无需上行;若要回传某请求或区间,由消费 AI 自己监听所需原生 DOM 状态并按载体处理,不定义统一事件词表。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:ESM、CSS 和 SVG 可落 shadowRoot;详情面板使用 SVG foreignObject,宿主浏览器需支持",
+    "codex": "supported:jsDelivr +esm 具名 fromHar + pinned CSS,无 worker/wasm/font/uplink 需求"
+  }
+}

@@ -1,0 +1,20 @@
+{
+ "entry_version": "thin-1",
+ "id": "html-resume-template-owengretzinger",
+ "name": "html-resume-template (owengretzinger)",
+ "supply_form": "app-needs-fork",
+ "status": "blocked-until-forked",
+ "upstream": {
+  "github": "owengretzinger/html-resume-template"
+ },
+ "license": "Unlicense",
+ "scenarios": [
+  "deliverables"
+ ],
+ "fork_note": "应用态,需 fork+改造+发 npm 才过白名单;不作可消费条目上架。one_liner: Tailwind 简历模板:响应式+可打印+ATS 友好,print: modifier 控屏幕/打印双态",
+ "data_in": {
+  "shapes": [
+   "key-value"
+  ]
+ }
+}

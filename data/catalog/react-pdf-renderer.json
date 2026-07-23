@@ -1,0 +1,55 @@
+{
+  "entry_version": "thin-1",
+  "id": "react-pdf-renderer",
+  "name": "react-pdf (renderer)",
+  "when_to_use": "已经在 React 组件模型里并需要把 Document/Page/View/Text 树稳定生成多页 PDF 预览或文件时用它而非手写 PDF，因为原生在分页、字体嵌入和 PDF 专用 flex 样式子集上失败；非做网页 DOM 截图、富文本编辑器或任意 CSS 打印。",
+  "why_valuable": "AI 默认做不到 PDF 字节生成、分页回流、孤行控制和字体嵌入，也常把浏览器 CSS 错套到 react-pdf 的受限样式集；上游组件树把这些能力收敛为 React 原生接口。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@react-pdf/renderer",
+    "version": "4.5.1",
+    "github": "diegomura/react-pdf"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "hierarchy",
+    "note": "输入是运行时 React element 树，不是另造的 JSON DSL；根必须是 Document，直属子节点只能是 Page，普通字符串只能放在 Text 内。",
+    "schema": {
+      "document": {
+        "type": "ReactElement<typeof Document>",
+        "props?": "{title?:string,author?:string,subject?:string,keywords?:string,language?:string,pageMode?:string,pageLayout?:string} —— 默认均省略",
+        "children": [
+          {
+            "type": "ReactElement<typeof Page>",
+            "props?": "{size?:PageSize,orientation?:'portrait'|'landscape',wrap?:boolean,style?:Style} —— 默认 size='A4'、orientation='portrait'、wrap=true",
+            "children": "ReactElement<typeof View | Text | Image | Link | Svg>[]",
+            "view_props?": "{wrap?:boolean,fixed?:boolean,break?:boolean,style?:Style} —— 默认 wrap=true、fixed=false、break=false",
+            "text_props?": "{wrap?:boolean,fixed?:boolean,orphans?:number,widows?:number,style?:Style} —— 默认 wrap=true、fixed=false；orphans/widows 省略",
+            "style_note": "Style 是 react-pdf 样式对象（pt 数值与其支持的 flex/text 属性），不是任意浏览器 CSS"
+          }
+        ]
+      }
+    }
+  },
+  "spec": {
+    "height": 640,
+    "note": "PDFViewer 内部创建 iframe，外层必须显式 height；默认 640px，AI 可覆盖，铁律 3 禁 vh/百分比高。纸张尺寸由 Page.size 决定。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:documentNode 是 data_in.document 的真实 React element\nimport React from 'https://cdn.jsdelivr.net/npm/react@19/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19/client/+esm';\nimport { PDFViewer } from 'https://cdn.jsdelivr.net/npm/@react-pdf/renderer@4/+esm';\nconst el = document.getElementById('pdf'); el.style.height = '640px';\ncreateRoot(el).render(React.createElement(PDFViewer, { style:{width:'100%',height:'100%'} }, documentNode));",
+    "widget": "// PDFViewer 挂到 shadowRoot 内的显式尺寸容器\nimport React from 'https://cdn.jsdelivr.net/npm/react@19/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19/client/+esm';\nimport { PDFViewer } from 'https://cdn.jsdelivr.net/npm/@react-pdf/renderer@4/+esm';\nconst el = document.createElement('div'); el.style.height = '640px'; shadowRoot.appendChild(el);\ncreateRoot(el).render(React.createElement(PDFViewer, { style:{width:'100%',height:'100%'} }, documentNode));",
+    "codex": "// sandbox iframe:同 artifact，React 19 + createRoot + PDFViewer；容器显式 640px 高。\n// 只产文件时可用 pdf(documentNode).toBlob()，无需挂 PDFViewer。"
+  },
+  "example": {
+    "_why": "Document/Page/View/Text 层级和 PDF 专用 style 子集容易与 DOM React 混淆；以可复制的原生 createElement 片段校准。",
+    "minimal_js": "const documentNode = React.createElement(Document, { title:'Report' }, React.createElement(Page, { size:'A4', style:{ padding:40 } }, React.createElement(View, null, React.createElement(Text, { style:{ fontSize:18 } }, 'Report'))));",
+    "empty_js": "const documentNode = React.createElement(Document, null, React.createElement(Page, { size:'A4' }));"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:需 React/ReactDOM/@react-pdf 多包 ESM 图、Blob URL 与 iframe；PDFViewer 容器落 shadowRoot，无 head CSS",
+    "codex": "supported:浏览器 ESM + React + Blob + iframe；远程 Image/Font.register 另受 img-cdn/font-cdn 策略约束"
+  }
+}

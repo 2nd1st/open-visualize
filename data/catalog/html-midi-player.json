@@ -1,0 +1,49 @@
+{
+  "entry_version": "thin-1",
+  "id": "html-midi-player",
+  "name": "html-midi-player",
+  "when_to_use": "需要让 MIDI/SMF 在页面里可播放并显示钢琴卷帘、瀑布或五线谱时用它,而非手写 Web Audio 与时轴——原生在 MIDI 解析、音频调度和音画同步上失败。非 MIDI 编辑器或作曲器。",
+  "why_valuable": "AI 默认只能产出 MIDI 字节或 base64,做不到在对话内解析、播放并同步高亮时序音符;该组件把 MIDI 变成可听、可验证的播放器与可视化器。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "html-midi-player",
+    "version": "1.6.0",
+    "github": "cifkao/html-midi-player"
+  },
+  "license": "BSD-2-Clause",
+  "data_in": {
+    "shape": "interval-set",
+    "note": "src 直接赋给上游 midi-player.src；推荐 data:audio/midi;base64,... 以免额外跨域。空态用 null,boot 不触发加载。",
+    "schema": {
+      "src": "string | null —— .mid URL 或 data:audio/midi;base64,...；null 表示空态",
+      "visualizerType?": "'piano-roll' | 'waterfall' | 'staff' —— 默认 'piano-roll'",
+      "visualizerConfig?": "{noteHeight?:number,pixelsPerTimeStep?:number,minPitch?:number,maxPitch?:number} —— 各字段省略时用 @magenta/music 对应 visualizer 默认值,整体默认 {}",
+      "loop?": "boolean —— 默认 false",
+      "soundFont?": "string | null —— SoundFont 根 URL；默认 null,使用简单振荡器且不拉远程音色库"
+    }
+  },
+  "spec": {
+    "height": 260,
+    "note": "可视化区域默认显式 260px 高并允许横向滚动；播放器控件自然高。AI 可覆盖为其他正整数像素,禁用 vh/百分比高度。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:custom elements 必须由 JS 创建(铁律 4)\nimport 'https://cdn.jsdelivr.net/npm/html-midi-player@1/+esm';\nconst player = document.createElement('midi-player'); const viz = document.createElement('midi-visualizer');\nviz.setAttribute('type', data.visualizerType ?? 'piano-roll'); viz.config = data.visualizerConfig ?? {}; viz.style.height = `${spec.height ?? 260}px`;\nplayer.loop = data.loop ?? false; player.soundFont = data.soundFont ?? null; if (data.src) player.src = data.src;\ndocument.getElementById('midi').append(player, viz); player.addVisualizer(viz);",
+    "widget": "// 两个 custom element 均用 createElement,并落在 shadowRoot(铁律 4)\nimport 'https://cdn.jsdelivr.net/npm/html-midi-player@1/+esm';\nconst player = document.createElement('midi-player'); const viz = document.createElement('midi-visualizer');\nviz.setAttribute('type', data.visualizerType ?? 'piano-roll'); viz.config = data.visualizerConfig ?? {}; viz.style.height = `${spec.height ?? 260}px`;\nplayer.loop = data.loop ?? false; player.soundFont = data.soundFont ?? null; if (data.src) player.src = data.src;\nshadowRoot.append(player, viz); player.addVisualizer(viz);",
+    "codex": "import 'https://cdn.jsdelivr.net/npm/html-midi-player@1/+esm';\nconst player = document.createElement('midi-player'); const viz = document.createElement('midi-visualizer');\nviz.setAttribute('type', data.visualizerType ?? 'piano-roll'); viz.config = data.visualizerConfig ?? {}; viz.style.height = `${spec.height ?? 260}px`;\nplayer.loop = data.loop ?? false; player.soundFont = data.soundFont ?? null; if (data.src) player.src = data.src;\ndocument.getElementById('midi').append(player, viz); player.addVisualizer(viz);",
+    "note": "播放受浏览器 Web Audio 自动播放策略约束,必须由真实用户点击播放器启动；soundFont 非 null 时还需额外网络与 CSP 许可。上行由消费 AI 自己接,本条不规定事件契约。"
+  },
+  "example": {
+    "_why_no_minimal": "MIDI/SMF 是稳定的原生二进制记法,组件配置很浅；schema 足够,仅保留空态 fixture。",
+    "empty": {
+      "src": null,
+      "visualizerType": "piano-roll"
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:静态 custom elements 可注册；实际播放取决于真实用户手势与 Web Audio,远程 SoundFont 另受网络/CSP 限制",
+    "widget": "conditional:元素可经 createElement 落 shadowRoot且内部样式自封闭；播放仍要求宿主开放 Web Audio 与用户手势",
+    "codex": "conditional:ESM/custom elements 可用；Web Audio 与自动播放策略决定能否发声"
+  }
+}

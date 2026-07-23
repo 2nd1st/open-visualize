@@ -1,0 +1,69 @@
+{
+  "entry_version": "thin-1",
+  "id": "finos-perspective",
+  "name": "Perspective",
+  "when_to_use": "需要在浏览器本地对大表做交互式分组、拆列、聚合、筛选并在数据网格与图形插件间切换时用它,而非手写透视引擎——原生在 WASM 列式计算和持续重算上失败;非做静态摘要表或服务端数据仓库。",
+  "why_valuable": "AI 默认做不到百万行级本地列式透视、流式增量计算与可序列化分析视图;手写 JavaScript 聚合在规模、类型稳定性和交互重算三处均为 0% 区。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": { "npm": "@finos/perspective", "version": "3.8.0", "github": "finos/perspective" },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "tabular",
+    "note": "table 先交给 @finos/perspective worker.table,再把返回的 Table 交给 perspective-viewer.load;空态必须传带类型的 schema 对象,不能只传 []。",
+    "schema": {
+      "_defaults": {
+        "config": "{}（viewer 使用初始视图）"
+      },
+      "table": "Record<string, string | number | boolean | null>[] | Record<string, 'string' | 'integer' | 'float' | 'boolean' | 'date' | 'datetime'>（后者创建空表）",
+      "config?": {
+        "plugin?": "string —— 已注册插件名,默认第一个可用插件;本条加载 Datagrid",
+        "group_by?": "string[] —— 默认 []",
+        "split_by?": "string[] —— 默认 []",
+        "columns?": "string[] —— 默认显示全部列",
+        "filter?": "[string, string, unknown][] —— 默认 []",
+        "sort?": "[string, 'asc' | 'desc' | 'col asc' | 'col desc'][] —— 默认 []"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "perspective-viewer 需要显式像素高度才能绘制插件区域;默认 400px,AI 可覆盖,禁用 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:需 H0 实测跨源 WASM + worker;CSS 放 document.head\nimport perspective from 'https://cdn.jsdelivr.net/npm/@finos/perspective@3/+esm';\nimport 'https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3/+esm'; import 'https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@3/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3.8.0/dist/css/themes.css'; document.head.appendChild(css);\nconst viewer = document.createElement('perspective-viewer'); viewer.style.height = '400px'; document.getElementById('view').appendChild(viewer);\nconst worker = await perspective.worker(); const table = await worker.table(data.table); await viewer.load(table); if (data.config) await viewer.restore(data.config);",
+    "widget": "// custom element 必须 JS createElement(铁律 4);主题 CSS 放 shadow(铁律 2)\nimport perspective from 'https://cdn.jsdelivr.net/npm/@finos/perspective@3/+esm';\nimport 'https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3/+esm'; import 'https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@3/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3.8.0/dist/css/themes.css'; shadowRoot.appendChild(css);\nconst viewer = document.createElement('perspective-viewer'); viewer.style.height = '400px'; shadowRoot.appendChild(viewer);\nconst worker = await perspective.worker(); const table = await worker.table(data.table); await viewer.load(table); if (data.config) await viewer.restore(data.config);",
+    "codex": "import perspective from 'https://cdn.jsdelivr.net/npm/@finos/perspective@3/+esm';\nimport 'https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3/+esm'; import 'https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@3/+esm';\nconst viewer = document.createElement('perspective-viewer'); viewer.style.height = '400px'; document.getElementById('view').appendChild(viewer);\nconst worker = await perspective.worker(); const table = await worker.table(data.table);\nawait viewer.load(table); if (data.config) await viewer.restore(data.config);"
+  },
+  "example": {
+    "_why": "worker 表类型与 viewer 深配置容易错配,minimal 固定 table→load→restore 所需字段。",
+    "minimal": {
+      "table": [
+        { "region": "East", "sales": 120 },
+        { "region": "West", "sales": 90 }
+      ],
+      "config": {
+        "plugin": "Datagrid",
+        "group_by": ["region"],
+        "columns": ["sales"]
+      }
+    },
+    "empty": {
+      "table": {
+        "region": "string",
+        "sales": "float"
+      },
+      "config": {
+        "plugin": "Datagrid",
+        "columns": ["region", "sales"]
+      }
+    }
+  },
+  "uplink": "本条默认是本地数据探索;若需要把当前视图配置带回对话,由消费 AI 监听 Perspective 原生配置事件并按载体处理,不焊接统一事件协议。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:仅在宿主允许 WebAssembly、Worker 与 jsDelivr 跨源模块时可用;custom element 经 createElement 挂入 shadow",
+    "codex": "conditional:需要 sandbox CSP 开放 WebAssembly + Worker;若任一被禁则不能降级为百万行本地透视"
+  }
+}

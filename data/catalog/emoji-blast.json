@@ -1,0 +1,63 @@
+{
+  "entry_version": "thin-1",
+  "id": "emoji-blast",
+  "name": "emoji-blast",
+  "when_to_use": "需要把对话语义绑定成一束有重力、旋转和可抓取手感的 emoji 礼花时用它而非手写 span 动画,因为原生在弹道物理、逐帧清理与产品化触发上失败。",
+  "why_valuable": "AI 默认只能让若干 emoji 做同速 CSS 漂浮,做不到随机初速度、重力、旋转减速、越界回收和成束唯一性控制;该库直接产出可停止的一次礼花。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "emoji-blast",
+    "version": "0.11.0",
+    "github": "JoshuaKGoldberg/emoji-blast"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "_why_no_example": "emoji 列表与浅层物理参数没有记法歧义,裁剪 schema 足矣,不附 minimal example。",
+    "note": "schema 只收纯数据参数并精确映射 emojiBlast(settings);container 与 className 由 boot 管理,交互钩子由消费 AI 按载体直接接上游 API。",
+    "schema": {
+      "options?": {
+        "_default": "{} —— emoji 集用上游默认,数量随机 14–27,位置由本 entry 校准到容器中心",
+        "emojis?": "string[] —— 候选 emoji,默认使用上游内置集合",
+        "emojiCount?": "integer —— 本次数量,默认每次随机 14–27",
+        "uniqueness?": "integer —— 单束最多采用多少种 emoji,默认 Infinity",
+        "position?": {
+          "_default": "效果容器中心偏下:{x:containerWidth/2,y:height*0.7}",
+          "x": "number —— 相对效果容器左侧的像素坐标",
+          "y": "number —— 相对效果容器顶部的像素坐标"
+        },
+        "physics?": {
+          "_default": "上游 defaultPhysics",
+          "fontSize?": "{min:number,max:number} —— 像素字号范围,默认 {min:14,max:28}",
+          "framerate?": "number —— 物理基准帧率,默认 60",
+          "gravity?": "number —— 每帧向下加速度,默认 0.35",
+          "rotation?": "{min:number,max:number} —— 初始角度范围,默认 {min:-45,max:45}",
+          "rotationDeceleration?": "number —— 旋转速度衰减,默认 0.98",
+          "preserveOutOfBounds?": "boolean —— 是否保留越界粒子,默认 false",
+          "initialVelocities?": {
+            "_default": "{rotation:{min:-7,max:7},x:{min:-7,max:7},y:{min:-21,max:-7}}",
+            "rotation?": "{min:number,max:number} —— 默认 {min:-7,max:7}",
+            "x?": "{min:number,max:number} —— 默认 {min:-7,max:7}",
+            "y?": "{min:number,max:number} —— 默认 {min:-21,max:-7}"
+          }
+        }
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "emoji 使用 fixed 定位;boot 以 transform 建立局部包含块并显式给默认 400px 高,使坐标与裁剪都落在效果容器内,禁用 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:emoji-blast 首次调用会把必要 style 写入 artifact head\nimport { emojiBlast } from 'https://cdn.jsdelivr.net/npm/emoji-blast@0/+esm';\nconst el = document.getElementById('emoji-blast');\nel.style.cssText = `position:relative;height:${spec.height ?? 400}px;overflow:hidden;transform:translateZ(0)`;\nconst position = data.options?.position ?? { x: (el.clientWidth || 640) / 2, y: (spec.height ?? 400) * 0.7 };\nconst handle = emojiBlast({ ...(data.options ?? {}), container: el, position });",
+    "widget": "// 初始化后把本实例新增 CSS 迁入 shadow(铁律 2)\nimport { emojiBlast } from 'https://cdn.jsdelivr.net/npm/emoji-blast@0/+esm';\nconst el = document.createElement('div'); el.style.cssText = `position:relative;height:${spec.height ?? 400}px;overflow:hidden;transform:translateZ(0)`; shadowRoot.appendChild(el);\nconst className = `ov-emoji-${crypto.randomUUID()}`, before = new Set(document.head.querySelectorAll('style'));\nconst position = data.options?.position ?? { x: (el.clientWidth || 640) / 2, y: (spec.height ?? 400) * 0.7 };\nconst handle = emojiBlast({ ...(data.options ?? {}), className, container: el, position });\nfor (const s of document.head.querySelectorAll('style')) if (!before.has(s) && s.textContent.includes(`.${className}`)) shadowRoot.appendChild(s);",
+    "codex": "import { emojiBlast } from 'https://cdn.jsdelivr.net/npm/emoji-blast@0/+esm';\nconst el = document.getElementById('emoji-blast');\nel.style.cssText = `position:relative;height:${spec.height ?? 400}px;overflow:hidden;transform:translateZ(0)`;\nconst position = data.options?.position ?? { x: (el.clientWidth || 640) / 2, y: (spec.height ?? 400) * 0.7 };\nconst handle = emojiBlast({ ...(data.options ?? {}), container: el, position });"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:首次调用会生成 style;boot 用唯一 className 识别并同步迁入 shadowRoot,宿主须允许动态样式与 crypto.randomUUID",
+    "codex": "supported:sandbox iframe 吸收 document.head 样式,DOM 粒子留在指定容器"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "entry_version": "thin-1",
+  "id": "wokwi-elements",
+  "name": "@wokwi/elements",
+  "when_to_use": "需要在电子入门讲解中显示 LED、七段管或按钮的真实元件外观与状态时用它,而非手写 CSS/SVG——原生在引脚、封装细节和跨状态一致性上容易画错;非做电路求解或 MCU 仿真。",
+  "why_valuable": "AI 默认只能画抽象方框或不一致的 LED/七段管,做不到可信元件封装、引脚与状态表现;Wokwi Elements 提供已封装的原生 Web Components,专管长相而不冒充仿真器。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@wokwi/elements",
+    "version": "1.9.2",
+    "github": "wokwi/wokwi-elements"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "输入是一个受限的 custom-element tag 加对应原生 property;boot 用 createElement + Object.assign,不写声明式自定义标签（铁律 4）。可选 property 的默认值逐项注明。",
+    "schema": {
+      "element": {
+        "tag": "'wokwi-led' | 'wokwi-7segment' | 'wokwi-pushbutton' —— 必填",
+        "props?": {
+          "_default": "{} —— 不传时完全采用元素默认状态",
+          "color?": "string —— 元件主色,默认 'red'",
+          "value?": "boolean —— LED 点亮状态,默认 false;仅 wokwi-led",
+          "brightness?": "number（0..1）—— LED 亮度,默认 1;仅 wokwi-led",
+          "values?": "number[] —— 七段管每位按 A,B,C,D,E,F,G,DP 排列的 0/1 数组,默认 [0,0,0,0,0,0,0,0];仅 wokwi-7segment",
+          "digits?": "number —— 七段管位数,默认 1;仅 wokwi-7segment",
+          "colon?": "boolean —— 是否绘制冒号,默认 false;仅 wokwi-7segment",
+          "colonValue?": "boolean —— 冒号是否点亮,默认 false;仅 wokwi-7segment",
+          "offColor?": "string —— 熄灭段颜色,默认 '#444';仅 wokwi-7segment",
+          "background?": "string —— 七段管底色,默认 'black';仅 wokwi-7segment",
+          "pins?": "'top' | 'extend' | 'none' —— 引脚显示方式,默认 'top';仅 wokwi-7segment",
+          "pressed?": "boolean —— 按钮按下状态,默认 false;仅 wokwi-pushbutton"
+        }
+      }
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested。import 注册 custom elements\nimport 'https://cdn.jsdelivr.net/npm/@wokwi/elements@1/+esm';\nconst part = document.createElement(data.element.tag); // 铁律 4:禁止声明式 custom tag\nObject.assign(part, data.element.props ?? {});\nconst host = document.getElementById('part');\nhost.appendChild(part);",
+    "widget": "import 'https://cdn.jsdelivr.net/npm/@wokwi/elements@1/+esm';\nconst host = document.createElement('div'); shadowRoot.appendChild(host);\nconst part = document.createElement(data.element.tag); // 铁律 4\nObject.assign(part, data.element.props ?? {});\nhost.appendChild(part);",
+    "codex": "import 'https://cdn.jsdelivr.net/npm/@wokwi/elements@1/+esm';\nconst part = document.createElement(data.element.tag);\nObject.assign(part, data.element.props ?? {});\nconst host = document.getElementById('part');\nhost.appendChild(part);"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:必须 JS createElement;每个上游元素自带 Shadow DOM 与样式,可挂入 widget 的 shadow 容器",
+    "codex": "supported:ESM import 只负责注册 custom elements,无外部 CSS/uplink"
+  }
+}

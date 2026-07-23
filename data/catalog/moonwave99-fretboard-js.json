@@ -1,0 +1,56 @@
+{
+  "entry_version": "thin-1",
+  "id": "moonwave99-fretboard-js",
+  "name": "fretboard.js",
+  "when_to_use": "需要把音阶、和弦或 CAGED 把位画成带弦格与音符高亮的吉他指板时用它而非手写 SVG,因为原生在品格几何、调弦换算和把位高亮的一致性上失败。",
+  "why_valuable": "AI 默认只能列音名或画近似网格,无法可靠完成弦×品坐标、非线性品距、异调弦与音阶位置映射;上游把这些计算和 SVG 描绘闭环。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@moonwave99/fretboard.js",
+    "version": "0.2.13",
+    "github": "moonwave99/fretboard.js"
+  },
+  "license": "ISC",
+  "data_in": {
+    "shape": "grid",
+    "note": "主输入是弦号×品号网格;view 决定调用 setDots/renderScale/renderChord 三个上游原生入口,不要把三种数据混在一次调用里。",
+    "schema": {
+      "view?": "'dots' | 'scale' | 'chord' —— 默认 'dots'",
+      "dots?": [
+        {
+          "string": "integer 1..stringCount —— 人类编号,1 为最高音弦",
+          "fret": "integer >= 0 —— 0 为空弦",
+          "note?": "string —— 显示/样式元数据,默认省略",
+          "interval?": "string —— 如 '1P'、'3M',默认省略"
+        }
+      ],
+      "scale?": {
+        "root": "string —— 根音,如 'C' 或 'F#'",
+        "type": "string —— Tonal 音阶名,如 'major' 或 'dorian'"
+      },
+      "chord?": "string —— 从第 6 弦到第 1 弦的指法串,如 x32010;十品以上用连字符分隔;默认省略",
+      "tuning?": "string[] —— 低音弦到高音弦,默认 ['E2','A2','D3','G3','B3','E4']",
+      "fretCount?": "integer > 0 —— 显示品数,默认 15"
+    }
+  },
+  "spec": {
+    "height": 260,
+    "note": "SVG 仍需稳定几何尺寸;默认显式传 height 260px,width 取容器像素宽或 800px,禁用 vh/百分比高。容器宽变化后重新创建实例以重算 SVG。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合\nimport { Fretboard } from 'https://cdn.jsdelivr.net/npm/@moonwave99/fretboard.js@0/+esm';\nconst el = document.getElementById('fretboard'); el.style.height = '260px';\nconst fb = new Fretboard({ el, height: 260, width: el.clientWidth || 800, tuning: data.tuning, fretCount: data.fretCount });\nif (data.view === 'scale') fb.renderScale(data.scale); else if (data.view === 'chord') fb.renderChord(data.chord); else fb.setDots(data.dots || []).render();",
+    "widget": "// SVG 与 hover DOM 全落 shadow 容器,无 document.head CSS\nimport { Fretboard } from 'https://cdn.jsdelivr.net/npm/@moonwave99/fretboard.js@0/+esm';\nconst el = document.createElement('div'); el.style.height = '260px'; shadowRoot.appendChild(el);\nconst fb = new Fretboard({ el, height: 260, width: el.clientWidth || 800, tuning: data.tuning, fretCount: data.fretCount });\nif (data.view === 'scale') fb.renderScale(data.scale); else if (data.view === 'chord') fb.renderChord(data.chord); else fb.setDots(data.dots || []).render();",
+    "codex": "同 artifact(sandbox iframe):从 jsDelivr /npm/ 导入 Fretboard,给容器显式 260px 高,再按 view 调上游原生 renderScale/renderChord/setDots。"
+  },
+  "peer": {
+    "id": "tonal",
+    "note": "复杂和弦/音阶先由 tonal 算出正确音符集合或规范名称;本条负责指板几何和 SVG,不预设回调或统一事件契约。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:纯 ESM + SVG,所有生成 DOM 落传入的 shadow 容器,无 CSS/worker/font/uplink 足迹",
+    "codex": "supported:ESM CDN + SVG,无 uplink 需求"
+  }
+}

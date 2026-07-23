@@ -1,0 +1,44 @@
+{
+  "entry_version": "thin-1",
+  "id": "convert-units",
+  "name": "convert-units",
+  "when_to_use": "需要在长度、面积、质量、体积、温度、时间等单位间可靠换算时用它而非手写,因为原生在温度偏移、英美制差异和冷门缩写上会失败。",
+  "why_valuable": "AI 默认只能稳定完成常见比例换算,对摄氏华氏的仿射转换、US/UK 容量差异与冷门单位常算错且不自知；库内换算表可重复执行。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "convert-units",
+    "version": "2.3.4",
+    "github": "convert-units/convert-units"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "scalar",
+    "note": "data_in 精确映射到 convert(value).from(from).to(to)；from/to 必须是 v2.3.4 原生、区分大小写的 abbreviation,且两者须属于同一 measure。",
+    "schema": {
+      "value": "number —— 待换算数值",
+      "from": "string —— 必须命中 convert().possibilities() 返回的原生缩写,例如 'mm'|'m'|'ft'|'kg'|'lb'|'ml'|'l'|'gal'|'C'|'F'",
+      "to": "string —— 同一 measure 下的原生缩写；可用 convert().from(from).possibilities() 预检"
+    }
+  },
+  "provides": {
+    "shape": "converted-scalar",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵；纯 JS 单位换算。",
+    "outputs": "目标单位下的 number；单位不兼容或缩写未知时抛出上游错误。",
+    "api_surface": {
+      "convert": "convert(value).from(from).to(to) → number",
+      "compatible_units": "convert().from(from).possibilities() → string[]",
+      "measures": "convert().measures() → string[]",
+      "describe": "convert().describe(unit) → {abbr, measure, system, singular, plural}"
+    }
+  },
+  "peer": {
+    "note": "本条只产标量；由消费 AI 把单位选择器、输入框和结果卡接到该函数,不需要专用渲染 peer。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact H0 探针未闭合；纯 JS、无 DOM\nimport convert from 'https://cdn.jsdelivr.net/npm/convert-units@2/+esm';\nconst possible = convert().from(data.from).possibilities();\nif (!possible.includes(data.to)) throw new Error('Incompatible units');\nconst result = convert(data.value).from(data.from).to(data.to);",
+    "widget": "// widget 内纯计算,无需接触 shadow DOM\nimport convert from 'https://cdn.jsdelivr.net/npm/convert-units@2/+esm';\nconst possible = convert().from(data.from).possibilities();\nif (!possible.includes(data.to)) throw new Error('Incompatible units');\nconst result = convert(data.value).from(data.from).to(data.to);",
+    "codex": "// sandbox iframe 内直接跑纯 JS\nimport convert from 'https://cdn.jsdelivr.net/npm/convert-units@2/+esm';\nconst possible = convert().from(data.from).possibilities();\nif (!possible.includes(data.to)) throw new Error('Incompatible units');\nconst result = convert(data.value).from(data.from).to(data.to);",
+    "note": "jsDelivr +esm 已核对为 default convert；缩写白名单由包的 possibilities() 产生,不要让 AI 猜单位 token。"
+  }
+}

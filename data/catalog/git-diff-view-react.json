@@ -1,0 +1,81 @@
+{
+  "entry_version": "thin-1",
+  "id": "git-diff-view-react",
+  "name": "git-diff-view",
+  "when_to_use": "需要在 React 中查看带文件名、语言、完整 unified patch 与长文件高亮的 GitHub 风格 diff 时用它而非手写虚拟表格,因为原生在 patch 解析、长 diff 行模型和语法高亮叠加上失败;非做任意两字符串自动求差、可编辑 merge 或代码执行。",
+  "why_valuable": "AI 默认做不到把完整 unified patch、两侧文件内容、语法 token 与长 diff 行模型稳定合成同一视图;手写表格在大文件和多 hunk 下会失去对齐。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@git-diff-view/react",
+    "version": "0.1.7",
+    "github": "MrWangJustToDo/git-diff-view"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "text-span",
+    "note": "hunks 名称易误读:每个元素不是单独的行数组,而是一份可由 git diff 产生、含 ---/+++ 文件头与 @@ hunk header 的完整 unified diff 字符串;oldFile/newFile 省略时默认空对象。",
+    "schema": {
+      "oldFile?": {
+        "fileName?": "string|null —— 默认空字符串",
+        "fileLang?": "string|null —— 默认从文件名推断,失败则 txt",
+        "content?": "string|null —— 完整旧文件内容,默认空字符串"
+      },
+      "newFile?": {
+        "fileName?": "string|null —— 默认空字符串",
+        "fileLang?": "string|null —— 默认从文件名推断,失败则 txt",
+        "content?": "string|null —— 完整新文件内容,默认空字符串"
+      },
+      "hunks": "string[] —— 每项为一份完整 unified diff 文本;无差异时 []",
+      "diffViewMode?": "'Split'|'Unified' —— 默认 Split",
+      "diffViewTheme?": "'light'|'dark' —— 默认 light",
+      "diffViewHighlight?": "boolean —— 是否语法高亮,默认 false"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "diff 表格外层显式 height 400px 并 overflow:auto,避免长 patch 撑穿载体;AI 可改像素值但禁 vh/百分比高(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:纯 CSS 按铁律 2 进入 head\nconst link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'https://cdn.jsdelivr.net/npm/@git-diff-view/react@0/styles/diff-view-pure.css'; document.head.appendChild(link);\nimport React from 'https://cdn.jsdelivr.net/npm/react@19/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19/client/+esm';\nimport { DiffView, DiffModeEnum } from 'https://cdn.jsdelivr.net/npm/@git-diff-view/react@0/+esm';\nconst holder = document.getElementById('diff'); holder.style.cssText = 'height:400px;overflow:auto';\nconst input = { oldFile:data.oldFile, newFile:data.newFile, hunks:data.hunks };\ncreateRoot(holder).render(React.createElement(DiffView,{data:input,diffViewMode:DiffModeEnum[data.diffViewMode ?? 'Split'],diffViewTheme:data.diffViewTheme ?? 'light',diffViewHighlight:data.diffViewHighlight ?? false}));",
+    "widget": "// CSS fetch 后只放进 shadow(铁律 2)\nconst style = document.createElement('style'); style.textContent = await fetch('https://cdn.jsdelivr.net/npm/@git-diff-view/react@0/styles/diff-view-pure.css').then(r => r.text()); shadowRoot.appendChild(style);\nimport React from 'https://cdn.jsdelivr.net/npm/react@19/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19/client/+esm'; import { DiffView,DiffModeEnum } from 'https://cdn.jsdelivr.net/npm/@git-diff-view/react@0/+esm';\nconst holder = shadowRoot.appendChild(document.createElement('div')); holder.style.cssText = 'height:400px;overflow:auto';\nconst input = { oldFile:data.oldFile, newFile:data.newFile, hunks:data.hunks };\ncreateRoot(holder).render(React.createElement(DiffView,{data:input,diffViewMode:DiffModeEnum[data.diffViewMode ?? 'Split'],diffViewTheme:data.diffViewTheme ?? 'light',diffViewHighlight:data.diffViewHighlight ?? false}));",
+    "codex": "同 artifact(sandbox iframe):加载 pure CSS 后用 React createRoot 渲染 DiffView;data.hunks 必须是完整 unified diff 字符串数组。"
+  },
+  "example": {
+    "_why": "hunks 的真实输入是完整 unified diff 而非“变更行列表”,属于高歧义配置,最小样例用来钉死文件头与 @@ header。",
+    "minimal": {
+      "oldFile": {
+        "fileName": "note.txt",
+        "content": "old\n"
+      },
+      "newFile": {
+        "fileName": "note.txt",
+        "content": "new\n"
+      },
+      "hunks": [
+        "--- a/note.txt\n+++ b/note.txt\n@@ -1 +1 @@\n-old\n+new\n"
+      ]
+    },
+    "empty": {
+      "oldFile": {
+        "fileName": "note.txt",
+        "content": ""
+      },
+      "newFile": {
+        "fileName": "note.txt",
+        "content": ""
+      },
+      "hunks": []
+    }
+  },
+  "peer": {
+    "id": "diff",
+    "note": "本组件消费 unified diff 而不替未知字符串自动求差;可先用 jsdiff 的 createTwoFilesPatch 产出 hunks[0],再交给本条渲染。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:React ESM + pure CSS,按 boot 将 CSS 落 shadow;默认关闭语法高亮以减轻大文件成本",
+    "codex": "supported:React ESM + CSS CDN,无必需 uplink/wasm"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "entry_version": "thin-1",
+  "id": "ag-grid-community",
+  "name": "AG Grid Community",
+  "when_to_use": "需要十万行级虚拟滚动、列固定、客户端排序筛选与自定义单元格的数据网格时用它,而非手写 table——原生 DOM 在大行数性能和列状态一致性上失败;非做几十行以内的静态展示表。",
+  "why_valuable": "AI 默认只能生成一次性 HTML/Markdown 小表,做不到行列虚拟化、稳定的固定列与高频滚动复用;十万行数据网格的手写成功率为 0%。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": { "npm": "ag-grid-community", "version": "36.0.1", "github": "ag-grid/ag-grid" },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "data_in 直接映射 AG Grid 的 rowData、columnDefs 与 gridOptions;列字段名必须能在每个行对象上取值。",
+    "schema": {
+      "rowData": "Record<string, string | number | boolean | null>[]",
+      "columnDefs": [
+        {
+          "field": "string —— 对应 rowData 的键",
+          "headerName?": "string —— 默认使用 field",
+          "sortable?": "boolean —— 默认 false",
+          "filter?": "boolean | string —— 默认 false",
+          "pinned?": "'left' | 'right' | null —— 默认 null"
+        }
+      ],
+      "gridOptions?": "object —— 其余原生 GridOptions 裁剪入口,默认 {}"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "网格依赖显式像素高度;默认 400px,AI 可覆盖,禁用 vh/百分比高。宽度跟随容器,容器变化由网格自身布局监听处理。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合前按此推断写\nimport { AllCommunityModule, ModuleRegistry, createGrid } from 'https://cdn.jsdelivr.net/npm/ag-grid-community@36/+esm';\nModuleRegistry.registerModules([AllCommunityModule]);\nconst el = document.getElementById('grid'); el.style.height = '400px';\nconst api = createGrid(el, { ...data.gridOptions, rowData: data.rowData, columnDefs: data.columnDefs });",
+    "widget": "// v36 主题样式进 grid wrapper;popupParent 钉到 shadow 内,不碰 document.head/body\nimport { AllCommunityModule, ModuleRegistry, createGrid } from 'https://cdn.jsdelivr.net/npm/ag-grid-community@36/+esm';\nModuleRegistry.registerModules([AllCommunityModule]);\nconst el = document.createElement('div'); el.style.height = '400px'; shadowRoot.appendChild(el);\nconst api = createGrid(el, { ...data.gridOptions, popupParent: el, rowData: data.rowData, columnDefs: data.columnDefs });",
+    "codex": "import { AllCommunityModule, ModuleRegistry, createGrid } from 'https://cdn.jsdelivr.net/npm/ag-grid-community@36/+esm';\nModuleRegistry.registerModules([AllCommunityModule]);\nconst el = document.getElementById('grid'); el.style.height = '400px';\nconst api = createGrid(el, { ...data.gridOptions, rowData: data.rowData, columnDefs: data.columnDefs });"
+  },
+  "example": {
+    "_why": "表格列定义与数据键必须一次对齐,minimal 固定原生字段名。",
+    "minimal": {
+      "rowData": [
+        { "country": "AU", "revenue": 120 },
+        { "country": "NZ", "revenue": 80 }
+      ],
+      "columnDefs": [
+        { "field": "country", "headerName": "Country", "sortable": true, "filter": true },
+        { "field": "revenue", "headerName": "Revenue", "sortable": true }
+      ]
+    },
+    "empty": {
+      "rowData": [],
+      "columnDefs": [
+        { "field": "country" },
+        { "field": "revenue" }
+      ]
+    }
+  },
+  "uplink": "本条是 display/local-interact,默认无上行;若消费场景需要把当前筛选或行焦点带回对话,由消费 AI 按载体自行写回调,不预设统一事件契约。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:createGrid 落 shadow,v36 主题样式写 grid wrapper,popupParent 显式钉到同一容器",
+    "codex": "supported:ESM CDN + DOM 虚拟化,无 worker/wasm/uplink 硬依赖"
+  }
+}

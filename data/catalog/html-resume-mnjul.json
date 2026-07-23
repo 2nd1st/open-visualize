@@ -1,0 +1,39 @@
+{
+  "entry_version": "thin-1",
+  "id": "html-resume-mnjul",
+  "name": "html-resume (mnjul)",
+  "when_to_use": "需要把已写好的单页简历 HTML 套进严格 Letter 纸张、左右栏与 print-to-PDF 样式时用它而非手写,因为原生在英寸级纸张几何、时间线对齐和浏览器打印断行上失败;非 JSON Resume 渲染器。",
+  "why_valuable": "AI 默认能写简历内容但做不到一次命中 8.5×11in 几何、侧栏满高、日期装饰线与打印背景;该模板把这些易碎 CSS 约束固定下来。",
+  "supply_form": "component",
+  "level": "L2",
+  "mode": "our-entry",
+  "upstream": {
+    "github": "mnjul/html-resume"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "notation-string",
+    "note": "上游没有数据 API;输入是 resume.html 的 body 内部 HTML 形状。必须保留 #main、#sidebar、.main-block、.blocks、.date、.decorator、.details 等类名,样式才会命中。",
+    "_why_no_example": "HTML 是 AI 原生记法,这里用类名契约钉死模板所吃的结构,不附 minimal example。",
+    "schema": {
+      "body_html": "string —— 仅 body 内部片段;根层必须含 section#main 与 aside#sidebar,经历项使用 .blocks > .date + .decorator + .details",
+      "lang?": "string —— shell 的语言标签,默认 'en'"
+    }
+  },
+  "spec": {
+    "height": 1056,
+    "width": 816,
+    "note": "上游固定 Letter portrait:8.5in×11in,按 96 CSS px/in 即 816×1056px。预览显式使用这组像素尺寸,禁止 vh 或百分比高;A4 不是本模板能力。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 的三份 CSS link 明确进 document.head\nfor (const href of ['https://cdn.jsdelivr.net/npm/normalize.css@8/normalize.css','https://cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css','https://cdn.jsdelivr.net/gh/mnjul/html-resume@71ffb26da44abb41dad40b64eb7a975ccc5dd247/style.css']) {\n  const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = href; document.head.appendChild(link);\n}\nconst shell = document.getElementById('resume'); shell.lang = data.lang ?? 'en';\nshell.style.cssText = `width:${spec.width ?? 816}px;height:${spec.height ?? 1056}px;overflow:hidden`;\nshell.innerHTML = data.body_html;",
+    "widget": "// CSS link 与内容都放入 shadowRoot;补上原 body 选择器承担的根层排版\nfor (const href of ['https://cdn.jsdelivr.net/npm/normalize.css@8/normalize.css','https://cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css','https://cdn.jsdelivr.net/gh/mnjul/html-resume@71ffb26da44abb41dad40b64eb7a975ccc5dd247/style.css']) {\n  const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = href; shadowRoot.appendChild(link);\n}\nconst shell = document.createElement('div'); shell.lang = data.lang ?? 'en';\nshell.style.cssText = `width:${spec.width ?? 816}px;height:${spec.height ?? 1056}px;overflow:hidden;font-family:'Open Sans',sans-serif;font-weight:300;line-height:1.3;color:#444;hyphens:auto`;\nshell.innerHTML = data.body_html; shadowRoot.appendChild(shell);",
+    "codex": "// sandbox iframe:同 artifact,依次把 normalize、图标与模板 CSS 放入 head\nfor (const href of ['https://cdn.jsdelivr.net/npm/normalize.css@8/normalize.css','https://cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css','https://cdn.jsdelivr.net/gh/mnjul/html-resume@71ffb26da44abb41dad40b64eb7a975ccc5dd247/style.css']) {\n  const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = href; document.head.appendChild(link);\n}\nconst shell = document.getElementById('resume'); shell.lang = data.lang ?? 'en';\nshell.style.cssText = `width:${spec.width ?? 816}px;height:${spec.height ?? 1056}px;overflow:hidden`;\nshell.innerHTML = data.body_html;"
+  },
+  "raw_source_url": "https://cdn.jsdelivr.net/gh/mnjul/html-resume@71ffb26da44abb41dad40b64eb7a975ccc5dd247/resume.html",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:shadowRoot 必须允许外部 stylesheet link 与 Font Awesome 字体;原模板只验证过 Letter 纸张,预览可用但打印应优先 artifact/codex 独立文档",
+    "codex": "conditional:需三个 CSS/font CDN 资源;无 JS、worker、wasm 或上行能力要求"
+  }
+}

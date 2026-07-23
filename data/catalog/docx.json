@@ -1,0 +1,112 @@
+{
+  "entry_version": "thin-1",
+  "id": "docx",
+  "name": "docx",
+  "when_to_use": "需要在浏览器把标题、段落、富文本层级和分节内容生成可继续编辑的 Word .docx Blob 时用它而非手写 OOXML/ZIP，因为原生在关系文件、样式引用、XML 转义与 OPC 打包上失败；非做所见即所得编辑器或像素级固定版式。",
+  "why_valuable": "AI 默认做不到一组相互引用且能被 Word 稳定打开的 OOXML parts、rels 与 ZIP 包，只会拼出脆弱 XML 或伪装成 .docx 的文本；docx 用构造器树和 Packer 生成真实可编辑文件。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "docx",
+    "version": "9.7.1",
+    "github": "dolanmiu/docx"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "hierarchy",
+    "note": "document 是可 JSON 化的裁剪树；boot 精确映射为 Document → sections → Paragraph → TextRun，heading/alignment 使用 docx 导出的枚举键，不把类实例塞进输入。",
+    "schema": {
+      "document": {
+        "sections": [
+          {
+            "properties?": "docx ISectionPropertiesOptions object —— 默认 {}，纸张、页边距等未列字段原样交给 Document",
+            "children": [
+              {
+                "heading?": "'TITLE' | 'HEADING_1' | 'HEADING_2' | 'HEADING_3' | 'HEADING_4' | 'HEADING_5' | 'HEADING_6' —— 默认省略，使用正文样式",
+                "alignment?": "'LEFT' | 'CENTER' | 'RIGHT' | 'JUSTIFIED' —— 默认省略，交给正文样式（通常 LEFT）",
+                "spacing?": {
+                  "_default": "省略则交给当前 Word 段落样式",
+                  "before?": "non-negative integer twips —— 默认由样式决定",
+                  "after?": "non-negative integer twips —— 默认由样式决定",
+                  "line?": "positive integer twips —— 默认由样式决定"
+                },
+                "runs": [
+                  {
+                    "text": "string",
+                    "bold?": "boolean —— 默认 false",
+                    "italics?": "boolean —— 默认 false",
+                    "size?": "positive integer half-points —— 默认由当前字符样式决定",
+                    "color?": "六位十六进制 RGB 字符串，不带 # —— 默认由当前字符样式决定",
+                    "break?": "non-negative integer —— 默认 0"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "filename?": "string，以 .docx 结尾 —— 默认 document.docx；只作为消费端下载名"
+    }
+  },
+  "provides": {
+    "shape": "document-output",
+    "_note": "headless-primitive：不直接渲染、无 L 级、无 carriers；Packer 在浏览器返回 OOXML .docx Blob。",
+    "outputs": "application/vnd.openxmlformats-officedocument.wordprocessingml.document Blob，可交给下载链接、文件存储或上传流程。",
+    "api_surface": {
+      "tree": "new Document({sections:[{properties,children:[new Paragraph({children:[new TextRun(...)],...})]}]})",
+      "pack": "await Packer.toBlob(document)",
+      "extend": "需要表格、图片、页眉页脚时使用同入口的 Table/ImageRun/Header/Footer 原生类扩展 children/properties"
+    }
+  },
+  "peer": {
+    "note": "消费端是下载按钮、文件保存器或上传器；若需浏览器预览，应另配 docx-preview，本条只负责生成可编辑文件。"
+  },
+  "boot": {
+    "shared": "// 三载体一致：裁剪 JSON 树映射到 docx 原生类，再打包 Blob\nimport { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'https://cdn.jsdelivr.net/npm/docx@9/+esm';\nconst sections=data.document.sections.map(s=>({properties:s.properties??{},children:s.children.map(p=>new Paragraph({heading:p.heading?HeadingLevel[p.heading]:undefined,alignment:p.alignment?AlignmentType[p.alignment]:undefined,spacing:p.spacing,children:p.runs.map(r=>new TextRun(r))}))}));\nconst document = new Document({sections});\nconst blob = await Packer.toBlob(document);",
+    "note": "此 boot 保守覆盖标题/段落/富文本；表格、图片、页眉页脚虽由 9.x 支持，但构造器层级更深，应由消费 AI 显式扩展而非猜测序列化形状。"
+  },
+  "example": {
+    "_why": "Document/section/Paragraph/TextRun 四层容易把样式键放错层，minimal 钉死可打包的最小构造树。",
+    "minimal": {
+      "document": {
+        "sections": [
+          {
+            "children": [
+              {
+                "heading": "TITLE",
+                "alignment": "CENTER",
+                "runs": [
+                  {
+                    "text": "Project brief",
+                    "bold": true
+                  }
+                ]
+              },
+              {
+                "spacing": {
+                  "after": 240
+                },
+                "runs": [
+                  {
+                    "text": "A concise, editable handoff document."
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "filename": "project-brief.docx"
+    },
+    "empty": {
+      "document": {
+        "sections": [
+          {
+            "children": []
+          }
+        ]
+      },
+      "filename": "document.docx"
+    }
+  }
+}

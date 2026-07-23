@@ -1,0 +1,38 @@
+{
+  "entry_version": "thin-1",
+  "id": "remark-slides",
+  "name": "remark (slides)",
+  "when_to_use": "需要最轻的浏览器内 Markdown 演示、讲者备注与克隆讲者视图时用它而非手写幻灯运行时,因为原生手写在缩放、增量呈现和讲者状态同步上失败;非做滚动文章或可视化幻灯编辑器。",
+  "why_valuable": "AI 默认只能把 Markdown 切成静态 div,做不到跨分辨率缩放、增量内容、讲者备注与双窗口讲者模式;remark 用单一 source 字符串提供完整演示运行时。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "version": null,
+    "github": "gnab/remark"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "remark Markdown 是 AI 原生记法;schema 钉死分页、增量与备注分隔符即可,无需 minimal example。",
+    "note": "remark.create 读取 source 字符串并接管当前 document;上游无 npm 包,picks 也没有可钉版本。",
+    "schema": {
+      "markdown": "string —— remark source;独占一行的 --- 分页,独占一行的 -- 建立增量步,??? 后是当前页讲者备注",
+      "ratio?": "'16:9' | '4:3' —— catalog 默认 '16:9'"
+    }
+  },
+  "spec": {
+    "height": 600,
+    "note": "remark 接管完整文档视口并自行缩放;宿主 iframe 应显式给 600px 高,禁止 vh/百分比高。它没有可安全指定的局部 mount 根。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:上游仅提供官方可变 UMD 下载,无 npm/固定 dist；在隔离 document 使用\nconst script=document.createElement('script'); script.src='https://remarkjs.com/downloads/remark-latest.min.js';\nawait new Promise((ready,fail)=>{ script.onload=ready; script.onerror=fail; document.head.append(script); });\nconst slideshow=remark.create({source:data.markdown,ratio:data.ratio ?? '16:9'});\n// slideshow 是上游实例;讲者视图与导航由 remark 自己管理",
+    "widget": "unsupported:remark.create 接管 document、注入全局样式并绑定窗口级导航,没有 shadowRoot mount 参数",
+    "codex": "// sandbox iframe 独占 document\nconst script=document.createElement('script'); script.src='https://remarkjs.com/downloads/remark-latest.min.js';\nawait new Promise((ready,fail)=>{ script.onload=ready; script.onerror=fail; document.head.append(script); });\nconst slideshow=remark.create({source:data.markdown,ratio:data.ratio ?? '16:9'});"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "unsupported:document 全局接管与 shadow 零足迹要求冲突",
+    "codex": "conditional:隔离 iframe 可承载 UMD 全局与讲者窗口;官方 remark-latest.min.js 是可变 URL,上游没有可核对的固定发布文件"
+  }
+}

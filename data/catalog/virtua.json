@@ -1,0 +1,58 @@
+{
+  "entry_version": "thin-1",
+  "id": "virtua",
+  "name": "virtua",
+  "when_to_use": "需要在 React 中虚拟化大量变高行、长段落或动态尺寸卡片时用它而非手写窗口列表,因为原生手写在异步测量、尺寸缓存和滚动锚定上失败;非做带排序筛选的完整数据表。",
+  "why_valuable": "AI 默认只会全量渲染或假设固定行高;默认做不到变高行的 ResizeObserver 测量、缓存修正、平滑滚动锚定与最小 DOM 窗口。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "virtua",
+    "version": "0.49.3",
+    "github": "inokawa/virtua"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "本条走稳定 React VList 原生 API:data 传 items,children 渲染当前 item;默认渲成单列文本列表,消费 AI 可改渲染函数但不在条目中预设事件出口。",
+    "schema": {
+      "items": "JSONValue[] —— VList 的 data 数组",
+      "itemTextField?": "string | null —— 记录要显示的字段名;默认 null,字符串直接显示、其他值 JSON.stringify"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "VList 自身是滚动视口,必须给确定高度;boot 默认 400px,AI 可传其他明确像素值,禁止百分比或视口单位。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:virtua@0/+esm 当前 peer 解析为 React 19.2.7\nimport React from 'https://cdn.jsdelivr.net/npm/react@19.2.7/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19.2.7/client/+esm';\nimport { VList } from 'https://cdn.jsdelivr.net/npm/virtua@0/+esm';\nconst el = document.getElementById('list');\nconst row = item => React.createElement('div', { style: { padding: '8px 12px', borderBottom: '1px solid #ddd' } }, data.itemTextField == null ? (typeof item === 'string' ? item : JSON.stringify(item)) : String(item?.[data.itemTextField] ?? ''));\ncreateRoot(el).render(React.createElement(VList, { data: data.items, style: { height: `${spec.height ?? 400}px` } }, row));",
+    "widget": "// React 挂载点落 shadow 容器;virtua 无外部 CSS\nimport React from 'https://cdn.jsdelivr.net/npm/react@19.2.7/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19.2.7/client/+esm';\nimport { VList } from 'https://cdn.jsdelivr.net/npm/virtua@0/+esm';\nconst el = document.createElement('div'); shadowRoot.appendChild(el);\nconst row = item => React.createElement('div', { style: { padding: '8px 12px', borderBottom: '1px solid #ddd' } }, data.itemTextField == null ? (typeof item === 'string' ? item : JSON.stringify(item)) : String(item?.[data.itemTextField] ?? ''));\ncreateRoot(el).render(React.createElement(VList, { data: data.items, style: { height: `${spec.height ?? 400}px` } }, row));",
+    "codex": "// sandbox iframe:稳定 React VList API\nimport React from 'https://cdn.jsdelivr.net/npm/react@19.2.7/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19.2.7/client/+esm';\nimport { VList } from 'https://cdn.jsdelivr.net/npm/virtua@0/+esm';\nconst el = document.getElementById('list');\nconst row = item => React.createElement('div', { style: { padding: '8px 12px', borderBottom: '1px solid #ddd' } }, data.itemTextField == null ? (typeof item === 'string' ? item : JSON.stringify(item)) : String(item?.[data.itemTextField] ?? ''));\ncreateRoot(el).render(React.createElement(VList, { data: data.items, style: { height: `${spec.height ?? 400}px` } }, row));"
+  },
+  "example": {
+    "_why": "VList 的 data 与 children 渲染函数分工容易混淆,附单列记录数组 minimal。",
+    "minimal": {
+      "items": [
+        {
+          "id": "a",
+          "summary": "Short row"
+        },
+        {
+          "id": "b",
+          "summary": "A longer row whose content may wrap onto more than one line."
+        }
+      ],
+      "itemTextField": "summary"
+    },
+    "empty": {
+      "items": [],
+      "itemTextField": "summary"
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:纯 React DOM + ResizeObserver,无外部 CSS、worker、wasm 或 document.head 注入;挂载点可留在 shadowRoot",
+    "codex": "supported:需让 React/ReactDOM 与 jsDelivr 为 virtua 解析的 peer 版本一致"
+  }
+}

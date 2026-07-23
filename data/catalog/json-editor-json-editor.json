@@ -1,0 +1,59 @@
+{
+  "entry_version": "thin-1",
+  "id": "json-editor-json-editor",
+  "name": "JSON Editor",
+  "when_to_use": "需要由 JSON Schema 生成嵌套对象/数组表单并拿回结构化值时用它,而非手写递归表单——原生在数组项、组合 schema 与嵌套校验上失败;非做任意文本/代码编辑器,也非做长表单。",
+  "why_valuable": "AI 默认能写两三个 input,但做不到稳定递归 JSON Schema、数组增减、oneOf/anyOf 分支与错误路径定位;JSON Editor 把这些收敛为 getValue() 和 validate()。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": { "npm": "@json-editor/json-editor", "version": "2.17.1", "github": "json-editor/json-editor" },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "schema 是标准 JSON Schema 的常用裁剪;value 是该 schema 的实例,不是编辑器配置本身。",
+    "schema": {
+      "schema": {
+        "type": "'object'",
+        "title?": "string —— 默认空标题",
+        "properties": "Record<string,{type:'string'|'number'|'integer'|'boolean'|'object'|'array',title?:string,default?:unknown,enum?:unknown[],properties?:object,items?:object}>;各可选关键字省略时按 JSON Schema/库默认",
+        "required?": "string[] —— 默认 []",
+        "additionalProperties?": "boolean —— 默认 true"
+      },
+      "value?": "Record<string, unknown> —— 默认由 schema.default/各字段 default 生成,无默认时为空对象",
+      "theme?": "'html'|'barebones'|'spectre'|'tailwind'|'bootstrap4'|'bootstrap5' —— 默认 'html'"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:默认主题规则由上游写入 artifact document.head\nimport { JSONEditor } from 'https://cdn.jsdelivr.net/npm/@json-editor/json-editor@2/+esm';\nconst el = document.getElementById('json-editor');\nconst editor = new JSONEditor(el, { schema: data.schema, startval: data.value ?? {}, theme: data.theme ?? 'html' });\nawait new Promise((resolve) => editor.on('ready', resolve));\n// 结果边界读取 editor.getValue(),校验读取 editor.validate()",
+    "widget": "// 上游 2.17.1 会侦测 shadow 父级并写入 shadowRoot.adoptedStyleSheets\nimport { JSONEditor } from 'https://cdn.jsdelivr.net/npm/@json-editor/json-editor@2/+esm';\nconst el = document.createElement('div'); shadowRoot.appendChild(el);\nconst editor = new JSONEditor(el, { schema: data.schema, startval: data.value ?? {}, theme: data.theme ?? 'html' });\nawait new Promise((resolve) => editor.on('ready', resolve));\n// 需要现代浏览器的 constructable stylesheet 支持",
+    "codex": "// sandbox iframe 直接使用上游 ESM 转换入口\nimport { JSONEditor } from 'https://cdn.jsdelivr.net/npm/@json-editor/json-editor@2/+esm';\nconst el = document.getElementById('json-editor');\nconst editor = new JSONEditor(el, { schema: data.schema, startval: data.value ?? {}, theme: data.theme ?? 'html' });\nawait new Promise((resolve) => editor.on('ready', resolve));\nconst snapshot = { value: editor.getValue(), errors: editor.validate() };"
+  },
+  "example": {
+    "_why": "递归 JSON Schema 是深 config;最小样例同时校准 schema 与实例 value 的层级。",
+    "minimal": {
+      "schema": {
+        "type": "object",
+        "title": "Profile",
+        "properties": {
+          "name": { "type": "string", "title": "Name" },
+          "age": { "type": "integer", "title": "Age", "default": 18 }
+        },
+        "required": ["name"]
+      },
+      "value": { "name": "" },
+      "theme": "html"
+    },
+    "empty": { "schema": { "type": "object", "properties": {} }, "value": {} }
+  },
+  "uplink": {
+    "widget": "消费 AI 自行在确认控件处理器中读取 editor.getValue() 与 editor.validate(),再拼 sendPrompt 文案;不预设统一事件出口。",
+    "codex": "消费 AI 自行读取同一快照并调用 sendFollowUpMessage。",
+    "artifact": "artifact 无上行;提供 value/errors JSON 下载导出兜底。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:2.17.1 原生支持 shadowRoot.adoptedStyleSheets;宿主须支持 CSSStyleSheet.replaceSync 与 adoptedStyleSheets",
+    "codex": "supported:jsDelivr +esm 可得到具名 JSONEditor 导出,样式留在 sandbox iframe"
+  }
+}

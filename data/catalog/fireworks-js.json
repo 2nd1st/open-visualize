@@ -1,0 +1,77 @@
+{
+  "entry_version": "thin-1",
+  "id": "fireworks-js",
+  "name": "fireworks-js",
+  "when_to_use": "需要火箭升空、空中爆裂、拖尾与连续放映的节庆烟花时用它而非手写 canvas,因为原生在两阶段物理、粒子衰减和稳定帧循环上失败。",
+  "why_valuable": "AI 默认只能画扁平放射线或单段粒子,做不到火箭轨迹转爆裂、余辉拖尾、亮度闪烁与多枚节奏的持续协同;该库把这些 0% 区封进一个容器构造器。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "fireworks-js",
+    "version": "2.10.8",
+    "github": "crashmax-dev/fireworks-js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "_why_no_example": "入口是单层 options 对象且构造器有完整默认值,裁剪 schema 足以校准,不附 minimal example。",
+    "note": "data_in.options 精确传给 new Fireworks(container, options);音效默认关闭,本条不代替通用粒子背景。",
+    "schema": {
+      "options?": {
+        "_default": "{} —— 全部采用上游默认值",
+        "hue?": {
+          "_default": "{min:0,max:360}",
+          "min?": "number —— 色相下界,默认 0",
+          "max?": "number —— 色相上界,默认 360"
+        },
+        "rocketsPoint?": {
+          "_default": "{min:50,max:50}",
+          "min?": "number —— 发射横向百分比下界,默认 50",
+          "max?": "number —— 发射横向百分比上界,默认 50"
+        },
+        "opacity?": "number —— 拖尾淡出覆盖强度,默认 0.5",
+        "acceleration?": "number —— 火箭加速度,默认 1.05",
+        "friction?": "number —— 爆裂粒子摩擦系数,默认 0.95",
+        "gravity?": "number —— 爆裂粒子重力,默认 1.5",
+        "particles?": "integer —— 每次爆裂粒子数,默认 50",
+        "explosion?": "integer —— 爆裂轨迹长度,默认 5",
+        "delay?": {
+          "_default": "{min:30,max:60}",
+          "min?": "number —— 连续发射间隔下界,默认 30",
+          "max?": "number —— 连续发射间隔上界,默认 60"
+        },
+        "brightness?": {
+          "_default": "{min:50,max:80}",
+          "min?": "number —— 亮度下界,默认 50",
+          "max?": "number —— 亮度上界,默认 80"
+        },
+        "flickering?": "number —— 闪烁概率百分比,默认 50",
+        "intensity?": "number —— 连续发射强度,默认 30",
+        "traceLength?": "number —— 火箭拖尾长度,默认 3",
+        "traceSpeed?": "number —— 火箭轨迹速度,默认 10",
+        "autoresize?": "boolean —— 是否监听容器尺寸,默认 true",
+        "sound?": {
+          "_default": "{enabled:false,files:['explosion0.mp3','explosion1.mp3','explosion2.mp3'],volume:{min:4,max:8}}",
+          "enabled?": "boolean —— 是否启用音效,默认 false",
+          "files?": "string[] —— 音频 URL,默认 ['explosion0.mp3','explosion1.mp3','explosion2.mp3'];启用时宜改成可访问的绝对 URL",
+          "volume?": "{min:number,max:number} —— 音量百分比范围,默认 {min:4,max:8}"
+        }
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "Fireworks 从容器 clientWidth/clientHeight 建 canvas,故容器必须显式给像素高度;默认 400px,禁用 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:上游 canvas 只挂入指定容器\nimport { Fireworks } from 'https://cdn.jsdelivr.net/npm/fireworks-js@2/+esm';\nconst el = document.getElementById('fireworks');\nel.style.cssText = `position:relative;height:${spec.height ?? 400}px;overflow:hidden`;\nconst fireworks = new Fireworks(el, data.options ?? {});\nfireworks.start();",
+    "widget": "// canvas 落 shadow 容器,无外部 CSS\nimport { Fireworks } from 'https://cdn.jsdelivr.net/npm/fireworks-js@2/+esm';\nconst el = document.createElement('div');\nel.style.cssText = `position:relative;height:${spec.height ?? 400}px;overflow:hidden`; shadowRoot.appendChild(el);\nconst fireworks = new Fireworks(el, data.options ?? {});\nfireworks.start();",
+    "codex": "import { Fireworks } from 'https://cdn.jsdelivr.net/npm/fireworks-js@2/+esm';\nconst el = document.getElementById('fireworks');\nel.style.cssText = `position:relative;height:${spec.height ?? 400}px;overflow:hidden`;\nconst fireworks = new Fireworks(el, data.options ?? {});\nfireworks.start();"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:canvas 仅挂入 shadowRoot 内指定容器,无 CSS/head 注入;启用 sound 时另需音频 URL 权限",
+    "codex": "supported:ESM CDN + canvas;默认 sound=false 时无额外网络资产"
+  }
+}

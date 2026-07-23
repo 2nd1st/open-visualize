@@ -1,0 +1,49 @@
+{
+  "entry_version": "thin-1",
+  "id": "fuse-js",
+  "name": "Fuse.js",
+  "when_to_use": "需要在内联中小型记录集上做容错拼写、加权多字段与相关度排序时用它而非手写 includes/filter,因为原生在模糊距离、字段权重和稳定排名上失败。",
+  "why_valuable": "AI 默认只能生成大小写归一后的 substring 过滤,做不到 Bitap 模糊匹配、字段长度归一、加权 key 与可解释命中区间;Fuse.js 直接产出带 score 的排名记录。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "fuse.js",
+    "version": "7.5.0",
+    "github": "krisk/Fuse"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "tabular",
+    "note": "records 是待索引对象数组,keys 精确指向可搜索字段路径;结果 item 保留原记录引用,score 越接近 0 越匹配。",
+    "schema": {
+      "records": "Record<string,unknown>[]",
+      "keys": "(string | {name:string,weight:positive number})[] —— string key 的权重默认 1",
+      "query": "string",
+      "threshold?": "number,0..1 —— 默认 0.6",
+      "ignoreLocation?": "boolean —— 默认 false",
+      "isCaseSensitive?": "boolean —— 默认 false",
+      "minMatchCharLength?": "positive integer —— 默认 1",
+      "includeMatches?": "boolean —— 默认 false",
+      "limit?": "positive integer —— 默认返回全部命中"
+    }
+  },
+  "provides": {
+    "shape": "ranked-records",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;纯 JS 索引与搜索层。",
+    "outputs": "Array<{item:Record<string,unknown>,refIndex:number,score:number,matches?:Array<{key?:string,indices:[number,number][]}>}>。",
+    "api_surface": {
+      "construct": "new Fuse(records, options)",
+      "search": "fuse.search(query, limitConfig?) → 按相关度升序的结果数组",
+      "score": "boot 固定 includeScore:true,0 表示最佳匹配",
+      "matches": "includeMatches=true 时返回字符区间,供消费组件自行高亮"
+    }
+  },
+  "peer": {
+    "id": "clusterize-js",
+    "note": "Fuse 只产排名记录;长结果列表可把安全渲染后的行交给 Clusterize.js 虚拟滚动,本条不负责 DOM。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS、无 DOM/uplink/shadow 足迹\nimport Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js@7/+esm';\nconst fuse = new Fuse(data.records, { keys: data.keys, includeScore: true, includeMatches: data.includeMatches ?? false, threshold: data.threshold ?? 0.6, ignoreLocation: data.ignoreLocation ?? false, isCaseSensitive: data.isCaseSensitive ?? false, minMatchCharLength: data.minMatchCharLength ?? 1 });\nconst limitConfig = data.limit == null ? undefined : { limit: data.limit };\nconst results = fuse.search(data.query, limitConfig);",
+    "note": "适合浏览器内中小数据集;记录数或长文本达到会阻塞主线程的规模时改用服务端检索或 worker 方案,不要把 Fuse 当数据库索引。"
+  }
+}

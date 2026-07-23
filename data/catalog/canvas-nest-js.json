@@ -1,0 +1,45 @@
+{
+  "entry_version": "thin-1",
+  "id": "canvas-nest-js",
+  "name": "canvas-nest.js",
+  "when_to_use": "需要极小体积的游动点阵、近邻连线与鼠标吸附背景时用它而非手写 canvas,因为原生在距离阈值、帧循环、尺寸响应和清理恢复上失败。",
+  "why_valuable": "AI 默认能画随机点却很难同时稳定处理近邻连线透明度、边界反弹、指针吸附、容器尺寸响应与销毁;这个约 2KB 的单构造器把整套行为固化。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "canvas-nest.js",
+    "version": "2.0.4",
+    "github": "hustcc/canvas-nest.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "_why_no_example": "五个浅层配置均有明确默认且直接传构造器,不附 minimal example。",
+    "note": "data_in.options 精确传给 new CanvasNest(element, config);color/pointColor 必须是逗号分隔 RGB 三元组,不要传 hex 或 rgb(...)。",
+    "schema": {
+      "options?": {
+        "_default": "{} —— 全部采用 2.0.4 源码默认值",
+        "color?": "string —— 连线 RGB 三元组,默认 '0,0,0'",
+        "pointColor?": "string —— 点 RGB 三元组,默认 '0,0,0'",
+        "opacity?": "number 0..1 —— 整张 canvas 透明度,默认 0.5",
+        "count?": "integer —— 游动点数量,默认 99",
+        "zIndex?": "integer —— canvas 层级,默认 -1"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "上游 canvas 贴合父容器,所以父容器必须先有显式像素高度;boot 默认 400px,禁用 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:上游只向指定容器追加一个 canvas\nimport CanvasNest from 'https://cdn.jsdelivr.net/npm/canvas-nest.js@2/+esm';\nconst el = document.getElementById('canvas-nest');\nel.style.cssText = `position:relative;height:${spec.height ?? 400}px;overflow:hidden`;\nconst nest = new CanvasNest(el, data.options ?? {});",
+    "widget": "// canvas 落 shadow 容器,无 CSS/head 注入\nimport CanvasNest from 'https://cdn.jsdelivr.net/npm/canvas-nest.js@2/+esm';\nconst el = document.createElement('div'); el.style.cssText = `position:relative;height:${spec.height ?? 400}px;overflow:hidden`; shadowRoot.appendChild(el);\nconst nest = new CanvasNest(el, data.options ?? {});",
+    "codex": "import CanvasNest from 'https://cdn.jsdelivr.net/npm/canvas-nest.js@2/+esm';\nconst el = document.getElementById('canvas-nest');\nel.style.cssText = `position:relative;height:${spec.height ?? 400}px;overflow:hidden`;\nconst nest = new CanvasNest(el, data.options ?? {});"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:canvas 本身完全落 shadowRoot,但 2.0.4 会暂存并替换 window.onmousemove/onmouseout;同页限一个活跃实例且卸载须调用 nest.destroy()",
+    "codex": "supported:sandbox iframe 隔离全局指针属性,ESM CDN + canvas,无 CSS/worker/wasm/uplink"
+  }
+}

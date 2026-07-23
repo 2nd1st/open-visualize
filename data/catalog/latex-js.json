@@ -1,0 +1,35 @@
+{
+  "entry_version": "thin-1",
+  "id": "latex-js",
+  "name": "LaTeX.js",
+  "when_to_use": "需要在浏览器把 AI 熟悉的 LaTeX 文档源码翻译成带数学、章节和文档类样式的 HTML5 时用它而非手写解析器，因为原生在宏解析、数学 DOM 和 LaTeX 空白语义上失败；非做完整 TeX 引擎或直接 PDF 输出。",
+  "why_valuable": "AI 默认能写 LaTeX 却做不到在浏览器解析宏、生成结构化 HTML、复原数学排版和文档类样式；LaTeX.js 把熟悉的输入记法变成可挂载 DOM。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "latex.js",
+    "version": "0.12.6",
+    "github": "michael-brade/LaTeX.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "LaTeX 是 AI 原生记法，parse + HtmlGenerator 的精确输入 schema 足矣，不附 minimal example。",
+    "schema": {
+      "latex": "string —— LaTeX 文档或正文源码，原样作为 parse 的第一个参数",
+      "hyphenate?": "boolean —— 是否自动断词，默认 true"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:生成器 CSS/脚本必须进入 document.head\nimport { parse, HtmlGenerator } from 'https://cdn.jsdelivr.net/npm/latex.js@0/+esm';\nconst base = 'https://cdn.jsdelivr.net/npm/latex.js@0.12.6/dist/';\nconst g = parse(data.latex, { generator:new HtmlGenerator({hyphenate:data.hyphenate ?? true}) });\ndocument.head.appendChild(g.stylesAndScripts(base));\nconst font = document.createElement('link'); font.rel = 'stylesheet'; font.href = `${base}fonts/cmu.css`; document.head.appendChild(font);\nconst el = document.getElementById('latex'); el.appendChild(g.domFragment()); g.applyLengthsAndGeometryToDom(el);",
+    "widget": "// 不用上游 web component，避免其把字体 CSS 注入 document.head；全部资产落 shadowRoot\nimport { parse, HtmlGenerator } from 'https://cdn.jsdelivr.net/npm/latex.js@0/+esm';\nconst base = 'https://cdn.jsdelivr.net/npm/latex.js@0.12.6/dist/';\nconst g = parse(data.latex, { generator:new HtmlGenerator({hyphenate:data.hyphenate ?? true}) });\nconst font = document.createElement('link'); font.rel = 'stylesheet'; font.href = `${base}fonts/cmu.css`;\nconst el = document.createElement('div'); el.className = 'page'; el.appendChild(g.domFragment());\nshadowRoot.append(g.stylesAndScripts(base), font, el); g.applyLengthsAndGeometryToDom(el);",
+    "codex": "// sandbox iframe:同 artifact，parse + HtmlGenerator + stylesAndScripts(base)。\n// 若改用原生 web component，必须 customElements.define 后 document.createElement('latex-js')，不得写声明式自定义标签。",
+    "note": "0.12.6 的原生 web component 会额外向 ownerDocument.head 放 CMU 字体 CSS，所以 widget 采用同包公开 parse/HtmlGenerator API，手动把 CSS 放进 shadowRoot。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:parse/HtmlGenerator 可零 head 挂载；KaTeX/article/CMU CSS 与 base.js 全放 shadowRoot，字体仍需 font-cdn",
+    "codex": "supported:浏览器 ESM + DOM；无 wasm/worker，CSS 与字体来自同一 pinned jsDelivr 包"
+  }
+}

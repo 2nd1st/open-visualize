@@ -1,0 +1,21 @@
+{
+ "entry_version": "thin-1",
+ "id": "loopy",
+ "name": "LOOPY",
+ "supply_form": "app-needs-fork",
+ "status": "blocked-until-forked",
+ "upstream": {
+  "github": "ncase/loopy"
+ },
+ "license": "CC0-1.0",
+ "scenarios": [
+  "local-tools"
+ ],
+ "fork_note": "应用态,需 fork+改造+发 npm 才过白名单;不作可消费条目上架。one_liner: Nicky Case 的因果回路模拟器:画节点连箭头,点一下看系统如何传导震荡",
+ "data_in": {
+  "shapes": [
+   "graph",
+   "weighted"
+  ]
+ }
+}

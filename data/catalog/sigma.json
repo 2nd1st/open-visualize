@@ -1,0 +1,82 @@
+{
+  "entry_version": "thin-1",
+  "id": "sigma",
+  "name": "Sigma.js (+graphology)",
+  "when_to_use": "需要把已有坐标的千到万级关系图用 WebGL 流畅缩放、悬停和检索时用它,而非手写 WebGL——原生在批渲染、拾取和相机变换上失败;非做自动排版的小图,坐标应由 graphology 布局或 elkjs 等 peer 先算出。",
+  "why_valuable": "AI 默认做不到万级节点的 WebGL 批渲染、GPU/颜色拾取与稳定相机状态;SVG/DOM 在千节点后失速,手写 WebGL 关系图成功率为 0%。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": { "npm": "sigma", "version": "3.0.3", "github": "jacomyal/sigma.js" },
+  "license": "MIT",
+  "data_in": {
+    "shape": "graph",
+    "note": "Sigma 原生消费 graphology Graph;JSON 入口采用 graphology.export()/import() 的序列化形状,节点 attributes.x/y 是渲染前置条件。",
+    "schema": {
+      "graph": {
+        "attributes?": "object —— 图级属性,默认 {}",
+        "nodes": [
+          {
+            "key": "string",
+            "attributes": {
+              "x": "number",
+              "y": "number",
+              "label?": "string —— 默认不显示文字",
+              "size?": "number —— 默认使用 Sigma 节点尺寸",
+              "color?": "string —— 默认使用 Sigma 节点颜色"
+            }
+          }
+        ],
+        "edges": [
+          {
+            "key?": "string —— 默认由 graphology 生成",
+            "source": "string —— 必须引用 node.key",
+            "target": "string —— 必须引用 node.key",
+            "attributes?": "object —— 默认 {}",
+            "undirected?": "boolean —— 默认 false"
+          }
+        ]
+      },
+      "settings?": "object —— Sigma Settings 裁剪入口,默认 {}"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "Sigma WebGL canvas 需要非零容器尺寸;默认 height 400px,禁用 vh/百分比高。节点 x/y 不可缺省;本条不隐式运行布局。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:Sigma 无外链 CSS,只在容器内建 WebGL canvas\nimport Sigma from 'https://cdn.jsdelivr.net/npm/sigma@3/+esm';\nimport Graph from 'https://cdn.jsdelivr.net/npm/graphology@0/+esm';\nconst graph = new Graph(); graph.import(data.graph);\nconst el = document.getElementById('sigma'); el.style.height = '400px';\nconst renderer = new Sigma(graph, el, data.settings ?? {});",
+    "widget": "// WebGL canvas 落 shadow 容器,Sigma 不向 document.head 注样式\nimport Sigma from 'https://cdn.jsdelivr.net/npm/sigma@3/+esm';\nimport Graph from 'https://cdn.jsdelivr.net/npm/graphology@0/+esm';\nconst graph = new Graph(); graph.import(data.graph);\nconst el = document.createElement('div'); el.style.height = '400px'; shadowRoot.appendChild(el);\nconst renderer = new Sigma(graph, el, data.settings ?? {});",
+    "codex": "import Sigma from 'https://cdn.jsdelivr.net/npm/sigma@3/+esm';\nimport Graph from 'https://cdn.jsdelivr.net/npm/graphology@0/+esm';\nconst graph = new Graph(); graph.import(data.graph);\nconst el = document.getElementById('sigma'); el.style.height = '400px';\nconst renderer = new Sigma(graph, el, data.settings ?? {});"
+  },
+  "example": {
+    "_why": "Sigma 不负责补布局,minimal 必须同时展示 graphology 序列化字段和节点 x/y。",
+    "minimal": {
+      "graph": {
+        "nodes": [
+          { "key": "a", "attributes": { "x": 0, "y": 0, "label": "Alpha", "size": 8 } },
+          { "key": "b", "attributes": { "x": 1, "y": 1, "label": "Beta", "size": 8 } }
+        ],
+        "edges": [
+          { "key": "a-b", "source": "a", "target": "b" }
+        ]
+      }
+    },
+    "empty": {
+      "graph": {
+        "nodes": [],
+        "edges": []
+      }
+    }
+  },
+  "peer": {
+    "id": "elkjs",
+    "note": "若输入只有拓扑没有 x/y,先用 elkjs 或 graphology-layout 产坐标再构造本条的 graph;Sigma 本身是渲染器,不替消费 AI 选择布局。"
+  },
+  "uplink": "默认只做本地关系探索;需要回传节点焦点时由消费 AI 接 Sigma 原生回调,不预设统一事件对象。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:WebGL canvas 完全落 shadow 容器,无 CSS/head/worker/uplink 依赖",
+    "codex": "supported:ESM CDN + WebGL;宿主需提供 WebGL 上下文"
+  }
+}

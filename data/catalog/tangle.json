@@ -1,0 +1,34 @@
+{
+  "entry_version": "thin-1",
+  "id": "tangle",
+  "name": "Tangle",
+  "when_to_use": "需要把讲解文字中的数字变成可拖动参数并让全文同步重算时用它,而非手写 DOM 绑定——原生在多处数值依赖、拖动手势与格式化同步上容易漏更新。",
+  "why_valuable": "AI 默认只能生成静态公式或一次性 slider,做不到正文内多个变量标记、拖动调参与派生文本的稳定双向同步;Tangle 用极小模型把 explorable explanation 闭环。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "version": null,
+    "github": "worrydream/Tangle"
+  },
+  "license": null,
+  "license_note": "picks 未给 SPDX 且要求复核,故不猜许可证;仓库没有可用 release/version,下方 jsDelivr /gh/ master URL 真实但不具备版本钉住保证。",
+  "data_in": {
+    "shape": "expression",
+    "note": "输入严格对应 new Tangle(root, model):root 内用 data-var 标出变量,model 使用上游 initialize/update 生命周期函数。这里的 update 是上游固定 API 名,不是平台统一事件契约。",
+    "schema": {
+      "root": "HTMLElement —— 已包含 [data-var] 标记的正文根节点,必填",
+      "model": "object —— 必须实现 initialize():void（给源变量赋初值）与上游固定生命周期方法 update():void（只计算派生变量）;两者的 this 均为 Tangle 模型状态"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:classic-script + TangleKit CSS;CSS 按铁律 2 进 head\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/TangleKit.css'; document.head.appendChild(css);\nfor (const file of ['mootools.js','sprintf.js','BVTouchable.js']) await new Promise((ok, fail) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/' + file; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });\nfor (const src of ['https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/Tangle.js','https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/TangleKit.js']) await new Promise((ok, fail) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });\ndocument.getElementById('tangle').appendChild(data.root);\nconst tangle = new Tangle(data.root, data.model);",
+    "widget": "// CSS 按铁律 2 落 shadow;classic JS 仍是页面全局,故 carrier 标 conditional\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/TangleKit.css'; shadowRoot.appendChild(css);\nfor (const file of ['mootools.js','sprintf.js','BVTouchable.js']) await new Promise((ok, fail) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/' + file; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });\nfor (const src of ['https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/Tangle.js','https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/TangleKit.js']) await new Promise((ok, fail) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });\nshadowRoot.appendChild(data.root);\nconst tangle = new Tangle(data.root, data.model);",
+    "codex": "const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/TangleKit.css'; document.head.appendChild(css);\nfor (const file of ['mootools.js','sprintf.js','BVTouchable.js']) await new Promise((ok, fail) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/' + file; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });\nfor (const src of ['https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/Tangle.js','https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/TangleKit.js']) await new Promise((ok, fail) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });\ndocument.getElementById('tangle').appendChild(data.root);\nconst tangle = new Tangle(data.root, data.model);"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:正文与 CSS 落 ShadowRoot,但旧版依赖和 Tangle 构造器注册全局符号;同页只能保守单实例加载",
+    "codex": "conditional:classic scripts + GitHub master,无版本钉住且许可证待核"
+  }
+}

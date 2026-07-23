@@ -1,0 +1,114 @@
+{
+  "entry_version": "thin-1",
+  "id": "drawflow",
+  "name": "Drawflow",
+  "when_to_use": "需要轻量、无框架的可拖拽节点流编辑器并把画布往返为紧凑 JSON 时用它而非手写 SVG,因为原生在锚点命中、贝塞尔连线路由和重连序列化上失败;非做自动布局、流程执行或多人协作。",
+  "why_valuable": "AI 默认只能产出静态流程 SVG,做不到稳定的端口命中、拖拽重连与完整图 JSON 往返;Drawflow 把这三项闭环压到 start/import/export 原生 API。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "drawflow",
+    "version": "0.0.60",
+    "github": "jerosoler/Drawflow"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geometry",
+    "note": "data_in 是 editor.export() 的原生对象,顶层必须是 drawflow→模块名→data;节点 HTML 由上游直接写入 DOM,不可信文本须由消费 AI 先转义。",
+    "schema": {
+      "drawflow": {
+        "<moduleName>": {
+          "data": {
+            "<nodeId>": {
+              "id": "number|string —— 模块内唯一",
+              "name": "string",
+              "data": "object",
+              "class": "string",
+              "html": "string —— 可信节点 HTML",
+              "typenode": "false | true | 'vue'",
+              "inputs": {
+                "input_<n>": {
+                  "connections": [
+                    {
+                      "node": "string —— 上游节点 id",
+                      "input": "string —— 上游 output_<n>"
+                    }
+                  ]
+                }
+              },
+              "outputs": {
+                "output_<n>": {
+                  "connections": [
+                    {
+                      "node": "string —— 下游节点 id",
+                      "output": "string —— 下游 input_<n>"
+                    }
+                  ]
+                }
+              },
+              "pos_x": "number",
+              "pos_y": "number"
+            }
+          }
+        }
+      }
+    }
+  },
+  "spec": {
+    "height": 420,
+    "layout": "freeform",
+    "note": "Drawflow 以容器几何计算拖拽与连线,默认显式 height 420px;铁律 3 禁 vh/百分比高,宽度可随容器。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合\nimport Drawflow from 'https://cdn.jsdelivr.net/npm/drawflow@0/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/drawflow@0/dist/drawflow.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('drawflow'); el.style.height = '420px';\nconst editor = new Drawflow(el); editor.start();\neditor.import(data);",
+    "widget": "import Drawflow from 'https://cdn.jsdelivr.net/npm/drawflow@0/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/drawflow@0/dist/drawflow.min.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); el.style.height = '420px'; shadowRoot.appendChild(el);\nconst editor = new Drawflow(el); editor.start();\neditor.import(data);",
+    "codex": "import Drawflow from 'https://cdn.jsdelivr.net/npm/drawflow@0/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/drawflow@0/dist/drawflow.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('drawflow'); el.style.height = '420px';\nconst editor = new Drawflow(el); editor.start();\neditor.import(data);"
+  },
+  "example": {
+    "_why": "原生 export 结构深且 inputs/outputs 的连接键名易混,minimal 用单节点钉死可导入形状。",
+    "minimal": {
+      "drawflow": {
+        "Home": {
+          "data": {
+            "1": {
+              "id": 1,
+              "name": "source",
+              "data": {
+                "value": 1
+              },
+              "class": "",
+              "html": "<div>Source</div>",
+              "typenode": false,
+              "inputs": {},
+              "outputs": {
+                "output_1": {
+                  "connections": []
+                }
+              },
+              "pos_x": 80,
+              "pos_y": 80
+            }
+          }
+        }
+      }
+    },
+    "empty": {
+      "drawflow": {
+        "Home": {
+          "data": {}
+        }
+      }
+    }
+  },
+  "uplink": {
+    "artifact": "artifact 无上行;消费 AI 可把 editor.export() 的 JSON 做下载或复制兜底。",
+    "widget": "消费 AI 自行读取 editor.export() 并拼 sendPrompt 文案;本条不绑定统一回调。",
+    "codex": "消费 AI 自行读取 editor.export() 后调用 sendFollowUpMessage;本条不绑定统一回调。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:节点、SVG 连线与样式均落同一 shadow 容器;CSS link 进入 shadow,无 head 污染",
+    "codex": "supported:ESM CDN + DOM/SVG,无额外 peer"
+  }
+}

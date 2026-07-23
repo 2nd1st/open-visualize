@@ -1,0 +1,38 @@
+{
+  "entry_version": "thin-1",
+  "id": "wgo",
+  "name": "WGo.js",
+  "when_to_use": "需要把 SGF 棋谱渲成可导航、带分支与讲评的围棋棋盘时用它而非手写 SVG/表格,因为原生在 19×19 坐标、落子序列、变例树和标记同步上失败;非做在线对弈服务器或 AI 复盘。",
+  "why_valuable": "AI 默认能生成 SGF 文本却无法把它稳定呈现为带手数、分支和注释导航的棋盘;WGo.js 解析 SGF 并把棋局状态、SVG 棋盘与播放器 UI 闭环。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "wgo",
+    "version": "3.0.0-alpha.10",
+    "github": "waltheri/wgo.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "SGF 是 AI 原生记法;SimplePlayer 的 sgf 字段直接吃完整棋谱字符串,schema 足矣、不附 minimal example。",
+    "schema": {
+      "sgf": "string —— 完整 SGF collection,从 '(;' 开始;不要传文件 URL"
+    }
+  },
+  "spec": {
+    "height": 620,
+    "note": "播放器含棋盘、控制条、注释与棋局信息,给宿主显式 620px 高和可用宽度;禁用 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合;CSS 按铁律 2 进 head\nimport { SimplePlayer } from 'https://cdn.jsdelivr.net/npm/wgo@3.0.0-alpha.10/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/wgo@3.0.0-alpha.10/dist/style.css'; document.head.appendChild(css);\nconst el = document.getElementById('wgo'); el.style.height = '620px';\nconst player = new SimplePlayer(el, { sgf: data.sgf });",
+    "widget": "// CSS 落 shadow,播放器生成的 SVG/控件也落同一容器\nimport { SimplePlayer } from 'https://cdn.jsdelivr.net/npm/wgo@3.0.0-alpha.10/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/wgo@3.0.0-alpha.10/dist/style.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); el.style.height = '620px'; shadowRoot.appendChild(el);\nconst player = new SimplePlayer(el, { sgf: data.sgf });",
+    "codex": "同 artifact(sandbox iframe):完整 prerelease 版本 ESM + dist/style.css,显式 620px 容器后 new SimplePlayer(el,{sgf})。",
+    "note": "wgo@3/+esm 实测为 404,因为 3.0.0-alpha.10 是 prerelease;必须使用 picks 的完整版本,不能退回旧版 WGo 全局 API。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:ESM + SVG;style.css 含内联图标字体并落 shadow,无外部 font/img/uplink 足迹",
+    "codex": "supported:ESM CDN + CSS + SVG"
+  }
+}

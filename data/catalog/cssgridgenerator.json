@@ -1,0 +1,20 @@
+{
+ "entry_version": "thin-1",
+ "id": "cssgridgenerator",
+ "name": "cssgridgenerator",
+ "supply_form": "app-needs-fork",
+ "status": "blocked-until-forked",
+ "upstream": {
+  "github": "sdras/cssgridgenerator"
+ },
+ "license": "MIT",
+ "scenarios": [
+  "dev-artifacts"
+ ],
+ "fork_note": "应用态,需 fork+改造+发 npm 才过白名单;不作可消费条目上架。one_liner: CSS Grid 可视化生成器,画格子直接产出 grid 代码",
+ "data_in": {
+  "shapes": [
+   "grid"
+  ]
+ }
+}

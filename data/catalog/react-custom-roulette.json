@@ -1,0 +1,89 @@
+{
+  "entry_version": "thin-1",
+  "id": "react-custom-roulette",
+  "name": "react-custom-roulette",
+  "when_to_use": "需要在 React 交付物里做带权扇区、指针和减速停靠的抽奖轮盘时用它而非手写 canvas,因为原生手写在角度映射、中奖停靠与连续动画上失败。",
+  "why_valuable": "AI 默认只能画静态圆盘,做不到稳定的扇区权重、指定奖项停靠和多阶段减速动画;该组件把这些难点收敛为 data、prizeNumber 与 mustStartSpinning 三个输入。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "react-custom-roulette",
+    "version": "1.4.1",
+    "github": "effectussoftware/react-custom-roulette"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "data_in 直接映射 Wheel props;data 是奖项行表,prizeNumber 是 data 的零基下标。上游把三个核心 prop 均列为必需,boot 只为静态首屏提供 false/0 默认。",
+    "schema": {
+      "data": [
+        {
+          "option?": "string —— 默认空字符串",
+          "optionSize?": "正整数 —— 默认 1,表示该奖项占几个等宽扇区",
+          "style?": {
+            "_default": "未提供时继承全局颜色与字体",
+            "backgroundColor?": "CSS color —— 默认轮换全局 backgroundColors",
+            "textColor?": "CSS color —— 默认轮换全局 textColors",
+            "fontFamily?": "string —— 默认继承全局 fontFamily",
+            "fontSize?": "number —— 默认继承全局 fontSize",
+            "fontWeight?": "number|string —— 默认继承全局 fontWeight",
+            "fontStyle?": "string —— 默认继承全局 fontStyle"
+          },
+          "image?": {
+            "_default": "不显示图片",
+            "uri": "string —— 图片 URL 或路径",
+            "offsetX?": "number —— 默认 0",
+            "offsetY?": "number —— 默认 0",
+            "sizeMultiplier?": "number —— 默认 1",
+            "landscape?": "boolean —— 默认 false"
+          }
+        }
+      ],
+      "prizeNumber?": "integer,0 <= value < data.length —— boot 默认 0;开始旋转时必须有效",
+      "mustStartSpinning?": "boolean —— boot 默认 false",
+      "backgroundColors?": "string[] —— 默认 ['darkgrey','lightgrey']",
+      "textColors?": "string[] —— 默认 ['black']",
+      "spinDuration?": "number >= 0.01 —— 默认 1",
+      "disableInitialAnimation?": "boolean —— 默认 false"
+    }
+  },
+  "spec": {
+    "height": 500,
+    "note": "组件内部绘制 canvas;宿主必须给明确像素高度,boot 默认 500px,禁止 vh/百分比高。轮盘自身按可用宽度缩放,窄容器应同时限制最大宽度。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针尚未闭合\nimport React from 'https://cdn.jsdelivr.net/npm/react@18.2.0/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@18.2.0/client/+esm';\nimport { Wheel } from 'https://cdn.jsdelivr.net/npm/react-custom-roulette@1/+esm';\nconst host = document.getElementById('roulette'); host.style.cssText = 'height:500px;max-width:500px';\nif (!data.data.length) host.textContent = '暂无奖项'; else createRoot(host).render(React.createElement(Wheel, { data:data.data, prizeNumber:data.prizeNumber ?? 0, mustStartSpinning:data.mustStartSpinning ?? false, backgroundColors:data.backgroundColors, textColors:data.textColors, spinDuration:data.spinDuration, disableInitialAnimation:data.disableInitialAnimation }));",
+    "widget": "import React from 'https://cdn.jsdelivr.net/npm/react@18.2.0/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@18.2.0/client/+esm';\nimport { Wheel } from 'https://cdn.jsdelivr.net/npm/react-custom-roulette@1/+esm';\nconst host = document.createElement('div'); host.style.cssText = 'height:500px;max-width:500px'; shadowRoot.append(host);\nif (!data.data.length) host.textContent = '暂无奖项'; else createRoot(host).render(React.createElement(Wheel, { data:data.data, prizeNumber:data.prizeNumber ?? 0, mustStartSpinning:data.mustStartSpinning ?? false, backgroundColors:data.backgroundColors, textColors:data.textColors, spinDuration:data.spinDuration, disableInitialAnimation:data.disableInitialAnimation }));",
+    "codex": "import React from 'https://cdn.jsdelivr.net/npm/react@18.2.0/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@18.2.0/client/+esm';\nimport { Wheel } from 'https://cdn.jsdelivr.net/npm/react-custom-roulette@1/+esm';\nconst host = document.getElementById('roulette'); host.style.cssText = 'height:500px;max-width:500px';\nif (!data.data.length) host.textContent = '暂无奖项'; else createRoot(host).render(React.createElement(Wheel, { data:data.data, prizeNumber:data.prizeNumber ?? 0, mustStartSpinning:data.mustStartSpinning ?? false, backgroundColors:data.backgroundColors, textColors:data.textColors, spinDuration:data.spinDuration, disableInitialAnimation:data.disableInitialAnimation }));"
+  },
+  "example": {
+    "_why": "奖项行、中奖下标与旋转开关彼此约束,附最小原生 props 以免把下标写成奖项值。",
+    "minimal": {
+      "data": [
+        {
+          "option": "A",
+          "style": {
+            "backgroundColor": "#2563eb",
+            "textColor": "#ffffff"
+          }
+        },
+        {
+          "option": "B"
+        }
+      ],
+      "prizeNumber": 1,
+      "mustStartSpinning": false
+    },
+    "empty": {
+      "data": [],
+      "prizeNumber": 0,
+      "mustStartSpinning": false
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:React 18 与 canvas 均可落 shadow 容器;若奖项使用外链图片或非 Web-safe 字体,还需对应 CDN 可达与跨域许可",
+    "codex": "supported:React ESM + canvas,无上行依赖"
+  }
+}

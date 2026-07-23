@@ -1,0 +1,48 @@
+{
+  "entry_version": "thin-1",
+  "id": "leader-line",
+  "name": "leader-line",
+  "when_to_use": "需要在两个既有 DOM 元素之间画会随布局定位的箭头或连线时用它,而非手写 SVG path——原生在跨容器坐标换算、端点吸附和重排后重定位上容易失败;非做可编辑节点图或自动布局。",
+  "why_valuable": "AI 默认只能画固定坐标 SVG,做不到任意 DOM 端点吸附、曲线路径和布局变化后的可靠重定位;leader-line 直接吃两个 HTMLElement 并管理覆盖层。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "leader-line",
+    "version": "1.0.8",
+    "github": "anseki/leader-line"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geometry",
+    "note": "start/end 是已经进入同一 document 的真实 HTMLElement,不是 CSS selector;options 仅裁剪上游高频字段,每个可选字段均注明默认。",
+    "schema": {
+      "start": "HTMLElement —— 起点元素,必填",
+      "end": "HTMLElement —— 终点元素,必填",
+      "options?": {
+        "_default": "{} —— 全部采用 LeaderLine 默认外观",
+        "color?": "string —— 默认 'coral'",
+        "size?": "number（px）—— 默认 4",
+        "path?": "'straight' | 'arc' | 'fluid' | 'magnet' | 'grid' —— 默认 'fluid'",
+        "startSocket?": "'top' | 'right' | 'bottom' | 'left' | 'auto' —— 默认 'auto'",
+        "endSocket?": "'top' | 'right' | 'bottom' | 'left' | 'auto' —— 默认 'auto'",
+        "startPlug?": "string —— 上游 plug 名,默认 'behind'",
+        "endPlug?": "string —— 上游 plug 名,默认 'arrow1'"
+      }
+    }
+  },
+  "spec": {
+    "height": 320,
+    "note": "连线没有自有容器高,但端点布局区必须有显式像素高度;默认示意区 320px,铁律 3 禁 vh/百分比高。端点移动或容器重排后由消费 AI 调 line.position()。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:LeaderLine 会在 document 级创建 SVG overlay\nimport LeaderLine from 'https://cdn.jsdelivr.net/npm/leader-line@1/+esm';\nconst stage = document.getElementById('stage'); stage.style.height = '320px';\nconst line = new LeaderLine(data.start, data.end, data.options ?? {});\nconst ro = new ResizeObserver(() => line.position());\nro.observe(stage);",
+    "widget": "unsupported:上游把 SVG overlay 挂到 document 级而非给定 ShadowRoot,无法满足 widget 所有视觉 DOM 落 shadow 容器的铁律。",
+    "codex": "import LeaderLine from 'https://cdn.jsdelivr.net/npm/leader-line@1/+esm';\nconst stage = document.getElementById('stage'); stage.style.height = '320px';\nconst line = new LeaderLine(data.start, data.end, data.options ?? {});\nconst ro = new ResizeObserver(() => line.position());\nro.observe(stage);"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "unsupported:document 级 SVG overlay 不能收进 ShadowRoot",
+    "codex": "supported:DOM + SVG overlay;端点必须在同一 sandbox document"
+  }
+}

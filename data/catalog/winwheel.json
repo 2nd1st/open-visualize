@@ -1,0 +1,88 @@
+{
+  "entry_version": "thin-1",
+  "id": "winwheel",
+  "name": "Winwheel.js",
+  "when_to_use": "需要图片扇区、丰富文字方向或预计算停点的老牌 canvas 奖轮时用它,而非手写圆弧与旋转判定——原生手写在图片裁剪、角度命中和缓动停点上失败。若只要现代无依赖决定轮盘,优先 spin-wheel。",
+  "why_valuable": "AI 默认只能画静态扇区,做不到 Winwheel 的图片绘制模式、文字朝向、落点角度计算和动画后命中判定;库把这些历史边角集中在一个 canvas 类中。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "winwheel",
+    "version": "1.0.1",
+    "github": "zarocknz/javascript-winwheel"
+  },
+  "license": "ISC",
+  "data_in": {
+    "shape": "tabular",
+    "note": "data_in 映射到 Winwheel 原生 options;boot 注入 canvasId 并把 numSegments 缺省值校准为 segments.length。动画仍依赖旧版 GSAP TweenMax,boot 显式加载 gsap@2;这是上游结构限制。",
+    "schema": {
+      "segments": [
+        {
+          "text": "string",
+          "fillStyle?": "CSS color string —— 默认继承 wheel.fillStyle('silver')",
+          "strokeStyle?": "CSS color string | null —— 默认继承 wheel.strokeStyle('black')",
+          "textFillStyle?": "CSS color string —— 默认继承 wheel.textFillStyle('black')",
+          "size?": "number(deg) —— 默认 null,由未指定 size 的扇区均分余角"
+        }
+      ],
+      "numSegments?": "number —— catalog 默认 segments.length;上游裸默认 1",
+      "drawMode?": "'code' | 'image' | 'segmentImage' —— 默认 'code'",
+      "outerRadius?": "number(px) | null —— 默认 null,取 canvas 较短边可用半径",
+      "innerRadius?": "number(px) —— 默认 0",
+      "pointerAngle?": "number(deg) —— 默认 0",
+      "textFontFamily?": "string —— 默认 'Arial'",
+      "textFontSize?": "number(px) —— 默认 20",
+      "textOrientation?": "'horizontal' | 'vertical' | 'curved' —— 默认 'horizontal'",
+      "animation?": {
+        "_default": "默认不传则不自动播放;传入时 boot 调用 startAnimation()",
+        "type": "'spinToStop'",
+        "duration?": "number(seconds) —— 默认 10",
+        "spins?": "number —— spinToStop 默认 5",
+        "easing?": "GSAP 2 easing string —— spinToStop 默认 'Power4.easeOut'"
+      }
+    }
+  },
+  "spec": {
+    "height": 420,
+    "note": "Winwheel 直接读取 canvas width/height 属性;boot 默认创建 420×420 canvas,不使用 CSS 百分比高或 vh(铁律 3)。要改尺寸须同时改 canvas 属性与本 spec。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:动画依赖 legacy TweenMax;先显式暴露 GSAP 2 全局\nimport Winwheel from 'https://cdn.jsdelivr.net/npm/winwheel@1/+esm';\nimport { TweenMax } from 'https://cdn.jsdelivr.net/npm/gsap@2/+esm'; globalThis.TweenMax = TweenMax;\nconst canvas = document.createElement('canvas'); canvas.id = 'winwheel-canvas'; canvas.width = 420; canvas.height = 420;\ndocument.getElementById('wheel').appendChild(canvas);\nconst wheel = new Winwheel({ ...data, canvasId: canvas.id, numSegments: data.numSegments ?? data.segments.length });\nif (data.animation) wheel.startAnimation();",
+    "widget": "unsupported:Winwheel 1.0.1 在构造器内硬编码 document.getElementById(canvasId),无法穿透 widget shadow root;把 canvas 放 light DOM 会违反载体隔离。",
+    "codex": "// sandbox iframe 有普通 document,可用上游原生全局查找\nimport Winwheel from 'https://cdn.jsdelivr.net/npm/winwheel@1/+esm';\nimport { TweenMax } from 'https://cdn.jsdelivr.net/npm/gsap@2/+esm'; globalThis.TweenMax = TweenMax;\nconst canvas = document.createElement('canvas'); canvas.id = 'winwheel-canvas'; canvas.width = 420; canvas.height = 420; document.body.appendChild(canvas);\nconst wheel = new Winwheel({ ...data, canvasId: canvas.id, numSegments: data.numSegments ?? data.segments.length });\nif (data.animation) wheel.startAnimation();"
+  },
+  "example": {
+    "_why": "segments、numSegments、秒制 duration 与 TweenMax 依赖很容易被其他 wheel API 污染,minimal 用来钉死 Winwheel 原生形状。",
+    "minimal": {
+      "segments": [
+        {
+          "text": "一等奖",
+          "fillStyle": "#ffcf56"
+        },
+        {
+          "text": "二等奖",
+          "fillStyle": "#ff6b6b"
+        },
+        {
+          "text": "谢谢参与",
+          "fillStyle": "#4ecdc4"
+        }
+      ],
+      "animation": {
+        "type": "spinToStop",
+        "duration": 5,
+        "spins": 8
+      }
+    },
+    "empty": {
+      "segments": []
+    }
+  },
+  "uplink": "local-interact 类;结束回调、中奖结果回传与可信随机由消费 AI 自己编排。真实奖品不得让前端轮盘决定中奖值。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "unsupported:document.getElementById 不可见 shadow 内 canvas",
+    "codex": "conditional:普通 iframe document + canvas 可用;动画还需 gsap@2 TweenMax 全局"
+  }
+}

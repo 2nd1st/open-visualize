@@ -1,0 +1,86 @@
+{
+  "entry_version": "thin-1",
+  "id": "vis-network",
+  "name": "vis-network",
+  "when_to_use": "需要把 nodes/edges 两数组直接变成可拖拽、可缩放、可聚类的中小型物理网络图时用它,而非手写 canvas——原生在力学稳定、命中测试和视口变换上失败;非做万级节点 WebGL 图或严格分层排版。",
+  "why_valuable": "AI 默认做不到稳定的力导向求解、canvas 节点命中测试、拖拽缩放与聚类状态协同;徒手只能画静态关系线,交互物理网络成功率为 0%。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": { "npm": "vis-network", "version": "10.1.0", "github": "visjs/vis-network" },
+  "license": "(Apache-2.0 OR MIT)",
+  "data_in": {
+    "shape": "graph",
+    "note": "这是 vis-network 原生字段:边端点必须叫 from/to,不是 source/target。",
+    "schema": {
+      "_defaults": {
+        "options": "{}",
+        "options.layout": "{}",
+        "options.layout.hierarchical": "{}",
+        "options.interaction": "{}"
+      },
+      "nodes": [
+        {
+          "id": "string | number",
+          "label?": "string —— 默认不显示文字",
+          "group?": "string | number —— 默认无分组",
+          "value?": "number —— 默认不启用数值缩放"
+        }
+      ],
+      "edges": [
+        {
+          "id?": "string | number —— 默认由内部数据集生成",
+          "from": "string | number —— 必须引用 nodes.id",
+          "to": "string | number —— 必须引用 nodes.id",
+          "label?": "string —— 默认不显示文字",
+          "arrows?": "string | object —— 默认 false"
+        }
+      ],
+      "options?": {
+        "physics?": "boolean | object —— 默认启用",
+        "layout?": {
+          "hierarchical?": {
+            "enabled?": "boolean —— 默认 false"
+          }
+        },
+        "interaction?": {
+          "hover?": "boolean —— 默认 false"
+        }
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "Network canvas 读取容器尺寸;默认容器 height 400px,禁用 vh/百分比高。默认 autoResize 可跟随容器尺寸变化。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:peer ESM 的 CSS 按铁律 2 放 document.head\nimport { Network } from 'https://cdn.jsdelivr.net/npm/vis-network@10/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/vis-network@10.1.0/styles/vis-network.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('network'); el.style.height = '400px';\nconst network = new Network(el, { nodes: data.nodes, edges: data.edges }, data.options ?? {});",
+    "widget": "// peer ESM 不自动注入 CSS;外链样式与 canvas 都落 shadow\nimport { Network } from 'https://cdn.jsdelivr.net/npm/vis-network@10/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/vis-network@10.1.0/styles/vis-network.min.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); el.style.height = '400px'; shadowRoot.appendChild(el);\nconst network = new Network(el, { nodes: data.nodes, edges: data.edges }, data.options ?? {});",
+    "codex": "import { Network } from 'https://cdn.jsdelivr.net/npm/vis-network@10/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/vis-network@10.1.0/styles/vis-network.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('network'); el.style.height = '400px';\nconst network = new Network(el, { nodes: data.nodes, edges: data.edges }, data.options ?? {});"
+  },
+  "example": {
+    "_why": "网络图库对边端点字段分歧很大,minimal 钉死本库的 from/to。",
+    "minimal": {
+      "nodes": [
+        { "id": "a", "label": "Alpha" },
+        { "id": "b", "label": "Beta" }
+      ],
+      "edges": [
+        { "from": "a", "to": "b", "arrows": "to" }
+      ],
+      "options": {
+        "physics": true
+      }
+    },
+    "empty": {
+      "nodes": [],
+      "edges": []
+    }
+  },
+  "uplink": "display/local-interact 默认不上行;节点焦点或视口状态若需外传,由消费 AI 直接接库的原生回调并按载体处理。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:使用 peer ESM 并把 vis-network.min.css 显式放进 shadow,避免 standalone build 向 head 注样式",
+    "codex": "supported:ESM CDN + canvas,无 worker/wasm/uplink 硬依赖"
+  }
+}

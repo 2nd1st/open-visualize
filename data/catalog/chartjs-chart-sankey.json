@@ -1,0 +1,108 @@
+{
+  "entry_version": "thin-1",
+  "id": "chartjs-chart-sankey",
+  "name": "chartjs-chart-sankey",
+  "when_to_use": "需要把 {from,to,flow} 流量边快速渲成预算流向、转化路径或资源分配 Sankey 时用它而非手写 SVG,因为原生手写在节点分层、链宽和交叉压缩布局上失败。",
+  "why_valuable": "AI 默认做不到 Sankey 的节点层级、守恒链宽与低交叉布局,mermaid/Markdown 也没有等价表达;该插件把输入压到 from/to/flow 三字段。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "chartjs-chart-sankey",
+    "version": "0.15.0",
+    "github": "kurkle/chartjs-chart-sankey"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "graph",
+    "note": "data_in.config 直接进入 Chart.js;type 必须为 sankey,每个 dataset.data 元素严格是 from/to/flow 有向加权边。",
+    "schema": {
+      "config": {
+        "type": "'sankey'",
+        "data": {
+          "datasets": [
+            {
+              "label?": "string —— 默认空字符串",
+              "data": [
+                {
+                  "from": "string",
+                  "to": "string",
+                  "flow": "number —— 有限且 >= 0"
+                }
+              ],
+              "colorFrom?": "CSS color string —— 默认 'red'",
+              "colorTo?": "CSS color string —— 默认 'green'",
+              "colorMode?": "'from' | 'to' | 'gradient' —— 默认 'gradient'",
+              "borderWidth?": "number —— 默认 1"
+            }
+          ]
+        },
+        "options?": {
+          "_default": "{};boot 另注入 responsive:true 与 maintainAspectRatio:false",
+          "responsive?": "boolean —— boot 默认 true",
+          "maintainAspectRatio?": "boolean —— boot 默认 false",
+          "plugins?": "Chart.js 原生 plugins 配置对象 —— 默认使用上游默认值"
+        }
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "layout": "sankey",
+    "direction": "left-to-right",
+    "note": "插件在 canvas 内布局,父容器必须有显式像素高度;boot 默认 400px并关闭纵横比锁定,铁律 3 禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:需同时注册 Chart.js 与 Sankey 控制器\nimport { Chart, registerables } from 'https://cdn.jsdelivr.net/npm/chart.js@4/+esm';\nimport { SankeyController, Flow } from 'https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0/+esm';\nChart.register(...registerables, SankeyController, Flow);\nconst host = document.getElementById('chart'); host.style.height = '400px'; const canvas = document.createElement('canvas'); host.appendChild(canvas);\nnew Chart(canvas, { ...data.config, options: { responsive: true, maintainAspectRatio: false, ...(data.config.options ?? {}) } });",
+    "widget": "import { Chart, registerables } from 'https://cdn.jsdelivr.net/npm/chart.js@4/+esm';\nimport { SankeyController, Flow } from 'https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0/+esm';\nChart.register(...registerables, SankeyController, Flow);\nconst host = document.createElement('div'); host.style.height = '400px'; const canvas = document.createElement('canvas'); host.appendChild(canvas); shadowRoot.appendChild(host);\nnew Chart(canvas, { ...data.config, options: { responsive: true, maintainAspectRatio: false, ...(data.config.options ?? {}) } });",
+    "codex": "import { Chart, registerables } from 'https://cdn.jsdelivr.net/npm/chart.js@4/+esm';\nimport { SankeyController, Flow } from 'https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0/+esm';\nChart.register(...registerables, SankeyController, Flow);\nconst host = document.getElementById('chart'); host.style.height = '400px'; const canvas = document.createElement('canvas'); host.appendChild(canvas);\nnew Chart(canvas, { ...data.config, options: { responsive: true, maintainAspectRatio: false, ...(data.config.options ?? {}) } });"
+  },
+  "example": {
+    "_why": "Chart.js 插件需同时满足控制器注册、type 与 datasets 三处约束,附最小原生 config。",
+    "minimal": {
+      "config": {
+        "type": "sankey",
+        "data": {
+          "datasets": [
+            {
+              "label": "Budget",
+              "data": [
+                {
+                  "from": "Income",
+                  "to": "Housing",
+                  "flow": 40
+                },
+                {
+                  "from": "Income",
+                  "to": "Food",
+                  "flow": 20
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "empty": {
+      "config": {
+        "type": "sankey",
+        "data": {
+          "datasets": [
+            {
+              "data": []
+            }
+          ]
+        }
+      }
+    }
+  },
+  "peer": {
+    "id": "chart-js",
+    "note": "运行时 peer 是 Chart.js >=3.3.0;boot 固定使用 catalog 的 Chart.js 4 主版本并显式注册全部基础部件。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:canvas 与 tooltip 全落 shadow 容器,无外部 CSS",
+    "codex": "supported:两个 ESM CDN 入口 + canvas,无上行依赖"
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "entry_version": "thin-1",
+  "id": "function-plot",
+  "name": "function-plot",
+  "when_to_use": "需要正确表现渐近线、间断点、缩放和平移中的二维函数图或导数切线时用它而非手写,因为原生等距采样加 polyline 会在 1/x、tan(x) 的断点处错误连线；非做统计柱线饼。",
+  "why_valuable": "AI 默认只会等距采样后连线,无法识别区间内的奇点,也不能稳定拼出缩放、坐标轴和导数辅助线；function-plot 的区间算术采样直接覆盖这个失败区。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "function-plot",
+    "version": "1.25.4",
+    "github": "mauriciopoppe/function-plot"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "expression",
+    "note": "data_in 是 functionPlot 原生 options 去掉 boot 负责的 target/width/height 后的裁剪版；只收 y=f(x) 高频路径,非参数方程、极坐标或隐函数。",
+    "schema": {
+      "data": [
+        {
+          "fn": "string —— 以 x 为自变量的表达式,如 '1/x'",
+          "range?": "[number, number] —— 定义域,默认当前 xAxis.domain",
+          "graphType?": "'interval' | 'polyline' —— 默认 'interval'",
+          "sampler?": "'interval' | 'builtIn' —— 默认由 graphType 推导:interval→interval,其余→builtIn",
+          "color?": "CSS color string —— 默认使用内置调色板",
+          "derivative?": {
+            "fn": "string —— 导函数表达式",
+            "x0?": "number —— 切点横坐标,默认 0"
+          }
+        }
+      ],
+      "xAxis?": {
+        "domain?": "[number, number] —— 默认 [-6, 6]",
+        "type?": "'linear' | 'log' —— 默认 'linear'",
+        "label?": "string —— 默认不显示"
+      },
+      "yAxis?": {
+        "domain?": "[number, number] —— 默认按画布纵横比由 x 域推导",
+        "type?": "'linear' | 'log' —— 默认 'linear'",
+        "label?": "string —— 默认不显示"
+      },
+      "grid?": "boolean —— 默认 false",
+      "disableZoom?": "boolean —— 默认 false"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "显式传 400px 高度并把容器宽度钉成像素值(铁律 3 禁 vh/百分比高)；function-plot 生成固定尺寸 SVG,容器变宽时应以新 width 重新实例化。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合\nimport functionPlot from 'https://cdn.jsdelivr.net/npm/function-plot@1/+esm';\nconst el = document.getElementById('plot');\nel.style.height = '400px';\nconst width = el.clientWidth || 640;\nconst chart = functionPlot({ ...data, target: el, width, height: 400 });",
+    "widget": "// SVG 全部落到 shadow 容器,无 document.head 样式注入\nimport functionPlot from 'https://cdn.jsdelivr.net/npm/function-plot@1/+esm';\nconst el = document.createElement('div'); el.style.height = '400px';\nshadowRoot.appendChild(el);\nconst width = el.clientWidth || 640;\nconst chart = functionPlot({ ...data, target: el, width, height: 400 });",
+    "codex": "同 artifact(sandbox iframe):从 jsDelivr /npm/ 导入默认函数,传 DOM target、像素 width/height 和 data_in。"
+  },
+  "example": {
+    "_why": "表达式采样器的 graphType/sampler 组合容易歧义,给最小原生 options。",
+    "minimal": {
+      "data": [
+        {
+          "fn": "1/x",
+          "graphType": "interval"
+        }
+      ],
+      "xAxis": {
+        "domain": [-6, 6]
+      },
+      "grid": true
+    },
+    "empty": {
+      "data": []
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:ESM + SVG,传 shadow 内 DOM 节点作 target,不依赖全局 CSS 或 uplink",
+    "codex": "supported:ESM CDN + SVG,无 worker/wasm/uplink 需求"
+  }
+}

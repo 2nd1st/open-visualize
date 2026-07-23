@@ -1,0 +1,39 @@
+{
+  "entry_version": "thin-1",
+  "id": "ansi-up",
+  "name": "ansi_up",
+  "when_to_use": "需要把 CI/build 日志中的 SGR 颜色、256 色与 truecolor 静态转成安全 HTML 时用它而非手写正则,因为原生 AI 在嵌套样式状态、分片序列和颜色空间上失败。",
+  "why_valuable": "AI 默认只能覆盖基础 8/16 色且会漏掉跨片段状态、256 色与 truecolor;ansi_up 保持解析器状态并转义普通文本,以很小成本产出可嵌入 <pre> 的 span HTML。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "ansi_up",
+    "version": "6.0.6",
+    "github": "drudru/ansi_up"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "text-span",
+    "note": "text 必须是仍含 ESC 序列的原始 JavaScript 字符串;ansi_to_html 返回已转义普通文本并为 ANSI 样式包 span,不是完整 document。",
+    "schema": {
+      "text": "string —— ANSI SGR 日志文本",
+      "useClasses?": "boolean —— true 时基础颜色输出 class 而非行内 style,默认 false"
+    }
+  },
+  "provides": {
+    "shape": "html-fragment",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;纯 JS ANSI→HTML 转换器。",
+    "outputs": "由转义文本、<span> 与受协议白名单约束的终端超链接组成的 HTML fragment;消费侧放进专用 <pre> 容器。",
+    "api_surface": {
+      "convert": "const ansi = new AnsiUp(); ansi.ansi_to_html(text)",
+      "class_mode": "ansi.use_classes = true —— 基础调色板改用 ansi-*-fg/bg classes"
+    }
+  },
+  "peer": {
+    "note": "消费端把 html fragment 放入专用 <pre> 容器;若日志依赖光标移动、清屏、宽字符网格或 scrollback,不要用本条,改用 xterm-xterm。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS 转换;渲染容器与 CSS 由消费 AI 自己写\nimport { AnsiUp } from 'https://cdn.jsdelivr.net/npm/ansi_up@6/+esm';\nconst ansi = new AnsiUp();\nansi.use_classes = data.useClasses ?? false;\nconst html = ansi.ansi_to_html(data.text);",
+    "note": "useClasses=true 时消费端必须自备 ansi-black-fg 等调色板 CSS;若不需要主题复用,保持默认 false 让库输出行内颜色最稳。"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "entry_version": "thin-1",
+  "id": "fullcalendar-core",
+  "name": "FullCalendar Core",
+  "when_to_use": "需要月/周/日多视图、重叠事件布局和日程拖拽几何时本应使用 FullCalendar 而非手写,因为原生在跨视图日期运算、事件堆叠和命中上失败,但当前确切 upstream 包不可直接渲染。",
+  "why_valuable": "AI 默认做不到完整日历的时区日期运算、重叠区间布局、多视图切换和可靠拖拽几何;不过 @fullcalendar/core@7.0.1 仅是类型/共享契约包,不能独立兑现这些能力。",
+  "supply_form": "app-needs-fork",
+  "mode": "our-entry",
+  "upstream": {
+    "npm": "@fullcalendar/core",
+    "version": "7.0.1",
+    "github": "fullcalendar/fullcalendar"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "interval-set",
+    "note": "这是未来可渲染封装应接收的最小日程契约;当前 @fullcalendar/core@7.0.1 本身没有挂载 API,不得把此 schema 误当作可运行输入。",
+    "schema": {
+      "events": [
+        {
+          "id?": "string —— 默认由未来封装生成稳定 id",
+          "title": "string",
+          "start": "ISO-8601 date/time string",
+          "end?": "ISO-8601 date/time string —— 默认按未来视图的单点事件处理",
+          "allDay?": "boolean —— 默认由日期字符串是否含时间推断",
+          "groupId?": "string —— 默认无分组",
+          "url?": "absolute URL string —— 默认无跳转",
+          "backgroundColor?": "CSS color string —— 默认主题色",
+          "borderColor?": "CSS color string —— 默认跟随 backgroundColor",
+          "textColor?": "CSS color string —— 默认主题对比色",
+          "extendedProps?": "JSON object —— 默认 {}"
+        }
+      ],
+      "view?": "'dayGridMonth' | 'timeGridWeek' | 'timeGridDay' | 'listWeek' —— 未来封装默认 'dayGridMonth'",
+      "initialDate?": "ISO-8601 date string —— 默认今天",
+      "locale?": "BCP-47 language tag —— 默认 'en'",
+      "timeZone?": "'local' | 'UTC' | IANA zone string —— 默认 'local'"
+    }
+  },
+  "status": "blocked-until-forked",
+  "fork_note": "@fullcalendar/core@7.0.1 的发布说明为 Core Types,其 index.js 只打印“should not be imported directly”,没有 Calendar 构造器或视图实现。必须另建并探测 @fullcalendar/web-component@7.0.1 等可渲染 upstream,或做一个组合视图封装后再升为可消费条目;禁止偷偷借用 v6 API 或虚构 boot。"
+}

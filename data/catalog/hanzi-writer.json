@@ -1,0 +1,40 @@
+{
+  "entry_version": "thin-1",
+  "id": "hanzi-writer",
+  "name": "Hanzi Writer",
+  "when_to_use": "需要正确汉字笔顺动画、逐画高亮或描红判定时用它,而非手写 SVG——原生实现无法可靠生成每个字的笔画路径、顺序、动画时序和容错评分。",
+  "why_valuable": "AI 默认连单个汉字的正确笔顺路径都做不到,更不能为数千简繁字生成中线数据与描红命中判定；Hanzi Writer 把字形数据、动画和 quiz 判定做成可重复的本地交互。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "hanzi-writer",
+    "version": "3.7.3",
+    "github": "chanind/hanzi-writer"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "note": "character 是一个汉字字符；Hanzi Writer 3.7.3 默认从固定的 https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/<字符>.json 加载 {strokes,medians,radStrokes?},无需 AI 拼笔画几何。",
+    "schema": {
+      "character": "string —— 恰好一个受 hanzi-writer-data 覆盖的汉字字符",
+      "action?": "'animate' | 'quiz' | 'static' —— 默认 animate",
+      "showOutline?": "boolean —— 是否显示灰色轮廓,默认 true",
+      "strokeAnimationSpeed?": "positive number —— 笔画动画倍率,默认 1"
+    }
+  },
+  "spec": {
+    "height": 300,
+    "note": "默认 300×300px 正方形 SVG/canvas,boot 同时传 width/height=300；禁止 vh/百分比高。若改尺寸,同步改容器 pixel 尺寸与 HanziWriter options。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:运行时另 fetch pinned hanzi-writer-data@2.0.1\nimport HanziWriter from 'https://cdn.jsdelivr.net/npm/hanzi-writer@3/+esm';\nconst el = document.getElementById('hanzi'); el.style.cssText = 'width:300px;height:300px';\nconst writer = HanziWriter.create(el, data.character, { width: 300, height: 300, showOutline: data.showOutline ?? true, strokeAnimationSpeed: data.strokeAnimationSpeed ?? 1 });\nif ((data.action ?? 'animate') === 'quiz') writer.quiz();\nelse if ((data.action ?? 'animate') === 'animate') writer.animateCharacter();",
+    "widget": "// API 接受 HTMLElement,不要传 id；生成的 SVG 与指针监听会留在 shadow 容器\nimport HanziWriter from 'https://cdn.jsdelivr.net/npm/hanzi-writer@3/+esm';\nconst el = document.createElement('div'); el.style.cssText = 'width:300px;height:300px'; shadowRoot.appendChild(el);\nconst writer = HanziWriter.create(el, data.character, { width: 300, height: 300, showOutline: data.showOutline ?? true, strokeAnimationSpeed: data.strokeAnimationSpeed ?? 1 });\nif ((data.action ?? 'animate') === 'quiz') writer.quiz();\nelse if ((data.action ?? 'animate') === 'animate') writer.animateCharacter();",
+    "codex": "同 artifact(sandbox iframe):default ESM import + HanziWriter.create(HTMLElement, character, options)；宿主须允许从 cdn.jsdelivr.net fetch 字形 JSON。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:JS ESM 外还需 connect-src 访问 cdn.jsdelivr.net 的 hanzi-writer-data@2.0.1",
+    "widget": "conditional:传 shadow 内 HTMLElement 而非 id；组件无外部 CSS/head 注入,但需允许字形 JSON CDN fetch",
+    "codex": "conditional:支持 ESM + SVG/canvas；需联网读取 pinned 字形 JSON"
+  }
+}

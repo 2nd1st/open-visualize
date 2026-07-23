@@ -1,0 +1,20 @@
+{
+ "entry_version": "thin-1",
+ "id": "myphysicslab",
+ "name": "myPhysicsLab",
+ "supply_form": "app-needs-fork",
+ "status": "blocked-until-forked",
+ "upstream": {
+  "github": "myphysicslab/myphysicslab"
+ },
+ "license": "Apache-2.0",
+ "scenarios": [
+  "teach-sim"
+ ],
+ "fork_note": "应用态,需 fork+改造+发 npm 才过白名单;不作可消费条目上架。one_liner: 开源物理教学模拟集(Apache-2.0):摆/弹簧/碰撞/混沌,真 ODE 求解器 + 参数面板 + 能量图实时联动",
+ "data_in": {
+  "shapes": [
+   "geometry"
+  ]
+ }
+}

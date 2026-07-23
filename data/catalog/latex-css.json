@@ -1,0 +1,34 @@
+{
+  "entry_version": "thin-1",
+  "id": "latex-css",
+  "name": "LaTeX.css",
+  "when_to_use": "需要把语义 HTML 稳定排成 LaTeX 论文式摘要、作者块、定理和参考文献时用它而非手写 CSS，因为原生在 Libertinus 字体度量、定理环境和打印纸感的一致性上失败；非做通用应用 UI 或真正的 TeX 编译。",
+  "why_valuable": "AI 默认能模仿约 70% 的学术纸面，但做不到稳定复现字体栈、标题层级、定理计数器、引用样式和打印断点；classless 规则让 AI 只需给语义 HTML。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "latex.css",
+    "version": "1.14.0",
+    "github": "vincentdoerig/latex-css"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "note": "输入是可信的语义 HTML 字符串；库是 classless 文档 CSS，不负责 Markdown/LaTeX 解析。",
+    "schema": {
+      "html": "string —— article/section/h1..h6/p/blockquote/table 等语义 HTML",
+      "theme?": "'light' | 'dark' —— 根文档主题，默认 light"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:样式必须进入 document.head\nconst css = document.createElement('link'); css.rel = 'stylesheet';\ncss.href = 'https://cdn.jsdelivr.net/npm/latex.css@1.14.0/style.min.css';\ndocument.head.appendChild(css);\nconst el = document.getElementById('paper'); el.classList.toggle('latex-dark', data.theme === 'dark');\nel.innerHTML = data.html;",
+    "widget": "// widget 零足迹:CSS 只进入 shadowRoot\nconst css = document.createElement('link'); css.rel = 'stylesheet';\ncss.href = 'https://cdn.jsdelivr.net/npm/latex.css@1.14.0/style.min.css';\nconst el = document.createElement('article');\nel.classList.toggle('latex-dark', data.theme === 'dark'); el.innerHTML = data.html;\nshadowRoot.append(css, el);",
+    "codex": "// sandbox iframe:同 artifact，把 CSS link 放进 iframe document.head\nconst el = document.getElementById('paper');\nel.classList.toggle('latex-dark', data.theme === 'dark');\nel.innerHTML = data.html;"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:CSS link 必须放入 shadowRoot；字体由 CSS 相对路径从同一 jsDelivr 包加载，宿主需允许 font-cdn",
+    "codex": "supported:纯 CSS + 语义 HTML；无 wasm、worker 或 uplink 需求"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "entry_version": "thin-1",
+  "id": "papaparse",
+  "name": "PapaParse",
+  "when_to_use": "需要把用户粘贴的带引号、换行、自动分隔符与坏行的 CSV 稳定变成记录表时用它而非手写 split,因为原生在转义引号、字段内换行和列数错误定位上失败。",
+  "why_valuable": "AI 默认会用 split(',') 破坏带引号逗号与多行字段,也无法稳定报告 TooFewFields/TooManyFields;PapaParse 同时产出规范 data、errors 与 delimiter/fields 元数据。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "papaparse",
+    "version": "5.5.4",
+    "github": "mholt/PapaParse"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "本条主路径只解析 CSV 文本并同步返回 ParseResult;header 默认改为 true 以直接生产记录对象,不会启用 download/worker/step/chunk 回调分支。",
+    "schema": {
+      "csv": "string —— 完整 CSV/TSV 文本",
+      "header?": "boolean —— boot 默认 true;false 时 data 为二维数组",
+      "dynamicTyping?": "boolean|Record<string,boolean> —— 默认 false",
+      "delimiter?": "string —— 默认空字符串,由 PapaParse 自动探测",
+      "skipEmptyLines?": "boolean|'greedy' —— 默认 false",
+      "comments?": "false|string —— 默认 false",
+      "preview?": "non-negative integer —— 默认 0,表示解析全部行"
+    }
+  },
+  "provides": {
+    "shape": "tabular-records",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;它是 CSV 文本到表格数据的进料层。",
+    "outputs": "{data:Record<string,unknown>[]|unknown[][],errors:{type:string,code:string,message:string,row?:number}[],meta:{delimiter:string,linebreak:string,fields?:string[],renamedHeaders?:Record<string,string>,truncated:boolean}}。",
+    "api_surface": {
+      "parse": "Papa.parse(csv, config) → 同步 ParseResult",
+      "rows": "header=true 时 data 为按列名键控的对象数组",
+      "errors": "坏引号、无法探测分隔符与 header 列数不一致都保留结构化错误",
+      "meta": "返回实际 delimiter、linebreak、fields 与 truncated 状态"
+    }
+  },
+  "peer": {
+    "id": "gridjs",
+    "note": "本条只清洗进料;先检查 errors,再把 data 与 meta.fields 投影成 Grid.js columns/data 或图表序列。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:字符串同步解析,不启用 worker/download/uplink\nimport Papa from 'https://cdn.jsdelivr.net/npm/papaparse@5/+esm';\nconst result = Papa.parse(data.csv, { header: data.header ?? true, dynamicTyping: data.dynamicTyping ?? false, delimiter: data.delimiter ?? '', skipEmptyLines: data.skipEmptyLines ?? false, comments: data.comments ?? false, preview: data.preview ?? 0 });\nconst rows = result.data;\nconst parseErrors = result.errors;\nconst meta = result.meta;",
+    "note": "errors 非空不必然表示完全失败;消费 AI 应先展示或处理错误行再把 rows 喂给表格/图表。超大 File 的 step/chunk 流式分支需要回调,不在本条同步文本 schema 内。"
+  }
+}

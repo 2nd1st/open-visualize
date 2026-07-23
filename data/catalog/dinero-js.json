@@ -1,0 +1,43 @@
+{
+  "entry_version": "thin-1",
+  "id": "dinero-js",
+  "name": "Dinero.js",
+  "when_to_use": "需要带 ISO 币种与 scale 的不可变金额对象或严格比例分配时用它而非手写,因为原生在最小单位、币种相容性和分摊余数守恒上失败。",
+  "why_valuable": "AI 默认把货币当普通浮点数,做不到强制同币种运算、显式 scale 和 allocation 总额守恒;Dinero.js 把这些约束固化在不可变 money object 中。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "dinero.js",
+    "version": "2.0.2",
+    "github": "dinerojs/dinero.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "scalar",
+    "note": "amount 必须是整数最小单位;currency 对应 dinero.js 根入口导出的 ISO 4217 常量,不能把 12.34 直接当 amount。",
+    "schema": {
+      "amount": "integer —— 最小单位整数",
+      "currency?": "string —— dinero.js 导出的 ISO 4217 代码,默认 'USD'",
+      "scale?": "integer >= 0 —— 默认所选 currency.exponent",
+      "ratios?": "Array<number | {amount:integer,scale:integer}> —— 各比例非负且至少一个为正;默认省略,不调用 allocate"
+    }
+  },
+  "provides": {
+    "shape": "money-value",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;纯 JS 不可变金额计算层。",
+    "outputs": "Dinero 对象、toDecimal 十进制字符串,以及可选的 allocation Dinero[]；每项保留 currency/scale 元数据。",
+    "api_surface": {
+      "construct": "dinero({ amount: integer, currency, scale? })",
+      "allocate": "allocate(money, ratios)",
+      "inspect": "toSnapshot(money)",
+      "serialize": "toDecimal(money)"
+    }
+  },
+  "peer": {
+    "note": "本条不渲染货币符号也不取汇率;格式化由消费 AI 按 locale 处理,汇率须由另一个有来源的数据层提供。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS、无 DOM/uplink/shadow 足迹\nimport * as D from 'https://cdn.jsdelivr.net/npm/dinero.js@2/+esm';\nconst code = data.currency ?? 'USD', currency = D[code];\nif (!currency || typeof currency.exponent !== 'number') throw new Error('Unsupported ISO currency');\nconst money = D.dinero({ amount: data.amount, currency, ...(data.scale === undefined ? {} : { scale: data.scale }) });\nconst allocations = data.ratios === undefined ? undefined : D.allocate(money, data.ratios);\nconst result = { money, decimal: D.toDecimal(money), allocations };",
+    "note": "amount/scale 必须是整数;currency 必须按导出白名单解析,不要把任意用户字符串直接当模块属性执行。"
+  }
+}

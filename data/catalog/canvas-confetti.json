@@ -1,0 +1,60 @@
+{
+  "entry_version": "thin-1",
+  "id": "canvas-confetti",
+  "name": "canvas-confetti",
+  "when_to_use": "需要产品级纸屑爆发、emoji/自定义形状或多炮位序列时用它,而非手写 canvas 粒子——原生在物理调参、DPR、性能与 reduced-motion 边界上失败。",
+  "why_valuable": "AI 默认只能写粗糙粒子雨,做不到稳定的速度衰减、重力漂移、多发射角、HiDPI 清晰度与性能降级；canvas-confetti 用浅参数对象给出成熟效果。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "canvas-confetti",
+    "version": "1.9.4",
+    "github": "catdad/canvas-confetti"
+  },
+  "license": "ISC",
+  "data_in": {
+    "shape": "key-value",
+    "note": "options 原样传给自定义 canvas 实例；boot 固定 resize=true、useWorker=false、disableForReducedMotion=true,以避免 worker 能力分叉并尊重系统动效偏好。",
+    "schema": {
+      "options?": {
+        "particleCount?": "non-negative integer —— 默认 50",
+        "angle?": "number degrees —— 默认 90",
+        "spread?": "non-negative number degrees —— 默认 45",
+        "startVelocity?": "number —— 默认 45",
+        "decay?": "number 0..1 —— 默认 0.9",
+        "gravity?": "number —— 默认 1",
+        "drift?": "number —— 默认 0",
+        "ticks?": "positive integer —— 默认 200",
+        "origin?": "{x?:number 0..1,y?:number 0..1} —— x/y 默认 0.5",
+        "colors?": "CSS hex string[] —— 默认上游七色调色板",
+        "shapes?": "('square'|'circle'|'star'|Shape)[] —— 默认 ['square','circle']",
+        "scalar?": "positive number —— 默认 1",
+        "flat?": "boolean —— 默认 false",
+        "zIndex?": "integer —— 自定义 canvas 路径由宿主层叠决定,该值通常无需传"
+      }
+    }
+  },
+  "spec": {
+    "height": 240,
+    "note": "custom canvas 必须处于明确像素高的相对定位容器；boot 默认 240px、宽度跟随容器,库用 resize=true 同步 backing store。禁用 vh/百分比高度。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:使用自定义 canvas,不让默认实例写 document.body\nimport confetti from 'https://cdn.jsdelivr.net/npm/canvas-confetti@1/+esm';\nconst host = document.getElementById('confetti'); host.style.cssText = `position:relative;height:${spec.height ?? 240}px;overflow:hidden`;\nconst canvas = document.createElement('canvas'); canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%'; host.appendChild(canvas);\nconst fire = confetti.create(canvas, {resize:true, useWorker:false, disableForReducedMotion:true});\nawait fire(data.options ?? {});",
+    "widget": "// custom canvas 与全部绘制落在 shadowRoot 容器\nimport confetti from 'https://cdn.jsdelivr.net/npm/canvas-confetti@1/+esm';\nconst host = document.createElement('div'); host.style.cssText = `position:relative;height:${spec.height ?? 240}px;overflow:hidden`; shadowRoot.appendChild(host);\nconst canvas = document.createElement('canvas'); canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%'; host.appendChild(canvas);\nconst fire = confetti.create(canvas, {resize:true, useWorker:false, disableForReducedMotion:true});\nawait fire(data.options ?? {});",
+    "codex": "import confetti from 'https://cdn.jsdelivr.net/npm/canvas-confetti@1/+esm';\nconst host = document.getElementById('confetti'); host.style.cssText = `position:relative;height:${spec.height ?? 240}px;overflow:hidden`;\nconst canvas = document.createElement('canvas'); canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%'; host.appendChild(canvas);\nconst fire = confetti.create(canvas, {resize:true, useWorker:false, disableForReducedMotion:true});\nawait fire(data.options ?? {});"
+  },
+  "example": {
+    "_why_no_minimal": "效果参数是浅键值且默认值完整,无需 minimal；空态把粒子数置零。",
+    "empty": {
+      "options": {
+        "particleCount": 0
+      }
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:custom canvas + 主线程模式,不要求 worker",
+    "widget": "supported:显式 canvas 落 shadowRoot,useWorker=false,无 CSS/head/图片/font CDN 注入",
+    "codex": "supported:ESM CDN + canvas；默认尊重 prefers-reduced-motion"
+  }
+}

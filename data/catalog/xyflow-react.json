@@ -1,0 +1,125 @@
+{
+  "entry_version": "thin-1",
+  "id": "xyflow-react",
+  "name": "React Flow",
+  "when_to_use": "需要 React 内生产级节点图、受控或非受控状态、缩放平移和可嵌任意 UI 的自定义节点时用它而非手写 SVG,因为原生在节点测量、边路由和图状态同步上失败;非做自动布局、工作流执行或后端持久化。",
+  "why_valuable": "AI 默认能画静态关系图,但做不到节点测量、稳定边路由、视口变换与 React 图状态同步;React Flow 把这些能力封在 ReactFlow 组件及 toObject 原生实例 API 中。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@xyflow/react",
+    "version": "12.11.2",
+    "github": "xyflow/xyflow"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "graph",
+    "note": "data_in 使用 React Flow 的 Node[]/Edge[] 原生形状;boot 走 defaultNodes/defaultEdges 非受控模式,避免目录条目替消费 AI 焊接受控回调。",
+    "schema": {
+      "nodes": [
+        {
+          "id": "string —— 全图唯一",
+          "position": {
+            "x": "number",
+            "y": "number"
+          },
+          "data": {
+            "label": "ReactNode;目录 JSON 中用 string"
+          },
+          "type?": "'default'|'input'|'output'|'group'|自定义类型 —— 默认 'default'",
+          "sourcePosition?": "'left'|'right'|'top'|'bottom' —— 默认内置节点类型的端口位置",
+          "targetPosition?": "'left'|'right'|'top'|'bottom' —— 默认内置节点类型的端口位置",
+          "style?": "object —— 默认 {}",
+          "hidden?": "boolean —— 默认 false",
+          "draggable?": "boolean —— 默认继承全局 true",
+          "connectable?": "boolean —— 默认继承全局 true"
+        }
+      ],
+      "edges": [
+        {
+          "id": "string —— 全图唯一",
+          "source": "string —— source node id",
+          "target": "string —— target node id",
+          "type?": "'default'|'straight'|'step'|'smoothstep'|'simplebezier'|自定义类型 —— 默认 'default'",
+          "sourceHandle?": "string|null —— 默认 null",
+          "targetHandle?": "string|null —— 默认 null",
+          "label?": "ReactNode;目录 JSON 中用 string —— 默认无标签",
+          "animated?": "boolean —— 默认 false",
+          "hidden?": "boolean —— 默认 false"
+        }
+      ],
+      "viewport?": "{x:number,y:number,zoom:number} —— 默认 {x:0,y:0,zoom:1}",
+      "fitView?": "boolean —— 本条 boot 默认 true;为 true 时忽略 viewport"
+    }
+  },
+  "spec": {
+    "height": 420,
+    "layout": "freeform",
+    "note": "ReactFlow 父容器必须有可测量宽高,本条默认显式 height 420px;铁律 3 禁 vh/百分比高,节点 width/height 由库测量,不要写回数据。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合\nimport React from 'https://cdn.jsdelivr.net/npm/react@19/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19/client/+esm';\nimport { ReactFlow } from 'https://cdn.jsdelivr.net/npm/@xyflow/react@12/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@xyflow/react@12/dist/style.css'; document.head.appendChild(css);\nconst el = document.getElementById('flow'); el.style.height = '420px';\ncreateRoot(el).render(React.createElement(ReactFlow, { defaultNodes: data.nodes, defaultEdges: data.edges, defaultViewport: data.viewport, fitView: data.fitView ?? true }));",
+    "widget": "import React from 'https://cdn.jsdelivr.net/npm/react@19/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19/client/+esm';\nimport { ReactFlow } from 'https://cdn.jsdelivr.net/npm/@xyflow/react@12/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@xyflow/react@12/dist/style.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); el.style.height = '420px'; shadowRoot.appendChild(el);\ncreateRoot(el).render(React.createElement(ReactFlow, { defaultNodes: data.nodes, defaultEdges: data.edges, defaultViewport: data.viewport, fitView: data.fitView ?? true }));",
+    "codex": "import React from 'https://cdn.jsdelivr.net/npm/react@19/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19/client/+esm';\nimport { ReactFlow } from 'https://cdn.jsdelivr.net/npm/@xyflow/react@12/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@xyflow/react@12/dist/style.css'; document.head.appendChild(css);\nconst el = document.getElementById('flow'); el.style.height = '420px';\ncreateRoot(el).render(React.createElement(ReactFlow, { defaultNodes: data.nodes, defaultEdges: data.edges, defaultViewport: data.viewport, fitView: data.fitView ?? true }));"
+  },
+  "example": {
+    "_why": "Node/Edge 字段同名多且坐标、端口与边类型高歧义,minimal 钉死内置节点与边的原生形状。",
+    "minimal": {
+      "nodes": [
+        {
+          "id": "a",
+          "position": {
+            "x": 40,
+            "y": 80
+          },
+          "data": {
+            "label": "Start"
+          },
+          "type": "input"
+        },
+        {
+          "id": "b",
+          "position": {
+            "x": 260,
+            "y": 80
+          },
+          "data": {
+            "label": "Review"
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "a-b",
+          "source": "a",
+          "target": "b",
+          "type": "smoothstep"
+        }
+      ],
+      "fitView": true
+    },
+    "empty": {
+      "nodes": [],
+      "edges": [],
+      "fitView": true
+    }
+  },
+  "peer": {
+    "npm": [
+      "react@19",
+      "react-dom@19"
+    ],
+    "note": "@xyflow/react 声明 React/ReactDOM >=17 peer;boot 固定同一 major 19 的 jsDelivr ESM,避免多份 React。"
+  },
+  "uplink": {
+    "artifact": "artifact 无上行;消费 AI 可自行用 onInit 取得实例并把 instance.toObject() JSON 做下载或复制兜底。",
+    "widget": "消费 AI 自行用 onInit 取得实例、读取 instance.toObject() 并拼 sendPrompt 文案;本条不绑定统一回调。",
+    "codex": "消费 AI 自行用 onInit 取得实例、读取 instance.toObject() 后调用 sendFollowUpMessage;本条不绑定统一回调。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:React 19 + ReactDOM 19 + @xyflow/react 三个 ESM 依赖;组件与官方 CSS 均落 shadow 容器",
+    "codex": "supported:浏览器 React peer + DOM/SVG,无 worker/wasm/uplink 强依赖"
+  }
+}

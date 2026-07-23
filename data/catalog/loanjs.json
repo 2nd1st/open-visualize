@@ -1,0 +1,50 @@
+{
+  "entry_version": "thin-1",
+  "id": "loanjs",
+  "name": "LoanJS",
+  "when_to_use": "需要生成等额本息、期初等额本息或等额本金的完整贷款分期表时用它而非手写,因为原生在数百期滚动余额、逐期舍入和最后一期归零上会失败。",
+  "why_valuable": "AI 默认做不到无累计误差地生成 360 期本金、利息、剩余本金和累计利息,并常出现期数 off-by-one 或末期余额不为零。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "loanjs",
+    "version": "1.1.2",
+    "github": "kfiku/LoanJS"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "scalar",
+    "note": "data_in 精确映射到 Loan(amount, installments_number, annual_interest_percent, kind)；利率传年百分数 3.5,不是 0.035,期数直接传总期数。",
+    "schema": {
+      "amount": "number —— 贷款本金,必须 > 0",
+      "installments_number": "integer —— 总期数,必须 > 0",
+      "annual_interest_percent": "number —— 年利率百分数,必须 > 0；3.5 表示 3.5%",
+      "kind?": "'annuity' | 'annuityDue' | 'diminishing' —— 默认 'annuity'"
+    }
+  },
+  "provides": {
+    "shape": "amortization-schedule",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵；它生产逐期表格数据。",
+    "outputs": {
+      "summary": "{amount:number, interestSum:number, capitalSum:number, sum:number}",
+      "installments": "{capital:number, interest:number, installment:number, remain:number, interestSum:number}[]"
+    },
+    "api_surface": {
+      "schedule": "Loan(amount, installmentsNumber, annualInterestPercent, kind = 'annuity') → LoanInstance",
+      "kinds": "'annuity'=期末等额本息；'annuityDue'=期初等额本息；'diminishing'=等额本金"
+    }
+  },
+  "peer": {
+    "ids": [
+      "gridjs",
+      "echarts"
+    ],
+    "note": "installments 数组可直接映射到 Grid.js 明细表,也可把 remain/interest 序列交给 ECharts；本条不生成 HTML 表格。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact H0 探针未闭合；纯 JS、无 DOM\nimport { Loan } from 'https://cdn.jsdelivr.net/npm/loanjs@1/+esm';\nconst kind = data.kind ?? 'annuity';\nconst result = Loan(data.amount, data.installments_number,\n  data.annual_interest_percent, kind);\nconst rows = result.installments;",
+    "widget": "// widget 内纯计算,明细再交给 shadow 内的表格组件\nimport { Loan } from 'https://cdn.jsdelivr.net/npm/loanjs@1/+esm';\nconst kind = data.kind ?? 'annuity';\nconst result = Loan(data.amount, data.installments_number,\n  data.annual_interest_percent, kind);\nconst rows = result.installments;",
+    "codex": "// sandbox iframe 内直接跑纯 JS\nimport { Loan } from 'https://cdn.jsdelivr.net/npm/loanjs@1/+esm';\nconst kind = data.kind ?? 'annuity';\nconst result = Loan(data.amount, data.installments_number,\n  data.annual_interest_percent, kind);\nconst rows = result.installments;",
+    "note": "jsDelivr +esm 已核对 named export Loan；不要调用同包的 loanToHtmlTable,展示层应由消费组件掌控。"
+  }
+}

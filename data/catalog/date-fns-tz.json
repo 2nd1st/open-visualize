@@ -1,0 +1,44 @@
+{
+  "entry_version": "thin-1",
+  "id": "date-fns-tz",
+  "name": "date-fns-tz",
+  "when_to_use": "需要用纯函数把 instant 格式化到指定 IANA 时区、或在 wall-clock 与 UTC 间换算时用它而非手写 offset,因为原生 AI 在 DST、时区缩写与本地日历边界上失败。",
+  "why_valuable": "AI 默认把时区简化成固定小时差,做不到可靠处理 DST 与历史 offset;date-fns-tz 复用浏览器 Intl,把 formatInTimeZone、toZonedTime、fromZonedTime 和 offset 查询收敛成可复算函数。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "date-fns-tz",
+    "version": "3.2.0",
+    "github": "marnusw/date-fns-tz"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "scalar",
+    "note": "formatInTimeZone 吃一个真实 instant + IANA zone;fromZonedTime 则把无 offset 的 wall-clock 解释为该 zone 后返回真实 Date,两者不可混成同一语义。",
+    "schema": {
+      "instant": "string | number | Date —— ISO instant、毫秒 epoch 或 Date",
+      "timeZone": "string —— Intl 支持的 IANA zone",
+      "format?": "string —— date-fns format token,默认 'yyyy-MM-dd HH:mm:ssXXX'"
+    }
+  },
+  "provides": {
+    "shape": "zoned-temporal-values",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;依赖宿主 Intl 与 date-fns peer。",
+    "outputs": "指定时区的格式化字符串、代表目标 wall-clock 的 Date、由 wall-clock 反解出的 UTC Date、或毫秒 offset。",
+    "api_surface": {
+      "format": "formatInTimeZone(instant, timeZone, format)",
+      "instant_to_wall_clock": "toZonedTime(instant, timeZone)",
+      "wall_clock_to_instant": "fromZonedTime(wallClock, timeZone)",
+      "offset": "getTimezoneOffset(timeZone, instant)"
+    }
+  },
+  "peer": {
+    "npm": "date-fns",
+    "version_range": "^3.0.0 || ^4.0.0",
+    "note": "上游声明的 peer;日期加减、startOfDay 等日历算术由 date-fns 消费 toZonedTime 的 Date,完成后再用 fromZonedTime 还原 instant。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS;jsDelivr +esm 会解析 date-fns peer\nimport { formatInTimeZone, toZonedTime, fromZonedTime } from 'https://cdn.jsdelivr.net/npm/date-fns-tz@3/+esm';\nconst label = formatInTimeZone(data.instant, data.timeZone, data.format ?? 'yyyy-MM-dd HH:mm:ssXXX');\nconst wallClock = toZonedTime(data.instant, data.timeZone);\nconst roundTripInstant = fromZonedTime(wallClock, data.timeZone);",
+    "note": "toZonedTime 返回的仍是原生 Date,其默认 toString 会按浏览器本地时区显示;面向用户输出必须继续用 formatInTimeZone,不要用 Date.toString 判断目标时区。"
+  }
+}

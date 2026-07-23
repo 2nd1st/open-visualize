@@ -1,0 +1,60 @@
+{
+  "entry_version": "thin-1",
+  "id": "d3-sankey",
+  "name": "d3-sankey",
+  "when_to_use": "已有 nodes/links 加权图且需要可自定义渲染的 Sankey 几何时用它而非手写布局,因为原生手写在节点分层、链宽守恒和迭代减交叉上失败。",
+  "why_valuable": "AI 默认做不到 Sankey 的迭代布局与链宽守恒,即使能画矩形也算不出稳定 x/y/width 几何;d3-sankey 只负责可靠计算,让消费端自由画 SVG/canvas。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "d3-sankey",
+    "version": "0.12.3",
+    "github": "d3/d3-sankey"
+  },
+  "license": "BSD-3-Clause",
+  "data_in": {
+    "shape": "graph",
+    "note": "输入是有向无环加权图;nodeId 按 id 解析 source/target 字符串。布局器会改写 nodes/links,boot 先浅克隆两数组以保留调用方数据。",
+    "schema": {
+      "nodes": [
+        {
+          "id": "string",
+          "name?": "string —— 默认使用 id"
+        }
+      ],
+      "links": [
+        {
+          "source": "string —— 必须命中 nodes[].id",
+          "target": "string —— 必须命中 nodes[].id",
+          "value": "number —— 有限且 >= 0"
+        }
+      ]
+    }
+  },
+  "spec": {
+    "width": 720,
+    "height": 400,
+    "layout": "sankey-geometry",
+    "direction": "left-to-right",
+    "note": "extent 需要明确像素 width/height;boot 默认 720×400、nodeWidth 16、nodePadding 10、iterations 6,铁律 3 禁 vh/百分比高。"
+  },
+  "provides": {
+    "shape": "positioned-graph",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;输出是给 SVG/canvas 消费者的布局数据。",
+    "outputs": {
+      "nodes": "原节点字段 + x0/x1/y0/y1/value/depth/sourceLinks/targetLinks",
+      "links": "原边字段 + source/target 节点对象、width/y0/y1"
+    },
+    "api_surface": {
+      "layout": "sankey().nodeId(fn).nodeWidth(px).nodePadding(px).extent([[0,0],[width,height]]).iterations(n)(graph)"
+    }
+  },
+  "peer": {
+    "note": "本条只产几何;消费方用 d3-selection + SVG path/rect 或 canvas 绘制。需要开箱即用 Sankey 时改用 chartjs-chart-sankey。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:纯 JS 布局,不挂 DOM\nimport { sankey } from 'https://cdn.jsdelivr.net/npm/d3-sankey@0/+esm';\nconst input = { nodes: data.nodes.map(d => ({ ...d })), links: data.links.map(d => ({ ...d })) };\nconst layout = sankey().nodeId(d => d.id).nodeWidth(16).nodePadding(10).extent([[0, 0], [720, 400]]).iterations(6);\nconst graph = layout(input);\n// graph 交给 SVG/canvas 消费者",
+    "widget": "import { sankey } from 'https://cdn.jsdelivr.net/npm/d3-sankey@0/+esm';\nconst input = { nodes: data.nodes.map(d => ({ ...d })), links: data.links.map(d => ({ ...d })) };\nconst layout = sankey().nodeId(d => d.id).nodeWidth(16).nodePadding(10).extent([[0, 0], [720, 400]]).iterations(6);\nconst graph = layout(input);\n// graph 仅为内存对象,不产生 shadow 外足迹",
+    "codex": "import { sankey } from 'https://cdn.jsdelivr.net/npm/d3-sankey@0/+esm';\nconst input = { nodes: data.nodes.map(d => ({ ...d })), links: data.links.map(d => ({ ...d })) };\nconst layout = sankey().nodeId(d => d.id).nodeWidth(16).nodePadding(10).extent([[0, 0], [720, 400]]).iterations(6);\nconst graph = layout(input);\n// graph 交给当前 fragment 的绘图代码"
+  }
+}

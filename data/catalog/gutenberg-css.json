@@ -1,0 +1,39 @@
+{
+  "entry_version": "thin-1",
+  "id": "gutenberg-css",
+  "name": "Gutenberg",
+  "when_to_use": "需要给报告、讲义或文章补齐打印排版、孤行控制、表头复现和断页辅助类时用它而非手写 print stylesheet,因为原生手写常漏掉 orphans/widows、figure/table 断页与链接展开规则;非做纸张分页引擎或 running header/page counter。",
+  "why_valuable": "AI 默认只会写基础 @media print,做不到系统覆盖标题粘连、孤行寡行、表头跨页、媒体断页、链接与缩写打印展开;Gutenberg 把这些稳定规则打包成一份 CSS。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "gutenberg-css",
+    "version": "0.7.0",
+    "github": "BafS/Gutenberg"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "语义 HTML 与打印辅助 class 是 AI 原生记法;schema 已钉死实际 class 与主题文件,无需 minimal example。",
+    "note": "html 是要打印的语义内容;break-before、break-after、avoid-break-inside、no-print、no-reformat 都是上游原生 class。base CSS 必须与可选主题一起加载。",
+    "schema": {
+      "html": "string —— 可信或已清洗的语义 HTML article;可使用 break-before、break-after、avoid-break-inside、no-print、no-reformat",
+      "theme?": "'modern' | 'oldstyle' | 'none' —— 默认 'modern';none 只加载 dist/gutenberg.css"
+    }
+  },
+  "spec": {
+    "height": 900,
+    "note": "这是长流式打印文档而非固定 canvas;宿主预览默认保留 900px 明确高度并滚动,禁止 vh/百分比高。实际纸张几何由浏览器或 Paged.js 决定,Gutenberg 只负责排版与断页规则。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:打印 CSS 按上游说明进入 head 并设 media=print\nconst theme=data.theme ?? 'modern'; const urls=['https://cdn.jsdelivr.net/npm/gutenberg-css@0.7.0/dist/gutenberg.css',theme === 'none' ? null : `https://cdn.jsdelivr.net/npm/gutenberg-css@0.7.0/dist/themes/${theme}.css`].filter(Boolean);\nfor (const href of urls) { const link=document.createElement('link'); link.rel='stylesheet'; link.media='print'; link.href=href; document.head.append(link); }\nconst root=document.getElementById('print-article'); root.innerHTML=data.html;\n// 浏览器打印时应用;屏幕态保持宿主原样",
+    "widget": "const theme=data.theme ?? 'modern'; const urls=['https://cdn.jsdelivr.net/npm/gutenberg-css@0.7.0/dist/gutenberg.css',theme === 'none' ? null : `https://cdn.jsdelivr.net/npm/gutenberg-css@0.7.0/dist/themes/${theme}.css`].filter(Boolean);\nfor (const href of urls) { const link=document.createElement('link'); link.rel='stylesheet'; link.media='all'; link.href=href; shadowRoot.append(link); }\nconst root=document.createElement('article'); root.style.cssText='height:900px;overflow:auto'; root.innerHTML=data.html; shadowRoot.append(root);\n// widget 仅预览通用排版;body 页边距与真实打印仍走 artifact/codex",
+    "codex": "const theme=data.theme ?? 'modern'; const urls=['https://cdn.jsdelivr.net/npm/gutenberg-css@0.7.0/dist/gutenberg.css',theme === 'none' ? null : `https://cdn.jsdelivr.net/npm/gutenberg-css@0.7.0/dist/themes/${theme}.css`].filter(Boolean);\nfor (const href of urls) { const link=document.createElement('link'); link.rel='stylesheet'; link.media='print'; link.href=href; document.head.append(link); }\nconst root=document.getElementById('print-article'); root.innerHTML=data.html;"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:CSS 可放入 shadow 预览通用 typography 与辅助 class,但 body padding 和真实打印页语义会降级;最终打印应走 artifact/codex",
+    "codex": "supported:base/theme CSS 进入 sandbox iframe head,浏览器打印能力可用"
+  }
+}

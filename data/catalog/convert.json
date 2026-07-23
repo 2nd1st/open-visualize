@@ -1,0 +1,44 @@
+{
+  "entry_version": "thin-1",
+  "id": "convert",
+  "name": "convert",
+  "when_to_use": "需要类型安全、可摇树且覆盖物理量与数据单位的现代单位换算核时用它而非手写,因为原生在合法单位 token、量类兼容性和温度偏移上会失败。",
+  "why_valuable": "AI 默认会混用缩写与全称、跨量类误换或漏掉温度偏移；该库同时在 TypeScript 编译期和运行时校验单位,并给出确定的换算结果。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "convert",
+    "version": "7.0.0",
+    "github": "jonahsnider/convert"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "scalar",
+    "note": "data_in 精确映射到 convert(value, from).to(to)；JSON 输入只收 number,不收 JavaScript bigint；from/to 使用 v7 原生 Unit 字符串。",
+    "schema": {
+      "value": "number —— 有限数值",
+      "from": "string —— v7 Unit token,例如 'miles'|'km'|'pounds'|'bytes'|'fahrenheit'|'seconds'",
+      "to": "string —— 与 from 同量类的 v7 Unit token；本条不接特殊目标 'best',以保证输出恒为 number"
+    }
+  },
+  "provides": {
+    "shape": "converted-scalar",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵；ESM、零运行时依赖。",
+    "outputs": "目标单位下的 number；未知单位或跨量类换算在运行时抛错。",
+    "api_surface": {
+      "convert": "convert(value, from).to(to) → number",
+      "many": "convertMany(expression).to(to) → number,适合 '4d 16h' 这类复合时间字符串",
+      "milliseconds": "ms(expressionOrNumber) → number|string",
+      "measure_kind": "getMeasureKind(unit) → MeasureKind"
+    }
+  },
+  "peer": {
+    "note": "本条只产标量；TypeScript 消费者可直接复用上游 Unit 类型,普通 widget 则应从应用自己的有限单位列表生成控件。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact H0 探针未闭合；纯 ESM、无 DOM\nimport convert from 'https://cdn.jsdelivr.net/npm/convert@7/+esm';\nif (!Number.isFinite(data.value)) throw new Error('value must be finite');\nconst result = convert(data.value, data.from).to(data.to);\nif (!Number.isFinite(result)) throw new Error('conversion failed');",
+    "widget": "// widget 内纯计算,无需接触 shadow DOM\nimport convert from 'https://cdn.jsdelivr.net/npm/convert@7/+esm';\nif (!Number.isFinite(data.value)) throw new Error('value must be finite');\nconst result = convert(data.value, data.from).to(data.to);\nif (!Number.isFinite(result)) throw new Error('conversion failed');",
+    "codex": "// sandbox iframe 内直接跑纯 ESM\nimport convert from 'https://cdn.jsdelivr.net/npm/convert@7/+esm';\nif (!Number.isFinite(data.value)) throw new Error('value must be finite');\nconst result = convert(data.value, data.from).to(data.to);\nif (!Number.isFinite(result)) throw new Error('conversion failed');",
+    "note": "jsDelivr +esm 已核对 default/named convert 导出；上游包还支持 bigint,但 strict JSON data_in 无 bigint,故本条明确裁掉。"
+  }
+}

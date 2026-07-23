@@ -1,0 +1,39 @@
+{
+  "entry_version": "thin-1",
+  "id": "pagedjs",
+  "name": "Paged.js",
+  "when_to_use": "需要把长 HTML 按 CSS Paged Media 排成带断页、页码、running header/footer 的打印页时用它而非手写 print CSS,因为浏览器原生在 margin box、跨页计数与复杂碎片化上失败;非做单页屏幕布局或文档编辑器。",
+  "why_valuable": "AI 默认只能依赖浏览器粗糙自动断页,做不到 @page margin box、running content、跨页计数器和稳定的长表格/图文碎片化;Paged.js 补齐浏览器未实现的分页媒体能力。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "pagedjs",
+    "version": "0.4.3",
+    "github": "pagedjs/pagedjs"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "HTML 与 CSS Paged Media 都是 AI 原生记法;schema 已钉死 Previewer.preview 的三个参数,无需另附配置例。",
+    "note": "原生调用是 Previewer.preview(content, stylesheets, renderTo);本条把 content 收窄为 HTML 字符串,stylesheets 只接可抓取的 CSS URL 数组。",
+    "schema": {
+      "html": "string —— 要分页的完整、可信或已清洗 HTML 内容",
+      "stylesheets?": "string[] —— 传给 Previewer.preview 的 CSS URL,默认 [];相对 URL 按当前 document.baseURI 解析"
+    }
+  },
+  "spec": {
+    "height": 800,
+    "note": "分页预览会生成多张固定纸页;宿主默认 800px 高并滚动,禁止 vh/百分比高。纸张宽高由输入 CSS 的 @page size 决定,不是由宿主高度缩放。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:Paged.js 会生成分页 DOM 与配套样式,应在独占 document 运行\nimport { Previewer } from 'https://cdn.jsdelivr.net/npm/pagedjs@0/+esm';\nconst host=document.getElementById('pages'); host.style.cssText='height:800px;overflow:auto';\nconst paged=new Previewer();\nconst flow=await paged.preview(data.html,data.stylesheets ?? [],host);\n// flow.total 是实际页数",
+    "widget": "unsupported:Previewer/Polisher 的样式处理依赖 document CSSOM 与全局样式节点,生成规则不会安全穿入 shadowRoot",
+    "codex": "import { Previewer } from 'https://cdn.jsdelivr.net/npm/pagedjs@0/+esm';\nconst host=document.getElementById('pages'); host.style.cssText='height:800px;overflow:auto';\nconst paged=new Previewer();\nconst flow=await paged.preview(data.html,data.stylesheets ?? [],host);"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "unsupported:全局 CSSOM/分页样式与 shadow 样式隔离冲突",
+    "codex": "conditional:ESM 与 DOM 分页可在 sandbox iframe 闭环;外链 CSS、图片和字体仍需 CDN 可达与跨域许可"
+  }
+}

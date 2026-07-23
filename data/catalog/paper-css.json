@@ -1,0 +1,41 @@
+{
+  "entry_version": "thin-1",
+  "id": "paper-css",
+  "name": "paper-css",
+  "when_to_use": "需要把一组语义 HTML 快速摆成 A3/A4/A5/Letter/Legal 的实体纸张预览与打印页时用它而非手写毫米尺寸 CSS,因为原生手写在纸张几何、打印宽度修正和屏幕预览一致性上失败。",
+  "why_valuable": "AI 默认会混用 px、mm 与浏览器页边距,无法稳定对齐实体纸张尺寸、横向纸型和打印缩放;paper-css 用 body 纸型类与 .sheet 契约消除这些边角差异。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "paper-css",
+    "version": "0.4.1",
+    "github": "cognitom/paper-css"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "语义 HTML 是 AI 原生记法;纸型、方向和 padding 的枚举已钉死,无需 minimal example。",
+    "note": "boot 把 pages_html 每项包成一个原生 .sheet;纸型必须落在真实 body class,这是上游 CSS 的精确选择器契约。",
+    "schema": {
+      "pages_html": "string[] —— 每项是一页可信或已清洗的 HTML fragment;空数组显示空态",
+      "size?": "'A3' | 'A4' | 'A5' | 'letter' | 'legal' —— 默认 'A4'",
+      "orientation?": "'portrait' | 'landscape' —— 默认 'portrait'",
+      "padding_mm?": "0 | 10 | 15 | 20 | 25 —— 默认 10;0 表示不加 padding class"
+    }
+  },
+  "spec": {
+    "height": 1119,
+    "note": "默认 A4 纵向 .sheet 是 210mm×296mm,按 96dpi 约 1119px 高;宿主预览至少保留这一明确像素高度并滚动,禁止 vh/百分比高。其他纸型以 CSS 的 mm 几何为准。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:原生 CSS 必须进 head,纸型类必须在真实 body\nconst link=document.createElement('link'); link.rel='stylesheet'; link.href='https://cdn.jsdelivr.net/npm/paper-css@0.4.1/paper.css'; document.head.append(link);\nconst size=data.size ?? 'A4'; document.body.className=[document.body.className,size,data.orientation === 'landscape' ? 'landscape' : ''].filter(Boolean).join(' ');\nconst root=document.getElementById('paper'); const padding=data.padding_mm ?? 10;\nfor (const html of data.pages_html) { const page=document.createElement('section'); page.className=`sheet${padding ? ` padding-${padding}mm` : ''}`; page.innerHTML=html; root.append(page); }",
+    "widget": "unsupported:上游纸张几何写成 body.A4 .sheet 等选择器,@page 与 print 宽度也绑定真实 document;把 CSS 放进 shadow 后无法保持原生契约",
+    "codex": "const link=document.createElement('link'); link.rel='stylesheet'; link.href='https://cdn.jsdelivr.net/npm/paper-css@0.4.1/paper.css'; document.head.append(link);\nconst size=data.size ?? 'A4'; document.body.className=[document.body.className,size,data.orientation === 'landscape' ? 'landscape' : ''].filter(Boolean).join(' ');\nconst root=document.getElementById('paper'); const padding=data.padding_mm ?? 10;\nfor (const html of data.pages_html) { const page=document.createElement('section'); page.className=`sheet${padding ? ` padding-${padding}mm` : ''}`; page.innerHTML=html; root.append(page); }"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "unsupported:body/@page 选择器无法收束到 shadow 且仍保持毫米级打印语义",
+    "codex": "supported:独占 sandbox iframe 可设置真实 body class、head CSS 与浏览器打印"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "entry_version": "thin-1",
+  "id": "shower-core",
+  "name": "Shower",
+  "when_to_use": "需要 HTML-first 的 list/full 双模式演示并兼顾浏览与打印时用它而非手写模式切换和键盘状态,因为原生手写在双模式布局、逐步内容与打印分页上失败;非做 Markdown 编译器或自由画布编辑器。",
+  "why_valuable": "AI 默认能排静态 slide,但做不到稳定的 list/full 状态机、键盘与触摸导航、逐步内容、进度和打印模式协作;Shower core 把这些行为绑定到简洁的 .slide HTML。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@shower/core",
+    "version": "3.6.0",
+    "github": "shower/shower"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "语义 HTML 是 AI 原生记法;.slide/.next/.progress 结构已由 schema 钉死,无需 minimal example。",
+    "note": "core 不含主题;boot 配一份官方 Ribbon CSS。Shower.start 通过 document.querySelector(containerSelector) 找根,所以只能在独占 document 中 mount。",
+    "schema": {
+      "html": "string —— .shower 根的内部 HTML;每页必须是直接后代 <section class=\"slide\">,页内 class=\"next\" 表示逐步内容,可含 <progress class=\"progress\">"
+    }
+  },
+  "spec": {
+    "height": 576,
+    "note": "Ribbon 主题按 1024×576 幻灯几何设计;宿主 iframe 默认给明确 576px 高并允许 list 模式纵向滚动,禁止 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:包顶层 +esm 读取 document.currentScript,模块上下文不安全;保守直引上游原生 Shower 类\nimport Shower from 'https://cdn.jsdelivr.net/npm/@shower/core@3/lib/shower.js';\nconst theme=document.createElement('link'); theme.rel='stylesheet'; theme.href='https://cdn.jsdelivr.net/npm/@shower/ribbon@4/styles/index.css'; document.head.append(theme);\nconst root=document.getElementById('shower-deck'); root.className='shower list'; root.tabIndex=0; root.innerHTML=data.html;\nconst shower=new Shower({containerSelector:'#shower-deck'}); shower.start();",
+    "widget": "unsupported:Shower.start 固定从 document.querySelector 找容器,无法穿过 shadowRoot;主题还有 full/list/print 的 document 级选择器",
+    "codex": "// sandbox iframe 独占 document;采用原生类入口避开 document.currentScript\nimport Shower from 'https://cdn.jsdelivr.net/npm/@shower/core@3/lib/shower.js';\nconst theme=document.createElement('link'); theme.rel='stylesheet'; theme.href='https://cdn.jsdelivr.net/npm/@shower/ribbon@4/styles/index.css'; document.head.append(theme);\nconst root=document.getElementById('shower-deck'); root.className='shower list'; root.tabIndex=0; root.innerHTML=data.html;\nconst shower=new Shower({containerSelector:'#shower-deck'}); shower.start();"
+  },
+  "peer": {
+    "npm": "@shower/ribbon",
+    "note": "@shower/core 明确不含主题;boot 使用官方 Ribbon 主题 @4/styles/index.css。若换 Material,只替换主题 CSS,不要改 core mount API。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "unsupported:document 查询、history/location 与全局主题样式无法收束到 shadow",
+    "codex": "supported:独占 sandbox iframe 可容纳 document/history/打印能力;主题 CSS 进入 iframe head"
+  }
+}

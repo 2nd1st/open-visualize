@@ -1,0 +1,54 @@
+{
+  "entry_version": "thin-1",
+  "id": "cursor-effects",
+  "name": "cursor-effects",
+  "when_to_use": "需要复古 fairy-dust、emoji、彩虹、时钟或跟随点等有成熟手感的鼠标尾迹时用它而非手写 pointer canvas,因为原生在采样节奏、轨迹衰减和多种怀旧效果复刻上失败。",
+  "why_valuable": "AI 默认只能在 pointer 坐标画同质圆点,做不到弹性链、字符轨迹、时钟排版、彩虹多层尾线与 reduced-motion 处理的一致成品手感;本包提供十二种已调参效果。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "cursor-effects",
+    "version": "1.0.18",
+    "github": "tholman/cursor-effects"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "_why_no_example": "effect 枚举加浅层 options 已钉死入口,无深 config,不附 minimal example。",
+    "note": "boot 从包的具名导出按 effect 取工厂并强制把 element 指向效果容器;系统 prefers-reduced-motion 开启时上游默认不启动。",
+    "schema": {
+      "effect?": "'bubbleCursor'|'characterCursor'|'clockCursor'|'emojiCursor'|'fairyDustCursor'|'followingDotCursor'|'ghostCursor'|'rainbowCursor'|'snowflakeCursor'|'springyEmojiCursor'|'textFlag'|'trailingCursor' —— 默认 fairyDustCursor",
+      "options?": {
+        "_default": "{} —— 采用所选 effect 的上游默认值;只传该 effect 支持的字段",
+        "emoji?": "string[]（emojiCursor,默认 ['😀','😂','😆','😊']）| string（springyEmojiCursor,默认 '🤪'）",
+        "colors?": "string[] —— fairyDustCursor 默认 ['#D61C59','#E7D84B','#1B8798'];rainbowCursor 默认 ['#FE0000','#FD8C00','#FFE500','#119F0B','#0644B3','#C22EDC'];characterCursor 默认 ['#6622CC','#A755C2','#B07C9E','#B59194','#D2A1B8']",
+        "length?": "integer —— rainbowCursor 尾迹段数,默认 20",
+        "size?": "number —— rainbowCursor 线宽,默认 3",
+        "color?": "CSS color string —— followingDotCursor 默认 '#323232a6';textFlag 默认 '#000000'",
+        "characters?": "string[] —— characterCursor 字符列表,默认 ['h','e','l','l','o']",
+        "font?": "CSS font string —— characterCursor 默认 '15px serif';textFlag 默认 'monospace'",
+        "text?": "string —— textFlag 文本,默认 'Your Text Here'",
+        "textSize?": "number —— textFlag 像素字号,默认 12",
+        "gap?": "number —— textFlag 字符间距,默认 textSize+2",
+        "particles?": "integer —— trailingCursor 尾迹节点数,默认 15",
+        "rate?": "number 0..1 —— trailingCursor 跟随系数,默认 0.4",
+        "baseImageSrc?": "string —— trailingCursor 图像 URL/data URL,默认上游内置指针图"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "每种效果都创建 canvas 并读取目标容器尺寸;boot 显式给默认 400px 高与 position:relative,禁用 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:canvas 只挂到显式 element\nimport * as cursorEffects from 'https://cdn.jsdelivr.net/npm/cursor-effects@1/+esm';\nconst el = document.getElementById('cursor-stage');\nel.style.cssText = `position:relative;height:${spec.height ?? 400}px;overflow:hidden`;\nconst makeEffect = cursorEffects[data.effect ?? 'fairyDustCursor'];\nconst handle = makeEffect({ ...(data.options ?? {}), element: el });",
+    "widget": "// canvas 落 shadow 容器,包内无 CSS/head 注入\nimport * as cursorEffects from 'https://cdn.jsdelivr.net/npm/cursor-effects@1/+esm';\nconst el = document.createElement('div'); el.style.cssText = `position:relative;height:${spec.height ?? 400}px;overflow:hidden`; shadowRoot.appendChild(el);\nconst makeEffect = cursorEffects[data.effect ?? 'fairyDustCursor'];\nconst handle = makeEffect({ ...(data.options ?? {}), element: el });",
+    "codex": "import * as cursorEffects from 'https://cdn.jsdelivr.net/npm/cursor-effects@1/+esm';\nconst el = document.getElementById('cursor-stage');\nel.style.cssText = `position:relative;height:${spec.height ?? 400}px;overflow:hidden`;\nconst makeEffect = cursorEffects[data.effect ?? 'fairyDustCursor'];\nconst handle = makeEffect({ ...(data.options ?? {}), element: el });"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:canvas 与指针监听落指定 shadow 容器,但尺寸监听挂在 window;卸载时必须调用 handle.destroy()",
+    "codex": "supported:sandbox iframe 隔离 canvas 与 window 尺寸监听,无 CSS/worker/wasm/uplink"
+  }
+}

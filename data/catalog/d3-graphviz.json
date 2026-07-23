@@ -1,0 +1,37 @@
+{
+  "entry_version": "thin-1",
+  "id": "d3-graphviz",
+  "name": "d3-graphviz",
+  "when_to_use": "AI 已能给出 DOT,但需要在浏览器内把 cluster、rank 与复杂边路由稳定渲成可缩放 SVG 时用它,而非手写布局——原生在 Graphviz 级排版和过渡上失败;非做自由拖拽或持续演化的力导向网络。",
+  "why_valuable": "AI 默认会写 DOT 却做不到在浏览器内执行 Graphviz 布局、生成高质量 rank/cluster 几何并驱动 SVG 过渡;本条把熟悉 DSL 直接接到 WASM 渲染器。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": { "npm": "d3-graphviz", "version": "5.6.0", "github": "magjac/d3-graphviz" },
+  "license": "BSD-3-Clause",
+  "data_in": {
+    "shape": "graph",
+    "_why_no_example": "DOT 是 AI 原生记法,它会直接生成;schema 钉死传完整 DOT 字符串即可,不附 minimal example。",
+    "schema": {
+      "dot": "string —— 完整 graph/digraph DOT 源码,不是节点数组",
+      "engine?": "'dot' | 'neato' | 'fdp' | 'sfdp' | 'circo' | 'twopi' —— 默认 'dot'",
+      "fit?": "boolean —— 默认 true",
+      "zoom?": "boolean —— 默认 true"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "渲染器显式设 height 400px 与当前容器宽度,禁用 vh/百分比高;复杂图可由 AI 覆盖像素高度。保守关闭 worker,因为纯 ESM import 没有供上游探测的 worker script 标签。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:WASM 在 iframe 主线程加载;保守 useWorker:false 避免 ESM script URL 探测失败\nimport { graphviz } from 'https://cdn.jsdelivr.net/npm/d3-graphviz@5/+esm';\nconst el = document.getElementById('graphviz'); el.style.height = '400px';\nconst renderer = graphviz(el, { useWorker: false, engine: data.engine ?? 'dot', fit: data.fit ?? true, zoom: data.zoom ?? true });\nrenderer.width(el.clientWidth).height(400).renderDot(data.dot);",
+    "widget": "// SVG 容器落 shadow;无外链 CSS,不使用声明式自定义元素\nimport { graphviz } from 'https://cdn.jsdelivr.net/npm/d3-graphviz@5/+esm';\nconst el = document.createElement('div'); el.style.height = '400px'; shadowRoot.appendChild(el);\nconst renderer = graphviz(el, { useWorker: false, engine: data.engine ?? 'dot', fit: data.fit ?? true, zoom: data.zoom ?? true });\nrenderer.width(el.clientWidth).height(400).renderDot(data.dot);",
+    "codex": "import { graphviz } from 'https://cdn.jsdelivr.net/npm/d3-graphviz@5/+esm';\nconst el = document.getElementById('graphviz'); el.style.height = '400px';\nconst renderer = graphviz(el, { useWorker: false, engine: data.engine ?? 'dot', fit: data.fit ?? true, zoom: data.zoom ?? true });\nrenderer.width(el.clientWidth).height(400).renderDot(data.dot);"
+  },
+  "uplink": "默认是 display/local-interact,无需上行;若消费场景需要把节点焦点带回对话,由消费 AI 自行接渲染后的 SVG/原生回调。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:需宿主允许 @hpcc-js/wasm 的 WebAssembly 加载;useWorker:false,SVG 全落 shadow 容器",
+    "codex": "conditional:需 sandbox CSP 开放 WebAssembly;主线程布局可用但大图会阻塞"
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "entry_version": "thin-1",
+  "id": "elkjs",
+  "name": "elkjs",
+  "when_to_use": "需要为依赖图、流程图或端口图计算分层、正交、端口感知坐标时用它,而非手写布局算法——原生在跨层排序、交叉最小化和折线路由上失败;它只产几何,不直接渲染。",
+  "why_valuable": "AI 默认做不到稳定的分层排序、边交叉压缩、端口约束与正交折点计算;徒手只能猜坐标,复杂依赖图布局成功率为 0%。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": { "npm": "elkjs", "version": "0.12.0", "github": "kieler/elkjs" },
+  "license": "EPL-2.0 OR GPL-3.0-or-later",
+  "data_in": {
+    "shape": "graph",
+    "note": "输入是 ELK JSON graph;节点 width/height 是布局约束而非渲染结果,边端点字段必须是 sources/targets 数组。",
+    "schema": {
+      "_defaults": {
+        "graph.layoutOptions": "{}（boot 补 'elk.algorithm':'layered' 与 'elk.direction':'RIGHT'）"
+      },
+      "graph": {
+        "id": "string",
+        "layoutOptions?": {
+          "elk.algorithm?": "string —— 默认 'layered'",
+          "elk.direction?": "'RIGHT' | 'LEFT' | 'DOWN' | 'UP' —— 默认 'RIGHT'",
+          "elk.edgeRouting?": "'ORTHOGONAL' | 'POLYLINE' | 'SPLINES' —— 默认由算法决定"
+        },
+        "children": [
+          {
+            "id": "string",
+            "width": "number —— 正数像素",
+            "height": "number —— 正数像素"
+          }
+        ],
+        "edges": [
+          {
+            "id": "string",
+            "sources": "string[] —— 引用 children.id",
+            "targets": "string[] —— 引用 children.id"
+          }
+        ]
+      }
+    }
+  },
+  "provides": {
+    "shape": "geometry-layout",
+    "_note": "headless-primitive:不直接渲染、无 level、无 carriers;它只把拓扑补成可渲染几何。",
+    "outputs": "Promise<layoutedGraph>:children[*] 增加 x/y/width/height;edges[*].sections[*] 给出 startPoint/endPoint/bendPoints;根图增加 width/height。",
+    "api_surface": {
+      "layout": "const out = await elk.layout(graph) —— 返回新布局图,消费方再画 SVG/canvas/WebGL"
+    }
+  },
+  "peer": {
+    "ids": ["sigma", "vis-network", "force-graph"],
+    "note": "把输出的节点 x/y 与边折点转换为具体渲染器的 data_in;转换由消费 AI 显式完成,本条不假设统一图事件或渲染契约。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯布局计算,不直接触碰 DOM\nimport ELK from 'https://cdn.jsdelivr.net/npm/elkjs@0/+esm';\nconst elk = new ELK();\nconst graph = structuredClone(data.graph);\ngraph.layoutOptions = { 'elk.algorithm': 'layered', 'elk.direction': 'RIGHT', ...graph.layoutOptions };\nconst layoutedGraph = await elk.layout(graph);",
+    "note": "jsDelivr 根 +esm 包含 elkjs 的 bundled worker 实现;若宿主限制 worker,该构建会走包内兼容执行路径,大图可能阻塞主线程。"
+  },
+  "example": {
+    "_why": "ELK JSON 的 sources/targets 数组、节点尺寸与 layoutOptions 高歧义,minimal 用最小 DAG 固定格式。",
+    "minimal": {
+      "graph": {
+        "id": "root",
+        "layoutOptions": {
+          "elk.algorithm": "layered",
+          "elk.direction": "RIGHT",
+          "elk.edgeRouting": "ORTHOGONAL"
+        },
+        "children": [
+          { "id": "a", "width": 80, "height": 40 },
+          { "id": "b", "width": 80, "height": 40 }
+        ],
+        "edges": [
+          { "id": "a-b", "sources": ["a"], "targets": ["b"] }
+        ]
+      }
+    },
+    "empty": {
+      "graph": {
+        "id": "root",
+        "children": [],
+        "edges": []
+      }
+    }
+  }
+}

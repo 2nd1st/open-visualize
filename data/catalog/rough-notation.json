@@ -1,0 +1,45 @@
+{
+  "entry_version": "thin-1",
+  "id": "rough-notation",
+  "name": "Rough Notation",
+  "when_to_use": "需要让下划线、圈选、框选或高亮跨多行文字并在布局变化后仍贴住目标时用它而非手写,因为原生 SVG 在文本分行几何、reflow 重算和手绘动画上失败。",
+  "why_valuable": "AI 默认只能给文本加静态 border/background,做不到跨行 getClientRects 几何、手绘双笔触动画与布局变化后的重新贴合;Rough Notation 把这些能力压成一个目标元素加浅配置。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "rough-notation",
+    "version": "0.5.1",
+    "github": "rough-stuff/rough-notation"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "text-span",
+    "note": "target_selector 必须命中已完成布局的 DOM 元素;annotate 会在目标旁插入 SVG,表格单元格内应先包一层 span 或 div。",
+    "schema": {
+      "target_selector": "string —— 唯一目标元素的 CSS selector",
+      "config": {
+        "type": "'underline' | 'box' | 'circle' | 'highlight' | 'strike-through' | 'crossed-off' | 'bracket' —— 必填",
+        "animate?": "boolean —— 默认 true",
+        "animationDuration?": "number —— 毫秒,默认 800",
+        "color?": "string —— CSS color,默认 'currentColor'",
+        "strokeWidth?": "number —— 默认 1",
+        "padding?": "number | number[] —— 像素或 CSS 顺序数组,默认 5",
+        "multiline?": "boolean —— 多行内联文本逐行描边,默认 false",
+        "iterations?": "number —— 默认 2",
+        "brackets?": "'left'|'right'|'top'|'bottom' | string[] —— 仅 bracket,默认 'right'",
+        "rtl?": "boolean —— 默认 false"
+      }
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:等目标文本完成布局后调用上游原生 annotate\nimport { annotate } from 'https://cdn.jsdelivr.net/npm/rough-notation@0/+esm';\nconst target = document.querySelector(data.target_selector);\nconst annotation = annotate(target, data.config);\nannotation.show();\n// 字体或布局变化后再次 show() 可重算位置",
+    "widget": "// 目标与库插入的 SVG sibling 都落在 shadowRoot\nimport { annotate } from 'https://cdn.jsdelivr.net/npm/rough-notation@0/+esm';\nconst target = shadowRoot.querySelector(data.target_selector);\nconst annotation = annotate(target, data.config);\nannotation.show();\n// 不在条目中预接回调",
+    "codex": "// sandbox iframe 内直接使用上游原生 API\nimport { annotate } from 'https://cdn.jsdelivr.net/npm/rough-notation@0/+esm';\nconst target = document.querySelector(data.target_selector);\nconst annotation = annotate(target, data.config);\nannotation.show();"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:目标位于 shadowRoot 时,生成的绝对定位 SVG 作为同树 sibling 插入;无外置 CSS",
+    "codex": "supported:ESM CDN + SVG/DOM 几何,应在字体和目标布局稳定后 show"
+  }
+}

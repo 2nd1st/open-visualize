@@ -1,0 +1,38 @@
+{
+  "entry_version": "thin-1",
+  "id": "hpcc-js-wasm",
+  "name": "@hpcc-js/wasm (Graphviz)",
+  "when_to_use": "需要在浏览器把 DOT 渲成高质量层次图时用它,而非手写 SVG 布局——原生手写在 rank、子图、边路由和交叉最小化上会失败。非做自由拖拽画布、真地图或实时协作编辑。",
+  "why_valuable": "AI 默认几乎总能写对 DOT,但默认无法在浏览器执行 Graphviz 布局;徒手 SVG 又做不好层次几何,本库用 wasm 把 DOT 确定性编译为 SVG。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@hpcc-js/wasm",
+    "version": "2.34.8",
+    "github": "hpcc-systems/hpcc-js-wasm"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_minimal": "DOT 是 AI 原生且训练覆盖极高的记法,schema 足矣;不附 minimal。",
+    "schema": {
+      "dot": "string —— 完整 Graphviz DOT source,即 graph/digraph 声明而非节点数组",
+      "engine?": "'dot'|'neato'|'fdp'|'sfdp'|'circo'|'twopi'|'osage'|'patchwork' —— 默认 'dot'"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "几何图容器默认显式高 400px并允许滚动,禁 vh/百分比高(铁律 3);返回 SVG 保留 intrinsic viewBox,仅把 max-width 设为 100%。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:H0 wasm 探针未闭合\nimport { Graphviz } from 'https://cdn.jsdelivr.net/npm/@hpcc-js/wasm@2/+esm';\nconst el = document.getElementById('graph'); el.style.cssText = 'height:400px;overflow:auto';\nconst graphviz = await Graphviz.load();\nel.innerHTML = graphviz.layout(data.dot, 'svg', data.engine ?? 'dot');\nconst svg = el.querySelector('svg'); if (svg) { svg.style.maxWidth = '100%'; svg.style.height = 'auto'; }",
+    "widget": "// SVG 落到 shadow 容器;宿主必须允许 WebAssembly\nimport { Graphviz } from 'https://cdn.jsdelivr.net/npm/@hpcc-js/wasm@2/+esm';\nconst el = document.createElement('div'); el.style.cssText = 'height:400px;overflow:auto'; shadowRoot.appendChild(el);\nconst graphviz = await Graphviz.load(); el.innerHTML = graphviz.layout(data.dot, 'svg', data.engine ?? 'dot');\nconst svg = el.querySelector('svg'); if (svg) { svg.style.maxWidth = '100%'; svg.style.height = 'auto'; }",
+    "codex": "// sandbox iframe 必须允许 WebAssembly\nimport { Graphviz } from 'https://cdn.jsdelivr.net/npm/@hpcc-js/wasm@2/+esm';\nconst el = document.getElementById('graph'); el.style.cssText = 'height:400px;overflow:auto';\nconst graphviz = await Graphviz.load();\nel.innerHTML = graphviz.layout(data.dot, 'svg', data.engine ?? 'dot');"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:依赖 WebAssembly,须待 H0 wasm 探针闭合",
+    "widget": "conditional:宿主 CSP/能力必须允许 WebAssembly;生成 SVG 可完全落 shadow",
+    "codex": "conditional:sandbox 必须允许 WebAssembly 编译与 jsDelivr ESM 依赖链"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "entry_version": "thin-1",
+  "id": "photoswipe",
+  "name": "PhotoSwipe",
+  "when_to_use": "需要对技术截图或高分辨率图片做移动端手势缩放、惯性平移与全屏逐张检查时用它而非手写 lightbox,因为原生在多指缩放几何、拖拽边界和转场手势竞争上失败;非做静态缩略图 gallery。",
+  "why_valuable": "AI 默认只能拼出带上一张/下一张按钮的遮罩层,做不到稳定的双指缩放、惯性、响应式 srcset 与无障碍焦点管理;PhotoSwipe 把这些能力收敛为精确的图片 dataSource。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "photoswipe",
+    "version": "5.4.4",
+    "github": "dimsemenov/PhotoSwipe"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "data_in.items 直接传给 PhotoSwipe core 的 dataSource;图片必须预先给出固有 width/height,不要等加载后再猜尺寸。",
+    "schema": {
+      "items": [
+        {
+          "src": "string —— 完整图片 URL",
+          "width": "positive integer —— 图片固有宽度",
+          "height": "positive integer —— 图片固有高度",
+          "srcset?": "string —— 原生 img srcset 语法,默认不提供",
+          "alt?": "string —— 默认空字符串",
+          "msrc?": "string —— 低清占位图 URL,默认不提供",
+          "thumbCropped?": "boolean —— 默认 false"
+        }
+      ],
+      "index?": "non-negative integer —— 初始图片下标,默认 0",
+      "loop?": "boolean —— 默认 true,少于 3 张时上游自动禁用循环",
+      "bgOpacity?": "number,0..1 —— 默认 0.8",
+      "showHideAnimationType?": "'zoom'|'fade'|'none' —— 默认 'zoom'"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:PhotoSwipe CSS 按铁律 2 进入 document.head\nimport PhotoSwipe from 'https://cdn.jsdelivr.net/npm/photoswipe@5/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/photoswipe@5/dist/photoswipe.css' }); document.head.appendChild(css);\nconst host = document.getElementById('photoswipe-root');\nconst pswp = data.items.length ? new PhotoSwipe({ dataSource: data.items, index: data.index ?? 0, loop: data.loop ?? true, bgOpacity: data.bgOpacity ?? 0.8, showHideAnimationType: data.showHideAnimationType ?? 'zoom', appendToEl: host }) : null;\npswp?.init();",
+    "widget": "// CSS 与 PhotoSwipe dialog 都落到 widget shadow 容器;appendToEl 阻止默认追加 document.body\nimport PhotoSwipe from 'https://cdn.jsdelivr.net/npm/photoswipe@5/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/photoswipe@5/dist/photoswipe.css' }); shadowRoot.appendChild(css);\nconst host = document.createElement('div'); shadowRoot.appendChild(host);\nconst pswp = data.items.length ? new PhotoSwipe({ dataSource: data.items, index: data.index ?? 0, loop: data.loop ?? true, bgOpacity: data.bgOpacity ?? 0.8, showHideAnimationType: data.showHideAnimationType ?? 'zoom', appendToEl: host }) : null;\npswp?.init();",
+    "codex": "// sandbox iframe 内使用 core 直接打开 dataSource,样式留在 iframe head\nimport PhotoSwipe from 'https://cdn.jsdelivr.net/npm/photoswipe@5/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/photoswipe@5/dist/photoswipe.css' }); document.head.appendChild(css);\nconst host = document.getElementById('photoswipe-root');\nconst pswp = data.items.length ? new PhotoSwipe({ dataSource: data.items, index: data.index ?? 0, loop: data.loop ?? true, bgOpacity: data.bgOpacity ?? 0.8, showHideAnimationType: data.showHideAnimationType ?? 'zoom', appendToEl: host }) : null;\npswp?.init();"
+  },
+  "example": {
+    "_why_no_minimal": "图片项只有 src/width/height 三个必填字段且直接对应上游 dataSource,裁剪 schema 足够一次拼对;只保留空态 fixture。",
+    "empty": {
+      "items": []
+    }
+  },
+  "uplink": "display/local-interact 类默认无需上行;当前图片下标若需外传,由消费 AI 直接读取 pswp.currIndex 并按载体处理,不预设事件出口。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:必须按 boot 把 photoswipe.css 与 appendToEl 都放入 shadowRoot;远程图片 URL 仍须获宿主 img-src/CORS 许可",
+    "codex": "supported:ESM CDN + CSS + Pointer Events;远程图片源须可加载"
+  }
+}

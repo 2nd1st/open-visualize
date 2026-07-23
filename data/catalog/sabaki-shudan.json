@@ -1,0 +1,53 @@
+{
+  "entry_version": "thin-1",
+  "id": "sabaki-shudan",
+  "name": "Shudan",
+  "when_to_use": "需要把围棋落子矩阵渲成带坐标、标记、箭头或热力覆盖的高质量棋盘时用它,而非手写 canvas/SVG——原生在十九路网格对齐、棋子质感与多层覆盖上失败。非围棋规则引擎或 SGF 解析器。",
+  "why_valuable": "AI 默认做不到稳定的十九路棋盘几何、棋子纹理、标记/热力/连线叠层与缩放;Shudan 直接消费二维落子矩阵,把 Sabaki 级 Goban 渲染交给经过验证的 Preact 组件。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@sabaki/shudan",
+    "version": "1.8.0",
+    "github": "SabakiHQ/Shudan"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "grid",
+    "note": "signMap 是上游原生 Map:外层按行(y),内层按列(x),所有行等长；顶点坐标均为零基 [x,y]。规则、提子与合法性不由本组件处理。",
+    "schema": {
+      "signMap": "(0 | 1 | -1)[][] —— 1=黑子,-1=白子,0=空点；默认 [] 为空盘",
+      "markerMap?": "({type?:'circle'|'cross'|'triangle'|'square'|'point'|'loader'|'label'|null,label?:string|null,tooltip?:string|null}|null)[][] —— 尺寸应与 signMap 相同,默认无标记",
+      "heatMap?": "({strength:number,text?:string|null}|null)[][] —— strength 为热力强度,默认无热力层",
+      "selectedVertices?": "[number,number][] —— 零基 [x,y],默认 []",
+      "lines?": "{v1:[number,number],v2:[number,number],type?:'line'|'arrow'}[] —— type 默认 'line',整体默认 []",
+      "showCoordinates?": "boolean —— 默认 false",
+      "fuzzyStonePlacement?": "boolean —— 默认 false",
+      "animateStonePlacement?": "boolean —— 默认 false；仅在 fuzzyStonePlacement=true 且传入新的 signMap 对象时生效"
+    }
+  },
+  "spec": {
+    "height": 480,
+    "note": "BoundedGoban 必须得到明确的 maxWidth/maxHeight；boot 默认二者均为 480px,棋盘保持正方形。AI 可改为其他正整数像素,禁用 vh/百分比高度。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:Shudan CSS 进入 document.head(铁律 2)\nimport { h, render } from 'https://cdn.jsdelivr.net/npm/preact@10/+esm';\nimport { BoundedGoban } from 'https://cdn.jsdelivr.net/npm/@sabaki/shudan@1/+esm';\nconst css = Object.assign(document.createElement('link'), {rel:'stylesheet', href:'https://cdn.jsdelivr.net/npm/@sabaki/shudan@1.8.0/css/goban.css'}); document.head.appendChild(css);\nconst host = document.getElementById('goban'); host.style.height = `${spec.height ?? 480}px`;\nrender(h(BoundedGoban, {...data, maxWidth:spec.height ?? 480, maxHeight:spec.height ?? 480}), host);",
+    "widget": "// 挂载点与 CSS 均落 shadowRoot；@import 保留 CSS 内图片的正确相对基址\nimport { h, render } from 'https://cdn.jsdelivr.net/npm/preact@10/+esm';\nimport { BoundedGoban } from 'https://cdn.jsdelivr.net/npm/@sabaki/shudan@1/+esm';\nconst style = document.createElement('style'); style.textContent = \"@import url('https://cdn.jsdelivr.net/npm/@sabaki/shudan@1.8.0/css/goban.css');\";\nconst host = document.createElement('div'); host.style.height = `${spec.height ?? 480}px`; shadowRoot.append(style, host);\nrender(h(BoundedGoban, {...data, maxWidth:spec.height ?? 480, maxHeight:spec.height ?? 480}), host);",
+    "codex": "import { h, render } from 'https://cdn.jsdelivr.net/npm/preact@10/+esm';\nimport { BoundedGoban } from 'https://cdn.jsdelivr.net/npm/@sabaki/shudan@1/+esm';\nconst css = Object.assign(document.createElement('link'), {rel:'stylesheet', href:'https://cdn.jsdelivr.net/npm/@sabaki/shudan@1.8.0/css/goban.css'}); document.head.appendChild(css);\nconst host = document.getElementById('goban'); host.style.height = `${spec.height ?? 480}px`;\nrender(h(BoundedGoban, {...data, maxWidth:spec.height ?? 480, maxHeight:spec.height ?? 480}), host);"
+  },
+  "peer": {
+    "note": "本条只渲盘面；SGF 解析、轮次、提子与合法性须由消费 AI 另接围棋规则/棋谱引擎。顶点回调是上游普通回调,不在 catalog 中抽成统一事件契约。"
+  },
+  "example": {
+    "_why_no_minimal": "核心输入只是取值被钉死的等宽二维网格,裁剪 schema 足以一次拼对；按模板只保留空态 fixture。",
+    "empty": {
+      "signMap": []
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:需 ESM CDN、Preact 与 document.head CSS；CSS 还读取同版本包内 board.png",
+    "widget": "conditional:挂载点与 @import CSS 可封闭在 shadowRoot；仍需允许 jsDelivr 上的 Preact、组件、CSS 与 board.png",
+    "codex": "supported:ESM CDN + Preact + DOM/SVG；须加载同版本 Shudan CSS"
+  }
+}

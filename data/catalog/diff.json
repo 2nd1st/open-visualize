@@ -1,0 +1,45 @@
+{
+  "entry_version": "thin-1",
+  "id": "diff",
+  "name": "jsdiff",
+  "when_to_use": "需要在运行时对任意两段文本、JSON 或 CSS 求可复算差异时用它而非手写比较循环,因为原生在 Myers 对齐、粒度切换与 patch 生成上失败;它只产数据不负责渲染。",
+  "why_valuable": "AI 默认只能预先人肉标注短差异,做不到在浏览器运行时对未知输入可靠执行 Myers diff、稳定切换字符/单词/行粒度并生成 unified patch。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "diff",
+    "version": "9.0.0",
+    "github": "kpdecker/jsdiff"
+  },
+  "license": "BSD-3-Clause",
+  "data_in": {
+    "shape": "text-span",
+    "schema": {
+      "oldText": "string —— 基准文本",
+      "newText": "string —— 对照文本",
+      "granularity?": "'chars'|'words'|'lines'|'sentences'|'json'|'css' —— 默认 lines",
+      "ignoreCase?": "boolean —— 默认 false;对支持该 option 的比较器生效"
+    }
+  },
+  "provides": {
+    "shape": "change-sequence",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers;结果交给 diff viewer 或消费 AI 自己着色。",
+    "outputs": {
+      "changes": "{value:string,count?:number,added?:boolean,removed?:boolean}[] —— 未标 added/removed 的项为相同片段",
+      "patch": "string —— createPatch/createTwoFilesPatch 生成的 unified patch"
+    },
+    "api_surface": {
+      "diffChars": "字符级",
+      "diffWords": "单词级",
+      "diffLines": "行级",
+      "diffJson": "结构化 JSON 文本级",
+      "createTwoFilesPatch": "生成带文件头的 unified patch"
+    }
+  },
+  "peer": {
+    "note": "它是数据生产者;changes 可喂自定义 span 视图,unified patch 可喂 git-diff-view-react,若要开箱即用 React 视图可配 react-diff-viewer-continued。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS 计算,无 DOM/shadow/uplink\nimport { diffChars, diffWords, diffLines, diffSentences, diffJson, diffCss } from 'https://cdn.jsdelivr.net/npm/diff@9/+esm';\nconst methods = { chars: diffChars, words: diffWords, lines: diffLines, sentences: diffSentences, json: diffJson, css: diffCss };\nconst fn = methods[data.granularity ?? 'lines'];\nconst changes = fn(data.oldText, data.newText, { ignoreCase: data.ignoreCase ?? false });"
+  }
+}

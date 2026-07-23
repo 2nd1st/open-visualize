@@ -1,0 +1,28 @@
+{
+  "entry_version": "thin-1",
+  "id": "json-crack",
+  "name": "JSON Crack",
+  "when_to_use": "需要把嵌套 JSON/YAML/CSV 变成可缩放、折叠和搜索的节点连线图时用它而非手写,因为原生在自动布局、大树交互和格式转换上失败;非做普通 JSON 文本查看器。",
+  "why_valuable": "AI 默认只能为小 JSON 手排少量节点,做不到大结构的自动布局、平移缩放、折叠搜索、格式互转和稳定图片导出。",
+  "supply_form": "app-needs-fork",
+  "mode": "our-entry",
+  "upstream": {
+    "github": "AykutSarac/jsoncrack.com"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "graph",
+    "note": "所选 picks 上游是 github-only 整站且无钉死 npm/version；未来 fork 必须把输入收敛为 document + format,再由内部 parser 生成 nodes/edges,不能要求消费 AI 预布局坐标。",
+    "schema": {
+      "document": "string | Record<string,unknown> | unknown[] —— format=json 时可直接传对象/数组；其他格式必须传原始字符串",
+      "format?": "'json'|'yaml'|'csv'|'xml' —— 默认 'json'",
+      "layout_direction?": "'LEFT'|'RIGHT'|'DOWN'|'UP' —— 默认 'RIGHT'",
+      "theme?": "'dark'|'light' —— 默认 'dark'",
+      "show_controls?": "boolean —— 默认 true",
+      "show_grid?": "boolean —— 默认 true",
+      "max_renderable_nodes?": "integer —— 默认 1500；超过时显示降级提示而非继续排版"
+    }
+  },
+  "status": "blocked-until-forked",
+  "fork_note": "picks 指向完整 jsoncrack.com monorepo,未提供可钉死的 npm 名或版本,不能从 GitHub main 直接当稳定 CDN 组件消费。需 fork/选定可发布子包,固定 React peers 与 CSS,暴露 mount(el,data,{height}) 并移除站点路由、编辑器/导出外围后再上架；当前不作可消费条目。"
+}

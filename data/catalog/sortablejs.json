@@ -1,0 +1,49 @@
+{
+  "entry_version": "thin-1",
+  "id": "sortablejs",
+  "name": "SortableJS",
+  "when_to_use": "需要触摸友好、带动画的列表重排或同一 shadow 内跨列表归类时用它而非手写 HTML5 拖放,因为原生在移动端、占位反馈和跨容器一致性上失败。",
+  "why_valuable": "AI 默认只能可靠写上下移按钮,做不稳触摸拖拽、动画占位与跨容器投放;SortableJS 把 DOM 顺序变更和 toArray() 的 id 序列化闭环封装完成。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "sortablejs",
+    "version": "1.15.7",
+    "github": "SortableJS/Sortable"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "sequence",
+    "note": "data_in.items 先生成直属列表项,每项 id 写入 data-id;Sortable.toArray() 精确返回当前 DOM 顺序的 string[]。",
+    "schema": {
+      "items": [
+        {
+          "id": "string —— 列表内唯一,映射 data-id",
+          "label": "string —— 以 textContent 写入,不解析 HTML"
+        }
+      ]
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合\nimport Sortable from 'https://cdn.jsdelivr.net/npm/sortablejs@1/+esm';\nconst el = document.getElementById('sortable');\nel.replaceChildren(...data.items.map(item => { const row = document.createElement('div'); row.dataset.id = item.id; row.textContent = item.label; return row; }));\nconst sortable = Sortable.create(el, { animation: 150, dataIdAttr: 'data-id' });\nconst readOrder = () => sortable.toArray();",
+    "widget": "import Sortable from 'https://cdn.jsdelivr.net/npm/sortablejs@1/+esm';\nconst el = document.createElement('div'); shadowRoot.appendChild(el);\nel.replaceChildren(...data.items.map(item => { const row = document.createElement('div'); row.dataset.id = item.id; row.textContent = item.label; return row; }));\nconst sortable = Sortable.create(el, { animation: 150, dataIdAttr: 'data-id' });\nconst readOrder = () => sortable.toArray();",
+    "codex": "import Sortable from 'https://cdn.jsdelivr.net/npm/sortablejs@1/+esm';\nconst el = document.getElementById('sortable');\nel.replaceChildren(...data.items.map(item => { const row = document.createElement('div'); row.dataset.id = item.id; row.textContent = item.label; return row; }));\nconst sortable = Sortable.create(el, { animation: 150, dataIdAttr: 'data-id' });\nconst readOrder = () => sortable.toArray();"
+  },
+  "example": {
+    "_why_no_minimal": "sequence 只有 id+label 两个无歧义字段,裁剪 schema 足够一次拼对;按模板只保留空态 fixture。",
+    "empty": {
+      "items": []
+    }
+  },
+  "uplink": {
+    "artifact": "artifact 无上行;消费 AI 可把 sortable.toArray() 的 string[] 做下载或复制兜底。",
+    "widget": "消费 AI 自行读取 sortable.toArray() 并拼 sendPrompt 文案;本条不绑定统一回调。",
+    "codex": "消费 AI 自行读取 sortable.toArray() 后调用 sendFollowUpMessage;本条不绑定统一回调。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:纯 DOM/Pointer 拖拽,无 CSS/head/worker/wasm 依赖;跨列表时各列表须在同一 shadow 内并由消费 AI 配同名 group",
+    "codex": "supported:单 ESM + DOM,无额外 peer"
+  }
+}

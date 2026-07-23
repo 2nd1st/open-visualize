@@ -1,0 +1,141 @@
+{
+  "entry_version": "thin-1",
+  "id": "pptxgenjs",
+  "name": "PptxGenJS",
+  "when_to_use": "需要在浏览器按幻灯片坐标生成公司可继续编辑的 .pptx Blob 时用它而非手写 PowerPoint OOXML，因为原生在母版关系、媒体引用、EMU 坐标与 ZIP 打包上失败；非做在线播放界面、协作编辑器或自动审美排版器。",
+  "why_valuable": "AI 默认做不到能被 PowerPoint 稳定打开并继续编辑的 slide XML、rels、theme 与媒体包，也无法可靠换算版面单位；PptxGenJS 把交付收敛为 slide.addText/addShape/addImage 和一次 Blob 输出。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "pptxgenjs",
+    "version": "4.0.1",
+    "github": "gitbrent/PptxGenJS"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geometry",
+    "note": "presentation 是 boot 映射到 PptxGenJS 原生实例的裁剪几何；x/y/w/h 单位为英寸，颜色均为不带 # 的六位 RGB。",
+    "schema": {
+      "presentation": {
+        "layout?": "'LAYOUT_WIDE' | 'LAYOUT_4X3' | 'LAYOUT_16X10' —— 本 entry 默认 LAYOUT_WIDE",
+        "author?": "string —— 默认 'PptxGenJS'",
+        "company?": "string —— 默认 'PptxGenJS'",
+        "subject?": "string —— 默认 'PptxGenJS Presentation'",
+        "title?": "string —— 默认 'PptxGenJS Presentation'",
+        "slides": [
+          {
+            "background?": "{color:六位 RGB string} —— 默认主题背景（通常白色）",
+            "elements": [
+              {
+                "kind": "'text'",
+                "text": "string | {text:string,options?:object}[]",
+                "options": {
+                  "x": "number inches",
+                  "y": "number inches",
+                  "w": "positive number inches",
+                  "h": "positive number inches",
+                  "fontFace?": "string —— 默认 Arial",
+                  "fontSize?": "positive number points —— 默认 18",
+                  "color?": "六位 RGB string —— 默认 000000",
+                  "bold?": "boolean —— 默认 false",
+                  "align?": "'left' | 'center' | 'right' | 'justify' —— 默认 left",
+                  "margin?": "number | [top,right,bottom,left] points —— 默认 3"
+                }
+              },
+              {
+                "kind": "'shape'",
+                "shape": "'rect' | 'ellipse' | 'line' | 'roundRect' | 'chevron'",
+                "options": "{x:number,y:number,w:number,h:number,fill?:{color?:string,transparency?:number},line?:{color?:string,width?:number}} —— x/y/w/h 均为英寸且 line 的 h 可为 0；fill 默认透明，line 默认主题线条"
+              },
+              {
+                "kind": "'image'",
+                "source": "{path:string} | {data:string} —— 二选一；data 为 data URI/base64 图像",
+                "options": "{x:number,y:number,w:number,h:number} —— 四项均为必填英寸几何"
+              }
+            ]
+          }
+        ]
+      },
+      "filename?": "string，以 .pptx 结尾 —— 默认 presentation.pptx；只供消费端命名"
+    }
+  },
+  "spec": {
+    "height": 405,
+    "note": "headless 生成不直接渲染；若消费端另做 16:9 幻灯片预览，默认给容器显式 405px 高并禁用 vh/百分比高，PPTX 本身尺寸由 presentation.layout 与英寸几何决定。"
+  },
+  "provides": {
+    "shape": "document-output",
+    "_note": "headless-primitive：不直接渲染、无 L 级、无 carriers；browser write({outputType:'blob'}) 生成 PPTX Blob。",
+    "outputs": "application/vnd.openxmlformats-officedocument.presentationml.presentation Blob；原生 write 还支持 arraybuffer/base64/uint8array。",
+    "api_surface": {
+      "slide": "const slide = pptx.addSlide(); slide.background = {color};",
+      "elements": "slide.addText(text,options) / slide.addShape(pptx.ShapeType[name],options) / slide.addImage({...source,...options})",
+      "finish": "await pptx.write({outputType:'blob'})"
+    }
+  },
+  "peer": {
+    "note": "Blob 由下载按钮、文件保存器或上传器消费；若要在线演示，应另用 reveal.js 等渲染条目，本条只产可编辑 PowerPoint 文件。"
+  },
+  "boot": {
+    "shared": "// 三载体一致：按裁剪几何调用原生 slide API，只产 Blob\nimport PptxGenJS from 'https://cdn.jsdelivr.net/npm/pptxgenjs@4/+esm';\nconst p=data.presentation, pptx=new PptxGenJS(); pptx.layout=p.layout??'LAYOUT_WIDE';\nfor (const k of ['author','company','subject','title']) if (p[k] != null) pptx[k]=p[k];\nfor (const s of p.slides) { const slide=pptx.addSlide(); if(s.background) slide.background=s.background; for(const e of s.elements) { if(e.kind==='text') slide.addText(e.text,e.options); else if(e.kind==='shape') slide.addShape(pptx.ShapeType[e.shape],e.options); else if(e.kind==='image') slide.addImage({...e.source,...e.options}); } }\nconst blob = await pptx.write({outputType:'blob'});",
+    "note": "4.0.1 的 jsDelivr ESM 为 default class，write({outputType:'blob'}) 是浏览器安全输出；图表、表格与母版 API 更深，本条不猜其裁剪签名。"
+  },
+  "example": {
+    "_why": "slide/elements/options 多层且混用英寸、点与 RGB 字符串，minimal 钉死一张宽屏标题页的真实原生层次。",
+    "minimal": {
+      "presentation": {
+        "layout": "LAYOUT_WIDE",
+        "author": "Open Visualize",
+        "title": "Quarterly brief",
+        "slides": [
+          {
+            "background": {
+              "color": "F8FAFC"
+            },
+            "elements": [
+              {
+                "kind": "text",
+                "text": "Quarterly brief",
+                "options": {
+                  "x": 0.8,
+                  "y": 1.2,
+                  "w": 11.7,
+                  "h": 0.8,
+                  "fontSize": 28,
+                  "bold": true,
+                  "color": "0F172A",
+                  "align": "center"
+                }
+              },
+              {
+                "kind": "shape",
+                "shape": "line",
+                "options": {
+                  "x": 4.8,
+                  "y": 2.2,
+                  "w": 3.7,
+                  "h": 0,
+                  "line": {
+                    "color": "2563EB",
+                    "width": 2
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "filename": "quarterly-brief.pptx"
+    },
+    "empty": {
+      "presentation": {
+        "slides": [
+          {
+            "elements": []
+          }
+        ]
+      },
+      "filename": "presentation.pptx"
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "entry_version": "thin-1",
+  "id": "codemirror-merge",
+  "name": "CodeMirror Merge",
+  "when_to_use": "需要可编辑的双栏代码对照、同步垂直对齐、变更块导航与大文本滚动时用它而非手写双 pre,因为原生在编辑器状态、chunk 对齐和滚动稳定性上失败;非做 AST 语义合并、三方 merge 或代码执行。",
+  "why_valuable": "AI 默认只能生成静态双 pre,做不到 CodeMirror 级选区编辑、变更块计算、两侧垂直对齐和长文档滚动协同。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@codemirror/merge",
+    "version": "6.12.2",
+    "github": "codemirror/merge"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "text-span",
+    "schema": {
+      "original": "string —— A 侧基准文档",
+      "modified": "string —— B 侧对照文档",
+      "readOnly?": "boolean —— 两侧是否只读,默认 true",
+      "orientation?": "'a-b'|'b-a' —— 显示顺序,默认 a-b",
+      "collapseUnchanged?": "{margin?:number,minSize?:number} —— 默认省略即不折叠;提供对象时 margin 默认 3,minSize 默认 4"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "MergeView 默认自身不滚动;容器显式 height 400px 且 .cm-mergeView 设 height:100%;overflow:auto,AI 可改像素值但禁 vh/百分比容器高(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:CodeMirror 样式由 style-mod 进当前 document root;布局 CSS 按铁律 2 进 head\nimport { MergeView } from 'https://cdn.jsdelivr.net/npm/@codemirror/merge@6/+esm'; import { EditorState } from 'https://cdn.jsdelivr.net/npm/@codemirror/state@6/+esm';\nconst holder = document.getElementById('merge'); holder.style.height = '400px';\nconst style = document.createElement('style'); style.textContent = '.cm-mergeView{height:100%;overflow:auto}'; document.head.appendChild(style);\nconst ext = (data.readOnly ?? true) ? [EditorState.readOnly.of(true)] : [];\nconst merge = new MergeView({ a: { doc: data.original, extensions: ext }, b: { doc: data.modified, extensions: ext }, parent: holder, orientation: data.orientation ?? 'a-b', ...(data.collapseUnchanged ? { collapseUnchanged: data.collapseUnchanged } : {}) });",
+    "widget": "// pass root:shadowRoot 让 CodeMirror 自有样式落 shadow;布局 style 也落 shadow(铁律 2)\nimport { MergeView } from 'https://cdn.jsdelivr.net/npm/@codemirror/merge@6/+esm'; import { EditorState } from 'https://cdn.jsdelivr.net/npm/@codemirror/state@6/+esm';\nconst style = document.createElement('style'); style.textContent = '.cm-mergeView{height:100%;overflow:auto}'; shadowRoot.appendChild(style);\nconst holder = shadowRoot.appendChild(document.createElement('div')); holder.style.height = '400px';\nconst ext = (data.readOnly ?? true) ? [EditorState.readOnly.of(true)] : [];\nconst merge = new MergeView({ a:{doc:data.original,extensions:ext}, b:{doc:data.modified,extensions:ext}, parent:holder, root:shadowRoot, orientation:data.orientation ?? 'a-b', ...(data.collapseUnchanged ? {collapseUnchanged:data.collapseUnchanged} : {}) });",
+    "codex": "同 artifact(sandbox iframe):显式 400px 容器,构造 new MergeView({a:{doc},b:{doc},parent});卸载时调用 merge.destroy()。"
+  },
+  "peer": {
+    "note": "boot 仅额外按需引 @codemirror/state 设置只读;语言语法高亮须再给两侧 extensions 配同一 CodeMirror 6 language 包。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:MergeView 接受 root:ShadowRoot,style-mod 与布局 CSS 均可留在 shadow",
+    "codex": "supported:ESM CDN + DOM,无外部 CSS/worker/wasm/uplink"
+  }
+}

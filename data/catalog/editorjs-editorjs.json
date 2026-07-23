@@ -1,0 +1,66 @@
+{
+  "entry_version": "thin-1",
+  "id": "editorjs-editorjs",
+  "name": "Editor.js",
+  "when_to_use": "需要把大纲或共创文档编辑成可直接交给 AI 的 block JSON 时用它而非手写 contenteditable,因为原生在 block 语义、工具栏与稳定序列化上失败;非做分页排版、多人同步或任意 HTML 富文本。",
+  "why_valuable": "AI 默认只能生成 textarea/contenteditable,做不到 block 级编辑、工具状态与干净的结构化 JSON 输出;Editor.js 将运行时编辑结果稳定收敛为有序 blocks。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@editorjs/editorjs",
+    "version": "2.31.6",
+    "github": "codex-team/editor.js"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "sequence",
+    "note": "输入是 Editor.js OutputData 的裁剪版并附只读开关;核心只内置 paragraph,其他 type 必须在构造参数 tools 中注册同名 Block Tool。",
+    "schema": {
+      "blocks": [
+        {
+          "id?": "string —— 省略时由 Editor.js 生成",
+          "type": "string —— 核心可直接吃 'paragraph';其他值须配套同名 tool",
+          "data": "object —— 由 type 对应的 tool 定义;paragraph 精确为 {text:string},text 可含该 tool 允许的行内标记"
+        }
+      ],
+      "time?": "number —— 保存时间戳(ms),默认省略",
+      "version?": "string —— 产出该文档的 Editor.js 版本,默认省略",
+      "readOnly?": "boolean —— 是否只读,默认 false"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:包根 @2/+esm 实测无法打包,改用包内真实 ESM 文件;其 CSS 会注入 document.head\nconst { default: EditorJS } = await import('https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2/dist/editorjs.mjs');\nconst holder = document.getElementById('editor');\nconst doc = { blocks: data.blocks, ...(data.time == null ? {} : { time: data.time }), ...(data.version ? { version: data.version } : {}) };\nconst editor = new EditorJS({ holder, data: doc, readOnly: data.readOnly ?? false });\nawait editor.isReady;",
+    "widget": "// Editor.js 会向 head 注入 CSS:动态 import 前后做差,把新增 style 搬入 widget shadow(铁律 2)\nconst before = new Set(document.head.querySelectorAll('style'));\nconst { default: EditorJS } = await import('https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2/dist/editorjs.mjs');\nfor (const s of document.head.querySelectorAll('style')) if (!before.has(s)) { shadowRoot.appendChild(s.cloneNode(true)); s.remove(); }\nconst holder = shadowRoot.appendChild(document.createElement('div'));\nconst editor = new EditorJS({ holder, data: { blocks: data.blocks }, readOnly: data.readOnly ?? false }); await editor.isReady;",
+    "codex": "同 artifact(sandbox iframe):使用可用的 /dist/editorjs.mjs 入口,new EditorJS({holder,data,readOnly}) 后等待 isReady;根 +esm 路径不可用。"
+  },
+  "example": {
+    "_why": "block 文档属于高歧义编辑器输入,给最小合法 document 防止把 HTML 字符串直接塞给构造器。",
+    "minimal": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "data": {
+            "text": "开始写作"
+          }
+        }
+      ]
+    },
+    "empty": {
+      "blocks": []
+    }
+  },
+  "peer": {
+    "note": "heading/list/image 等 block 不随核心包提供,须另引对应 @editorjs/* tool 并写入构造参数 tools;本条只保证核心 paragraph 路径。"
+  },
+  "uplink": {
+    "widget": "由消费 AI 自己在保存按钮中 await editor.save(),再把所得 OutputData 放入 sendPrompt 文案。",
+    "codex": "由消费 AI 自己在保存按钮中 await editor.save(),再用 sendFollowUpMessage 回传 OutputData。",
+    "artifact": "artifact 无上行;把 await editor.save() 的结果下载为 .json 作为兜底。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:需按 boot 将 Editor.js 动态注入 document.head 的新增 style 搬入 shadow;未接 tools 时仅 paragraph",
+    "codex": "supported:sandbox iframe + 包内 ESM 入口;无需 worker/wasm"
+  }
+}

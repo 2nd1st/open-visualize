@@ -1,0 +1,40 @@
+{
+  "entry_version": "thin-1",
+  "id": "tocbot",
+  "name": "tocbot",
+  "when_to_use": "需要从长文标题自动生成层级目录并随滚动高亮当前章节时用它而非手写,因为原生静态锚点没有 scroll-spy 而自制滚动状态机在嵌套标题、底部边界和节流上失败。",
+  "why_valuable": "AI 默认只能一次性列静态目录,做不到标题层级解析、当前章节判定、折叠祖先展开和滚动节流的一致闭环;tocbot 从真实 DOM 标题持续生成并同步目录。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "tocbot",
+    "version": "4.36.8",
+    "github": "tscanlin/tocbot"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "hierarchy",
+    "note": "目录层级来自 content 根内真实 h1-h6 DOM;每个被抓取标题必须有唯一 id,toc 根必须是独立空容器,本条非做 Markdown/HTML 渲染器。",
+    "schema": {
+      "toc_selector": "string —— 当前载体根内唯一目录容器 selector",
+      "content_selector": "string —— 当前载体根内唯一长文容器 selector",
+      "heading_selector?": "string —— 标题 selector,默认 'h1, h2, h3'",
+      "collapse_depth?": "number —— 不折叠到的标题级深度,默认 0",
+      "scroll_smooth?": "boolean —— artifact/codex 默认 true;widget 默认 false,因上游平滑定位走 document 级 id 查询",
+      "has_inner_containers?": "boolean —— 标题位于相对/绝对定位内层时设 true,默认 false",
+      "ordered_list?": "boolean —— 默认 true",
+      "include_html?": "boolean —— 目录标签是否复制标题内联 HTML,默认 false"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:tocbot CSS 进入 document.head(铁律 2)\nimport tocbot from 'https://cdn.jsdelivr.net/npm/tocbot@4/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.css'; document.head.appendChild(css);\nconst toc = document.querySelector(data.toc_selector); const content = document.querySelector(data.content_selector);\ntocbot.init({ tocElement: toc, contentElement: content, headingSelector: data.heading_selector ?? 'h1, h2, h3', collapseDepth: data.collapse_depth ?? 0, scrollSmooth: data.scroll_smooth ?? true, hasInnerContainers: data.has_inner_containers ?? false, orderedList: data.ordered_list ?? true, includeHtml: data.include_html ?? false });",
+    "widget": "// toc、content 与 CSS 落在 shadowRoot;直接传元素,不让上游走 document selector(铁律 2)\nimport tocbot from 'https://cdn.jsdelivr.net/npm/tocbot@4/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.css'; shadowRoot.appendChild(css);\nconst toc = shadowRoot.querySelector(data.toc_selector); const content = shadowRoot.querySelector(data.content_selector);\ntocbot.init({ tocElement: toc, contentElement: content, headingSelector: data.heading_selector ?? 'h1, h2, h3', collapseDepth: data.collapse_depth ?? 0, scrollSmooth: false, hasInnerContainers: data.has_inner_containers ?? false, orderedList: data.ordered_list ?? true, includeHtml: data.include_html ?? false });",
+    "codex": "// sandbox iframe 内按上游原生 API 初始化\nimport tocbot from 'https://cdn.jsdelivr.net/npm/tocbot@4/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.css'; document.head.appendChild(css);\nconst toc = document.querySelector(data.toc_selector); const content = document.querySelector(data.content_selector);\ntocbot.init({ tocElement: toc, contentElement: content, headingSelector: data.heading_selector ?? 'h1, h2, h3', collapseDepth: data.collapse_depth ?? 0, scrollSmooth: data.scroll_smooth ?? true, hasInnerContainers: data.has_inner_containers ?? false, orderedList: data.ordered_list ?? true, includeHtml: data.include_html ?? false });"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:目录生成与 scroll-spy 可用,元素和 CSS 均在 shadowRoot;上游 hash 平滑定位不穿透 ShadowRoot,boot 关闭 scrollSmooth,点击跳转若需要由消费 AI 自行处理",
+    "codex": "supported:ESM CDN + CSS + document 滚动监听,标题须预先带唯一 id"
+  }
+}

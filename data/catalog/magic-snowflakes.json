@@ -1,0 +1,53 @@
+{
+  "entry_version": "thin-1",
+  "id": "magic-snowflakes",
+  "name": "magic-snowflakes",
+  "when_to_use": "需要在限定容器内得到有层次、风向、旋转和自动尺寸响应的持续飘雪时用它而非手写 CSS 雪点,因为原生在随机层次、自然轨迹和长时间性能上失败。",
+  "why_valuable": "AI 默认只能复制几十个同质圆点与相似 keyframe,做不到尺寸/透明度分布、风偏、旋转、容器尺寸响应和实例清理的稳定组合;该库给出可启停销毁的成品雪层。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "magic-snowflakes",
+    "version": "7.0.2",
+    "github": "hcodes/snowflakes"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "_why_no_example": "构造参数是浅层 key-value 且默认完整,裁剪 schema 足以校准,不附 minimal example。",
+    "note": "data_in.options 精确传给 new Snowflakes(params),但 container/width/height 由 boot 按 spec 覆盖;上游完整 ESM 会运行时生成 CSS。",
+    "schema": {
+      "options?": {
+        "_default": "{} —— 全部采用上游默认值",
+        "count?": "integer —— 雪花数量,默认 50",
+        "color?": "CSS color string —— 默认 '#5ECDEF'",
+        "minOpacity?": "number 0..1 —— 最小透明度,默认 0.6",
+        "maxOpacity?": "number 0..1 —— 最大透明度,默认 1",
+        "minSize?": "number —— 最小像素尺寸,默认 10",
+        "maxSize?": "number —— 最大像素尺寸,默认 25",
+        "rotation?": "boolean —— 是否旋转,默认 true",
+        "speed?": "number —— 下落速度倍率,默认 1",
+        "stop?": "boolean —— 初始是否暂停,默认 false",
+        "types?": "integer —— 内置雪花图形种类数,默认 6",
+        "wind?": "boolean —— 是否启用风偏,默认 true",
+        "zIndex?": "integer —— 雪层层级,默认 9999",
+        "autoResize?": "boolean —— 是否响应容器尺寸,默认 true"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "雪层必须有显式像素高;boot 默认 400px 并把同值传入上游 height,宽度取容器 clientWidth(不可用时按 640px),禁用 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:构造器生成的 CSS 按上游原生路径进入 artifact head\nimport Snowflakes from 'https://cdn.jsdelivr.net/npm/magic-snowflakes@7/+esm';\nconst el = document.getElementById('snow'); el.style.cssText = `position:relative;height:${spec.height ?? 400}px;overflow:hidden`;\nconst snow = new Snowflakes({ ...(data.options ?? {}), container: el,\n  width: el.clientWidth || 640, height: spec.height ?? 400 });",
+    "widget": "// 用唯一 ESM 实例识别构造器新增 style,随后迁入 shadow(铁律 2)\nconst before = new Set(document.head.querySelectorAll('style'));\nconst { default: Snowflakes } = await import('https://cdn.jsdelivr.net/npm/magic-snowflakes@7/+esm?ov-shadow=' + crypto.randomUUID());\nconst el = document.createElement('div'); el.style.cssText = `position:relative;height:${spec.height ?? 400}px;overflow:hidden`; shadowRoot.appendChild(el);\nconst snow = new Snowflakes({ ...(data.options ?? {}), container: el, width: el.clientWidth || 640, height: spec.height ?? 400 });\nfor (const s of document.head.querySelectorAll('style')) if (!before.has(s)) shadowRoot.appendChild(s);",
+    "codex": "import Snowflakes from 'https://cdn.jsdelivr.net/npm/magic-snowflakes@7/+esm';\nconst el = document.getElementById('snow'); el.style.cssText = `position:relative;height:${spec.height ?? 400}px;overflow:hidden`;\nconst snow = new Snowflakes({ ...(data.options ?? {}), container: el,\n  width: el.clientWidth || 640, height: spec.height ?? 400 });"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:构造器固定向 document.head 生成三类 style;boot 以唯一 ESM 实例捕获并迁入 shadowRoot,宿主须允许动态 ESM 与 crypto.randomUUID",
+    "codex": "supported:sandbox iframe 吸收运行时 head 样式,雪花 DOM 留在指定容器"
+  }
+}

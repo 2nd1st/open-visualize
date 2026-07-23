@@ -1,0 +1,50 @@
+{
+  "entry_version": "thin-1",
+  "id": "markmap-lib",
+  "name": "markmap",
+  "when_to_use": "需要把 Markdown 大纲变成可折叠、可缩放思维导图的数据树时用它而非手写解析器,因为原生在稳定保留标题层级、列表与内联富文本语义上失败。",
+  "why_valuable": "AI 默认能写 Markdown,但做不到稳定的 Markdown AST→markmap 层级树转换,也无法可靠收集 KaTeX/highlight 等按内容启用的渲染资产;本条把 AI 母语直接变成 markmap-view 可消费的数据。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "markmap-lib",
+    "version": "0.18.12",
+    "github": "markmap/markmap"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "hierarchy",
+    "note": "主结构词按 picks 取 hierarchy;组件实际入口是 Markdown 字符串,Transformer.transform 精确产出层级 root、features 与规范化 content,不接收预造树。",
+    "_why_no_example": "Markdown 是 AI 原生记法,字段精确且无深 config,schema 足矣、不附 minimal example。",
+    "schema": {
+      "markdown": "string —— Markdown 标题/列表大纲;空字符串是合法空态"
+    }
+  },
+  "provides": {
+    "shape": "hierarchy",
+    "_note": "headless-primitive:不直接挂载或渲染、无 L 级、无 carriers 矩阵;它只负责转换,显示由 markmap-view 完成。",
+    "outputs": {
+      "root": "IPureNode —— markmap-view 的原生层级输入,节点含 content、children 与 payload",
+      "features": "Record<string, boolean> —— 本次转换实际用到的插件特性",
+      "assets": "{styles, scripts} —— transformer.getUsedAssets(features) 返回的按需资产"
+    },
+    "api_surface": {
+      "transform": "new Transformer().transform(markdown) → {root, features, content, ...}",
+      "getUsedAssets": "transformer.getUsedAssets(features) → {styles, scripts}"
+    }
+  },
+  "peer": {
+    "npm": "markmap-view",
+    "note": "消费者是 markmap-view:先创建 SVG,再调用 Markmap.create(svg, options, root);本条自身不渲染。"
+  },
+  "boot": {
+    "shared": "import { Transformer } from 'https://cdn.jsdelivr.net/npm/markmap-lib@0/+esm';\nconst transformer = new Transformer();\nconst { root, features } = transformer.transform(data.markdown);\nconst assets = transformer.getUsedAssets(features);\n// root 交给 markmap-view;assets 由消费端按载体加载",
+    "note": "保守主路径只做转换。markmap-lib 内含 markmap-view 依赖但不自动 mount;含公式或代码高亮时必须处理 assets,纯标题/列表通常无需额外资产。"
+  },
+  "scenarios": [
+    "data-explore",
+    "browse-compare"
+  ],
+  "owner": true,
+  "owner_note": "pick 合并 data-explore 与 browse-compare;本条以 data-explore 为 owner,两场景共用同一转换 primitive。"
+}

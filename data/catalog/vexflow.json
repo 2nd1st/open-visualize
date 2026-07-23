@@ -1,0 +1,52 @@
+{
+  "entry_version": "thin-1",
+  "id": "vexflow",
+  "name": "VexFlow",
+  "when_to_use": "需要从音高、时值、和弦或吉他 tab 原语精确刻出一小段 SVG 五线谱时用它,而非手写 SVG——原生手写在谱表度量、符头/符干、升降号和多声部对齐上失败;它非做 MusicXML 解析、整曲自动分页或谱面编辑。",
+  "why_valuable": "AI 默认只能输出音符名或错位的 SVG 线条,做不到音乐刻版所需的 glyph 度量、节奏间距、多声部对齐与连线;VexFlow 的 Factory/EasyScore 把底层刻版原语闭环。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "vexflow",
+    "version": "5.0.0",
+    "github": "vexflow/vexflow"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "note": "输入是 VexFlow EasyScore DSL,不是 ABC/MusicXML。该 DSL 对 AI 歧义较高,故附 minimal example。",
+    "schema": {
+      "easyScore": "string —— 逗号分隔的 EasyScore 音符/和弦;单音为 <A-G><bb|b|n|#|##?><octave>/<duration?>,和弦用括号,如 (C4 E4 G4)/q;空字符串表示只画空谱表",
+      "clef?": "'treble' | 'bass' | 'alto' | 'tenor' | 'percussion' —— 谱号,默认 treble",
+      "time?": "string —— 拍号 <正整数>/<正整数>,默认 4/4"
+    }
+  },
+  "spec": {
+    "height": 260,
+    "note": "SVG renderer 需要显式 width/height;boot 固定 720×260px并将系统宽设为 700px,AI 可用固定 px 覆盖,禁 vh/百分比高。较长乐句应由 AI 分小节/系统,不要指望单行自动分页。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:直接把 HTMLElement 交给 SVG Renderer,不依赖 document.getElementById\nimport { Factory, Renderer } from 'https://cdn.jsdelivr.net/npm/vexflow@5/+esm';\nconst el = document.getElementById('score'); el.style.height = '260px';\nconst renderer = new Renderer(el, Renderer.Backends.SVG); renderer.resize(720, 260);\nconst vf = new Factory({ renderer: { elementId: null, width: 720, height: 260 } }).setContext(renderer.getContext());\nconst score = vf.EasyScore(), notes = data.easyScore ? score.notes(data.easyScore, { clef: data.clef ?? 'treble' }) : [];\nvf.System({ x: 10, y: 10, width: 700 }).addStave({ voices: notes.length ? [score.voice(notes, { time: data.time ?? '4/4' })] : [] }).addClef(data.clef ?? 'treble').addTimeSignature(data.time ?? '4/4');\nvf.draw();",
+    "widget": "import { Factory, Renderer } from 'https://cdn.jsdelivr.net/npm/vexflow@5/+esm';\nconst el = document.createElement('div'); el.style.height = '260px'; shadowRoot.appendChild(el);\nconst renderer = new Renderer(el, Renderer.Backends.SVG); renderer.resize(720, 260);\nconst vf = new Factory({ renderer: { elementId: null, width: 720, height: 260 } }).setContext(renderer.getContext());\nconst score = vf.EasyScore(), notes = data.easyScore ? score.notes(data.easyScore, { clef: data.clef ?? 'treble' }) : [];\nvf.System({ x: 10, y: 10, width: 700 }).addStave({ voices: notes.length ? [score.voice(notes, { time: data.time ?? '4/4' })] : [] }).addClef(data.clef ?? 'treble').addTimeSignature(data.time ?? '4/4');\nvf.draw();",
+    "codex": "同 artifact(sandbox iframe):ESM import jsDelivr /npm/;用 Renderer(el,SVG) 避免 shadow id 查找,再接 Factory/EasyScore/System。"
+  },
+  "example": {
+    "_why": "EasyScore 是库专用 DSL且谱号/拍号/时值关系高歧义,minimal 帮 AI 一次拼对。",
+    "minimal": {
+      "easyScore": "C5/q, D5, E5, F5",
+      "clef": "treble",
+      "time": "4/4"
+    },
+    "empty": {
+      "easyScore": "",
+      "clef": "treble",
+      "time": "4/4"
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:原生 Renderer 接收 shadow 内 div,输出容器内 SVG,无 CSS/head 注入",
+    "codex": "supported:ESM CDN + SVG,无 worker/wasm/uplink"
+  }
+}

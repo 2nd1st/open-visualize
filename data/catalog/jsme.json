@@ -1,0 +1,39 @@
+{
+  "entry_version": "thin-1",
+  "id": "jsme",
+  "name": "JSME",
+  "when_to_use": "需要让用户绘制或修改二维分子并读回 SMILES/MOL 时用它,而非手写 SVG 化学编辑器——原生在成键规则、环结构编辑与化学记法互转上会失败;非做三维分子展示或反应机理仿真。",
+  "why_valuable": "AI 默认能写 SMILES 文本但做不到可点击的原子/键编辑、价态提示和结构到 SMILES 的稳定回读;JSME 补齐 smiles-drawer 只读不写的输入侧。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "version": null,
+    "github": "jsme-editor/jsme-editor.github.io"
+  },
+  "license": null,
+  "license_note": "picks 未给 SPDX 且要求复核,故不猜许可证;上游也未提供可钉住的 release/version,CDN 使用仓库 master 路径并在载体状态中保守标注。",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "SMILES/MOL 是 AI 原生记法,schema 足够,不附 minimal example。",
+    "note": "boot 把 notation 原样交给 JSME 的 readGenericMolecularInput;消费方要取当前结果时直接调用 applet.smiles() 或 applet.molFile(),不规定上行回调。",
+    "schema": {
+      "notation": "string —— SMILES 或 V2000 MOL 文本,必填",
+      "options?": "string —— JSME 逗号分隔 option 字符串,默认 ''"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "JSME 构造器需要明确的宽高字符串;默认容器宽 100%、高 400px,铁律 3 禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:GitHub-only classic script,无可钉 release\nconst ready = new Promise((ok, fail) => { window.jsmeOnLoad = ok; const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/gh/jsme-editor/jsme-editor.github.io@master/dist/jsme/jsme.nocache.js'; s.onerror = fail; document.head.appendChild(s); });\nawait ready;\nconst el = document.createElement('div'); el.id = 'jsme-' + crypto.randomUUID();\ndocument.getElementById('editor').appendChild(el);\nconst applet = new JSApplet.JSME(el.id, '100%', '400px', data.options ?? '');\napplet.readGenericMolecularInput(data.notation);",
+    "widget": "unsupported:JSME 的 GWT 构造器只接 document id 并在 document 全局查找挂载点,不能可靠命中 ShadowRoot 内的容器;不得把编辑器偷挂到 shadow 外。",
+    "codex": "const ready = new Promise((ok, fail) => { window.jsmeOnLoad = ok; const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/gh/jsme-editor/jsme-editor.github.io@master/dist/jsme/jsme.nocache.js'; s.onerror = fail; document.head.appendChild(s); });\nawait ready;\nconst el = document.createElement('div'); el.id = 'jsme-' + crypto.randomUUID(); el.style.height = '400px';\ndocument.getElementById('editor').appendChild(el);\nconst applet = new JSApplet.JSME(el.id, '100%', '400px', data.options ?? '');\napplet.readGenericMolecularInput(data.notation);"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "unsupported:上游按 document id 挂载,与 widget 必须落 ShadowRoot 的约束冲突",
+    "codex": "conditional:classic-script + document-id API;GitHub master 未版本钉住且许可证待核"
+  }
+}

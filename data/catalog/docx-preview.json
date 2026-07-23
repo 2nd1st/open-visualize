@@ -1,0 +1,56 @@
+{
+  "entry_version": "thin-1",
+  "id": "docx-preview",
+  "name": "docx-preview",
+  "when_to_use": "需要在浏览器内把 DOCX 二进制渲成保留分页、页眉页脚、图片和样式的 HTML 预览时用它而非手写 OOXML 解析,因为原生手写在 ZIP 关系解析、Word 样式级联和分页还原上失败;非做文档编辑、回写或像素级 Word 克隆。",
+  "why_valuable": "AI 默认无法直接解析 DOCX ZIP 二进制;更做不到解析 OOXML relationships、编号、字体、页眉页脚、图片并映射成可读 HTML/CSS。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "docx-preview",
+    "version": "0.4.0",
+    "github": "VolodymyrBaydalka/docxjs"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "text-span",
+    "note": "picks 主结构词为 text-span,但真实原生入口吃 .docx bytes 而不是文本;document 必须是 Blob、ArrayBuffer 或 Uint8Array,renderAsync 是上游声明的稳定 API。",
+    "schema": {
+      "document": "Blob | ArrayBuffer | Uint8Array —— 完整 .docx 二进制,不可传解压 XML 或纯文本",
+      "options?": {
+        "_default": "未提供时使用下列上游默认值",
+        "inWrapper?": "boolean —— 默认 true",
+        "hideWrapperOnPrint?": "boolean —— 默认 false",
+        "ignoreWidth?": "boolean —— 默认 false",
+        "ignoreHeight?": "boolean —— 默认 false",
+        "ignoreFonts?": "boolean —— 默认 false",
+        "breakPages?": "boolean —— 默认 true",
+        "debug?": "boolean —— 默认 false",
+        "experimental?": "boolean —— 默认 false",
+        "className?": "string —— 默认 'docx'",
+        "trimXmlDeclaration?": "boolean —— 默认 true",
+        "renderHeaders?": "boolean —— 默认 true",
+        "renderFooters?": "boolean —— 默认 true",
+        "renderFootnotes?": "boolean —— 默认 true",
+        "renderEndnotes?": "boolean —— 默认 true",
+        "renderComments?": "boolean —— 默认 false",
+        "renderAltChunks?": "boolean —— 默认 true"
+      }
+    }
+  },
+  "spec": {
+    "height": 600,
+    "note": "分页文档会很长;boot 给预览容器默认 600px 高并滚动,AI 可传其他明确像素值,禁止百分比或视口单位。保留页面宽高由 ignoreWidth/ignoreHeight 控制。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:独立 styleSink 放入 head,避免 renderAsync 清空整个 document.head\nimport { renderAsync } from 'https://cdn.jsdelivr.net/npm/docx-preview@0/+esm';\nconst body = document.getElementById('docx'); body.style.cssText = `height:${spec.height ?? 600}px;overflow:auto`;\nconst styleSink = document.createElement('div'); styleSink.dataset.docxStyles = ''; document.head.appendChild(styleSink);\nawait renderAsync(data.document, body, styleSink, data.options ?? {});",
+    "widget": "// renderAsync 生成的 style 与文档 DOM 都落 shadow 容器\nimport { renderAsync } from 'https://cdn.jsdelivr.net/npm/docx-preview@0/+esm';\nconst styleSink = document.createElement('div');\nconst body = document.createElement('div'); body.style.cssText = `height:${spec.height ?? 600}px;overflow:auto`;\nshadowRoot.append(styleSink, body);\nawait renderAsync(data.document, body, styleSink, data.options ?? {});",
+    "codex": "// sandbox iframe:独立 head 样式槽 + 文档滚动容器\nimport { renderAsync } from 'https://cdn.jsdelivr.net/npm/docx-preview@0/+esm';\nconst body = document.getElementById('docx'); body.style.cssText = `height:${spec.height ?? 600}px;overflow:auto`;\nconst styleSink = document.createElement('div'); styleSink.dataset.docxStyles = ''; document.head.appendChild(styleSink);\nawait renderAsync(data.document, body, styleSink, data.options ?? {});"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:必须给 shadow 内独立 styleContainer,否则生成 CSS 会落错作用域;需 Blob/ArrayBuffer、JSZip 与对象 URL 浏览器能力",
+    "codex": "supported:ESM CDN + 浏览器二进制/ZIP/Blob API;生成样式与文档内容均限制在 sandbox iframe"
+  }
+}

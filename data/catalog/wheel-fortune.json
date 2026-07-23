@@ -1,0 +1,70 @@
+{
+  "entry_version": "thin-1",
+  "id": "wheel-fortune",
+  "name": "wheel-fortune",
+  "when_to_use": "已有轮盘 DOM/图片,只缺轻量的 Web Animations API 旋转、回摆和按序停角时用它,而非手写多段 animate——原生手写在累计角度、overshoot 回弹和连续状态上容易跳帧。它非轮盘绘制器,不会把 items 自动画成扇区。",
+  "why_valuable": "AI 默认能写一次 rotate,但做不到跨多轮保持最终角、先回摆再 overshoot 停靠并正确清理动画;wheel-fortune 用约 2kB 的原生 WAAPI 状态机补齐这层。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "wheel-fortune",
+    "version": "4.1.0",
+    "github": "ux-ui-pro/wheel-fortune"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "组件真正吃的是 spinStates 行记录,不是 prize items。每次点击 trigger 依序消费一条 targetAngle;callback 是函数且不属于 strict JSON,由消费 AI 挂载后自行补。",
+    "schema": {
+      "spinStates": [
+        {
+          "targetAngle": "number(deg) —— 轮盘元素最终旋转角"
+        }
+      ],
+      "rotationCount?": "number —— 默认 6",
+      "duration?": "number(ms) —— 默认 5000",
+      "overshootDeg?": "number(deg) —— 默认 15",
+      "returnDuration?": "number(ms) —— 默认 1350",
+      "swayOptions?": {
+        "_default": "默认 {amplitude:6,period:1500}",
+        "amplitude?": "number(deg) —— 默认 6",
+        "period?": "number(ms) —— 默认 1500"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "上游只旋转现有 wheel element,几何与 CSS 由宿主负责;boot 给演示轮盘显式 400×400px。禁用 vh/百分比高(铁律 3),生产使用时替换 wheel DOM/背景即可。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:CSS 进入 document.head(铁律 2);上游用 document.querySelector\nimport WheelFortune from 'https://cdn.jsdelivr.net/npm/wheel-fortune@4/+esm';\nconst cls = 'wf' + crypto.randomUUID().replaceAll('-', '');\nconst style = document.createElement('style'); style.textContent = `.${cls}{height:400px;display:grid;place-items:center}.wf-wheel{width:320px;height:320px;border-radius:50%;background:conic-gradient(#ff6b6b 0 33%,#ffd166 0 66%,#06d6a0 0)}.wf-trigger{margin-top:12px}`; document.head.appendChild(style);\nconst root = document.createElement('div'), wheel = document.createElement('div'), trigger = document.createElement('button'); root.className = cls; wheel.className = 'wf-wheel'; trigger.className = 'wf-trigger'; trigger.textContent = 'Spin'; root.append(wheel, trigger); document.getElementById('fortune').appendChild(root);\nconst fortune = new WheelFortune({ ...data, rootSelector: `.${cls}`, wheelSelector: '.wf-wheel', triggerSelector: '.wf-trigger' });\nfortune.init();",
+    "widget": "unsupported:wheel-fortune 4.1.0 的 init() 硬编码 document.querySelector(rootSelector),无法查到 widget shadow 内 root;把节点/CSS 放到 light DOM 或 document.head 会违反 widget 隔离。",
+    "codex": "// sandbox iframe 有普通 document;CSS 进 iframe head\nimport WheelFortune from 'https://cdn.jsdelivr.net/npm/wheel-fortune@4/+esm';\nconst style = document.createElement('style'); style.textContent = '.wf-root{height:400px;display:grid;place-items:center}.wf-wheel{width:320px;height:320px;border-radius:50%;background:conic-gradient(#f66 0 33%,#fc6 0 66%,#0c9 0)}'; document.head.appendChild(style);\nconst root = document.createElement('div'), wheel = document.createElement('div'), trigger = document.createElement('button'); root.className='wf-root'; wheel.className='wf-wheel'; trigger.className='wf-trigger'; trigger.textContent='Spin'; root.append(wheel,trigger); document.body.appendChild(root);\nconst fortune = new WheelFortune({ ...data, rootSelector: '.wf-root', wheelSelector: '.wf-wheel', triggerSelector: '.wf-trigger' });\nfortune.init();"
+  },
+  "example": {
+    "_why": "这个包的行记录是 targetAngle 而非 prize label,且按点击顺序消费;minimal 用来阻止 AI 误套其他 wheel 的 items schema。",
+    "minimal": {
+      "spinStates": [
+        {
+          "targetAngle": 90
+        },
+        {
+          "targetAngle": 225
+        }
+      ],
+      "rotationCount": 6,
+      "duration": 5000,
+      "overshootDeg": 15
+    },
+    "empty": {
+      "spinStates": []
+    }
+  },
+  "uplink": "local-interact 类;每个 spinState 的业务 callback 与结果上行由消费 AI 自行添加,本条只提供原生旋转状态机。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "unsupported:全局 document.querySelector 无法穿透 shadow root",
+    "codex": "supported:普通 iframe document + Web Animations API,无额外动画依赖"
+  }
+}

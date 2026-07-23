@@ -1,0 +1,41 @@
+{
+  "entry_version": "thin-1",
+  "id": "tonal",
+  "name": "tonal",
+  "when_to_use": "需要把和弦、音阶、音程或音名记法转换成可靠的音符集合与乐理属性时用它而非 AI 心算,因为原生在复杂调式、转位和异名同音上失败。",
+  "why_valuable": "AI 默认只能较稳地回答常见三和弦,复杂音阶、音程拼写、转调与 enharmonic 结果会间歇出错;Tonal 用纯函数给下游指板、键盘和谱面提供确定数据。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "tonal",
+    "version": "6.4.3",
+    "github": "tonaljs/tonal"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "schema": {
+      "notation": "string —— 与 kind 对应的 Tonal 原生名称,如和弦 Cmaj7、音阶 D dorian、音程 3M、音名 F#4",
+      "kind?": "'chord' | 'scale' | 'interval' | 'note' —— 默认 'chord'"
+    }
+  },
+  "provides": {
+    "shape": "categorical",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;它是乐理数据生产者。",
+    "outputs": "规范名称、音符/音级数组、色度、半音数、MIDI/频率等结构化结果,供指板、键盘、谱面或声音组件消费。",
+    "api_surface": {
+      "chord": "Chord.get('Cmaj7').notes → ['C','E','G','B']",
+      "scale": "Scale.get('D dorian').notes → 7 个音名",
+      "interval": "Interval.get('3M').semitones → 4",
+      "note": "Note.get('F#4') → 规范音名、midi、freq、chroma 等字段"
+    }
+  },
+  "peer": {
+    "id": "moonwave99-fretboard-js",
+    "note": "典型链路是 tonal 解析和弦/音阶并产出音符集合,再交给 fretboard.js 做弦×品位置与 SVG 呈现。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 ESM 计算,无 DOM/shadow/uplink\nimport { Chord, Scale, Interval, Note } from 'https://cdn.jsdelivr.net/npm/tonal@6/+esm';\nconst kind = data.kind || 'chord';\nconst api = { chord: Chord, scale: Scale, interval: Interval, note: Note }[kind];\nconst result = api.get(data.notation);\n// result 是数据产物,交给可视化 peer 或直接回显",
+    "note": "若只需单一域可改导入对应 @tonaljs/* 子包以减小体积;空 name/notes 通常表示记法未命中,消费方自行报错。"
+  }
+}

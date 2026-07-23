@@ -1,0 +1,65 @@
+{
+  "entry_version": "thin-1",
+  "id": "graphql-voyager",
+  "name": "GraphQL Voyager",
+  "when_to_use": "需要把 GraphQL SDL 展开成可缩放、可追踪字段关系的全景图时用它,而非手写节点连线——原生手写在类型展开、Relay 包装裁剪、边路由和大 schema 导航上失败。非做任意知识图谱、查询执行或 resolver 性能分析。",
+  "why_valuable": "AI 默认只能复述 SDL 或画少量 Mermaid 边,做不到从完整 schema 建立可导航类型图、字段侧栏、Relay 降噪和根类型切换；Voyager 把这些高歧义关系稳定收进同一视图。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "graphql-voyager",
+    "version": "2.1.0",
+    "github": "graphql-kit/graphql-voyager"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "graph",
+    "note": "boot 用上游 sdlToSchema 把 data_in.sdl 转为 GraphQLSchema,再作为 Voyager.introspection 传入；这不是通用 {nodes,edges} 图。若已有 introspection 响应,也可直接给 Voyager 的 introspection prop,其精确形态必须是 {data:{__schema:...}}。",
+    "schema": {
+      "sdl": "string —— 可由 GraphQL buildSchema 解析的完整 SDL,必须含 query 根类型",
+      "displayOptions?": {
+        "_default": "默认 {}",
+        "skipRelay?": "boolean —— 默认 true",
+        "skipDeprecated?": "boolean —— 默认 true",
+        "rootType?": "string —— 默认 query 根类型名",
+        "sortByAlphabet?": "boolean —— 默认 false",
+        "showLeafFields?": "boolean —— 默认 true",
+        "hideRoot?": "boolean —— 默认 false"
+      },
+      "hideDocs?": "boolean —— 默认 false",
+      "hideSettings?": "boolean —— 默认 false",
+      "hideVoyagerLogo?": "boolean —— 默认 true",
+      "allowToChangeSchema?": "boolean —— 默认 false"
+    }
+  },
+  "spec": {
+    "height": 560,
+    "note": "Voyager 的图面与侧栏依赖有尺寸的父容器；boot 默认显式 height 560px、宽度 100%,禁止 vh/百分比高。容器宽变化由其 SVG pan/zoom 视图处理,宿主仍须保证非零 clientWidth。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:CSS 进 document.head,组件用 React 18 原生入口\n+import React from 'https://cdn.jsdelivr.net/npm/react@18/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@18/client/+esm';\n+import { Voyager, sdlToSchema } from 'https://cdn.jsdelivr.net/npm/graphql-voyager@2/+esm';\n+const style = document.createElement('style'); style.textContent = await fetch('https://cdn.jsdelivr.net/npm/graphql-voyager@2.1.0/dist/voyager.css').then(r => r.text()); document.head.appendChild(style);\n+const el = document.getElementById('voyager'); el.style.height = '560px';\n+const { sdl, ...props } = data; createRoot(el).render(React.createElement(Voyager, { ...props, introspection: sdlToSchema(sdl) }));",
+    "widget": "// CSS 与 Emotion 动态样式都落 shadow,避免写 document.head\n+import React from 'https://cdn.jsdelivr.net/npm/react@18/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@18/client/+esm';\n+import { CacheProvider } from 'https://cdn.jsdelivr.net/npm/@emotion/react@11/+esm'; import createCache from 'https://cdn.jsdelivr.net/npm/@emotion/cache@11/+esm';\n+import { Voyager, sdlToSchema } from 'https://cdn.jsdelivr.net/npm/graphql-voyager@2/+esm';\n+const style = document.createElement('style'); style.textContent = await fetch('https://cdn.jsdelivr.net/npm/graphql-voyager@2.1.0/dist/voyager.css').then(r => r.text()); shadowRoot.appendChild(style);\n+const el = document.createElement('div'); el.style.height = '560px'; shadowRoot.appendChild(el); const cache = createCache({ key: 'voyager', container: shadowRoot });\n+const { sdl, ...props } = data; createRoot(el).render(React.createElement(CacheProvider, { value: cache }, React.createElement(Voyager, { ...props, introspection: sdlToSchema(sdl) })));",
+    "codex": "同 artifact(sandbox iframe):React 18 createRoot + graphql-voyager@2/+esm 的 Voyager/sdlToSchema；voyager.css 放 iframe head,容器高 560px。"
+  },
+  "example": {
+    "_why": "GraphQL 类型、字段与根类型构成深且高歧义的图 config；minimal 同时钉死 SDL 输入和 Voyager displayOptions。",
+    "minimal": {
+      "sdl": "type Query { book(id: ID!): Book } type Book { id: ID! title: String! author: Author } type Author { id: ID! name: String! books: [Book!]! }",
+      "displayOptions": {
+        "skipRelay": true,
+        "sortByAlphabet": true,
+        "showLeafFields": true
+      },
+      "hideVoyagerLogo": true
+    },
+    "empty": {
+      "sdl": "type Query { _empty: Boolean }"
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:需允许 jsDelivr ESM 与 voyager.css；静态 CSS 必须进 head",
+    "widget": "conditional:必须把 voyager.css 放 shadow,并用 Emotion CacheProvider 将 MUI 动态样式定向到同一 shadowRoot",
+    "codex": "supported:iframe 内 React/ESM/SVG pan-zoom,无必需 worker/wasm/uplink"
+  }
+}

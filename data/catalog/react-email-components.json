@@ -1,0 +1,49 @@
+{
+  "entry_version": "thin-1",
+  "id": "react-email-components",
+  "name": "React Email",
+  "when_to_use": "需要用 React 组件树组合邮件并在浏览器渲成邮件安全 HTML 时用它而非手写,因为原生在语义组件复用、内联样式和邮件客户端兼容标记上失败;非做普通 Web UI 或真实客户端投递测试。",
+  "why_valuable": "AI 默认会写 React 页面但做不到把 Section、Column、Button、Img 等结构稳定降级为邮件 HTML;React Email 让 AI 用熟悉的组件语义拼装,再由 render 统一产出完整文档。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@react-email/components",
+    "version": "1.0.12",
+    "github": "resend/react-email"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "hierarchy",
+    "note": "原生 render 吃内存中的 ReactElement,不是任意 JSON AST。email 必须由同一页面导入的 React 与 @react-email/components 构造,根建议 Html,正文放 Body。",
+    "schema": {
+      "email": "ReactElement<Html> —— 组件树可用 Html/Head/Preview/Body/Container/Section/Row/Column/Heading/Text/Button/Link/Img/Hr",
+      "render_options?": {
+        "_default": "默认输出紧凑 HTML 文档",
+        "pretty?": "boolean —— 默认 false",
+        "plainText?": "boolean —— 默认 false;预览场景保持 false"
+      }
+    }
+  },
+  "spec": {
+    "height": 640,
+    "note": "邮件预览 iframe 默认显式高 640px 并内部滚动,AI 可给其他像素值;禁止 vh 或百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:data.email 已由同上下文的 React Email 组件构成\nimport { render } from 'https://cdn.jsdelivr.net/npm/@react-email/components@1/+esm';\nconst html = await render(data.email, data.render_options ?? {});\nconst frame = document.createElement('iframe');\nframe.style.cssText = `width:100%;height:${spec.height ?? 640}px;border:0`;\nframe.srcdoc = html;\ndocument.getElementById('email').appendChild(frame);",
+    "widget": "// render 产物是完整文档;iframe 落 shadowRoot,邮件样式不进入宿主 head\nimport { render } from 'https://cdn.jsdelivr.net/npm/@react-email/components@1/+esm';\nconst html = await render(data.email, data.render_options ?? {});\nconst frame = document.createElement('iframe');\nframe.style.cssText = `width:100%;height:${spec.height ?? 640}px;border:0`;\nframe.srcdoc = html;\nshadowRoot.appendChild(frame);",
+    "codex": "// sandbox iframe:同 artifact 的 render + srcdoc 预览\nimport { render } from 'https://cdn.jsdelivr.net/npm/@react-email/components@1/+esm';\nconst html = await render(data.email, data.render_options ?? {});\nconst frame = document.createElement('iframe');\nframe.style.cssText = `width:100%;height:${spec.height ?? 640}px;border:0`;\nframe.srcdoc = html;\ndocument.getElementById('email').appendChild(frame);"
+  },
+  "peer": {
+    "npm": [
+      "react@^18 || ^19",
+      "react-dom@^18 || ^19"
+    ],
+    "note": "email ReactElement 必须与 render 使用兼容的 React 实例;@react-email/components 1.0.12 已转导 @react-email/render 2.0.6。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:需 React/ReactDOM、浏览器版 render 的动态模块与 iframe srcdoc;iframe 挂 shadowRoot 后无宿主 CSS 足迹",
+    "codex": "conditional:jsDelivr ESM 依赖图较大但无需 worker/wasm/uplink;外部邮件图片仍受其各自 CORS/网络策略影响"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "entry_version": "thin-1",
+  "id": "reveal-js",
+  "name": "reveal.js",
+  "when_to_use": "需要从 Markdown 生成带横纵分组、fragment 递进、键盘导航和打印版式的演示 deck 时用它而非手写分页 HTML,因为原生手写在缩放适配、演示状态与 PDF 分页上失败;非做普通滚动文档或单页海报。",
+  "why_valuable": "AI 默认只能写滚动式伪幻灯,做不到稳定的固定比例缩放、嵌套页导航、fragment 状态、讲者视图和 print-pdf 版式;reveal.js 用一份 Markdown 与成熟 deck 引擎闭环。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "reveal.js",
+    "version": "6.0.1",
+    "github": "hakimel/reveal.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "Markdown 是 AI 原生记法;schema 已钉死 reveal Markdown plugin 的分页分隔符,无需 minimal example。",
+    "note": "boot 使用官方 Markdown plugin:一个 data-markdown section 内的 text/template 是真实入口;横页与纵页分隔正则由 boot 显式固定。",
+    "schema": {
+      "markdown": "string —— Reveal Markdown;独占一行的 --- 分隔横向页,独占一行的 -- 分隔纵向页",
+      "ratio?": "'16:9' | '4:3' —— catalog 默认 '16:9'",
+      "transition?": "'none' | 'fade' | 'slide' | 'convex' | 'concave' | 'zoom' —— 默认 'slide'",
+      "controls?": "boolean —— 默认 true",
+      "progress?": "boolean —— 默认 true"
+    }
+  },
+  "spec": {
+    "height": 540,
+    "note": "embedded deck 必须有显式尺寸容器;boot 默认高 540px、宽由宿主决定,禁止 vh/百分比高。打印 PDF 时应在独立 artifact/codex iframe 内走 reveal 的 print 样式。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:核心 CSS 与主题 CSS 必须进入 head\nimport Reveal from 'https://cdn.jsdelivr.net/npm/reveal.js@6/+esm';\nimport Markdown from 'https://cdn.jsdelivr.net/npm/reveal.js@6/dist/plugin/markdown.mjs';\nfor (const href of ['https://cdn.jsdelivr.net/npm/reveal.js@6/dist/reveal.css','https://cdn.jsdelivr.net/npm/reveal.js@6/dist/theme/black.css']) { const link=document.createElement('link'); link.rel='stylesheet'; link.href=href; document.head.append(link); }\nconst root=document.getElementById('deck'); root.className='reveal'; root.style.height='540px'; const slides=document.createElement('div'); slides.className='slides'; const section=document.createElement('section'); section.dataset.markdown=''; section.dataset.separator='^\\\\r?\\\\n---\\\\r?\\\\n$'; section.dataset.separatorVertical='^\\\\r?\\\\n--\\\\r?\\\\n$'; const source=document.createElement('script'); source.type='text/template'; source.textContent=data.markdown; section.append(source); slides.append(section); root.append(slides);\nconst deck=new Reveal(root,{embedded:true,plugins:[Markdown],transition:data.transition ?? 'slide',controls:data.controls ?? true,progress:data.progress ?? true,width:data.ratio === '4:3' ? 960 : 1280,height:720}); await deck.initialize();",
+    "widget": "import Reveal from 'https://cdn.jsdelivr.net/npm/reveal.js@6/+esm';\nimport Markdown from 'https://cdn.jsdelivr.net/npm/reveal.js@6/dist/plugin/markdown.mjs';\nfor (const href of ['https://cdn.jsdelivr.net/npm/reveal.js@6/dist/reveal.css','https://cdn.jsdelivr.net/npm/reveal.js@6/dist/theme/black.css']) { const link=document.createElement('link'); link.rel='stylesheet'; link.href=href; shadowRoot.append(link); }\nconst root=document.createElement('div'); root.className='reveal'; root.style.height='540px'; const slides=document.createElement('div'); slides.className='slides'; const section=document.createElement('section'); section.dataset.markdown=''; section.dataset.separator='^\\\\r?\\\\n---\\\\r?\\\\n$'; section.dataset.separatorVertical='^\\\\r?\\\\n--\\\\r?\\\\n$'; const source=document.createElement('script'); source.type='text/template'; source.textContent=data.markdown; section.append(source); slides.append(section); root.append(slides); shadowRoot.append(root);\nconst deck=new Reveal(root,{embedded:true,keyboardCondition:'focused',plugins:[Markdown],transition:data.transition ?? 'slide',controls:data.controls ?? true,progress:data.progress ?? true,width:data.ratio === '4:3' ? 960 : 1280,height:720}); await deck.initialize();",
+    "codex": "同 artifact(sandbox iframe):从 reveal.js@6/+esm 初始化实例,Markdown plugin 走 dist/plugin/markdown.mjs,两份 CSS 进入 iframe head,容器固定 540px 高。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:必须使用 embedded 实例、把核心/主题 CSS 放进 shadow,并把键盘范围限制为 focused;全屏与讲者窗口仍属 document 级能力",
+    "codex": "supported:ESM、Markdown plugin、CSS 与打印均封闭在 sandbox iframe"
+  }
+}

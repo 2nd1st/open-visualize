@@ -1,0 +1,85 @@
+{
+  "entry_version": "thin-1",
+  "id": "mojs-core",
+  "name": "mo.js",
+  "when_to_use": "需要点赞爆裂、点击涟漪、图标变形或多段 stagger 微动效时用它,而非手写 CSS keyframes——原生手写在同心 burst、子粒子错峰和可复现缓动时间线上容易僵硬或失同步。非做整页滚动编排或通用 DOM 状态管理。",
+  "why_valuable": "AI 默认能写单段 opacity/transform,但做不到专业的 Burst/ShapeSwirl 几何分布、子粒子参数继承和多段时间控制;mo.js 把这些难点放进声明式原生构造器。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@mojs/core",
+    "version": "1.7.1",
+    "github": "mojs/mojs"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "data_in 是一个已裁剪的 mo.js 构造器选择 + 原生 options。boot 只开放能安全落在显式 parent 内的 Burst/Shape/ShapeSwirl;parent 由 boot 覆盖,不允许默认掉到 document.body。",
+    "schema": {
+      "kind": "'Burst' | 'Shape' | 'ShapeSwirl'",
+      "options": {
+        "left?": "string | number —— 默认采用所选 kind 的上游值(通常 '50%')",
+        "top?": "string | number —— 默认采用所选 kind 的上游值(通常 '50%')",
+        "radius?": "number | {from:number,to:number} —— 默认采用所选 kind 的上游值",
+        "angle?": "number | {from:number,to:number} —— 默认采用所选 kind 的上游值",
+        "count?": "number —— Burst 子形状数;默认采用 Burst 上游值",
+        "duration?": "number(ms) —— 默认采用所选 kind 的上游值",
+        "delay?": "number(ms) —— 默认 0",
+        "repeat?": "number —— 默认 0",
+        "shape?": "string —— Shape/ShapeSwirl 的图形;默认采用上游值",
+        "fill?": "string | {from:string,to:string} —— 默认采用上游值",
+        "stroke?": "string | {from:string,to:string} —— 默认采用上游值",
+        "children?": "object —— Burst 子形状原生 options;默认 {}"
+      }
+    }
+  },
+  "spec": {
+    "height": 320,
+    "note": "mo.js 以绝对定位 SVG/DOM 在 parent 内绘制;宿主默认显式 height 320px 且 position:relative。禁用 vh/百分比高(铁律 3);视觉越界需要宿主自行决定 overflow。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:原生 mo.js 构造器;显式 parent 防止落到 body\nimport { mojs } from 'https://cdn.jsdelivr.net/npm/@mojs/core@1/+esm';\nconst el = document.getElementById('mojs');\nel.style.cssText = 'height:320px;position:relative;overflow:hidden';\nconst Ctor = mojs[data.kind];\nconst motion = new Ctor({ ...data.options, parent: el }).play();",
+    "widget": "// SVG/DOM 必须落 shadow 内的显式 parent,不使用 mo.js 默认 document.body\nimport { mojs } from 'https://cdn.jsdelivr.net/npm/@mojs/core@1/+esm';\nconst el = document.createElement('div');\nel.style.cssText = 'height:320px;position:relative;overflow:hidden'; shadowRoot.appendChild(el);\nconst Ctor = mojs[data.kind];\nconst motion = new Ctor({ ...data.options, parent: el }).play();",
+    "codex": "同 artifact(sandbox iframe fragment):从 @mojs/core@1/+esm 取命名导出 mojs,创建固定 px 高且 position:relative 的 parent,再 new mojs[kind](options).play()。"
+  },
+  "example": {
+    "_why": "Burst 的 children 继承、数值补间和时间参数属于深且易歧义的动效 config,minimal 用来钉死原生写法。",
+    "minimal": {
+      "kind": "Burst",
+      "options": {
+        "radius": {
+          "from": 0,
+          "to": 90
+        },
+        "count": 10,
+        "duration": 700,
+        "children": {
+          "shape": "circle",
+          "fill": [
+            "#ff4d8d",
+            "#ffd166",
+            "#5eead4"
+          ],
+          "radius": {
+            "from": 8,
+            "to": 0
+          }
+        }
+      }
+    },
+    "empty": {
+      "kind": "Shape",
+      "options": {
+        "duration": 0,
+        "radius": 0
+      }
+    }
+  },
+  "uplink": "纯 local-interact 动效,不定义统一事件出口;何时触发 play、如何把业务结果上行,由消费 AI 在各载体自行写。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:显式 parent 使 mo.js 生成的 SVG/DOM 留在 shadow 容器,无外部 CSS",
+    "codex": "supported:ESM CDN + SVG/DOM animation,无 uplink 需求"
+  }
+}

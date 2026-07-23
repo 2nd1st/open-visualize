@@ -1,0 +1,46 @@
+{
+  "entry_version": "thin-1",
+  "id": "sql-js",
+  "name": "sql.js",
+  "when_to_use": "需要在浏览器沙箱里打开真实 SQLite 字节库或对内联表执行标准 SQL 时用它而非手写数组过滤器,因为原生在 JOIN、聚合、NULL 语义与查询计划一致性上失败。",
+  "why_valuable": "AI 默认只能把简单 WHERE/GROUP BY 模拟成易错 JavaScript,做不到完整 SQLite 解析、事务、JOIN 与类型/NULL 语义;sql.js 在 WASM 内运行真实 SQLite 并返回稳定结果集。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "sql.js",
+    "version": "1.14.1",
+    "github": "sql-js/sql.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "databaseBytes 对应 SQLite 文件原始字节;setupSql 在空库或已载入库上先执行,query 再交给 db.exec() 并只为有结果列的语句产生 ResultSet。",
+    "schema": {
+      "databaseBytes?": "integer[],每项 0..255 —— 默认省略,创建空内存数据库",
+      "setupSql?": "string —— 默认省略,不执行预置 DDL/DML",
+      "query": "string —— 一条或多条 SQL 语句",
+      "params?": "(string|number|boolean|null|integer[])[] | Record<string,string|number|boolean|null|integer[]> —— 默认省略,不绑定参数"
+    }
+  },
+  "provides": {
+    "shape": "sql-resultsets",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;计算发生在 SQLite WASM。",
+    "outputs": "Array<{columns:string[],values:(string|number|null|Uint8Array)[][]}>;无结果列的 DDL/DML 不产生数组项。",
+    "api_surface": {
+      "initialize": "await initSqlJs({locateFile}) → SQL module",
+      "database": "new SQL.Database(Uint8Array?)",
+      "execute": "db.run(setupSql); db.exec(query, params?)",
+      "persist": "db.export() → Uint8Array;使用完调用 db.close()"
+    }
+  },
+  "peer": {
+    "id": "gridjs",
+    "note": "本条只产 columns + values 结果集;选择一个 ResultSet 后可直接映射为 Grid.js 的 columns/data,SQL 编辑体验可另配 CodeMirror。"
+  },
+  "boot": {
+    "artifact": "// +esm 入口实际请求 sql-wasm-browser.wasm;使用与 picks 版本一致的 pinned 文件\nimport initSqlJs from 'https://cdn.jsdelivr.net/npm/sql.js@1/+esm';\nconst SQL = await initSqlJs({ locateFile: () => 'https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/sql-wasm-browser.wasm' });\nconst db = new SQL.Database(data.databaseBytes ? Uint8Array.from(data.databaseBytes) : undefined);\nif (data.setupSql) db.run(data.setupSql);\nconst resultSets = db.exec(data.query, data.params);",
+    "widget": "// headless 无 DOM/shadow 足迹;宿主须允许从 pinned jsDelivr fetch WASM\nimport initSqlJs from 'https://cdn.jsdelivr.net/npm/sql.js@1/+esm';\nconst SQL = await initSqlJs({ locateFile: () => 'https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/sql-wasm-browser.wasm' });\nconst db = new SQL.Database(data.databaseBytes ? Uint8Array.from(data.databaseBytes) : undefined);\nif (data.setupSql) db.run(data.setupSql);\nconst resultSets = db.exec(data.query, data.params);",
+    "codex": "// Codex 打包变体:把 pinned sql-wasm-browser.wasm 的字节预先 base64 内联,避免运行时 WASM fetch\nimport initSqlJs from 'https://cdn.jsdelivr.net/npm/sql.js@1/+esm';\nconst wasmBinary = Uint8Array.from(atob(SQL_WASM_BASE64), c => c.charCodeAt(0));\nconst SQL = await initSqlJs({ wasmBinary });\nconst db = new SQL.Database(data.databaseBytes ? Uint8Array.from(data.databaseBytes) : undefined); if (data.setupSql) db.run(data.setupSql);\nconst resultSets = db.exec(data.query, data.params);",
+    "note": "SQL_WASM_BASE64 必须由 sql.js@1.14.1/dist/sql-wasm-browser.wasm 原字节生成,不可与 sql-wasm.wasm 或其他版本混用;拿不准宿主 connect-src 时优先用 Codex 内联变体。"
+  }
+}

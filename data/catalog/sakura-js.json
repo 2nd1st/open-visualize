@@ -1,0 +1,54 @@
+{
+  "entry_version": "thin-1",
+  "id": "sakura-js",
+  "name": "sakura",
+  "when_to_use": "需要自然旋转、横向吹拂且可换渐变色的春季花瓣雨时用它而非手写 CSS 花瓣,因为原生在多段风摆、随机尺寸与持续生成清理上失败。",
+  "why_valuable": "AI 默认只能做同速下落的粉色椭圆,做不到九组摆动、四组风向、随机尺寸/渐变和离屏回收的自然组合;该库把长期调参固化为一个构造器。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "sakura-js",
+    "version": "1.1.1",
+    "github": "jhammann/sakura"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "_why_no_example": "参数浅且构造器默认完整,裁剪 schema 足以校准,不附 minimal example。",
+    "note": "data_in.options 精确传给 new Sakura(selector, options);className 保留默认 sakura 以匹配官方 CSS。",
+    "schema": {
+      "options?": {
+        "_default": "{} —— 全部采用上游默认值",
+        "className?": "string —— 花瓣类名,默认 'sakura';改名时消费端必须同步提供同类 CSS",
+        "fallSpeed?": "number —— 越大下落越慢,默认 1",
+        "maxSize?": "integer —— 最大像素尺寸,默认 14",
+        "minSize?": "integer —— 最小像素尺寸,默认 10",
+        "delay?": "integer —— 新花瓣间隔毫秒数,默认 300",
+        "colors?": [
+          {
+            "_default": "数组默认只有这一项",
+            "gradientColorStart?": "CSS color string —— 默认 'rgba(255, 183, 197, 0.9)'",
+            "gradientColorEnd?": "CSS color string —— 默认 'rgba(255, 197, 208, 0.9)'",
+            "gradientColorDegree?": "number —— 渐变角度,默认 120"
+          }
+        ]
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "目标容器显式使用默认 400px 高并设 position:relative/overflow:hidden;上游横向坐标与时长仍参考当前 iframe viewport,故容器宜占满可用宽度,禁用 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:sakura-js@1 的 /+esm 无导出,按官方原生 classic API 保守加载;CSS 进 artifact head\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/sakura-js@1/dist/sakura.min.css' }); document.head.appendChild(css);\nconst script = Object.assign(document.createElement('script'), { src: 'https://cdn.jsdelivr.net/npm/sakura-js@1/dist/sakura.min.js' }); document.head.appendChild(script);\nawait Promise.all([new Promise((ok, fail) => { css.onload = ok; css.onerror = fail; }), new Promise((ok, fail) => { script.onload = ok; script.onerror = fail; })]);\nconst el = document.getElementById('sakura-stage'); el.style.cssText = `position:relative;height:${spec.height ?? 400}px;overflow:hidden`;\nconst sakura = new globalThis.Sakura('#sakura-stage', data.options ?? {});",
+    "widget": "unsupported:sakura-js@1 的发布脚本只接受 document.querySelector 可见的字符串 selector,不能定位 shadowRoot 内节点;官方 CSS 也不能仅放入 shadow 后作用于其 light-DOM 花瓣。",
+    "codex": "const css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/sakura-js@1/dist/sakura.min.css' }); document.head.appendChild(css);\nconst script = Object.assign(document.createElement('script'), { src: 'https://cdn.jsdelivr.net/npm/sakura-js@1/dist/sakura.min.js' }); document.head.appendChild(script);\nawait Promise.all([new Promise((ok, fail) => { css.onload = ok; css.onerror = fail; }), new Promise((ok, fail) => { script.onload = ok; script.onerror = fail; })]);\nconst el = document.getElementById('sakura-stage'); el.style.cssText = `position:relative;height:${spec.height ?? 400}px;overflow:hidden`;\nconst sakura = new globalThis.Sakura('#sakura-stage', data.options ?? {});",
+    "note": "事实校准:固定版本 https://cdn.jsdelivr.net/npm/sakura-js@1/+esm 实际只返回 bundle 注释与 sourcemap、没有任何导出,不能伪造 default import;上面的 dist/sakura.min.js 与 dist/sakura.min.css 是 1.1.1 发布包中的真实官方路径。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "unsupported:构造器依赖 document.querySelector,无法原生挂载 shadow 内节点;CSS 也不是 shadow-aware",
+    "codex": "conditional:sandbox iframe 需允许固定 jsDelivr classic script 与 CSS;全局 Sakura 与样式被 iframe 隔离"
+  }
+}

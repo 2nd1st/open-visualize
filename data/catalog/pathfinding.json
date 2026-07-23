@@ -1,0 +1,46 @@
+{
+  "entry_version": "thin-1",
+  "id": "pathfinding",
+  "name": "PathFinding.js",
+  "when_to_use": "需要在障碍网格上可靠比较 A*、BFS、Dijkstra 或 JPS 并得到路径时用它而非手写,因为原生 AI 在启发式、对角规则、角落穿越和网格状态复用上会失败。",
+  "why_valuable": "AI 默认能写一个玩具 BFS,却常在 A*/JPS、对角移动、不可穿角和多次求路的网格变异上出错；PathFinding.js 给出经验证的统一 finder API。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "pathfinding",
+    "version": "0.4.18",
+    "github": "qiao/PathFinding.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "grid",
+    "note": "matrix 直接传 PF.Grid(matrix)：0 可走、1 障碍；坐标顺序固定为 [x,y],x 是列、y 是行。finder.findPath 会改写 Grid,每次求路须新建或 clone。",
+    "schema": {
+      "matrix": "(0 | 1)[][] —— 非空矩形矩阵,0=可走,1=障碍",
+      "start": "[x: integer, y: integer] —— 零基坐标",
+      "goal": "[x: integer, y: integer] —— 零基坐标",
+      "finder?": "'AStar' | 'BreadthFirst' | 'Dijkstra' | 'BiAStar' | 'JumpPoint' —— 默认 'AStar'",
+      "allowDiagonal?": "boolean —— 默认 false",
+      "dontCrossCorners?": "boolean —— 默认 false；allowDiagonal=false 时无影响",
+      "weight?": "number —— A*/BiAStar 的启发式权重,默认 1"
+    }
+  },
+  "provides": {
+    "shape": "path-coordinates",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵；本条只给最终路径,逐帧搜索回放须消费层另行记录。",
+    "outputs": "[x,y][] —— 含起点与终点的路径；不可达时返回 []。",
+    "api_surface": {
+      "grid": "new PF.Grid(matrix)",
+      "finder": "new PF.AStarFinder({allowDiagonal,dontCrossCorners,weight}) 等",
+      "find": "finder.findPath(startX,startY,endX,endY,grid) → [x,y][]",
+      "reuse": "同一 matrix 再建 PF.Grid,或在求路前 grid.clone()"
+    }
+  },
+  "peer": {
+    "note": "它只计算路径；消费者需用 canvas/SVG 网格壳绘制 matrix 与返回的 [x,y][],若要展示搜索前沿则须在消费层记录算法状态。"
+  },
+  "boot": {
+    "shared": "// 三载体一致：纯 JS、无 DOM/uplink/shadow 足迹\nimport PF from 'https://cdn.jsdelivr.net/npm/pathfinding@0/+esm';\nconst finders = { AStar: PF.AStarFinder, BreadthFirst: PF.BreadthFirstFinder, Dijkstra: PF.DijkstraFinder, BiAStar: PF.BiAStarFinder, JumpPoint: PF.JumpPointFinder };\nconst Finder = finders[data.finder ?? 'AStar'];\nconst finder = new Finder({ allowDiagonal: data.allowDiagonal ?? false, dontCrossCorners: data.dontCrossCorners ?? false, weight: data.weight ?? 1 });\nconst grid = new PF.Grid(data.matrix);\nconst path = finder.findPath(data.start[0], data.start[1], data.goal[0], data.goal[1], grid);",
+    "note": "JumpPointFinder 对 diagonalMovement 的细项配置在不同小版本有差异；此条保守只传 0.4.18 普遍接受的 allowDiagonal/dontCrossCorners,复杂 JPS 策略须实测。"
+  }
+}

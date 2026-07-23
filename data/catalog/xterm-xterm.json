@@ -1,0 +1,44 @@
+{
+  "entry_version": "thin-1",
+  "id": "xterm-xterm",
+  "name": "xterm.js",
+  "when_to_use": "需要正确呈现 ANSI/CSI 光标移动、256 色/truecolor、scrollback 与可复制 transcript 时用它而非 <pre>+span,因为原生手写在 VT 状态机、光标语义和长日志虚拟滚动上失败;非做可执行 shell、SSH 或真实 PTY。",
+  "why_valuable": "AI 默认最多映射少量 SGR 颜色,做不到完整 ANSI/VT 解析、光标重写、清屏、宽字符和稳定 scrollback;xterm.js 用真实终端缓冲区解释同一文本流。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@xterm/xterm",
+    "version": "6.0.0",
+    "github": "xtermjs/xterm.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "text-span",
+    "note": "text 精确传给 terminal.write,保留 ESC、\\r、\\n 与 CSI 序列;不要预先转 HTML。这里只回放 AI 已持有的 transcript,不绑定后端 PTY。",
+    "_why_no_example": "ANSI/VT 文本是 AI 可直接生成的原生字符串且上游入口只有 write(text);裁剪 schema 足够,不附 minimal example。",
+    "schema": {
+      "text": "string —— 原始 ANSI/VT 文本流",
+      "cols?": "integer > 0 —— 默认 80",
+      "rows?": "integer > 0 —— 默认 24",
+      "scrollback?": "integer >= 0 —— 默认 1000",
+      "convertEol?": "boolean —— 将 \\n 转为下一行行首,默认 false",
+      "disableStdin?": "boolean —— 本条默认 true(纯回放;上游默认 false)",
+      "cursorBlink?": "boolean —— 默认 false"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "Terminal.open 前容器必须可见且有显式尺寸;默认 height 400px,AI 可覆盖,铁律 3 禁 vh/百分比高。cols/rows 控制字符网格,不是 CSS 像素。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:CSS 进 artifact head;open 时容器必须可见\nimport { Terminal } from 'https://cdn.jsdelivr.net/npm/@xterm/xterm@6/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@xterm/xterm@6/css/xterm.css' }); document.head.appendChild(css); await new Promise((ok, fail) => { css.onload = ok; css.onerror = fail; });\nconst el = document.getElementById('terminal'); el.style.height = `${spec.height ?? 400}px`;\nconst terminal = new Terminal({ cols: data.cols ?? 80, rows: data.rows ?? 24, scrollback: data.scrollback ?? 1000, convertEol: data.convertEol ?? false, disableStdin: data.disableStdin ?? true, cursorBlink: data.cursorBlink ?? false }); terminal.open(el);\nterminal.write(data.text);",
+    "widget": "// CSS 与终端 DOM 都落 shadow 容器(widget 零 head 足迹)\nimport { Terminal } from 'https://cdn.jsdelivr.net/npm/@xterm/xterm@6/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@xterm/xterm@6/css/xterm.css' }); const el = document.createElement('div'); el.style.height = `${spec.height ?? 400}px`; shadowRoot.append(css, el); await new Promise((ok, fail) => { css.onload = ok; css.onerror = fail; });\nconst terminal = new Terminal({ cols: data.cols ?? 80, rows: data.rows ?? 24, scrollback: data.scrollback ?? 1000, convertEol: data.convertEol ?? false, disableStdin: data.disableStdin ?? true, cursorBlink: data.cursorBlink ?? false }); terminal.open(el);\nterminal.write(data.text);",
+    "codex": "// sandbox iframe:CSS 进 iframe head\nimport { Terminal } from 'https://cdn.jsdelivr.net/npm/@xterm/xterm@6/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@xterm/xterm@6/css/xterm.css' }); document.head.appendChild(css); await new Promise((ok, fail) => { css.onload = ok; css.onerror = fail; });\nconst el = document.getElementById('terminal'); el.style.height = `${spec.height ?? 400}px`;\nconst terminal = new Terminal({ cols: data.cols ?? 80, rows: data.rows ?? 24, scrollback: data.scrollback ?? 1000, convertEol: data.convertEol ?? false, disableStdin: data.disableStdin ?? true, cursorBlink: data.cursorBlink ?? false }); terminal.open(el);\nterminal.write(data.text);"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:ESM + CSS link 均可落 shadowRoot;默认 DOM renderer,无 worker/wasm/外部图片或 uplink 需求",
+    "codex": "supported:ESM CDN + DOM/CSS;仅 transcript 回放,不需要 PTY 或网络连接"
+  }
+}

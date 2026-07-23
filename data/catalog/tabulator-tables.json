@@ -1,0 +1,71 @@
+{
+  "entry_version": "thin-1",
+  "id": "tabulator-tables",
+  "name": "Tabulator",
+  "when_to_use": "需要多列排序、表头筛选、分组、冻结列、分页、条件格式或大数据虚拟滚动的交互表格时用它,而非手写 DOM 表格——AI 原生在多列状态同步、虚拟化与密集条件格式上失败;仅静态表继续用 markdown 即可。",
+  "why_valuable": "AI 默认只能做静态 markdown 表;手写交互表约 30% 且状态管理易碎,多列排序/筛选、虚拟化、冻结区域与条件格式默认做不到。Tabulator 用 rows + columns JSON 一次提供这些能力。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": { "npm": "tabulator-tables", "version": "6.5.2", "github": "olifolkerd/tabulator" },
+  "license": "MIT",
+  "data_in": {
+    "shape": "categorical",
+    "note": "主结构词取 picks 的 categorical;同时是 tabular 数据:rows 为同构记录数组,columns 用 field 绑定记录键。下面只裁剪高频 JSON 配置,不包含回调。",
+    "schema": {
+      "rows": [
+        { "[field]": "string | number | boolean | null" }
+      ],
+      "columns": [
+        {
+          "title": "string",
+          "field": "string —— 对应 rows 中的记录键",
+          "sorter?": "'string'|'number'|'date'|'boolean'",
+          "headerFilter?": "boolean | 'input' | 'list' | 'number'",
+          "formatter?": "'plaintext'|'money'|'progress'|'tickCross'|'color'|'star'",
+          "frozen?": "boolean",
+          "width?": "number"
+        }
+      ],
+      "options?": {
+        "layout?": "'fitColumns'|'fitData'|'fitDataFill'|'fitDataStretch'",
+        "groupBy?": "string | string[]",
+        "pagination?": "boolean",
+        "paginationSize?": "number"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "表格类必须显式给像素高度(铁律 3 禁 vh/百分比高);默认 400px,AI 可覆盖。Tabulator 收到 height 后才能稳定计算视口并发挥纵向虚拟 DOM。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合前按此推断写\nimport { TabulatorFull as Tabulator } from 'https://cdn.jsdelivr.net/npm/tabulator-tables@6/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/tabulator-tables@6/dist/css/tabulator.min.css' });\ndocument.head.appendChild(css);\nconst el = document.getElementById('table'); el.style.height = `${spec.height ?? 400}px`;\nconst table = new Tabulator(el, { ...(data.options ?? {}), height: spec.height ?? 400, data: data.rows, columns: data.columns });",
+    "widget": "// CSS 与挂载点都落 shadow 容器内(widget 零足迹)\nimport { TabulatorFull as Tabulator } from 'https://cdn.jsdelivr.net/npm/tabulator-tables@6/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/tabulator-tables@6/dist/css/tabulator.min.css' });\nconst el = document.createElement('div'); el.style.height = `${spec.height ?? 400}px`;\nshadowRoot.append(css, el);\nconst table = new Tabulator(el, { ...(data.options ?? {}), height: spec.height ?? 400, data: data.rows, columns: data.columns });",
+    "codex": "// sandbox iframe 内按上游原生 API 挂载\nimport { TabulatorFull as Tabulator } from 'https://cdn.jsdelivr.net/npm/tabulator-tables@6/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/tabulator-tables@6/dist/css/tabulator.min.css' });\ndocument.head.appendChild(css);\nconst el = document.getElementById('table'); el.style.height = `${spec.height ?? 400}px`;\nconst table = new Tabulator(el, { ...(data.options ?? {}), height: spec.height ?? 400, data: data.rows, columns: data.columns });"
+  },
+  "example": {
+    "_why": "表格 columns 配置高歧义:field 绑定、sorter、headerFilter、formatter 需 minimal example 才能一次拼对。",
+    "minimal": {
+      "rows": [
+        { "item": "Alpha", "priority": "High", "progress": 72 },
+        { "item": "Beta", "priority": "Low", "progress": 35 }
+      ],
+      "columns": [
+        { "title": "Item", "field": "item", "headerFilter": true, "frozen": true },
+        { "title": "Priority", "field": "priority", "headerFilter": "list" },
+        { "title": "Progress", "field": "progress", "sorter": "number", "formatter": "progress" }
+      ],
+      "options": { "layout": "fitColumns" }
+    },
+    "empty": { "rows": [], "columns": [] }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:需把 Tabulator CSS link 与容器一起落入 shadowRoot;原生 DOM 表格渲染无需 canvas/worker/wasm/uplink",
+    "codex": "supported:ESM CDN + DOM/CSS,无 uplink 需求"
+  },
+  "scenarios": ["data-explore", "input-cocreate"],
+  "owner": true,
+  "owner_note": "pick 为 data-explore / input-cocreate 双场景合并;本条以 data-explore 为 owner,两场景共用同一 Tabulator 条目、不重复建档。"
+}

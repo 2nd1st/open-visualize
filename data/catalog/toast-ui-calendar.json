@@ -1,0 +1,123 @@
+{
+  "entry_version": "thin-1",
+  "id": "toast-ui-calendar",
+  "name": "Toast UI Calendar",
+  "when_to_use": "需要视觉完整的月/周/日程表、重叠时段布局和本地日历交互时用它而非手写 CSS grid,因为原生在跨日区间、重叠列布局、滚动时标和视图切换上失败。",
+  "why_valuable": "AI 默认只能写静态月历表格,做不到周视图的重叠事件分栏、全天/定时事件分层、跨日区间和稳定时区日期运算;Toast UI Calendar 用 events 数组直接补齐这些能力。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@toast-ui/calendar",
+    "version": "2.1.3",
+    "github": "nhn/tui.calendar"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "interval-set",
+    "note": "events 原样传给 calendar.createEvents;start/end 接 Date|string|number,JSON 输入应优先用带时区的 ISO-8601 字符串。calendarId 引用 options.calendars[].id。",
+    "schema": {
+      "events": [
+        {
+          "id?": "string —— 默认可省,需要后续原生 API 定位时应显式提供",
+          "calendarId?": "string —— 默认空字符串;若提供须匹配 options.calendars[].id",
+          "title?": "string —— 默认空字符串",
+          "start": "ISO-8601 date/time string | epoch-milliseconds",
+          "end": "ISO-8601 date/time string | epoch-milliseconds",
+          "category?": "'milestone' | 'task' | 'allday' | 'time' —— 默认 'time'",
+          "isAllday?": "boolean —— 默认 false",
+          "location?": "string —— 默认空字符串",
+          "attendees?": "string[] —— 默认 []",
+          "state?": "'Busy' | 'Free' —— 默认 'Busy'",
+          "isReadOnly?": "boolean —— 默认 false",
+          "color?": "CSS color string —— 默认日历文字色",
+          "backgroundColor?": "CSS color string —— 默认日历背景色",
+          "borderColor?": "CSS color string —— 默认日历边框色",
+          "raw?": "JSON value —— 默认 null"
+        }
+      ],
+      "options?": {
+        "_default": "{defaultView:'week',usageStatistics:false}",
+        "defaultView?": "'month' | 'week' | 'day' —— 默认 'week'",
+        "isReadOnly?": "boolean —— 默认 false",
+        "useFormPopup?": "boolean —— 默认 false",
+        "useDetailPopup?": "boolean —— 默认 false",
+        "gridSelection?": "boolean | {enableClick?:boolean,enableDblClick?:boolean} —— 默认 false",
+        "calendars?": [
+          {
+            "id": "string",
+            "name": "string",
+            "color?": "CSS color string —— 默认主题文字色",
+            "backgroundColor?": "CSS color string —— 默认主题背景色",
+            "borderColor?": "CSS color string —— 默认主题边框色"
+          }
+        ],
+        "week?": "Toast UI 原生 WeekOptions —— 默认上游周视图设置",
+        "month?": "Toast UI 原生 MonthOptions —— 默认上游月视图设置",
+        "theme?": "Toast UI 原生 theme 对象 —— 默认内置主题",
+        "usageStatistics?": "boolean —— boot 强制 false,避免统计脚本"
+      },
+      "initialDate?": "ISO-8601 date/time string —— 默认今天"
+    }
+  },
+  "spec": {
+    "height": 600,
+    "note": "月/周/日视图的滚动区和事件碰撞布局依赖明确像素高;boot 默认容器 600px,初始化后尺寸变化调用 calendar.render(),铁律 3 禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact CSS 进入 document.head;显式关闭 usage statistics\nimport Calendar from 'https://cdn.jsdelivr.net/npm/@toast-ui/calendar@2/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@toast-ui/calendar@2/dist/toastui-calendar.min.css' }); document.head.appendChild(css);\nconst el = document.getElementById('calendar'); el.style.height = `${spec.height ?? 600}px`;\nconst calendar = new Calendar(el, { ...(data.options ?? {}), usageStatistics: false });\nif (data.initialDate) calendar.setDate(data.initialDate); calendar.createEvents(data.events);",
+    "widget": "// 样式与 Preact 渲染树都落 shadowRoot;关闭上游统计脚本\nimport Calendar from 'https://cdn.jsdelivr.net/npm/@toast-ui/calendar@2/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@toast-ui/calendar@2/dist/toastui-calendar.min.css' });\nconst el = document.createElement('div'); el.style.height = `${spec.height ?? 600}px`; shadowRoot.append(css, el);\nconst calendar = new Calendar(el, { ...(data.options ?? {}), usageStatistics: false });\nif (data.initialDate) calendar.setDate(data.initialDate); calendar.createEvents(data.events);",
+    "codex": "import Calendar from 'https://cdn.jsdelivr.net/npm/@toast-ui/calendar@2/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@toast-ui/calendar@2/dist/toastui-calendar.min.css' }); document.head.appendChild(css);\nconst el = document.getElementById('calendar'); el.style.height = `${spec.height ?? 600}px`;\nconst calendar = new Calendar(el, { ...(data.options ?? {}), usageStatistics: false });\nif (data.initialDate) calendar.setDate(data.initialDate); calendar.createEvents(data.events);"
+  },
+  "example": {
+    "_why": "日历事件的 category/all-day 分支、calendarId 引用与视图配置高歧义,minimal example 用原生 events/options 形状消歧。",
+    "minimal": {
+      "events": [
+        {
+          "id": "design-review",
+          "calendarId": "team",
+          "title": "Design review",
+          "start": "2026-07-23T10:00:00+10:00",
+          "end": "2026-07-23T11:30:00+10:00",
+          "category": "time"
+        },
+        {
+          "id": "release-window",
+          "calendarId": "team",
+          "title": "Release window",
+          "start": "2026-07-25",
+          "end": "2026-07-26",
+          "category": "allday",
+          "isAllday": true
+        }
+      ],
+      "options": {
+        "defaultView": "week",
+        "isReadOnly": true,
+        "calendars": [
+          {
+            "id": "team",
+            "name": "Team",
+            "color": "#ffffff",
+            "backgroundColor": "#2563eb",
+            "borderColor": "#1d4ed8"
+          }
+        ]
+      },
+      "initialDate": "2026-07-23"
+    },
+    "empty": {
+      "events": [],
+      "options": {
+        "defaultView": "month",
+        "isReadOnly": true
+      }
+    }
+  },
+  "uplink": "display/local-interact 类,默认无需上行。若要把用户在日历内的变化交给宿主,由消费 AI 直接接 Toast UI 原生监听器并按载体处理;本条不规定统一事件出口。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:须把 toastui-calendar.min.css 和挂载 Element 一并放进 shadowRoot;usageStatistics 强制 false,内部 Preact 树留在该容器",
+    "codex": "supported:ESM CDN + 外部 CSS + DOM 几何布局,无 worker/wasm 或默认上行依赖"
+  }
+}

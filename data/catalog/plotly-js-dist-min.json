@@ -1,0 +1,102 @@
+{
+  "entry_version": "thin-1",
+  "id": "plotly-js-dist-min",
+  "name": "Plotly.js",
+  "when_to_use": "需要 3D scatter/surface、等高线、科学统计图或带缩放悬停的多轴探索图时用它而非手写 SVG/WebGL,因为原生在三维相机、科学尺度和跨 trace 命中上失败;静态单一柱线饼非做它。",
+  "why_valuable": "AI 默认只能生成二维静态示意图,做不到可旋转 3D 相机、surface/contour 网格、科学坐标尺度、跨 trace tooltip 与稳定 WebGL 渲染;Plotly 用声明式 traces/layout 补齐这些零能力区。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "plotly.js-dist-min",
+    "version": "3.7.0",
+    "github": "plotly/plotly.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "traces/layout/config 原样传给 Plotly.newPlot;每个 trace 自带等长列式数组,不是统一 rows 表。下面只钉死高价值科学图的高频原生路径,不另造图表 DSL。",
+    "schema": {
+      "traces": [
+        {
+          "type": "'scatter' | 'bar' | 'scatter3d' | 'surface' | 'contour' | 'heatmap' | 'histogram' | 'box' | 'violin'",
+          "x?": "(number|string)[] —— 默认按点索引推断",
+          "y?": "(number|string)[] —— 默认按点索引推断",
+          "z?": "number[] | number[][] —— scatter3d 用一维,surface/heatmap/contour 用二维网格",
+          "mode?": "'lines' | 'markers' | 'lines+markers' —— scatter 默认由点数推断,scatter3d 常用 'markers'",
+          "name?": "string —— 默认 trace 编号",
+          "marker?": "Plotly 原生 marker 配置对象 —— 默认上游主题",
+          "line?": "Plotly 原生 line 配置对象 —— 默认上游主题"
+        }
+      ],
+      "layout?": {
+        "_default": "{};boot 注入 autosize:true 与 height=420",
+        "title?": "string | {text:string} —— 默认无标题",
+        "scene?": "{xaxis?:object,yaxis?:object,zaxis?:object,camera?:object} —— 3D 场景默认自动尺度",
+        "xaxis?": "Plotly 原生 axis 配置对象 —— 默认自动尺度",
+        "yaxis?": "Plotly 原生 axis 配置对象 —— 默认自动尺度",
+        "margin?": "{l?:number,r?:number,t?:number,b?:number,pad?:number} —— 默认上游边距",
+        "showlegend?": "boolean —— 默认按 traces 推断"
+      },
+      "config?": {
+        "_default": "{}",
+        "responsive?": "boolean —— boot 默认 true",
+        "displayModeBar?": "boolean | 'hover' —— 默认 'hover'",
+        "scrollZoom?": "boolean —— 默认 false",
+        "staticPlot?": "boolean —— 默认 false"
+      }
+    }
+  },
+  "spec": {
+    "height": 420,
+    "note": "Plotly 的 SVG/canvas/WebGL 图层必须在初始化前获得明确像素高;boot 默认 420px并写入 layout.height,容器变化调用 Plotly.Plots.resize,铁律 3 禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合;Plotly 会向 iframe document.head 注入运行时样式\nimport Plotly from 'https://cdn.jsdelivr.net/npm/plotly.js-dist-min@3/+esm';\nconst el = document.getElementById('plotly'); el.style.height = `${spec.height ?? 420}px`;\nconst layout = { autosize: true, height: spec.height ?? 420, ...(data.layout ?? {}) };\nawait Plotly.newPlot(el, data.traces, layout, { responsive: true, ...(data.config ?? {}) });\nnew ResizeObserver(() => Plotly.Plots.resize(el)).observe(el);",
+    "widget": "unsupported: plotly.js-dist-min@3.7.0 在运行时硬写 document.head 的 plotly.js-style-* 样式;样式不会穿透 shadow root,违反铁律 2,不得伪装成 shadow-safe。",
+    "codex": "// sandbox iframe 可隔离 Plotly 的全局样式与 WebGL 图层\nimport Plotly from 'https://cdn.jsdelivr.net/npm/plotly.js-dist-min@3/+esm';\nconst el = document.getElementById('plotly'); el.style.height = `${spec.height ?? 420}px`;\nconst layout = { autosize: true, height: spec.height ?? 420, ...(data.layout ?? {}) };\nawait Plotly.newPlot(el, data.traces, layout, { responsive: true, ...(data.config ?? {}) });\nnew ResizeObserver(() => Plotly.Plots.resize(el)).observe(el);"
+  },
+  "example": {
+    "_why": "科学图的 trace 类型、z 网格方向和 3D scene 配置高歧义,minimal example 用原生 surface 形状消歧。",
+    "minimal": {
+      "traces": [
+        {
+          "type": "surface",
+          "z": [
+            [1, 2, 1],
+            [2, 4, 2],
+            [1, 2, 1]
+          ],
+          "name": "Response surface"
+        }
+      ],
+      "layout": {
+        "title": {
+          "text": "Response surface"
+        },
+        "scene": {
+          "zaxis": {
+            "title": "Score"
+          }
+        }
+      },
+      "config": {
+        "displayModeBar": "hover"
+      }
+    },
+    "empty": {
+      "traces": [],
+      "layout": {
+        "title": {
+          "text": "暂无数据"
+        }
+      }
+    }
+  },
+  "uplink": "display/local-explore 类,默认无需上行。若需把悬停或点位点击交给宿主,由消费 AI 直接接 Plotly 原生监听器并按载体处理;本条不建立统一事件协议。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "unsupported:运行时 CSS 硬注入 document.head,shadowRoot 内图层得不到这些规则",
+    "codex": "conditional:SVG/canvas 图支持;scatter3d/surface 等 trace 还要求 sandbox 提供 WebGL"
+  }
+}

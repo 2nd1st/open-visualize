@@ -1,0 +1,136 @@
+{
+  "entry_version": "thin-1",
+  "id": "jsxgraph",
+  "name": "JSXGraph",
+  "when_to_use": "需要可拖点、slider、约束几何或参数驱动函数图时用它而非手写 SVG/Canvas,因为原生在拖动后保持交点、轨迹与依赖元素几何正确上失败;非做无交互的静态单函数曲线。",
+  "why_valuable": "AI 默认能画静态函数图或粗糙单 slider,但做不到约束几何引擎:自由点变化时交点、圆、轨迹和依赖对象必须持续正确重算;JSXGraph 用成熟 board.create 图元系统补齐。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "jsxgraph",
+    "version": "1.13.0",
+    "github": "jsxgraph/jsxgraph"
+  },
+  "license": "(MIT OR LGPL-3.0-or-later)",
+  "license_note": "上游双许可;本 catalog 选择 MIT 分支使用,避免 LGPL 组合义务歧义。",
+  "data_in": {
+    "shape": "expression",
+    "note": "data 直接映射原生 JSXGraph API:board 传给 JXG.JSXGraph.initBoard,每个 element 依次调用 board.create(type, parents, attributes)。parents 可用数字/坐标数组/表达式字符串;依赖构造可在运行时代入先前 board.create 返回的 JSXGraph 对象,不要杜撰字符串引用协议。",
+    "schema": {
+      "board?": {
+        "_default": "缺省为 {}",
+        "boundingbox?": "[left, top, right, bottom] —— 默认 [-5,5,5,-5]",
+        "axis?": "boolean | object —— 默认 false",
+        "keepaspectratio?": "boolean —— 默认 false;约束几何通常显式 true",
+        "shownavigation?": "boolean —— 默认 true",
+        "showcopyright?": "boolean —— 默认 true"
+      },
+      "elements": [
+        {
+          "type": "'point' | 'line' | 'circle' | 'polygon' | 'slider' | 'glider' | 'intersection' | 'functiongraph' | 'curve'",
+          "parents": "unknown[] —— 原生 board.create 的 parents;如 point:[x,y],circle:[[x,y],r],slider:[[x1,y1],[x2,y2],[min,value,max]],functiongraph:[expression-string]",
+          "attributes?": "Record<string, string | number | boolean | number[]> —— 默认 {}"
+        }
+      ],
+      "empty_text?": "string —— elements 为空时显示,默认 '暂无几何对象'"
+    }
+  },
+  "spec": {
+    "height": 420,
+    "note": "JSXGraph 在 initBoard 时读取容器 clientWidth/clientHeight,几何/Canvas 类必须先给明确像素高度;默认 420px,AI 可覆盖,禁用 vh/百分比高(铁律 3)。容器宽度跟随载体可用宽度。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合前按此推断写\nimport JXG from 'https://cdn.jsdelivr.net/npm/jsxgraph@1/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/jsxgraph@1/distrib/jsxgraph.css' }); document.head.appendChild(css);\nconst el = document.getElementById('jxg'); el.className = 'jxgbox'; el.style.height = `${spec.height ?? 420}px`;\nconst board = JXG.JSXGraph.initBoard(el, data.board ?? {});\nfor (const item of data.elements) board.create(item.type, item.parents, item.attributes ?? {}); if (!data.elements.length) el.textContent = data.empty_text ?? '暂无几何对象';",
+    "widget": "// JSXGraph 1.13 initBoard 可接 HTMLElement;CSS 与元素都落 shadowRoot\nimport JXG from 'https://cdn.jsdelivr.net/npm/jsxgraph@1/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/jsxgraph@1/distrib/jsxgraph.css' });\nconst el = document.createElement('div'); el.className = 'jxgbox'; el.style.height = `${spec.height ?? 420}px`; shadowRoot.append(css, el);\nconst board = JXG.JSXGraph.initBoard(el, data.board ?? {});\nfor (const item of data.elements) board.create(item.type, item.parents, item.attributes ?? {}); if (!data.elements.length) el.textContent = data.empty_text ?? '暂无几何对象';",
+    "codex": "import JXG from 'https://cdn.jsdelivr.net/npm/jsxgraph@1/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/jsxgraph@1/distrib/jsxgraph.css' }); document.head.appendChild(css);\nconst el = document.getElementById('jxg'); el.className = 'jxgbox'; el.style.height = `${spec.height ?? 420}px`;\nconst board = JXG.JSXGraph.initBoard(el, data.board ?? {});\nfor (const item of data.elements) board.create(item.type, item.parents, item.attributes ?? {}); if (!data.elements.length) el.textContent = data.empty_text ?? '暂无几何对象';"
+  },
+  "example": {
+    "_why": "JSXGraph 的 element type 与 parents 形状随图元变化,属于高歧义原生 API;minimal example 展示 point/circle/slider/functiongraph 四种真实 parents。",
+    "minimal": {
+      "board": {
+        "boundingbox": [
+          -5,
+          5,
+          5,
+          -5
+        ],
+        "axis": true,
+        "keepaspectratio": true,
+        "shownavigation": false,
+        "showcopyright": false
+      },
+      "elements": [
+        {
+          "type": "point",
+          "parents": [
+            1,
+            2
+          ],
+          "attributes": {
+            "name": "A"
+          }
+        },
+        {
+          "type": "circle",
+          "parents": [
+            [
+              0,
+              0
+            ],
+            2
+          ],
+          "attributes": {
+            "strokeColor": "#2563eb"
+          }
+        },
+        {
+          "type": "slider",
+          "parents": [
+            [
+              -3,
+              -3
+            ],
+            [
+              2,
+              -3
+            ],
+            [
+              -2,
+              1,
+              2
+            ]
+          ],
+          "attributes": {
+            "name": "a"
+          }
+        },
+        {
+          "type": "functiongraph",
+          "parents": [
+            "sin(x)"
+          ],
+          "attributes": {
+            "strokeColor": "#dc2626"
+          }
+        }
+      ]
+    },
+    "empty": {
+      "elements": [],
+      "empty_text": "暂无几何对象"
+    }
+  },
+  "uplink": "local-interact 类,默认无需上行。若要回传拖点或 slider 值,由消费 AI 直接接具体 JSXGraph 元素事件并按载体处理;不焊接统一事件出口。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:须把 jsxgraph.css 与显式高度容器一起落入 shadowRoot,并把 HTMLElement 而非 id 字符串传给 initBoard;1.13 源码支持元素引用",
+    "codex": "supported:ESM CDN + 外部 CSS + SVG/Canvas,无 worker/wasm 或默认上行依赖"
+  },
+  "scenarios": [
+    "teach-sim",
+    "local-tools"
+  ],
+  "owner": true,
+  "owner_note": "pick 合并 teach-sim 与 local-tools;本条以 teach-sim 为 owner,工具箱场景复用同一组件。"
+}

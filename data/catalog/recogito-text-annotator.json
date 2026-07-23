@@ -1,0 +1,115 @@
+{
+  "entry_version": "thin-1",
+  "id": "recogito-text-annotator",
+  "name": "Recogito text-annotator-js",
+  "when_to_use": "需要用户在长文本中圈选原句并留下结构化批注时用它而非手写 Selection/Range,因为原生在选区归一化、字符偏移、重叠高亮和持久化定位上失败。非做普通文本展示、全文编辑器或只读搜索高亮。",
+  "why_valuable": "AI 默认无法捕获用户实际选中的字符范围,也默认做不到 DOM 变化后的 quote+offset 双重定位、重叠批注渲染和 W3C Annotation JSON 往返。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@recogito/text-annotator",
+    "version": "4.2.5",
+    "github": "recogito/text-annotator-js"
+  },
+  "license": "BSD-3-Clause",
+  "data_in": {
+    "shape": "text-span",
+    "note": "boot 用 textContent 写入纯文本,再启用 W3CTextFormat adapter;annotations 因而吃 W3CTextAnnotation。target.source 必须等于 data.source 的有效值;selector 建议同时带 TextQuoteSelector 与 TextPositionSelector,便于校验文本和精确恢复偏移。",
+    "schema": {
+      "text": "string —— 被标注的完整纯文本",
+      "source?": "string IRI —— 文本来源标识,默认 location.href",
+      "annotations?": [
+        {
+          "@context": "'http://www.w3.org/ns/anno.jsonld'",
+          "type": "'Annotation'",
+          "id": "string",
+          "body": [
+            {
+              "id": "string",
+              "type": "string",
+              "purpose": "string",
+              "value": "string"
+            }
+          ],
+          "target": {
+            "source": "string —— 必须等于 data.source 的有效值",
+            "selector": [
+              {
+                "type": "'TextQuoteSelector'",
+                "exact": "string",
+                "prefix?": "string —— 默认省略",
+                "suffix?": "string —— 默认省略"
+              },
+              {
+                "type": "'TextPositionSelector'",
+                "start": "integer >= 0 —— UTF-16 字符偏移起点",
+                "end": "integer >= start —— UTF-16 字符偏移终点,不含 end"
+              }
+            ]
+          }
+        }
+      ],
+      "annotatingEnabled?": "boolean —— 是否允许创建选区批注,默认 true"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:官方 CSS 进入 document.head\nimport { createTextAnnotator, W3CTextFormat } from 'https://cdn.jsdelivr.net/npm/@recogito/text-annotator@4/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@recogito/text-annotator@4/dist/text-annotator.css' }); document.head.appendChild(css);\nconst el = document.getElementById('text'); el.textContent = data.text; el.style.whiteSpace = 'pre-wrap';\nconst source = data.source ?? location.href;\nconst anno = createTextAnnotator(el, { adapter: W3CTextFormat(source, el), annotatingEnabled: data.annotatingEnabled ?? true });\nanno.setAnnotations(data.annotations ?? []);",
+    "widget": "// 官方 CSS、纯文本与高亮 DOM 都落 shadowRoot\nimport { createTextAnnotator, W3CTextFormat } from 'https://cdn.jsdelivr.net/npm/@recogito/text-annotator@4/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@recogito/text-annotator@4/dist/text-annotator.css' });\nconst el = document.createElement('div'); el.textContent = data.text; el.style.whiteSpace = 'pre-wrap'; shadowRoot.append(css, el);\nconst source = data.source ?? location.href;\nconst anno = createTextAnnotator(el, { adapter: W3CTextFormat(source, el), annotatingEnabled: data.annotatingEnabled ?? true });\nanno.setAnnotations(data.annotations ?? []);",
+    "codex": "// sandbox iframe 内按上游原生 adapter + annotator 挂载\nimport { createTextAnnotator, W3CTextFormat } from 'https://cdn.jsdelivr.net/npm/@recogito/text-annotator@4/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@recogito/text-annotator@4/dist/text-annotator.css' }); document.head.appendChild(css);\nconst el = document.getElementById('text'); el.textContent = data.text; el.style.whiteSpace = 'pre-wrap';\nconst source = data.source ?? location.href;\nconst anno = createTextAnnotator(el, { adapter: W3CTextFormat(source, el), annotatingEnabled: data.annotatingEnabled ?? true });\nanno.setAnnotations(data.annotations ?? []);"
+  },
+  "example": {
+    "_why": "W3C quote/position 双 selector 与 UTF-16 半开区间容易错位,属于文本标注编辑器高歧义输入;minimal 让 exact 与 start/end 可直接互证。",
+    "minimal": {
+      "text": "Design systems reduce repeated decisions.",
+      "source": "urn:document:design-note",
+      "annotations": [
+        {
+          "@context": "http://www.w3.org/ns/anno.jsonld",
+          "type": "Annotation",
+          "id": "anno-1",
+          "body": [
+            {
+              "id": "body-1",
+              "type": "TextualBody",
+              "purpose": "commenting",
+              "value": "Clarify which decisions."
+            }
+          ],
+          "target": {
+            "source": "urn:document:design-note",
+            "selector": [
+              {
+                "type": "TextQuoteSelector",
+                "exact": "repeated decisions",
+                "prefix": "systems reduce ",
+                "suffix": "."
+              },
+              {
+                "type": "TextPositionSelector",
+                "start": 22,
+                "end": 40
+              }
+            ]
+          }
+        }
+      ],
+      "annotatingEnabled": true
+    },
+    "empty": {
+      "text": "",
+      "annotations": []
+    }
+  },
+  "uplink": {
+    "_note": "本条不绑定统一事件出口;消费 AI 需要回传时自行读取 anno.getAnnotations(),adapter 会返回 W3C JSON。",
+    "widget": "消费 AI 自行把 anno.getAnnotations() 的 JSON 编入 sendPrompt 文案。",
+    "codex": "消费 AI 自行把 anno.getAnnotations() 交给 sendFollowUpMessage。",
+    "artifact": "artifact 无上行;提供把 anno.getAnnotations() 下载为 JSON 的兜底。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:官方 CSS 与被标注文本须一起位于 shadowRoot;依赖浏览器 Range 与 CSS Highlights/DOM span 渲染",
+    "codex": "supported:ESM CDN + CSS + DOM Range,无图片/worker/wasm"
+  }
+}

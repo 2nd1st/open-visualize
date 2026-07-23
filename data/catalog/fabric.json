@@ -1,0 +1,102 @@
+{
+  "entry_version": "thin-1",
+  "id": "fabric",
+  "name": "Fabric.js",
+  "when_to_use": "需要自定义可选中、缩放旋转、分组并可 JSON 回放的对象画布时用它而非手写 Canvas 2D,因为原生在命中测试、控制点、变换矩阵和对象序列化上失败。非做只渲一次的静态 canvas 插画。",
+  "why_valuable": "AI 默认能画静态 canvas,但默认做不到对象级命中、稳定变换手柄、层级组合、交互选择与场景 JSON 往返;这些手写后极易在缩放和高 DPI 下失稳。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "fabric",
+    "version": "7.4.0",
+    "github": "fabricjs/fabric.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geometry",
+    "note": "data.scene 必须是 Fabric Canvas.toJSON() 兼容对象;loadFromJSON 只恢复对象数据,画布像素尺寸由 spec 单独钉死。下面是常用序列化字段的裁剪版,非做任意自定义 Fabric class 反序列化。",
+    "schema": {
+      "scene": {
+        "version?": "string —— Fabric 导出版本标记,默认省略",
+        "objects": [
+          {
+            "type": "'Rect'|'Circle'|'Ellipse'|'Line'|'Path'|'Text'|'IText'|'Textbox'|'Group'",
+            "left?": "number —— 默认 0",
+            "top?": "number —— 默认 0",
+            "width?": "number —— Rect/Text/Group 的宽,默认由类型决定",
+            "height?": "number —— Rect/Text/Group 的高,默认由类型决定",
+            "radius?": "number —— Circle 半径,默认 0",
+            "rx?": "number —— Ellipse 横半径,默认 0",
+            "ry?": "number —— Ellipse 纵半径,默认 0",
+            "text?": "string —— Text/IText/Textbox 内容,默认空串",
+            "fill?": "CSS color string —— 默认 'rgb(0,0,0)'",
+            "stroke?": "CSS color string | null —— 默认 null",
+            "strokeWidth?": "number —— 默认 1",
+            "angle?": "number —— 角度,默认 0",
+            "scaleX?": "number —— 默认 1",
+            "scaleY?": "number —— 默认 1",
+            "opacity?": "number 0..1 —— 默认 1",
+            "objects?": "同结构数组 —— Group 时使用,默认 []"
+          }
+        ],
+        "background?": "CSS color string —— 默认透明"
+      }
+    }
+  },
+  "spec": {
+    "height": 420,
+    "note": "Fabric canvas 的后备缓冲和 CSS 尺寸必须是明确像素值;默认取容器宽度与 height 420px,禁用 vh/百分比高(铁律 3)。容器改宽后须调用 canvas.setDimensions。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:原生 Canvas + loadFromJSON\nimport { Canvas } from 'https://cdn.jsdelivr.net/npm/fabric@7/+esm';\nconst host = document.getElementById('canvas'); host.style.height = `${spec.height ?? 420}px`;\nconst surface = document.createElement('canvas'); host.appendChild(surface);\nconst canvas = new Canvas(surface, { width: host.clientWidth || 720, height: spec.height ?? 420 });\nawait canvas.loadFromJSON(data.scene);\ncanvas.requestRenderAll();",
+    "widget": "// canvas 元素与 Fabric 生成的包裹 DOM 都落 shadowRoot\nimport { Canvas } from 'https://cdn.jsdelivr.net/npm/fabric@7/+esm';\nconst host = document.createElement('div'); host.style.height = `${spec.height ?? 420}px`; shadowRoot.appendChild(host);\nconst surface = document.createElement('canvas'); host.appendChild(surface);\nconst canvas = new Canvas(surface, { width: host.clientWidth || 720, height: spec.height ?? 420 });\nawait canvas.loadFromJSON(data.scene);\ncanvas.requestRenderAll();",
+    "codex": "// sandbox iframe 内按上游原生序列化 API 挂载\nimport { Canvas } from 'https://cdn.jsdelivr.net/npm/fabric@7/+esm';\nconst host = document.getElementById('canvas'); host.style.height = `${spec.height ?? 420}px`;\nconst surface = document.createElement('canvas'); host.appendChild(surface);\nconst canvas = new Canvas(surface, { width: host.clientWidth || 720, height: spec.height ?? 420 });\nawait canvas.loadFromJSON(data.scene);\ncanvas.requestRenderAll();"
+  },
+  "example": {
+    "_why": "Fabric 序列化对象按 type 解释不同几何字段,属于画布高歧义输入;minimal 直接对应 loadFromJSON 可见场景。",
+    "minimal": {
+      "scene": {
+        "version": "7.4.0",
+        "objects": [
+          {
+            "type": "Rect",
+            "left": 80,
+            "top": 70,
+            "width": 220,
+            "height": 120,
+            "fill": "#dbeafe",
+            "stroke": "#2563eb",
+            "strokeWidth": 2,
+            "angle": 0
+          },
+          {
+            "type": "Textbox",
+            "left": 120,
+            "top": 110,
+            "width": 140,
+            "text": "Arrange me",
+            "fill": "#172554"
+          }
+        ],
+        "background": "#ffffff"
+      }
+    },
+    "empty": {
+      "scene": {
+        "objects": []
+      }
+    }
+  },
+  "uplink": {
+    "_note": "本条不绑定统一事件出口;消费 AI 需要回传时自行读取 canvas.toJSON()。",
+    "widget": "消费 AI 自行把 canvas.toJSON() 的裁剪 JSON 编入 sendPrompt 文案。",
+    "codex": "消费 AI 自行把 canvas.toJSON() 交给 sendFollowUpMessage。",
+    "artifact": "artifact 无上行;提供 JSON 下载,也可由消费 AI 调用上游图像导出 API。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:canvas 与上游包裹 DOM 可完整落入 shadowRoot,核心无 CSS/worker/wasm/字体依赖",
+    "codex": "supported:单一 ESM CDN + Canvas 2D,无必需外部资产"
+  }
+}

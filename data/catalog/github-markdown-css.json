@@ -1,0 +1,35 @@
+{
+  "entry_version": "thin-1",
+  "id": "github-markdown-css",
+  "name": "github-markdown-css",
+  "when_to_use": "需要让已经渲染的 Markdown 报告获得用户熟悉且跨页面稳定的 GitHub 外观时用它而非手写 CSS，因为原生在代码块、表格、任务列表和明暗色变量的逐项一致性上失败；非做 Markdown 解析器或品牌化出版设计。",
+  "why_valuable": "AI 默认只能做约 80% 相近的 Markdown 样式，做不到长期同步 GitHub 的代码、表格、引用、任务列表和颜色变量；它是低惊喜的文档保底件而非创意视觉亮点。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "github-markdown-css",
+    "version": "5.9.0",
+    "github": "sindresorhus/github-markdown-css"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "note": "输入必须是已由 Markdown 引擎转换且按信任边界清洗过的 HTML；本条只给 .markdown-body 样式。",
+    "schema": {
+      "html": "string —— 已渲染的 Markdown HTML",
+      "color_mode?": "'auto' | 'light' | 'dark' —— 颜色模式，默认 auto（跟随 prefers-color-scheme）",
+      "padding?": "number —— 根容器内边距（px），默认 32"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:样式必须进入 document.head\nconst css = document.createElement('link'); css.rel = 'stylesheet';\ncss.href = 'https://cdn.jsdelivr.net/npm/github-markdown-css@5.9.0/github-markdown.min.css';\ndocument.head.appendChild(css);\nconst el = document.getElementById('markdown'); el.className = 'markdown-body';\nif (data.color_mode && data.color_mode !== 'auto') el.dataset.theme = data.color_mode;\nel.style.padding = `${data.padding ?? 32}px`; el.innerHTML = data.html;",
+    "widget": "// widget 零足迹:CSS 与 .markdown-body 都落 shadowRoot\nconst css = document.createElement('link'); css.rel = 'stylesheet';\ncss.href = 'https://cdn.jsdelivr.net/npm/github-markdown-css@5.9.0/github-markdown.min.css';\nconst el = document.createElement('article'); el.className = 'markdown-body';\nif (data.color_mode && data.color_mode !== 'auto') el.dataset.theme = data.color_mode;\nel.style.padding = `${data.padding ?? 32}px`; el.innerHTML = data.html;\nshadowRoot.append(css, el);",
+    "codex": "// sandbox iframe:同 artifact，把 CSS link 放进 iframe document.head\nconst el = document.getElementById('markdown'); el.className = 'markdown-body';\nif (data.color_mode && data.color_mode !== 'auto') el.dataset.theme = data.color_mode;\nel.style.padding = `${data.padding ?? 32}px`;\nel.innerHTML = data.html;"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:CSS link 放入 shadowRoot 后无 document.head 足迹；无外部字体、wasm 或 worker",
+    "codex": "supported:纯 CSS + 已渲染 HTML"
+  }
+}

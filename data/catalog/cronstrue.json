@@ -1,0 +1,42 @@
+{
+  "entry_version": "thin-1",
+  "id": "cronstrue",
+  "name": "cronstrue",
+  "when_to_use": "需要把 cron 表达式变成可读说明时用它,而非手写解析——原生手写在 L/W/#、秒/年字段与多语言语序上会失败。",
+  "why_valuable": "AI 默认只能稳定解释常见五段 cron;遇到 Quartz 特殊字符、字段数歧义和 locale 会编造含义,本库给出确定性文本。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "cronstrue",
+    "version": "3.24.0",
+    "github": "bradymholt/cronstrue"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "schema": {
+      "expression": "string —— 5/6/7 段 cron、Quartz cron 或 @yearly 等昵称",
+      "locale?": "string —— i18n locale id,默认 'en';简体中文用 'zh_CN'",
+      "use24HourTimeFormat?": "boolean —— 默认由 locale 决定",
+      "verbose?": "boolean —— 默认 false",
+      "throwExceptionOnParseError?": "boolean —— 默认 true"
+    }
+  },
+  "provides": {
+    "shape": "text-span",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers;输出是可放入任意文本节点的描述字符串。",
+    "outputs": "string —— cron 的人类可读描述",
+    "api_surface": {
+      "toString": "cronstrue.toString(expression, options) → string"
+    }
+  },
+  "peer": {
+    "id": "croner",
+    "note": "本条只解释语义;若要计算下一次/未来 N 次触发时间,交给 croner,再把 Date[] 喂给时间轴或列表组件。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:纯 ESM 计算,使用 i18n 子入口载入全部 locale\nimport cronstrue from 'https://cdn.jsdelivr.net/npm/cronstrue@3/i18n/+esm';\nconst text = cronstrue.toString(data.expression, { locale: data.locale ?? 'en', use24HourTimeFormat: data.use24HourTimeFormat, verbose: data.verbose ?? false, throwExceptionOnParseError: data.throwExceptionOnParseError ?? true });\n// 把 text 写入消费方自己的文本节点。",
+    "widget": "// headless:shadow 内外计算相同,不触碰 DOM\nimport cronstrue from 'https://cdn.jsdelivr.net/npm/cronstrue@3/i18n/+esm';\nconst text = cronstrue.toString(data.expression, { locale: data.locale ?? 'en', use24HourTimeFormat: data.use24HourTimeFormat, verbose: data.verbose ?? false, throwExceptionOnParseError: data.throwExceptionOnParseError ?? true });\n// 消费 AI 自行显示 text。",
+    "codex": "// sandbox iframe/worker 均可\nimport cronstrue from 'https://cdn.jsdelivr.net/npm/cronstrue@3/i18n/+esm';\nconst text = cronstrue.toString(data.expression, { locale: data.locale ?? 'en', use24HourTimeFormat: data.use24HourTimeFormat, verbose: data.verbose ?? false, throwExceptionOnParseError: data.throwExceptionOnParseError ?? true });"
+  }
+}

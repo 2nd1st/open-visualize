@@ -1,0 +1,78 @@
+{
+  "entry_version": "thin-1",
+  "id": "animejs",
+  "name": "anime.js",
+  "when_to_use": "需要多属性补间、错峰队列或可暂停/倒放的 DOM/SVG 时间线时用它,而非手写 CSS keyframes 与 requestAnimationFrame——原生手写在同步时序、缓动一致性和实例控制上失败。非做物理模拟或整套游戏循环。",
+  "why_valuable": "AI 默认只能生成孤立的 transition/keyframes,做不到跨 DOM/SVG/JS 属性的统一时钟、stagger 编排、时间线定位与可靠暂停恢复；anime.js 把这些易漂移状态收进可控实例。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "animejs",
+    "version": "4.5.0",
+    "github": "juliangarnier/anime"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "data_in.parameters 精确对应 anime.js v4 animate(targets, parameters) 的第二参数；动画属性与 duration/ease 位于同一对象,v4 字段名是 ease,不是 v3 教程常见的 easing。",
+    "schema": {
+      "targets": "CSS selector string | Element | Element[] —— 要驱动的目标；widget 中优先传 shadow 内 Element,避免全局 selector",
+      "parameters": {
+        "x?": "number | string | [from,to] —— translateX；默认保留目标当前值",
+        "y?": "number | string | [from,to] —— translateY；默认保留目标当前值",
+        "rotate?": "number | string | [from,to] —— 旋转；默认保留目标当前值",
+        "scale?": "number | [from,to] —— 缩放；默认保留目标当前值",
+        "opacity?": "number | [from,to] —— 透明度；默认保留目标当前值",
+        "duration?": "number(ms) —— entry 默认 1000",
+        "delay?": "number(ms) | stagger() 结果 —— 默认 0",
+        "ease?": "string —— entry 默认 'out(2)'",
+        "loop?": "boolean | integer —— 默认 false",
+        "autoplay?": "boolean —— 默认 true"
+      }
+    }
+  },
+  "provides": {
+    "shape": "animation-driver",
+    "_note": "headless-primitive:自身不生成视觉节点,只驱动消费方已有 DOM/SVG/JS 对象；无 L 级、无 carriers 矩阵。",
+    "outputs": "Animation 实例,提供 play/pause/restart/reverse/seek 与时间状态；可作为微交互或自写组件的运动层。",
+    "api_surface": {
+      "animate": "animate(targets, parameters) → Animation",
+      "timeline": "createTimeline(parameters).add(targets, parameters, position)",
+      "stagger": "stagger(valueOrRange, options) → 可放入 delay/属性值的分布函数"
+    }
+  },
+  "peer": {
+    "note": "消费它的是已有 DOM/SVG/canvas 场景组件；本条不创建目标节点,也不规定业务回调或上行协议。"
+  },
+  "boot": {
+    "shared": "// 三载体用同一 v4 原生 API；widget 应把 data.targets 解析为自身 shadow 内 Element\nimport { animate } from 'https://cdn.jsdelivr.net/npm/animejs@4/+esm';\nconst p = data.parameters;\nconst animation = animate(data.targets, { ...p, duration: p.duration ?? 1000, delay: p.delay ?? 0,\n  ease: p.ease ?? 'out(2)', loop: p.loop ?? false, autoplay: p.autoplay ?? true });",
+    "note": "若 targets 是 selector,anime.js 从当前 document 查询；widget 为零足迹应传 shadowRoot.querySelectorAll(...) 的实际元素集合。"
+  },
+  "example": {
+    "_why": "多属性值、错峰 delay 与 v4 ease 命名容易和 v3 配置混淆,故给一个最小 v4 parameters fixture。",
+    "minimal": {
+      "targets": ".dot",
+      "parameters": {
+        "x": 160,
+        "scale": [
+          0.8,
+          1.2
+        ],
+        "opacity": [
+          0.4,
+          1
+        ],
+        "duration": 700,
+        "ease": "out(3)",
+        "loop": false,
+        "autoplay": true
+      }
+    },
+    "empty": {
+      "targets": [],
+      "parameters": {
+        "duration": 0
+      }
+    }
+  }
+}

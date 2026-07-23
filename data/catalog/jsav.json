@@ -1,0 +1,68 @@
+{
+  "entry_version": "thin-1",
+  "id": "jsav",
+  "name": "JSAV",
+  "when_to_use": "需要数据结构状态逐步播放、解释文字和可前后浏览的算法课件时用它而非手写,因为原生 DOM 在可逆步骤历史、控件同步和结构布局上会失败；非做一般业务流程图或普通列表。",
+  "why_valuable": "AI 默认只能输出文本加 emoji 伪动画,无法维护可逆的多步状态、结构图元与说明同步；JSAV 已把 OpenDSA 所需的记录和回放模型做成原生 API。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "github": "vkaravir/JSAV"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "sequence",
+    "note": "裁剪为 JSAV 数组 slideshow：states[0] 是初态,后续每项形成一步；所有 values 必须等长,因为原生 arr.value(i,v) 只改已有槽位。",
+    "schema": {
+      "states": [
+        {
+          "values": "(string | number | null)[] —— 每一步的完整数组状态,各步长度相同",
+          "message?": "string —— 本步说明,默认 ''"
+        }
+      ],
+      "layout?": "'array' | 'bar' | 'vertical' —— 默认 'array'",
+      "indexed?": "boolean —— 默认 true",
+      "controls?": "boolean —— 默认 true"
+    }
+  },
+  "spec": {
+    "height": 360,
+    "note": "容器显式 min-height 360px,不得用 vh/百分比高(铁律 3)；实际高度会随结构和说明增长。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested；picks 无发行版本,保守钉 repo tag v1.0.1；CSS 只进 head(铁律 2)\nconst load = src => new Promise((ok, bad) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = bad; document.head.appendChild(s); });\nconst base = 'https://cdn.jsdelivr.net/gh/vkaravir/JSAV@v1.0.1/';\nfor (const src of [base+'lib/jquery.min.js', base+'lib/jquery.transit.js', base+'lib/raphael.js']) await load(src);\nconst parts = ['core','translations','anim','utils','messages','effects','events','graphicals','datastructures','array','tree','list','graph','matrix','code','settings','questions','exercise'].map(x => 'gh/vkaravir/JSAV@v1.0.1/src/'+x+'.js').join(','); await load('https://cdn.jsdelivr.net/combine/'+parts);\nconst link = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: base+'css/JSAV.css' }); document.head.appendChild(link);\nconst el = document.getElementById('jsav'); el.style.minHeight = '360px'; if (data.controls ?? true) el.innerHTML = '<div class=\"jsavcontrols\"></div><p class=\"jsavoutput jsavline\"></p>';\nconst states = data.states.length ? data.states : [{ values: [], message: '' }], av = new JSAV(el), arr = av.ds.array(states[0].values, { layout: data.layout ?? 'array', indexed: data.indexed ?? true }); av.umsg(states[0].message ?? ''); av.displayInit();\nfor (const state of states.slice(1)) { state.values.forEach((v, i) => arr.value(i, v)); av.umsg(state.message ?? ''); av.step(); } av.recorded();",
+    "widget": "// legacy 全局脚本进 document.head；JSAV CSS 文本与可视 DOM 只落 shadow(铁律 2)\nconst load = src => new Promise((ok, bad) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = bad; document.head.appendChild(s); });\nconst base = 'https://cdn.jsdelivr.net/gh/vkaravir/JSAV@v1.0.1/';\nfor (const src of [base+'lib/jquery.min.js', base+'lib/jquery.transit.js', base+'lib/raphael.js']) await load(src);\nconst parts = ['core','translations','anim','utils','messages','effects','events','graphicals','datastructures','array','tree','list','graph','matrix','code','settings','questions','exercise'].map(x => 'gh/vkaravir/JSAV@v1.0.1/src/'+x+'.js').join(','); await load('https://cdn.jsdelivr.net/combine/'+parts);\nconst style = document.createElement('style'); style.textContent = await fetch(base+'css/JSAV.css').then(r => r.text()); const el = document.createElement('div'); el.style.minHeight = '360px'; shadowRoot.append(style, el); if (data.controls ?? true) el.innerHTML = '<div class=\"jsavcontrols\"></div><p class=\"jsavoutput jsavline\"></p>';\nconst states = data.states.length ? data.states : [{ values: [], message: '' }], av = new JSAV(el), arr = av.ds.array(states[0].values, { layout: data.layout ?? 'array', indexed: data.indexed ?? true }); av.umsg(states[0].message ?? ''); av.displayInit();\nfor (const state of states.slice(1)) { state.values.forEach((v, i) => arr.value(i, v)); av.umsg(state.message ?? ''); av.step(); } av.recorded();",
+    "codex": "同 artifact(sandbox iframe):必须按 jQuery→transit→Raphaël→JSAV 源模块顺序载入；同名 npm 包不是本项目,不要误导入。"
+  },
+  "example": {
+    "_why": "逐步状态与 JSAV 的 displayInit/step/recorded 顺序高歧义,给完整数组状态的最小 fixture。",
+    "minimal": {
+      "states": [
+        {
+          "values": [3, 1, 2],
+          "message": "初始数组"
+        },
+        {
+          "values": [1, 3, 2],
+          "message": "第一轮比较后"
+        },
+        {
+          "values": [1, 2, 3],
+          "message": "排序完成"
+        }
+      ],
+      "layout": "array",
+      "indexed": true,
+      "controls": true
+    },
+    "empty": {
+      "states": []
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:可视 DOM/CSS 落 shadow,但旧版 jQuery/JSAV/Raphaël 会占全局且组合 CDN 需 CSP 放行,不是零全局足迹",
+    "codex": "conditional:需 sandbox 允许串行外部 script 与组合 CDN；无 npm 可用构建,必须保留载入顺序"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "entry_version": "thin-1",
+  "id": "diff-match-patch",
+  "name": "diff-match-patch",
+  "when_to_use": "需要给散文、合同或翻译对照做字符级 diff、语义清理和可容错 patch 时用它而非手写 LCS,因为原生在把碎片差异整理成人类可读块及近似位置套用补丁上失败;它只产数据不负责渲染。",
+  "why_valuable": "AI 默认做不到对未知长文本执行稳定 diff、semantic cleanup 与模糊 patch apply;手工标注只能覆盖一次性短文本且不可复算。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "diff-match-patch",
+    "version": "1.0.5",
+    "github": "google/diff-match-patch"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "text-span",
+    "schema": {
+      "oldText": "string —— 基准文本",
+      "newText": "string —— 对照文本",
+      "cleanup?": "'semantic'|'efficiency'|'none' —— 默认 semantic",
+      "timeoutSeconds?": "number —— 算法超时秒数,默认库值 1.0;设 0 表示不超时"
+    }
+  },
+  "provides": {
+    "shape": "diff-tuples-and-patches",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers;操作码是库原生 -1/0/1,不要另造事件语义。",
+    "outputs": {
+      "diffs": "[-1|0|1,string][] —— -1 删除片段、0 相同片段、1 插入片段",
+      "patches": "patch_obj[]",
+      "patchText": "string —— 可持久化的 patch 文本",
+      "applyResult": "[string,boolean[]] —— 新文本与各 patch 是否成功"
+    },
+    "api_surface": {
+      "diff_main": "计算字符级差异",
+      "diff_cleanupSemantic": "按人类语义边界整理碎片",
+      "patch_make": "由文本或 diffs 构造 patch",
+      "patch_apply": "在近似位置容错套用 patch"
+    }
+  },
+  "peer": {
+    "note": "结果须交给消费 AI 自己写的 span/双栏视图;若要对象树差异用 jsondiffpatch,若要编辑器级双栏用 codemirror-merge。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:jsDelivr 把该 CommonJS 包转换成 ESM,使用具名 constructor\nimport { diff_match_patch } from 'https://cdn.jsdelivr.net/npm/diff-match-patch@1/+esm';\nconst dmp = new diff_match_patch(); if (data.timeoutSeconds != null) dmp.Diff_Timeout = data.timeoutSeconds;\nconst diffs = dmp.diff_main(data.oldText, data.newText);\nif ((data.cleanup ?? 'semantic') === 'semantic') dmp.diff_cleanupSemantic(diffs);\nelse if (data.cleanup === 'efficiency') dmp.diff_cleanupEfficiency(diffs);\nconst patches = dmp.patch_make(data.oldText, diffs);"
+  }
+}

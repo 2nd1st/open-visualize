@@ -1,0 +1,93 @@
+{
+  "entry_version": "thin-1",
+  "id": "jkanban",
+  "name": "jKanban",
+  "when_to_use": "需要轻量 vanilla 看板的列/卡片拖拽和紧凑 boards JSON 初始化时用它而非手写三列 DOM,因为原生在跨列投放、触摸交互和列顺序维护上失败;非做项目持久化、WIP 规则或自动化平台。",
+  "why_valuable": "AI 默认只能渲染静态看板,做不到可靠的拖卡换列、拖列与移动端交互;jKanban 用 boards 层级和内置 Dragula 完成最小可用直接操纵。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "jkanban",
+    "version": "1.3.1",
+    "github": "riktar/jkanban"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "hierarchy",
+    "note": "data_in.boards 映射列→卡片;所有 board id 与 item id 必须全局唯一。title 被上游当 HTML 写入,不可信文本须由消费 AI 先转义。",
+    "schema": {
+      "boards": [
+        {
+          "id": "string —— 全看板唯一",
+          "title": "string —— 可信标题 HTML",
+          "class?": "string —— 逗号分隔 header class,默认 ''",
+          "bodyClass?": "string —— 逗号分隔 body class,默认 ''",
+          "dragTo?": "string[] —— 允许卡片进入的 board id;默认不限制",
+          "item": [
+            {
+              "id": "string —— 全看板唯一",
+              "title": "string —— 可信卡片 HTML",
+              "class?": "string[] —— 默认 []",
+              "<customKey>?": "string|number|boolean —— 默认无;写成 data-* 属性"
+            }
+          ]
+        }
+      ],
+      "gutter?": "CSS length string —— 默认 '15px'",
+      "widthBoard?": "CSS length string —— 默认 '250px'",
+      "dragItems?": "boolean —— 默认 true",
+      "dragBoards?": "boolean —— 默认 true",
+      "responsivePercentage?": "boolean —— 默认 false"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合\nimport jKanban from 'https://cdn.jsdelivr.net/npm/jkanban@1/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/jkanban@1/dist/jkanban.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('kanban');\nconst kanban = new jKanban({ element: '#kanban', boards: data.boards, gutter: data.gutter ?? '15px', widthBoard: data.widthBoard ?? '250px', dragItems: data.dragItems ?? true, dragBoards: data.dragBoards ?? true, responsivePercentage: data.responsivePercentage ?? false });",
+    "widget": "unsupported: jKanban 1.3.1 把 options.element 强制传给 document.querySelector,无法定位 shadowRoot 内挂载点;不把元素逃到 light DOM,也不把 CSS 注入 document.head。",
+    "codex": "import jKanban from 'https://cdn.jsdelivr.net/npm/jkanban@1/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/jkanban@1/dist/jkanban.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('kanban');\nconst kanban = new jKanban({ element: '#kanban', boards: data.boards, gutter: data.gutter ?? '15px', widthBoard: data.widthBoard ?? '250px', dragItems: data.dragItems ?? true, dragBoards: data.dragBoards ?? true, responsivePercentage: data.responsivePercentage ?? false });"
+  },
+  "example": {
+    "_why": "boards 的 class 类型与 item.class 类型不同且 title 是 HTML 字符串,minimal 用两列一卡钉死层级。",
+    "minimal": {
+      "boards": [
+        {
+          "id": "todo",
+          "title": "To do",
+          "class": "board-todo",
+          "dragTo": [
+            "doing"
+          ],
+          "item": [
+            {
+              "id": "task-1",
+              "title": "Draft outline",
+              "class": [
+                "priority-high"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "doing",
+          "title": "Doing",
+          "item": []
+        }
+      ],
+      "dragItems": true,
+      "dragBoards": true
+    },
+    "empty": {
+      "boards": []
+    }
+  },
+  "uplink": {
+    "artifact": "artifact 无上行;1.3.1 无整板 serializer,消费 AI 须从 .kanban-board[data-id] 与卡片 data-eid 的当前 DOM 顺序重建 boards JSON,再做下载或复制兜底。",
+    "widget": "unsupported:原生挂载无法进入 shadow,因此无 widget 上行分支。",
+    "codex": "消费 AI 从当前 DOM 顺序重建 boards JSON 后调用 sendFollowUpMessage;本条不绑定统一回调。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "unsupported:options.element 内部固定 document.querySelector(selector),shadowRoot 查询边界不可达",
+    "codex": "supported:ESM CDN 会带入 Dragula,官方 CSS 进 iframe document.head"
+  }
+}

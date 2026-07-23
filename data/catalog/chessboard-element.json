@@ -1,0 +1,43 @@
+{
+  "entry_version": "thin-1",
+  "id": "chessboard-element",
+  "name": "chessboard-element",
+  "when_to_use": "需要用 Web Component 把 FEN 盘面渲成可翻转、可选拖子的标准西洋棋盘时用它,而非手写 HTML/CSS——原生手写在棋子图形、拖放动画和盘面状态同步上失败;规则、合法走子和引擎分析不在本条。",
+  "why_valuable": "AI 默认只能产出 FEN 文本、Unicode 棋盘或脆弱静态网格,做不到生产级棋子 SVG、拖放与动画;该自带 shadow 的 custom element 用一个原生组件承接完整棋盘 UI。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "chessboard-element",
+    "version": "1.2.0",
+    "github": "justinfagnani/chessboard-element"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "FEN 是 AI 原生记法,schema 足以约束输入,不附 minimal example。",
+    "schema": {
+      "fen": "string —— FEN 的 piece-placement 段:8 个以 / 分隔的横行;本条经 setPosition 传入,不把回合方、王车易位等规则字段当棋盘状态",
+      "orientation?": "'white' | 'black' —— 底边视角,默认 white",
+      "draggable?": "boolean —— 是否仅开启组件原生拖子 UI,默认 false;合法性校验仍由消费 AI 接规则引擎"
+    }
+  },
+  "spec": {
+    "height": 480,
+    "note": "棋盘 1:1;boot 显式设 480×480px和 max-width:100%,AI 可改固定 px,禁 vh/百分比高。组件内部 shadow 自带样式与棋子 SVG。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested。import 会注册 <chess-board>\nimport 'https://cdn.jsdelivr.net/npm/chessboard-element@1/+esm';\nconst b = document.createElement('chess-board'); // 铁律 4:custom element 必须 JS 创建\nb.style.cssText = 'display:block;width:480px;max-width:100%;height:480px';\nb.orientation = data.orientation ?? 'white'; b.draggablePieces = data.draggable ?? false;\nb.setPosition(data.fen, false);\ndocument.getElementById('board').appendChild(b);",
+    "widget": "import 'https://cdn.jsdelivr.net/npm/chessboard-element@1/+esm';\nconst b = document.createElement('chess-board'); // 铁律 4:禁声明式自定义标签\nb.style.cssText = 'display:block;width:480px;max-width:100%;height:480px';\nb.orientation = data.orientation ?? 'white'; b.draggablePieces = data.draggable ?? false;\nb.setPosition(data.fen, false);\nshadowRoot.appendChild(b); // 组件自身也有 shadow,样式继续封闭",
+    "codex": "同 artifact(sandbox iframe):ESM import 注册后 createElement('chess-board') + setPosition;不写声明式标签。"
+  },
+  "peer": {
+    "id": "chess-js",
+    "note": "棋盘不理解规则;合法走子、将杀和 PGN 解析交给 chess.js。拖放回调由消费 AI 直接监听组件原生事件,不抽成统一契约。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:JS createElement 绕过 sanitizer,组件自带 shadow 与内嵌棋子 SVG,无 head CSS",
+    "codex": "supported:ESM CDN + custom elements"
+  }
+}

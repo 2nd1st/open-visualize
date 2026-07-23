@@ -1,0 +1,44 @@
+{
+  "entry_version": "thin-1",
+  "id": "decimal-js",
+  "name": "decimal.js",
+  "when_to_use": "需要复利、分期或高精度小数链式运算时用它而非手写,因为原生 Number 在十进制表示、逐期误差和明确舍入模式上失败。",
+  "why_valuable": "AI 默认直接使用 IEEE-754 Number,不会主动固定精度与舍入模式,因此金额和复利迭代会漂移;decimal.js 提供可配置的任意精度十进制结果。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "decimal.js",
+    "version": "10.6.0",
+    "github": "MikeMcl/decimal.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "scalar",
+    "note": "为避免先经 Number 丢精度,高位数输入应传十进制字符串;operations 按顺序调用 Decimal 原生方法。",
+    "schema": {
+      "value": "string | number",
+      "precision?": "integer >= 1 —— 默认 20",
+      "rounding?": "0|1|2|3|4|5|6|7|8 —— 默认 4(ROUND_HALF_UP)",
+      "operations?": "{op:'plus'|'minus'|'times'|'dividedBy'|'pow',operand:string|number}[] —— 默认 []",
+      "decimal_places?": "integer >= 0 —— 默认省略,不额外调用 toDecimalPlaces"
+    }
+  },
+  "provides": {
+    "shape": "compute-engine",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;纯 JS 十进制计算层。",
+    "outputs": "Decimal 实例及其无指数/指数十进制字符串,可喂给金额展示、复利序列或图表数据。",
+    "api_surface": {
+      "construct": "new Decimal(value)",
+      "chain": "x.plus(y).minus(z).times(k).dividedBy(d).pow(n)",
+      "round": "x.toDecimalPlaces(dp, roundingMode)",
+      "isolate_config": "Decimal.clone({ precision, rounding })"
+    }
+  },
+  "peer": {
+    "note": "本条只保证十进制计算;金额格式化可交给 currency-js,图形展示交给消费数据序列的组件。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS,clone 避免污染同页其他 Decimal 使用者\nimport Decimal from 'https://cdn.jsdelivr.net/npm/decimal.js@10/+esm';\nconst D = Decimal.clone({ precision: data.precision ?? 20, rounding: data.rounding ?? Decimal.ROUND_HALF_UP });\nlet result = new D(data.value);\nfor (const step of data.operations ?? []) result = result[step.op](step.operand);\nif (data.decimal_places !== undefined) result = result.toDecimalPlaces(data.decimal_places);\nconst output = result.toString();",
+    "note": "step.op 必须按 schema 白名单校验后再作属性访问;舍入是领域规则,不要仅靠最终显示层 toFixed 掩盖中间误差。"
+  }
+}

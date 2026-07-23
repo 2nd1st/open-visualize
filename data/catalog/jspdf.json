@@ -1,0 +1,112 @@
+{
+  "entry_version": "thin-1",
+  "id": "jspdf",
+  "name": "jsPDF",
+  "when_to_use": "需要在浏览器按绝对坐标生成票据、证书、标签或固定版式 PDF Blob 时用它而非手写 PDF 字节，因为原生在对象表、xref、字体编码与多页文件封装上失败；非做自动流式排版、所见即所得编辑或复杂跨页表格。",
+  "why_valuable": "AI 默认做不到合法 PDF 二进制、xref/对象偏移、字体编码和跨页资源复用，只会产出 print CSS 或损坏文件；jsPDF 把难点收敛为可核对的页面几何与原生绘制调用。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "jspdf",
+    "version": "4.2.1",
+    "github": "parallax/jsPDF"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geometry",
+    "note": "document 是 boot 映射到 jsPDF 构造器、addPage、setFont/setFontSize/setTextColor 与 text 的裁剪几何；x/y 使用 document.unit，坐标原点在页面左上。",
+    "schema": {
+      "document": {
+        "orientation?": "'portrait' | 'landscape' —— 默认 portrait",
+        "unit?": "'pt' | 'mm' | 'cm' | 'in' | 'px' | 'pc' | 'em' | 'ex' —— 默认 mm",
+        "format?": "'a4' | 'a3' | 'letter' | [width,height] —— 默认 a4",
+        "compress?": "boolean —— 默认 false",
+        "putOnlyUsedFonts?": "boolean —— 默认 false",
+        "pages": [
+          {
+            "_defaults": "texts 默认 []，即合法空白页",
+            "texts?": [
+              {
+                "text": "string | string[] —— 多行可传 string[]",
+                "x": "number —— document.unit",
+                "y": "number —— document.unit",
+                "font?": "string —— 默认 helvetica",
+                "fontStyle?": "'normal' | 'bold' | 'italic' | 'bolditalic' —— 默认 normal",
+                "fontSize?": "positive number points —— 默认 16",
+                "color?": "CSS hex color string —— 默认 '#000000'",
+                "options?": {
+                  "_default": "{} —— 左对齐、不旋转、不约束最大宽度",
+                  "align?": "'left' | 'center' | 'right' | 'justify' —— 默认 left",
+                  "angle?": "number degrees —— 默认 0",
+                  "maxWidth?": "non-negative number，单位同 document.unit —— 默认 0，表示不约束"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "filename?": "string，以 .pdf 结尾 —— 默认 document.pdf；仅供消费端下载命名，boot 本身只返回 Blob"
+    }
+  },
+  "spec": {
+    "height": 640,
+    "note": "headless 生成本身不占 DOM 高度；若消费端把 Blob 放入 iframe 预览，默认给预览容器显式 640px 高并禁用 vh/百分比高，PDF 纸张几何仍由 document.format/orientation 决定。"
+  },
+  "provides": {
+    "shape": "document-output",
+    "_note": "headless-primitive：不直接渲染、无 L 级、无 carriers；boot 只生成 Blob，是否预览或下载由消费端决定。",
+    "outputs": "PDF Blob；原生 doc.output('arraybuffer') 还可给 ArrayBuffer，doc.output('bloburl') 可给临时 URL。",
+    "api_surface": {
+      "construct": "const doc = new jsPDF({orientation,unit,format,compress,putOnlyUsedFonts})",
+      "page": "doc.addPage()",
+      "text": "doc.setFont(...); doc.setFontSize(...); doc.setTextColor(...); doc.text(text,x,y,options)",
+      "finish": "const blob = doc.output('blob')"
+    }
+  },
+  "peer": {
+    "note": "Blob 可交给 PDF iframe/查看器或原生下载链接；预览容器、文件命名与点击动作由消费 AI 处理，本条不规定上行或事件出口。"
+  },
+  "boot": {
+    "shared": "// 三载体一致：按裁剪几何调用 jsPDF 原生 API，只产 Blob\nimport { jsPDF } from 'https://cdn.jsdelivr.net/npm/jspdf@4/+esm';\nconst d=data.document, doc=new jsPDF({orientation:d.orientation??'portrait',unit:d.unit??'mm',format:d.format??'a4',compress:d.compress??false,putOnlyUsedFonts:d.putOnlyUsedFonts??false});\nfor (const [i,p] of d.pages.entries()) { if(i) doc.addPage(); for(const t of p.texts??[]) { doc.setFont(t.font??'helvetica',t.fontStyle??'normal'); doc.setFontSize(t.fontSize??16); doc.setTextColor(t.color??'#000000'); doc.text(t.text,t.x,t.y,t.options??{}); } }\nconst blob = doc.output('blob');",
+    "note": "保守裁剪只示范文字几何；图片、矢量路径、表单与自定义字体须由消费 AI 查 4.x 原生 API 后追加，不把不确定签名塞进本条。"
+  },
+  "example": {
+    "_why": "页面数组、构造单位与文字坐标容易错层，minimal 用一页 A4/mm 文本钉死真实调用顺序。",
+    "minimal": {
+      "document": {
+        "orientation": "portrait",
+        "unit": "mm",
+        "format": "a4",
+        "pages": [
+          {
+            "texts": [
+              {
+                "text": "Certificate of completion",
+                "x": 105,
+                "y": 40,
+                "font": "helvetica",
+                "fontStyle": "bold",
+                "fontSize": 20,
+                "color": "#111827",
+                "options": {
+                  "align": "center"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "filename": "certificate.pdf"
+    },
+    "empty": {
+      "document": {
+        "pages": [
+          {
+            "texts": []
+          }
+        ]
+      },
+      "filename": "document.pdf"
+    }
+  }
+}

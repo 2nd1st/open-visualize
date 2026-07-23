@@ -1,0 +1,98 @@
+{
+  "entry_version": "thin-1",
+  "id": "xstate",
+  "name": "XState",
+  "when_to_use": "需要真实执行带 guard、嵌套状态和事件序列的 statechart 时用它,而非只画状态图——原生静态图在转移判定、上下文变化与可回放快照上失败。",
+  "why_valuable": "AI 默认只能描述或画出状态机,不能可靠执行 guard、嵌套/并行状态与事件序列,也会臆测被拒绝转移后的状态；XState 产出确定的 actor snapshot 和转移轨迹。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "xstate",
+    "version": "5.32.5",
+    "github": "statelyai/xstate"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "data_in.machine 直接传给 XState v5 createMachine；事件对象必须至少有 type 字符串,其余字段为领域载荷,不预设统一事件词表。",
+    "schema": {
+      "machine": {
+        "id?": "string —— 机器 id,默认 '(machine)'",
+        "initial": "string —— 必须命中 states 的一个顶层 key",
+        "context?": "object —— 初始上下文,默认 {}",
+        "states": {
+          "<state key>": {
+            "type?": "'atomic' | 'compound' | 'parallel' | 'final' | 'history' —— 默认由是否有子 states 推断,叶节点为 atomic",
+            "initial?": "string —— 子 states 的初态；无子 states 时默认无,compound 且有子 states 时必填",
+            "states?": "同层 states map —— 子状态,默认无",
+            "on?": {
+              "<event type>": "target string | { target?: string（默认无目标）, guard?: string|function（默认无）, actions?: string|function|(string|function)[]（默认 []） }"
+            }
+          }
+        }
+      },
+      "implementations?": "{ guards?: Record<string,function>（默认 {}）, actions?: Record<string,function>（默认 {}）, actors?: Record<string,actorLogic>（默认 {}）, delays?: Record<string,number|function>（默认 {}） } —— createMachine 第二参数,整体默认 {}",
+      "events?": "{ type: string, [key: string]: unknown }[] —— 按顺序回放,默认 []"
+    }
+  },
+  "provides": {
+    "shape": "state-snapshot",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵；它是真执行引擎,不是 statechart 画图器。",
+    "outputs": "每步 snapshot 的 {value, context, status} / 按输入事件排序的转移轨迹 / 当前 actor",
+    "api_surface": {
+      "machine": "createMachine(data.machine)",
+      "actor": "createActor(machine); actor.subscribe(listener); actor.start()",
+      "drive": "actor.send({type:'DOMAIN_EVENT', ...payload})",
+      "inspect": "actor.getSnapshot() → {value, context, status, ...}"
+    }
+  },
+  "peer": {
+    "note": "状态节点图、时间 scrubber 与 guard 解释面板是消费者；本条只提供可执行快照,消费 AI 自己把 snapshot 映射到任意可视化组件。"
+  },
+  "boot": {
+    "shared": "import { createActor, createMachine } from 'https://cdn.jsdelivr.net/npm/xstate@5/+esm';\nconst machine = createMachine(data.machine, data.implementations ?? {});\nconst actor = createActor(machine);\nconst trace = [];\nactor.subscribe(s => trace.push({ value: s.value, context: s.context, status: s.status }));\nactor.start();\nfor (const event of data.events ?? []) actor.send(event);",
+    "note": "三载体一致:纯 JS、无 DOM/worker/wasm/uplink；named exports 已按 XState v5.32.5 的 ESM 入口校对。"
+  },
+  "example": {
+    "_why": "statechart config 深嵌套且 target 记法高歧义,给一个最小可执行对象以校准 createMachine 的真实输入。",
+    "minimal": {
+      "machine": {
+        "id": "lesson",
+        "initial": "idle",
+        "context": {},
+        "states": {
+          "idle": {
+            "on": {
+              "BEGIN": "running"
+            }
+          },
+          "running": {
+            "on": {
+              "FINISH": "done"
+            }
+          },
+          "done": {
+            "type": "final"
+          }
+        }
+      },
+      "events": [
+        {
+          "type": "BEGIN"
+        },
+        {
+          "type": "FINISH"
+        }
+      ]
+    },
+    "empty": {
+      "machine": {
+        "initial": "idle",
+        "states": {
+          "idle": {}
+        }
+      },
+      "events": []
+    }
+  }
+}

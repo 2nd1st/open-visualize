@@ -1,0 +1,95 @@
+{
+  "entry_version": "thin-1",
+  "id": "kaplay",
+  "name": "KAPLAY",
+  "when_to_use": "需要在几十行内做出带碰撞、重力、键盘输入和游戏循环的 2D 可玩 demo 时用它而非手写 canvas，因为原生在稳定帧循环、碰撞求解、输入状态与场景清理上失败；非做 3D、联网同步或大型资产管线。",
+  "why_valuable": "AI 默认只能画一帧 canvas 或拼脆弱的 requestAnimationFrame，做不到一致的 delta-time、碰撞体、重力落地、输入绑定和对象生命周期；KAPLAY 用小 API 面把这些高故障能力闭环。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "kaplay",
+    "version": "3001.0.19",
+    "github": "kaplayjs/kaplay"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geometry",
+    "note": "scene 是 boot 映射到 KAPLAY 原生 pos/rect/color/area/body 与输入 API 的裁剪场景几何；颜色为 RGB 三元组，坐标与尺寸均为游戏逻辑像素。",
+    "schema": {
+      "scene": {
+        "_defaults": "platforms 默认 []；其余可选字段默认值逐项见下。",
+        "width?": "positive integer —— 默认 640",
+        "background?": "[r,g,b]，每项 integer 0..255 —— 默认 [18,24,38]",
+        "gravity?": "non-negative number —— 默认 1600；0 表示关闭下落加速度",
+        "player?": {
+          "_default": "省略则只渲染平台，不创建可控角色",
+          "x?": "number —— 默认 80",
+          "y?": "number —— 默认 80",
+          "width?": "positive number —— 默认 28",
+          "height?": "positive number —— 默认 28",
+          "color?": "[r,g,b] —— 默认 [255,198,66]",
+          "speed?": "non-negative number pixels/second —— 默认 260",
+          "jumpForce?": "non-negative number —— 默认 560"
+        },
+        "platforms?": [
+          {
+            "x": "number",
+            "y": "number",
+            "width": "positive number",
+            "height": "positive number",
+            "color?": "[r,g,b] —— 默认 [66,76,96]"
+          }
+        ]
+      }
+    }
+  },
+  "spec": {
+    "height": 360,
+    "note": "KAPLAY canvas 必须有明确像素视口；boot 默认逻辑宽 640px、高 360px并以 stretch+letterbox 适配容器，铁律 3 禁 vh/百分比高，AI 可用 spec.height 覆盖高度。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:显式 canvas，KAPLAY 不接管 document.body\nimport kaplay from 'https://cdn.jsdelivr.net/npm/kaplay@3001/+esm';\nconst host = document.getElementById('game'); host.style.height = `${spec.height ?? 360}px`;\nconst canvas = document.createElement('canvas'); host.appendChild(canvas);\nconst s = data.scene, k = kaplay({global:false, canvas, width:s.width ?? 640, height:spec.height ?? 360, stretch:true, letterbox:true, background:s.background ?? [18,24,38]});\nk.setGravity(s.gravity ?? 1600); for (const p of s.platforms ?? []) k.add([k.pos(p.x,p.y),k.rect(p.width,p.height),k.color(...(p.color ?? [66,76,96])),k.area(),k.body({isStatic:true})]);\nif (s.player) { const p=s.player, o=k.add([k.pos(p.x??80,p.y??80),k.rect(p.width??28,p.height??28),k.color(...(p.color??[255,198,66])),k.area(),k.body()]); k.onKeyDown('left',()=>o.move(-(p.speed??260),0)); k.onKeyDown('right',()=>o.move(p.speed??260,0)); k.onKeyPress('space',()=>{if(o.isGrounded())o.jump(p.jumpForce??560);}); }",
+    "widget": "// canvas 与全部绘制落在 shadowRoot 容器\nimport kaplay from 'https://cdn.jsdelivr.net/npm/kaplay@3001/+esm';\nconst host = document.createElement('div'); host.style.height = `${spec.height ?? 360}px`; const canvas = document.createElement('canvas'); host.appendChild(canvas); shadowRoot.appendChild(host);\nconst s = data.scene, k = kaplay({global:false, canvas, width:s.width ?? 640, height:spec.height ?? 360, stretch:true, letterbox:true, background:s.background ?? [18,24,38]});\nk.setGravity(s.gravity ?? 1600); for (const p of s.platforms ?? []) k.add([k.pos(p.x,p.y),k.rect(p.width,p.height),k.color(...(p.color ?? [66,76,96])),k.area(),k.body({isStatic:true})]);\nif (s.player) { const p=s.player, o=k.add([k.pos(p.x??80,p.y??80),k.rect(p.width??28,p.height??28),k.color(...(p.color??[255,198,66])),k.area(),k.body()]); k.onKeyDown('left',()=>o.move(-(p.speed??260),0)); k.onKeyDown('right',()=>o.move(p.speed??260,0)); k.onKeyPress('space',()=>{if(o.isGrounded())o.jump(p.jumpForce??560);}); }",
+    "codex": "import kaplay from 'https://cdn.jsdelivr.net/npm/kaplay@3001/+esm';\nconst host = document.getElementById('game'); host.style.height = `${spec.height ?? 360}px`; const canvas = document.createElement('canvas'); host.appendChild(canvas);\nconst s = data.scene, k = kaplay({global:false, canvas, width:s.width ?? 640, height:spec.height ?? 360, stretch:true, letterbox:true, background:s.background ?? [18,24,38]});\nk.setGravity(s.gravity ?? 1600); for (const p of s.platforms ?? []) k.add([k.pos(p.x,p.y),k.rect(p.width,p.height),k.color(...(p.color ?? [66,76,96])),k.area(),k.body({isStatic:true})]);\nif (s.player) { const p=s.player, o=k.add([k.pos(p.x??80,p.y??80),k.rect(p.width??28,p.height??28),k.color(...(p.color??[255,198,66])),k.area(),k.body()]); k.onKeyDown('left',()=>o.move(-(p.speed??260),0)); k.onKeyDown('right',()=>o.move(p.speed??260,0)); k.onKeyPress('space',()=>{if(o.isGrounded())o.jump(p.jumpForce??560);}); }"
+  },
+  "example": {
+    "_why": "游戏场景同时跨几何、物理组件与输入 API，属高歧义 programmed config，minimal 钉死坐标、平台与角色的层次。",
+    "minimal": {
+      "scene": {
+        "width": 640,
+        "background": [18, 24, 38],
+        "gravity": 1600,
+        "player": {
+          "x": 80,
+          "y": 240,
+          "width": 28,
+          "height": 28,
+          "color": [255, 198, 66],
+          "speed": 260,
+          "jumpForce": 560
+        },
+        "platforms": [
+          {
+            "x": 0,
+            "y": 330,
+            "width": 640,
+            "height": 30,
+            "color": [66, 76, 96]
+          }
+        ]
+      }
+    },
+    "empty": {
+      "scene": {
+        "platforms": []
+      }
+    }
+  },
+  "uplink": "本条只提供本地游戏循环；得分回传、遥测或宿主消息由消费 AI 按载体直接接 KAPLAY 原生回调，不建立统一事件契约。",
+  "carriers": {
+    "artifact": "inferred-not-tested:ESM CDN + canvas + requestAnimationFrame + 键盘事件",
+    "widget": "supported:显式 canvas 落 shadowRoot，KAPLAY global=false，不注入 document.head、外部 CSS、图片或字体",
+    "codex": "supported:ESM CDN + canvas + requestAnimationFrame；默认示例不要求 worker、音频或远程资产"
+  }
+}

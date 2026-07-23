@@ -1,0 +1,61 @@
+{
+  "entry_version": "thin-1",
+  "id": "gitgraph-js",
+  "name": "@gitgraph/js",
+  "when_to_use": "需要讲清多分支、提交与合并拓扑时用它,而非手写 SVG——原生手写在分支泳道布局、交叉合并边线和提交标签对齐上会失败。非做通用网络图,也非读取真实 Git 仓库。",
+  "why_valuable": "AI 默认只能把简单三分支手绘到约 70%;复杂 merge/rebase 拓扑会错线、错父子关系,而库用 branch/commit/merge 原生 API 确定性排布 SVG。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@gitgraph/js",
+    "version": "1.4.0",
+    "github": "nicoespeon/gitgraph.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "graph",
+    "note": "commands 必须按拓扑顺序给出:先建父分支,再提交或建子分支,最后合并/打标签;这是对上游 branch/commit/merge/tag 调用序列的裁剪表达,不是通用图 schema。",
+    "schema": {
+      "commands": [
+        {
+          "kind": "'branch' | 'commit' | 'merge' | 'tag'",
+          "branch-when-kind-is-branch": "{ name:string, from?:string —— from 省略时默认从 gitgraph 根创建 }",
+          "commit-when-kind-is-commit": "{ branch:string, subject:string }",
+          "merge-when-kind-is-merge": "{ into:string, from:string }",
+          "tag-when-kind-is-tag": "{ branch:string, name:string }"
+        }
+      ]
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "几何图容器默认显式高 400px并允许滚动,禁用 vh/百分比高(铁律 3);上游 SVG 仍按内容给 intrinsic size,长历史不会被强行压扁。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:H0 探针未闭合;上游原生 SVG API\nimport { createGitgraph } from 'https://cdn.jsdelivr.net/npm/@gitgraph/js@1/+esm';\nconst el = document.getElementById('gitgraph'); el.style.cssText = 'height:400px;overflow:auto';\nconst graph = createGitgraph(el); const branches = new Map();\nfor (const c of data.commands) if (c.kind === 'branch') branches.set(c.name, c.from ? branches.get(c.from).branch(c.name) : graph.branch(c.name)); else if (c.kind === 'commit') branches.get(c.branch).commit(c.subject); else if (c.kind === 'merge') branches.get(c.into).merge(branches.get(c.from)); else branches.get(c.branch).tag(c.name);",
+    "widget": "// 落到 shadow 容器;库只在传入容器内生成 SVG\nimport { createGitgraph } from 'https://cdn.jsdelivr.net/npm/@gitgraph/js@1/+esm';\nconst el = document.createElement('div'); el.style.cssText = 'height:400px;overflow:auto'; shadowRoot.appendChild(el);\nconst graph = createGitgraph(el); const branches = new Map();\nfor (const c of data.commands) if (c.kind === 'branch') branches.set(c.name, c.from ? branches.get(c.from).branch(c.name) : graph.branch(c.name)); else if (c.kind === 'commit') branches.get(c.branch).commit(c.subject); else if (c.kind === 'merge') branches.get(c.into).merge(branches.get(c.from)); else branches.get(c.branch).tag(c.name);",
+    "codex": "// sandbox iframe fragment\nimport { createGitgraph } from 'https://cdn.jsdelivr.net/npm/@gitgraph/js@1/+esm';\nconst el = document.getElementById('gitgraph'); el.style.cssText = 'height:400px;overflow:auto';\nconst graph = createGitgraph(el); const branches = new Map();\n// 按 data.commands 顺序调用 branch/commit/merge/tag,同 artifact。"
+  },
+  "example": {
+    "_why": "提交 DAG 属高歧义时序配置;minimal 固定命令顺序,让 AI 一次拼对分叉与合并。",
+    "minimal": {
+      "commands": [
+        { "kind": "branch", "name": "main" },
+        { "kind": "commit", "branch": "main", "subject": "init" },
+        { "kind": "branch", "name": "feature", "from": "main" },
+        { "kind": "commit", "branch": "feature", "subject": "feature work" },
+        { "kind": "merge", "into": "main", "from": "feature" },
+        { "kind": "tag", "branch": "main", "name": "v1.0.0" }
+      ]
+    },
+    "empty": {
+      "commands": []
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:原生 SVG 仅挂入传入的 shadow 容器,无 document.head/CSS/worker/wasm 足迹",
+    "codex": "supported:ESM CDN + DOM/SVG,无 uplink 需求"
+  }
+}

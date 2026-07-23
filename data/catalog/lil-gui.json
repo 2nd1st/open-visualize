@@ -1,0 +1,45 @@
+{
+  "entry_version": "thin-1",
+  "id": "lil-gui",
+  "name": "lil-gui",
+  "when_to_use": "需要用紧凑面板实时调数值、布尔、颜色和枚举参数时用它而非手写,因为原生在 controller 类型推断、嵌套 folder 与一致的微调布线上失败;非做业务长表单。",
+  "why_valuable": "AI 默认只能拼散落的 range/checkbox,做不到稳定的对象绑定、控制器类型推断、folder 收纳和统一数值步进;lil-gui 让当前值始终留在同一个 params 对象。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "lil-gui",
+    "version": "0.21.0",
+    "github": "georgealways/lil-gui"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "params 是被 lil-gui 原地绑定的对象;controllers 只描述调用 gui.add 所需的键与约束,回调和上行由消费 AI 自行接。",
+    "schema": {
+      "params": "Record<string, number|string|boolean> —— 每个 controllers[].key 必须存在",
+      "controllers": [
+        {
+          "key": "string",
+          "label?": "string —— 默认使用 key",
+          "min?": "number —— 默认无显式下界",
+          "max?": "number —— 默认无显式上界",
+          "step?": "number —— 默认由上游按当前值推断",
+          "options?": "string[] | number[] | Record<string,string|number> —— 默认省略并按 params[key] 类型选控件"
+        }
+      ],
+      "title?": "string —— 默认 'Controls'",
+      "closed?": "boolean —— 默认 false"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:固定 CSS 明确落 artifact document.head,并关闭上游自动注入\nimport GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0/+esm';\nconst css = Object.assign(document.createElement('link'), { rel:'stylesheet', href:'https://cdn.jsdelivr.net/npm/lil-gui@0.21.0/dist/lil-gui.css' }); document.head.appendChild(css);\nconst gui = new GUI({ container: document.getElementById('gui'), title: data.title ?? 'Controls', injectStyles: false });\nfor (const d of data.controllers) { const c = d.options ? gui.add(data.params, d.key, d.options) : gui.add(data.params, d.key, d.min, d.max, d.step); if (d.label) c.name(d.label); }\nif (data.closed ?? false) gui.close();",
+    "widget": "// CSS 必须进 shadow(铁律 2);injectStyles:false 阻止 lil-gui 写 document.head\nimport GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0/+esm';\nconst css = Object.assign(document.createElement('link'), { rel:'stylesheet', href:'https://cdn.jsdelivr.net/npm/lil-gui@0.21.0/dist/lil-gui.css' }); shadowRoot.appendChild(css);\nconst el = document.createElement('div'); shadowRoot.appendChild(el);\nconst gui = new GUI({ container: el, title: data.title ?? 'Controls', injectStyles: false });\nfor (const d of data.controllers) { const c = d.options ? gui.add(data.params, d.key, d.options) : gui.add(data.params, d.key, d.min, d.max, d.step); if (d.label) c.name(d.label); }\nif (data.closed ?? false) gui.close();",
+    "codex": "同 artifact(sandbox iframe):CSS link 进 iframe head,GUI({container,injectStyles:false}) 后按 controllers 调原生 gui.add。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:节点与 pinned CSS link 都落 shadowRoot,injectStyles:false 阻断默认 document.head 注入",
+    "codex": "supported:ESM + 固定 CSS,无 worker/wasm/uplink 依赖"
+  }
+}

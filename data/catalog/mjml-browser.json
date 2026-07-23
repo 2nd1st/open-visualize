@@ -1,0 +1,44 @@
+{
+  "entry_version": "thin-1",
+  "id": "mjml-browser",
+  "name": "mjml-browser",
+  "when_to_use": "需要在浏览器把 MJML 源码编译为兼容 Outlook 等邮件客户端的完整 HTML 时用它而非手写,因为原生在表格降级、条件注释、CSS 内联和客户端差异上失败;非做邮件投递或真实客户端截图测试。",
+  "why_valuable": "AI 默认会写普通网页 HTML,却做不到 Outlook 条件注释、嵌套 table fallback、媒体查询与 CSS 内联的联合约束;MJML 编译器把 AI 稳定会写的标记转换成邮件安全 HTML。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "mjml-browser",
+    "version": "5.4.0",
+    "github": "mjmlio/mjml"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "note": "mjml 必须是完整 <mjml><mj-head>…</mj-head><mj-body>…</mj-body></mjml> 字符串;browser build 不支持 mj-include 与 .mjmlconfig 自定义组件。",
+    "_why_no_example": "MJML 是 AI 原生标记语言,schema 足以校准根结构,不附 minimal example。",
+    "schema": {
+      "mjml": "string —— 完整 MJML 文档,不能只传 mj-section 片段",
+      "options?": {
+        "_default": "未提供时使用上游编译默认",
+        "validationLevel?": "'strict' | 'soft' | 'skip' —— 默认 'soft'",
+        "minify?": "boolean —— 默认 false",
+        "keepComments?": "boolean —— 默认 true"
+      }
+    }
+  },
+  "provides": {
+    "shape": "html-document",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers;输出由消费端放入邮件预览 iframe或交给发送链路。",
+    "outputs": "{html:string,errors:Array<{line:number,message:string,tagName?:string}>} —— html 是含 doctype/head/body 的完整邮件文档",
+    "api_surface": {
+      "compile": "const { html, errors } = mjml2html(data.mjml, data.options ?? {})"
+    }
+  },
+  "peer": {
+    "note": "消费者通常是隔离 iframe 预览或邮件发送服务;本条只负责 MJML→HTML,不代表 Gmail/Outlook 真机一致性。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯编译,预览容器由消费 AI 自己创建\nimport mjml2html from 'https://cdn.jsdelivr.net/npm/mjml-browser@5/+esm';\nconst result = mjml2html(data.mjml, data.options ?? {});\nconst html = result.html;\nconst diagnostics = result.errors;",
+    "note": "已核对 5.4.0 的 jsDelivr +esm 默认导出为 mjml2html,另有具名 mjml。browser build 明确忽略 mj-include 且不读 .mjmlconfig。"
+  }
+}

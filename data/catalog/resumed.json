@@ -1,0 +1,39 @@
+{
+  "entry_version": "thin-1",
+  "id": "resumed",
+  "name": "resumed",
+  "when_to_use": "需要以 JSON Resume 数据和主题生态稳定生成简历 HTML 时应在完成浏览器 fork 后用它而非手写模板，因为原生在 schema 一致性、信息密度和打印主题复用上失败；当前条目非可直接消费组件。",
+  "why_valuable": "AI 默认会写一次性简历 HTML，但做不到长期保持 JSON Resume schema、主题可替换性和打印密度；resumed 提供标准数据入口，但其 6.1.0 发布物仍是 Node 管线。",
+  "supply_form": "app-needs-fork",
+  "mode": "our-entry",
+  "upstream": {
+    "npm": "resumed",
+    "version": "6.1.0",
+    "github": "rbardini/resumed"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "fork 的输入必须保持 JSON Resume 对象 + 已固定的浏览器安全主题，不把主题动态模块解析暴露给数据层。",
+    "schema": {
+      "resume": {
+        "basics?": "{name?:string,label?:string,email?:string,phone?:string,url?:string,summary?:string,location?:object,profiles?:object[]} —— 默认省略",
+        "work?": "{name?:string,position?:string,url?:string,startDate?:string,endDate?:string,summary?:string,highlights?:string[]}[] —— 默认 []",
+        "volunteer?": "object[] —— 默认 []",
+        "education?": "{institution?:string,url?:string,area?:string,studyType?:string,startDate?:string,endDate?:string,score?:string,courses?:string[]}[] —— 默认 []",
+        "awards?": "object[] —— 默认 []",
+        "certificates?": "object[] —— 默认 []",
+        "publications?": "object[] —— 默认 []",
+        "skills?": "{name?:string,level?:string,keywords?:string[]}[] —— 默认 []",
+        "languages?": "{language?:string,fluency?:string}[] —— 默认 []",
+        "interests?": "object[] —— 默认 []",
+        "references?": "object[] —— 默认 []",
+        "projects?": "object[] —— 默认 []",
+        "meta?": "{canonical?:string,version?:string,lastModified?:string} —— 默认省略"
+      },
+      "theme": "{render:(resume)=>string|Promise<string>} —— fork 构建时固定并注入，运行时必填"
+    }
+  },
+  "status": "blocked-until-forked",
+  "fork_note": "resumed@6.1.0 的 dist/index.js 直接导入 node:fs/promises、node:path、node:util、node:module，主题靠运行时动态 import，PDF 路径依赖 Puppeteer；jsDelivr 的 /npm/resumed@6/+esm 当前返回 500。需 fork 出浏览器专用入口：只保留 render(resume, fixedTheme)，移除 CLI/文件系统/Puppeteer/任意主题解析，并发布稳定 ESM + mount 后才能升为可消费条目。"
+}

@@ -1,0 +1,72 @@
+{
+  "entry_version": "thin-1",
+  "id": "survey-core",
+  "name": "SurveyJS Core",
+  "when_to_use": "需要从题目 JSON 得到条件显隐、校验状态与紧凑答案对象时用它,而非手写表单状态机——原生在跨页条件、校验依赖和结果一致性上失败;本条只做模型,非做 UI 渲染或长表单页面。",
+  "why_valuable": "AI 默认能写短表单 HTML,但做不到可复用的条件逻辑、跨题校验、分页状态与答案模型一致性;SurveyJS Core 把这些收敛为确定性 Model 和 key-value 结果。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": { "npm": "survey-core", "version": "2.5.35", "github": "surveyjs/survey-library" },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "输入是 SurveyJS survey JSON 与可选答案对象;本条不接受 JSON Schema,题目字段名是 name 而非 key。",
+    "schema": {
+      "survey": {
+        "title?": "string —— 默认空标题",
+        "pages": [
+          {
+            "name": "string —— 页唯一名",
+            "elements": [
+              {
+                "type": "'text'|'comment'|'radiogroup'|'checkbox'|'dropdown'|'boolean'|'rating'|'matrix'|'expression'",
+                "name": "string —— 答案对象中的键",
+                "title?": "string —— 默认使用 name",
+                "isRequired?": "boolean —— 默认 false",
+                "choices?": "(string | {value:string|number,text:string})[] —— 默认空数组,仅选择题型使用",
+                "visibleIf?": "string —— 默认始终可见;SurveyJS 表达式,如 \"{age} >= 18\""
+              }
+            ]
+          }
+        ]
+      },
+      "answers?": "Record<string, unknown> —— 默认 {}"
+    }
+  },
+  "provides": {
+    "shape": "survey-model",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;它生产 UI renderer 可消费的模型和校验后的 key-value 数据。",
+    "outputs": "SurveyJS Model / survey.data 答案对象 / validate() 布尔结果 / 条件显隐与分页状态",
+    "api_surface": {
+      "construct": "new Model(data.survey)",
+      "seed_answers": "survey.data = data.answers ?? {}",
+      "validate": "survey.validate() → boolean",
+      "read_result": "survey.data → Record<string, unknown>"
+    }
+  },
+  "peer": {
+    "npm": "survey-js-ui",
+    "note": "需要 vanilla HTML/CSS UI 时由 survey-js-ui 消费本模型;也可配 survey-react-ui、survey-vue3-ui 或 survey-angular-ui。本条故意不冒充 renderer。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯模型层,无 shadow/CSS/uplink 依赖\nimport { Model } from 'https://cdn.jsdelivr.net/npm/survey-core@2/+esm';\nconst survey = new Model(data.survey);\nsurvey.data = data.answers ?? {};\nconst valid = survey.validate();\nconst result = { answers: survey.data, valid };",
+    "note": "validate() 对同步规则返回 boolean;若题目使用异步校验函数,须按上游回调参数处理,这里不假装同步闭环。"
+  },
+  "example": {
+    "_why": "SurveyJS 题目 JSON 是深 config,name/type/choices/visibleIf 高歧义,故保留最小校准样例。",
+    "minimal": {
+      "survey": {
+        "pages": [
+          {
+            "name": "main",
+            "elements": [
+              { "type": "radiogroup", "name": "plan", "title": "选择方案", "isRequired": true, "choices": ["A", "B"] }
+            ]
+          }
+        ]
+      },
+      "answers": {}
+    },
+    "empty": { "survey": { "pages": [] }, "answers": {} }
+  }
+}

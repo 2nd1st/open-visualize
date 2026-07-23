@@ -1,0 +1,44 @@
+{
+  "entry_version": "thin-1",
+  "id": "nerdamer",
+  "name": "Nerdamer",
+  "when_to_use": "需要可复算的代数化简、展开、因式分解、符号微积分或方程求解时用它而非手写,因为原生 AI 心算在长表达式的符号等价性和一致性上会失败。",
+  "why_valuable": "AI 默认会间歇性漏项、错符号且无法保证两次推导一致；Nerdamer 提供可执行的符号结果,让化简、微积分和解方程逐项可验。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "nerdamer",
+    "version": "1.1.13",
+    "github": "jiggzson/nerdamer"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "expression",
+    "note": "输入钉死为 Nerdamer 表达式字符串与可选变量替换表；符号运算通过返回的 Symbol API 或 all.min 暴露的原生函数执行。",
+    "schema": {
+      "expression": "string —— Nerdamer 语法表达式或等式",
+      "variables?": "Record<string, string | number> —— 变量替换,默认 {}",
+      "variable?": "string —— 微积分或单变量求解的变量名,默认 'x'"
+    }
+  },
+  "provides": {
+    "shape": "symbolic-result",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵；all.min 入口包含 Algebra/Calculus/Solve/Extra 模块。",
+    "outputs": "规范化符号字符串、展开/因式分解结果、导数/不定积分表达式或方程解数组；可回显,也可采样后喂给函数图。",
+    "api_surface": {
+      "evaluate": "nerdamer(expression, variables).text() → 规范化字符串",
+      "expand": "nerdamer(expression, variables).expand().text() → 展开式",
+      "differentiate": "nerdamer(expression, variables).differentiate(variable).text() → 导数",
+      "integrate": "nerdamer(expression, variables).integrate(variable).text() → 不定积分",
+      "solve": "nerdamer.solveEquations(expression, variable) → 解数组"
+    }
+  },
+  "peer": {
+    "id": "function-plot",
+    "note": "本条只算不渲；典型链是 Nerdamer 得到/验证表达式,再把表达式字符串交给 function-plot。"
+  },
+  "boot": {
+    "shared": "// 三载体一致：纯 JS、无 DOM/uplink/shadow 足迹\nimport nerdamer from 'https://cdn.jsdelivr.net/npm/nerdamer@1/all.min.js/+esm';\nconst symbol = nerdamer(data.expression, data.variables ?? {});\nconst result = symbol.text();\n// 需要特定运算时调用 provides.api_surface 中的原生方法",
+    "note": "必须导入 all.min.js/+esm；包根 +esm 只有 core,不保证 Algebra/Calculus/Solve 完整可用。"
+  }
+}

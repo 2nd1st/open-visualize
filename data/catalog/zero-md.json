@@ -1,0 +1,36 @@
+{
+  "entry_version": "thin-1",
+  "id": "zero-md",
+  "name": "zero-md",
+  "when_to_use": "需要把 AI 原生 Markdown 字符串直接渲成带一致排版、代码高亮、公式和 Mermaid 的隔离长文时用它而非手写 HTML,因为原生在 Markdown 解析、语法高亮与样式封装上失败。",
+  "why_valuable": "AI 默认能写 Markdown 但只能不稳定地改写成 HTML,做不到解析器边界、代码语言高亮、KaTeX/Mermaid 按需加载与 Shadow DOM 样式隔离;zero-md 把一条 notation string 直接变成完整文档视图。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "zero-md",
+    "version": "3.1.8",
+    "github": "zerodevx/zero-md"
+  },
+  "license": "ISC",
+  "data_in": {
+    "shape": "notation-string",
+    "note": "markdown 是原始 Markdown 文本,boot 会以 JS 创建的 script[type='text/markdown'] 子节点喂给组件;raw HTML 会被解析器保留,不可信内容须先净化。",
+    "_why_no_example": "Markdown 是 AI 原生记法且只有一个主字符串,schema 足矣、不附 minimal example;空字符串是合法空态。",
+    "schema": {
+      "markdown": "string —— 完整 Markdown 文档;空字符串合法",
+      "body_class?": "string —— 追加到内部 markdown-body 的 class,默认空字符串"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:导入类后显式注册;custom element 与 Markdown script 均用 JS 创建(铁律 4)\nimport ZeroMd from 'https://cdn.jsdelivr.net/npm/zero-md@3/+esm';\nif (!customElements.get('zero-md')) customElements.define('zero-md', ZeroMd);\nconst el = document.createElement('zero-md'); if (data.body_class) el.setAttribute('body-class', data.body_class);\nconst source = document.createElement('script'); source.type = 'text/markdown'; source.textContent = data.markdown; el.appendChild(source);\ndocument.getElementById('markdown').appendChild(el);",
+    "widget": "// 外层节点落 shadowRoot,zero-md 再用自己的 shadow 封装正文与样式(铁律 4)\nimport ZeroMd from 'https://cdn.jsdelivr.net/npm/zero-md@3/+esm';\nif (!customElements.get('zero-md')) customElements.define('zero-md', ZeroMd);\nconst el = document.createElement('zero-md'); if (data.body_class) el.setAttribute('body-class', data.body_class);\nconst source = document.createElement('script'); source.type = 'text/markdown'; source.textContent = data.markdown; el.appendChild(source);\nshadowRoot.appendChild(el);",
+    "codex": "// sandbox iframe 内显式注册并用 JS 挂载 custom element\nimport ZeroMd from 'https://cdn.jsdelivr.net/npm/zero-md@3/+esm';\nif (!customElements.get('zero-md')) customElements.define('zero-md', ZeroMd);\nconst el = document.createElement('zero-md'); if (data.body_class) el.setAttribute('body-class', data.body_class);\nconst source = document.createElement('script'); source.type = 'text/markdown'; source.textContent = data.markdown; el.appendChild(source);\ndocument.getElementById('markdown').appendChild(el);"
+  },
+  "uplink": "纯显示组件,默认无需上行;它非做 Markdown 编辑器、协作编辑器或表单提交器。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:自带 shadow 样式零足迹,但运行时会从 jsDelivr 动态加载 marked、highlight.js、KaTeX/Mermaid 及主题 CSS,宿主须放行这些网络资源",
+    "codex": "conditional:ESM/custom elements 可用;同样依赖 jsDelivr 动态模块与样式加载"
+  }
+}

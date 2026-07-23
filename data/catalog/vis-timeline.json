@@ -1,0 +1,116 @@
+{
+  "entry_version": "thin-1",
+  "id": "vis-timeline",
+  "name": "vis-timeline",
+  "when_to_use": "需要在长时间跨度里探索点事件与区间、按 group 排成泳道并缩放平移时用它而非手写 DOM/SVG,因为原生在区间堆叠、可视窗口命中检测和跨尺度时间刻度上失败。",
+  "why_valuable": "AI 默认只能产出静态 Mermaid 小甘特或位置脆弱的绝对定位 DOM;默认做不到长跨度缩放平移、区间防重叠堆叠、分组泳道与随窗口变化的时间刻度和命中检测。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "vis-timeline",
+    "version": "8.5.2",
+    "github": "visjs/vis-timeline"
+  },
+  "license": "(Apache-2.0 OR MIT)",
+  "data_in": {
+    "shape": "interval-set",
+    "note": "主结构是 interval-set:每个 item 以 start/end 表示点或区间;group 字段按 relational-ref 关联 groups[].id,start/end 是 temporal 值。下面只保留一次拼装所需的高频原生字段。",
+    "schema": {
+      "items": [
+        {
+          "id": "string | number",
+          "content": "string —— 时间轴上显示的短标签",
+          "start": "Date | ISO-8601 string | epoch-milliseconds",
+          "end?": "Date | ISO-8601 string | epoch-milliseconds —— 有 end 时为区间",
+          "group?": "string | number —— 对应 groups[].id",
+          "type?": "'box' | 'point' | 'range' | 'background'",
+          "className?": "string",
+          "title?": "string"
+        }
+      ],
+      "groups?": [
+        {
+          "id": "string | number",
+          "content": "string —— 泳道标签",
+          "order?": "number | string",
+          "className?": "string"
+        }
+      ],
+      "options?": {
+        "start?": "Date | ISO-8601 string | epoch-milliseconds —— 初始可视窗口起点",
+        "end?": "Date | ISO-8601 string | epoch-milliseconds —— 初始可视窗口终点",
+        "orientation?": "'top' | 'bottom' | 'both'",
+        "stack?": "boolean",
+        "zoomMin?": "number —— 最小可视跨度,毫秒",
+        "zoomMax?": "number —— 最大可视跨度,毫秒",
+        "cluster?": "boolean"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "时间轴的泳道堆叠与命中检测依赖稳定几何尺寸;容器与 Timeline options.height 均默认 400px。AI 可改为其他明确 px 高度,但禁用 vh/百分比高(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合前按此推断写\nimport { Timeline } from 'https://cdn.jsdelivr.net/npm/vis-timeline@8/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/vis-timeline@8/styles/vis-timeline-graph2d.min.css' });\ndocument.head.appendChild(css);\nconst el = document.getElementById('timeline'); el.style.height = '400px';\nconst options = { ...(data.options ?? {}), height: '400px' };\nconst timeline = data.groups?.length ? new Timeline(el, data.items, data.groups, options) : new Timeline(el, data.items, options);",
+    "widget": "// 样式与可视 DOM 都落 shadow 容器,不注入 document.head\nimport { Timeline } from 'https://cdn.jsdelivr.net/npm/vis-timeline@8/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/vis-timeline@8/styles/vis-timeline-graph2d.min.css' });\nconst el = document.createElement('div'); el.style.height = '400px';\nshadowRoot.append(css, el);\nconst options = { ...(data.options ?? {}), height: '400px' };\nconst timeline = data.groups?.length ? new Timeline(el, data.items, data.groups, options) : new Timeline(el, data.items, options);",
+    "codex": "// sandbox iframe fragment:原生 ESM + CSS + Timeline 构造器\nimport { Timeline } from 'https://cdn.jsdelivr.net/npm/vis-timeline@8/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/vis-timeline@8/styles/vis-timeline-graph2d.min.css' });\ndocument.head.appendChild(css);\nconst el = document.getElementById('timeline'); el.style.height = '400px';\nconst options = { ...(data.options ?? {}), height: '400px' };\nconst timeline = data.groups?.length ? new Timeline(el, data.items, data.groups, options) : new Timeline(el, data.items, options);"
+  },
+  "example": {
+    "_why": "时间轴的点/区间判定、group 引用与可视窗口 options 组合具有歧义,minimal example 用原生构造器输入形状消歧。",
+    "minimal": {
+      "items": [
+        {
+          "id": "build",
+          "content": "Build",
+          "start": "2026-07-21T09:00:00Z",
+          "end": "2026-07-23T17:00:00Z",
+          "group": "delivery"
+        },
+        {
+          "id": "release",
+          "content": "Release",
+          "start": "2026-07-24T10:00:00Z",
+          "group": "delivery",
+          "type": "point"
+        },
+        {
+          "id": "incident",
+          "content": "Incident",
+          "start": "2026-07-22T03:00:00Z",
+          "end": "2026-07-22T06:30:00Z",
+          "group": "ops"
+        }
+      ],
+      "groups": [
+        {
+          "id": "delivery",
+          "content": "Delivery"
+        },
+        {
+          "id": "ops",
+          "content": "Operations"
+        }
+      ],
+      "options": {
+        "orientation": "top",
+        "stack": true,
+        "zoomMin": 3600000,
+        "zoomMax": 2678400000
+      }
+    },
+    "empty": {
+      "items": [],
+      "groups": [],
+      "options": {
+        "stack": true
+      }
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:须把 vis-timeline CSS link 与挂载容器一并落入 shadowRoot;原生时间轴 DOM 留在容器内,无 document.head 样式注入",
+    "codex": "supported:ESM CDN + 外部 CSS + DOM 几何布局,无 uplink 需求"
+  }
+}

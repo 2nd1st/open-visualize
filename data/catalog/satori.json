@@ -1,0 +1,61 @@
+{
+  "entry_version": "thin-1",
+  "id": "satori",
+  "name": "Satori",
+  "when_to_use": "需要把固定尺寸的 React-like 元素树与 CSS 子集排成社交卡片、海报或 OG 图 SVG 时用它而非手写,因为原生在字体 shaping、自动换行、flex 几何和多语言排版上失败;非完整浏览器 CSS 或交互 DOM 渲染器。",
+  "why_valuable": "AI 默认可写死简单 SVG,但做不到根据文本长度、字重、字体度量与 flex 约束稳定计算每个 glyph 和盒子的坐标;Satori 把这类布局计算闭环为可复现 SVG。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "satori",
+    "version": "0.28.2",
+    "github": "vercel/satori"
+  },
+  "license": "MPL-2.0",
+  "license_note": "MPL-2.0 是文件级弱 copyleft;直接依赖通常不要求整个消费作品改为 MPL,但修改 Satori 自身文件时须保留对应义务。",
+  "data_in": {
+    "shape": "hierarchy",
+    "note": "element 精确吃 ReactNode 或 {type,props} 的 React-like 对象;不是 HTML 字符串。options 必须给固定像素 width/height 和至少一份可覆盖文本字符的字体 ArrayBuffer。",
+    "schema": {
+      "element": {
+        "type": "受支持 HTML 标签名或纯函数组件",
+        "props": {
+          "children?": "string | number | element | element[] —— 默认无子节点",
+          "style?": "Satori 支持的 CSS-in-JS 子集对象 —— 默认 {}",
+          "src?": "string | ArrayBuffer —— img 时使用;无图片时省略",
+          "width?": "number —— img 建议显式给;默认由布局计算",
+          "height?": "number —— img 建议显式给;默认由布局计算"
+        }
+      },
+      "options": {
+        "width": "number —— 输出 SVG 像素宽,必须 > 0",
+        "height": "number —— 输出 SVG 像素高,必须 > 0",
+        "fonts": [
+          {
+            "name": "string —— style.fontFamily 引用名",
+            "data": "ArrayBuffer —— TTF/OTF/WOFF 字体数据",
+            "weight": "100|200|300|400|500|600|700|800|900 —— 本裁剪 schema 要求显式给",
+            "style": "'normal'|'italic' —— 本裁剪 schema 要求显式给"
+          }
+        ],
+        "embedFont?": "boolean —— 默认 true",
+        "debug?": "boolean —— 默认 false"
+      }
+    }
+  },
+  "provides": {
+    "shape": "svg-string",
+    "_note": "headless-primitive:不直接挂 DOM、无 L 级、无 carriers;输出是可显示、保存或继续栅格化的完整 SVG 字符串。",
+    "outputs": "固定 width×height 的 <svg>…</svg> 字符串,文字默认转为 path 以保持字体外观",
+    "api_surface": {
+      "layout": "const svg = await satori(data.element, data.options)"
+    }
+  },
+  "peer": {
+    "note": "消费端可把 SVG 字符串放入 Blob/object URL 或专用预览容器;需要 PNG 时再接 SVG 栅格化步骤,不要把 Satori 当浏览器截图器。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯布局计算;字体必须先 fetch 为 ArrayBuffer\nimport satori from 'https://cdn.jsdelivr.net/npm/satori@0/+esm';\nconst font = await fetch('https://cdn.jsdelivr.net/npm/@fontsource/inter@5/files/inter-latin-400-normal.woff').then(r => r.arrayBuffer());\nconst options = { ...data.options, fonts: data.options.fonts?.length ? data.options.fonts : [{ name: 'Inter', data: font, weight: 400, style: 'normal' }] };\nconst svg = await satori(data.element, options);",
+    "note": "保守默认字体 URL 已核对且为 WOFF;只覆盖 Inter Latin。中文、阿拉伯文等必须在 data.options.fonts 传入覆盖相应字符的字体,否则不能保证 shaping。"
+  }
+}

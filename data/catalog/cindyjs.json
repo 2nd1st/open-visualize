@@ -1,0 +1,89 @@
+{
+  "entry_version": "thin-1",
+  "id": "cindyjs",
+  "name": "CindyJS",
+  "when_to_use": "需要拖拽后仍保持射影几何约束、用 CindyScript 驱动参数化数学或物理演示时用它而非手写,因为原生 canvas 在依赖点、交点和退化位置的一致性上会失败；非做普通统计图。",
+  "why_valuable": "AI 默认只能画静态几何示意,无法实现拖拽时持续成立的射影几何构造、依赖传播和退化处理；CindyJS 把这些交给长期验证的几何内核。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "github": "CindyJS/CindyJS"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "expression",
+    "note": "CindyJS 原生 CindyJS({...}) 配置的裁剪版；geometry 中点坐标采用齐次坐标 [x,y,z],依赖对象通过 name 字符串引用。",
+    "schema": {
+      "geometry": [
+        {
+          "name": "string —— 构造内唯一名称",
+          "kind?": "'P' | 'L' | 'C' | 'S' —— 默认由 type 推断",
+          "type": "string —— 原生构造算法,如 'Free'、'Join'、'CircleMP'",
+          "args?": "string[] —— 依赖对象名称；零参数构造默认 []",
+          "pos?": "[number, number, number] —— type='Free' 时必填,其他类型默认省略",
+          "labeled?": "boolean —— 默认 false",
+          "visible?": "boolean —— 默认 true",
+          "color?": "[number, number, number] —— 0..1 RGB,默认按几何类型取内置颜色",
+          "size?": "number —— 默认按几何类型取内置尺寸"
+        }
+      ],
+      "scripts?": {
+        "init?": "string —— CindyScript,默认 ''",
+        "draw?": "string —— CindyScript,默认 ''",
+        "tick?": "string —— CindyScript,默认 ''"
+      },
+      "visibleRect?": "[left, top, right, bottom] —— 默认 CindyJS 内部坐标变换",
+      "grid?": "number —— 网格间距,默认 0(不显示)",
+      "axes?": "boolean —— 默认 false",
+      "snap?": "boolean —— 默认 false"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "canvas 的 width/height 属性必须是明确像素值,默认 640×400；铁律 3 禁 vh/百分比高。visibleRect 决定数学坐标范围,不是 CSS 尺寸。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:GitHub-only pick 无版本；npm 0.x 构建仅作保守 CDN 入口,需 H0 实测\nimport CindyJS from 'https://cdn.jsdelivr.net/npm/cindyjs@0/+esm';\nconst canvas = document.createElement('canvas'); canvas.width = 640; canvas.height = 400;\ndocument.getElementById('cindy').appendChild(canvas);\nconst port = { element: canvas, width: 640, height: 400, grid: data.grid ?? 0, axes: data.axes ?? false, snap: data.snap ?? false };\nif (data.visibleRect) port.transform = [{ visibleRect: data.visibleRect }];\nconst cdy = CindyJS({ ports: [port], geometry: data.geometry, scripts: data.scripts ?? {}, csconsole: null });",
+    "widget": "// 裸 canvas 不需 CindyJS.css,直接落 shadow 容器\nimport CindyJS from 'https://cdn.jsdelivr.net/npm/cindyjs@0/+esm';\nconst canvas = document.createElement('canvas'); canvas.width = 640; canvas.height = 400;\nshadowRoot.appendChild(canvas);\nconst port = { element: canvas, width: 640, height: 400, grid: data.grid ?? 0, axes: data.axes ?? false, snap: data.snap ?? false };\nif (data.visibleRect) port.transform = [{ visibleRect: data.visibleRect }];\nconst cdy = CindyJS({ ports: [port], geometry: data.geometry, scripts: data.scripts ?? {}, csconsole: null });",
+    "codex": "同 artifact(sandbox iframe):JS 创建 canvas,以 ports[0].element 传入,再调用 CindyJS 原生构造器；不用声明式自定义标签。"
+  },
+  "example": {
+    "_why": "geometry 的 kind/type/args/齐次 pos 组合歧义高,给一个最小可拖两点成线构造。",
+    "minimal": {
+      "geometry": [
+        {
+          "name": "A",
+          "kind": "P",
+          "type": "Free",
+          "pos": [-2, 0, 1],
+          "labeled": true
+        },
+        {
+          "name": "B",
+          "kind": "P",
+          "type": "Free",
+          "pos": [2, 1, 1],
+          "labeled": true
+        },
+        {
+          "name": "a",
+          "kind": "L",
+          "type": "Join",
+          "args": ["A", "B"]
+        }
+      ],
+      "visibleRect": [-5, 4, 5, -4],
+      "axes": true
+    },
+    "empty": {
+      "geometry": [],
+      "scripts": {}
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:纯 canvas/ESM 可落 shadow；GitHub-only pick 缺版本且 npm 入口较旧,须 H0 验证构建与 CSP",
+    "codex": "conditional:需允许大体积 ESM 与 canvas；基础几何无 worker/wasm/uplink"
+  }
+}

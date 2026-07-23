@@ -1,0 +1,74 @@
+{
+  "entry_version": "thin-1",
+  "id": "mafs",
+  "name": "Mafs",
+  "when_to_use": "需要当代视觉品质的二维坐标系、函数曲线与 React 参数拖拽演示时用它而非手写,因为原生 SVG 在坐标变换、缩放手势和可拖控制点的交互品质上会失败；非做统计图或三维场景。",
+  "why_valuable": "AI 默认能画一张静态 SVG 曲线,却做不到稳定的坐标变换、触控缩放、键盘可达拖拽点和统一视觉；Mafs 原生组件把这些交互细节封装为 React 图元。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "mafs",
+    "version": "0.21.0",
+    "github": "stevenpetryk/mafs"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "expression",
+    "note": "裁剪为 Mafs + Plot.OfX 高频路径。expression 会在 boot 中编成 Plot.OfX 所需的 y(x) 回调,只允许 AI 生成的可信表达式；用户原文必须先经解析器/白名单,不可直接执行。",
+    "schema": {
+      "plots": [
+        {
+          "expression": "string —— 以 x 为变量、可用 Math.* 的可信 JavaScript 表达式",
+          "domain?": "[number, number] —— 默认覆盖当前 viewBox.x",
+          "color?": "CSS color string —— 默认 Mafs 前景色",
+          "weight?": "number —— 默认 2",
+          "opacity?": "number —— 0..1,默认 1"
+        }
+      ],
+      "viewBox?": {
+        "x": "[number, number] —— 传 viewBox 时必填",
+        "y": "[number, number] —— 传 viewBox 时必填",
+        "padding?": "number —— 默认 0"
+      },
+      "pan?": "boolean —— 默认 true",
+      "zoom?": "boolean | {min:number,max:number} —— 默认 false",
+      "coordinates?": "boolean —— 默认 true"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "Mafs 原生 height 属性取明确像素数,默认 400；铁律 3 禁 vh/百分比高。width 让上游按容器自动测量,容器仍应给出确定可用宽度。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested；有 CSS 的 artifact 只进 document.head(铁律 2)\nimport React from 'https://cdn.jsdelivr.net/npm/react@18.3.1/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@18.3.1/client/+esm';\nimport { Mafs, Coordinates, Plot } from 'https://cdn.jsdelivr.net/npm/mafs@0/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/mafs@0/core.css' }); document.head.appendChild(css);\nconst curves = data.plots.map((p, i) => React.createElement(Plot.OfX, { key: i, y: Function('x', 'return (' + p.expression + ')'), domain: p.domain, color: p.color, weight: p.weight, opacity: p.opacity }));\ncreateRoot(document.getElementById('mafs')).render(React.createElement(Mafs, { height: 400, viewBox: data.viewBox, pan: data.pan ?? true, zoom: data.zoom ?? false }, data.coordinates === false ? null : React.createElement(Coordinates.Cartesian), ...curves));",
+    "widget": "// CSS 文本只落 shadow(铁律 2),React 根也落同一 shadow 容器\nimport React from 'https://cdn.jsdelivr.net/npm/react@18.3.1/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@18.3.1/client/+esm';\nimport { Mafs, Coordinates, Plot } from 'https://cdn.jsdelivr.net/npm/mafs@0/+esm';\nconst style = document.createElement('style'); style.textContent = await fetch('https://cdn.jsdelivr.net/npm/mafs@0/core.css').then(r => r.text());\nconst el = document.createElement('div'); shadowRoot.append(style, el);\nconst curves = data.plots.map((p, i) => React.createElement(Plot.OfX, { key: i, y: Function('x', 'return (' + p.expression + ')'), domain: p.domain, color: p.color, weight: p.weight, opacity: p.opacity }));\ncreateRoot(el).render(React.createElement(Mafs, { height: 400, viewBox: data.viewBox, pan: data.pan ?? true, zoom: data.zoom ?? false }, data.coordinates === false ? null : React.createElement(Coordinates.Cartesian), ...curves));",
+    "codex": "同 artifact(sandbox iframe):React 18.3.1 与 mafs@0 的 jsDelivr ESM 使用同一 React 实例,core.css 进 iframe head。"
+  },
+  "example": {
+    "_why": "React 图元已在 boot 固定,但 viewBox、domain 与字符串表达式仍需最小可运行形状。",
+    "minimal": {
+      "plots": [
+        {
+          "expression": "Math.sin(x)",
+          "color": "#58a6ff"
+        }
+      ],
+      "viewBox": {
+        "x": [-6.283, 6.283],
+        "y": [-2, 2]
+      },
+      "pan": true,
+      "zoom": false,
+      "coordinates": true
+    },
+    "empty": {
+      "plots": []
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:React 根落 shadow,core.css 文本也只进 shadow；纯 SVG,无 worker/wasm/uplink",
+    "codex": "supported:React ESM + SVG；需让 React、react-dom、Mafs 使用同一 18.3.1 实例"
+  }
+}

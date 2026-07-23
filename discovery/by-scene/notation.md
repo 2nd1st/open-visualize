@@ -1,0 +1,31 @@
+# 领域记谱(scene: notation,27 条)
+
+每条:`id` — 何时用 · 数据形态 · supply_form · license。选中读 `data/catalog/<id>.json`。
+
+- `3dmol` — 需要在浏览器中旋转、缩放并以 cartoon 或球棍方式查看 PDB/SDF/MOL2/XYZ 三维… · geometry · component L1 · BSD-3-Clause
+- `besogo` — 需要轻量、零依赖的 SGF 棋谱查看器或编辑器并展示分支、注释与棋盘标记时用它 · notation-string · component L1 · MIT
+- `chess-gchessboard` — 需要把一个 FEN 盘面渲成可读、可交互(可选拖子)的棋盘时用它 · notation-string · component L1 · MIT
+- `chess-js` — 需要解析 FEN/PGN、生成合法着法、验证局面或判定将杀和棋时用它 · notation-string · headless-primitive · BSD-2-Clause
+- `chessboard-element` — 需要用 Web Component 把 FEN 盘面渲成可翻转、可选拖子的标准西洋棋盘时用它 · notation-string · component L1 · MIT
+- `cm-chessboard` — 需要把 FEN 盘面渲成带棋子、坐标、动画且可继续接走子输入的 SVG 棋盘时用它 · notation-string · component L1 · MIT
+- `coderline-alphatab` — 需要把 alphaTex 或 MusicXML 渲成同时含标准谱与吉他 tab、保留节奏/推弦/多轨… · notation-string · component L1 · MPL-2.0
+- `crosswords-js` — 需要把结构化横纵线索变成带黑格、编号、键盘导航和可填单元格的填字网格时用它 · grid · app-needs-fork · MIT ⚠blocked(需fork)
+- `gswap` — 应用态 · notation-string · app-needs-fork · MIT ⚠blocked(需fork)
+- `html-midi-player` — 需要让 MIDI/SMF 在页面里可播放并显示钢琴卷帘、瀑布或五线谱时用它 · interval-set · component L1 · BSD-2-Clause
+- `katex` — 需要把 LaTeX 快速排成稳定的行内或块级公式时用它 · notation-string · component L1 · MIT
+- `kifu-for-js` — 需要把日式将棋 KIF/KI2 棋谱变成可逐手回放的盘面时用它 · notation-string · component L1 · MIT
+- `mathjax-full` — 需要把复杂 LaTeX 排成自包含 SVG、避开 webfont/CSP 问题或覆盖 KaTeX 不… · notation-string · component L1 · Apache-2.0
+- `molstar` — 需要查看大型蛋白质或核酸的 PDB/mmCIF、装配体与复杂表示时用它 · geometry · component L1 · MIT
+- `moonwave99-fretboard-js` — 需要把音阶、和弦或 CAGED 把位画成带弦格与音符高亮的吉他指板时用它 · grid · component L1 · ISC
+- `openchemlib` — 需要把 SMILES 或 Molfile 校验并描绘成清晰 2D 化学结构时用它 · notation-string · component L1 · BSD-3-Clause
+- `opensheetmusicdisplay` — 已有完整 MusicXML 且要在浏览器里自动分页、排版成可读 SVG 五线谱时用它 · notation-string · component L1 · BSD-3-Clause
+- `rdkit-rdkit` — 需要工业级校验、规范化、描述符或子结构能力并把 SMILES/Molfile 描绘成 2D 结构时用… · notation-string · component L1 · BSD-3-Clause
+- `sabaki-shudan` — 需要把围棋落子矩阵渲成带坐标、标记、箭头或热力覆盖的高质量棋盘时用它 · grid · component L1 · MIT
+- `svguitar` — 需要把逐弦品位、空弦/闷弦与横按精确画成标准 SVG 吉他和弦图时用它 · grid · component L1 · MIT
+- `tonal` — 需要把和弦、音阶、音程或音名记法转换成可靠的音符集合与乐理属性时用它 · notation-string · headless-primitive · MIT
+- `verovio` — 需要把 MEI、MusicXML、ABC 或 PAE 刻成出版级可缩放 SVG 乐谱时用它 · notation-string · component L1 · LGPL-3.0-or-later
+- `vexflow` — 需要从音高、时值、和弦或吉他 tab 原语精确刻出一小段 SVG 五线谱时用它 · notation-string · component L1 · MIT
+- `wavedrom` — 需要把 WaveJSON 信号描述渲成对齐的数字时序 SVG 时用它 · notation-string · component L1 · MIT
+- `webaudio-tinysynth` — 需要在浏览器内把 SMF/MIDI 直接合成为声音且不能依赖远程 SoundFont 时用它 · interval-set · headless-primitive · Apache-2.0
+- `wgo` — 需要把 SGF 棋谱渲成可导航、带分支与讲评的围棋棋盘时用它 · notation-string · component L1 · MIT
+- `xiangqiboard-js` — 需要把中国象棋 FEN 渲成含九宫、河界和中文棋子的 9×10 棋盘时用它 · notation-string · component L1 · MIT

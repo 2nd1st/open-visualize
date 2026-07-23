@@ -1,0 +1,38 @@
+{
+  "entry_version": "thin-1",
+  "id": "marp-team-marp-core",
+  "name": "Marp Core (Marpit)",
+  "when_to_use": "需要把窄输入面的 Markdown 确定性编译成等尺寸、可打印的整套幻灯时用它而非逐页手写 HTML/CSS,因为原生手写在批量分页几何、主题一致性与溢出缩放上失败;非做自由画布编辑器或运行时演示控制台。",
+  "why_valuable": "AI 默认写不出 Markdown 到固定页几何的编译器,也无法在几十页中稳定保持主题、断页、代码高亮与自适应缩放;Marp.render 一次产出配套 HTML/CSS。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@marp-team/marp-core",
+    "version": "4.4.0",
+    "github": "marp-team/marp-core"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "Marp Markdown 是 AI 原生记法,页面分隔符与 directive 已由 schema 钉死,无需 minimal example。",
+    "note": "data_in 直接传给 new Marp(...).render(markdown);返回值是同一次编译生成的 {html,css},两者必须成对挂载。",
+    "schema": {
+      "markdown": "string —— Marp Markdown;独占一行的 --- 分页,文首 YAML 或 HTML comment directive 可写 theme、size、paginate 等 Marp 原生指令"
+    }
+  },
+  "spec": {
+    "height": 720,
+    "note": "内置主题默认 16:9 为 1280×720、4:3 为 960×720;预览宿主默认保留 720px 明确高度并允许纵向滚动,禁止 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:编译 CSS 必须进入 head\nimport { Marp } from 'https://cdn.jsdelivr.net/npm/@marp-team/marp-core@4/+esm';\nimport { browser } from 'https://cdn.jsdelivr.net/npm/@marp-team/marp-core@4/browser/+esm';\nconst { html, css } = new Marp({ script:false }).render(data.markdown);\nconst style=document.createElement('style'); style.textContent=css; document.head.append(style);\nconst root=document.getElementById('marp'); root.style.cssText='height:720px;overflow:auto'; root.innerHTML=html; browser(root);",
+    "widget": "import { Marp } from 'https://cdn.jsdelivr.net/npm/@marp-team/marp-core@4/+esm';\nimport { browser } from 'https://cdn.jsdelivr.net/npm/@marp-team/marp-core@4/browser/+esm';\nconst { html, css } = new Marp({ script:false }).render(data.markdown);\nconst style=document.createElement('style'); style.textContent=css; const root=document.createElement('div'); root.style.cssText='height:720px;overflow:auto'; root.innerHTML=html;\nshadowRoot.append(style,root); browser(root);",
+    "codex": "import { Marp } from 'https://cdn.jsdelivr.net/npm/@marp-team/marp-core@4/+esm';\nimport { browser } from 'https://cdn.jsdelivr.net/npm/@marp-team/marp-core@4/browser/+esm';\nconst { html, css } = new Marp({ script:false }).render(data.markdown);\nconst style=document.createElement('style'); style.textContent=css; document.head.append(style);\nconst root=document.getElementById('marp'); root.style.cssText='height:720px;overflow:auto'; root.innerHTML=html; browser(root);"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:render 产出的 CSS 必须与 HTML 同落 shadow,再对该根调用官方 browser helper;Markdown 外链图片、Twemoji 或 KaTeX 字体另受 CDN 可达性约束",
+    "codex": "supported:编译器、配套 CSS 与 browser helper 均可在 sandbox iframe 内闭环"
+  }
+}

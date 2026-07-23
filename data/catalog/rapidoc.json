@@ -1,0 +1,111 @@
+{
+  "entry_version": "thin-1",
+  "id": "rapidoc",
+  "name": "RapiDoc",
+  "when_to_use": "需要把 OpenAPI 3.x 文档变成可搜索、递归展开 schema 并带多语言请求样例的 API 阅读器时用它而非手写,因为原生在 $ref 解析、深链导航和请求模型展开上失败;非做任意 Markdown 文档站或 API 网关。",
+  "why_valuable": "AI 默认只能拼静态 endpoint 卡片,做不到跨文件 $ref、oneOf/allOf 递归 schema、深链导航、安全方案和多语言代码样例的一致渲染。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "rapidoc",
+    "version": "9.3.8",
+    "github": "rapi-doc/RapiDoc"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "spec 直接传给 <rapi-doc> 的公开 loadSpec(JSON object),不是 spec-url。下面只裁剪 OpenAPI 高频字段；$ref 仍按 OpenAPI 规则解析。",
+    "schema": {
+      "spec": {
+        "openapi": "string —— '3.0.x' 或 '3.1.x'",
+        "info": {
+          "title": "string",
+          "version": "string",
+          "description?": "string —— Markdown,默认省略"
+        },
+        "servers?": "Array<{url:string,description?:string}> —— 默认 []",
+        "paths": "Record<string,Partial<Record<'get'|'post'|'put'|'patch'|'delete'|'head'|'options',{summary?:string（默认无）,description?:string（默认无）,operationId?:string（默认无）,parameters?:object[]（默认 []）,requestBody?:object（默认无）,responses:Record<string,{description:string,content?:object}>}>>>",
+        "components?": "OpenAPI components object —— 默认 {}"
+      },
+      "config?": {
+        "render_style?": "'read'|'view'|'focused' —— 默认 'read'",
+        "theme?": "'light'|'dark' —— 本条默认 'light'",
+        "show_header?": "boolean —— 本条默认 false",
+        "show_side_nav?": "boolean —— 默认 true",
+        "allow_try?": "boolean —— 本条默认 false,避免文档查看器意外发真实 API 请求",
+        "schema_style?": "'tree'|'table' —— 默认 'tree'"
+      }
+    }
+  },
+  "spec": {
+    "height": 640,
+    "note": "API 文档是长内容,外层默认显式 640px 高并在组件内滚动,AI 可覆盖为其他像素值。禁用 vh/百分比高度；先设高度再挂 custom element,避免上游把零高父容器改成 100vh。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:import 即注册 custom element;铁律 4 必须 JS createElement\nimport 'https://cdn.jsdelivr.net/npm/rapidoc@9/+esm';\nawait customElements.whenDefined('rapi-doc');\nconst el = document.createElement('rapi-doc'); el.style.cssText = 'display:block;height:640px';\nconst c = data.config ?? {}; for (const [k,v] of Object.entries({ 'render-style':c.render_style ?? 'read', theme:c.theme ?? 'light', 'show-header':c.show_header ?? false, 'show-side-nav':c.show_side_nav ?? true, 'allow-try':c.allow_try ?? false, 'schema-style':c.schema_style ?? 'tree', 'load-fonts':false })) el.setAttribute(k, String(v));\ndocument.getElementById('api-doc').appendChild(el); await el.loadSpec(data.spec);",
+    "widget": "// 自带 shadow DOM;custom element 仍须 JS createElement 后挂入我们的 shadowRoot(铁律 4)\nimport 'https://cdn.jsdelivr.net/npm/rapidoc@9/+esm';\nawait customElements.whenDefined('rapi-doc');\nconst el = document.createElement('rapi-doc'); el.style.cssText = 'display:block;height:640px';\nconst c = data.config ?? {}; for (const [k,v] of Object.entries({ 'render-style':c.render_style ?? 'read', theme:c.theme ?? 'light', 'show-header':c.show_header ?? false, 'show-side-nav':c.show_side_nav ?? true, 'allow-try':c.allow_try ?? false, 'schema-style':c.schema_style ?? 'tree', 'load-fonts':false })) el.setAttribute(k, String(v));\nshadowRoot.appendChild(el); await el.loadSpec(data.spec);",
+    "codex": "import 'https://cdn.jsdelivr.net/npm/rapidoc@9/+esm';\nawait customElements.whenDefined('rapi-doc');\nconst el = document.createElement('rapi-doc'); el.style.cssText = 'display:block;height:640px';\nconst c = data.config ?? {}; for (const [k,v] of Object.entries({ 'render-style':c.render_style ?? 'read', theme:c.theme ?? 'light', 'show-header':c.show_header ?? false, 'show-side-nav':c.show_side_nav ?? true, 'allow-try':c.allow_try ?? false, 'schema-style':c.schema_style ?? 'tree', 'load-fonts':false })) el.setAttribute(k, String(v));\ndocument.getElementById('api-doc').appendChild(el); await el.loadSpec(data.spec);"
+  },
+  "example": {
+    "_why": "OpenAPI 是深 config 且 paths→method→responses 层级高歧义,minimal 给出 loadSpec 可直接接受的最小有效对象。",
+    "minimal": {
+      "spec": {
+        "openapi": "3.1.0",
+        "info": {
+          "title": "Health API",
+          "version": "1.0.0"
+        },
+        "paths": {
+          "/health": {
+            "get": {
+              "summary": "Health check",
+              "responses": {
+                "200": {
+                  "description": "Service is healthy",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "ok": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "config": {
+        "render_style": "read",
+        "theme": "light",
+        "allow_try": false
+      }
+    },
+    "empty": {
+      "spec": {
+        "openapi": "3.1.0",
+        "info": {
+          "title": "Empty API",
+          "version": "1.0.0"
+        },
+        "paths": {}
+      },
+      "config": {
+        "show_header": false,
+        "allow_try": false
+      }
+    }
+  },
+  "uplink": "默认是只读文档,无上行。若显式开启 Try 或要回传某 endpoint,由消费 AI 自己处理 RapiDoc 原生事件与载体边界；本条默认 allow_try=false 且不定义统一事件出口。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:custom element 自带 shadow DOM并经 createElement 挂入外层 shadowRoot;load-fonts=false 无字体 CDN,但含外部 $ref 的 spec 仍需网络/CORS",
+    "codex": "supported:单 ESM custom element + 内建样式;含外部 $ref 时条件取决于 sandbox 网络与 CORS"
+  }
+}

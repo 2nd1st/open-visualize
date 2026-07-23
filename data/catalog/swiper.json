@@ -1,0 +1,56 @@
+{
+  "entry_version": "thin-1",
+  "id": "swiper",
+  "name": "Swiper",
+  "when_to_use": "需要移动端嵌套滑动、触控阻尼、断点多卡与键盘/分页导航的内容轨道时用它而非手写 translateX,因为原生在手势竞争、边界回弹和响应式状态同步上失败;非做普通 tabs、静态 gallery 或只有两三张图的轮播。",
+  "why_valuable": "AI 默认只能写固定宽度 CSS carousel,做不到可靠的触控速度判定、嵌套滚动协调、循环复制与无障碍导航;Swiper Element 用原生参数把这些行为封进可挂载组件。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "swiper",
+    "version": "14.0.6",
+    "github": "nolimits4web/Swiper"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "boot 把 slides 顺序映射成 swiper-slide 自定义元素;html 会写入 innerHTML,只接受可信或已净化内容。",
+    "schema": {
+      "slides": [
+        {
+          "html": "string —— 可信或已净化的单张内容 HTML",
+          "ariaLabel?": "string —— 默认不额外设置 aria-label"
+        }
+      ],
+      "initialSlide?": "non-negative integer —— 默认 0",
+      "slidesPerView?": "positive number|'auto' —— 默认 1",
+      "spaceBetween?": "number —— 默认 0px",
+      "loop?": "boolean —— 默认 false",
+      "navigation?": "boolean —— 默认 false",
+      "pagination?": "boolean —— 默认 false",
+      "keyboard?": "boolean —— 默认 false"
+    }
+  },
+  "spec": {
+    "height": 320,
+    "note": "内容轨道默认显式高 320px并让每张 slide 继承该高度;AI 可换成其他像素值,铁律 3 禁 vh/百分比高。若内容天然定高也仍应把该像素值写清。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:custom element 必须 JS 创建(铁律 4),bundle 自带内部 shadow CSS\nimport { register } from 'https://cdn.jsdelivr.net/npm/swiper@14/element/bundle/+esm'; register();\nconst swiper = document.createElement('swiper-container'); swiper.setAttribute('init', 'false'); swiper.style.height = '320px';\nObject.assign(swiper, { initialSlide: data.initialSlide ?? 0, slidesPerView: data.slidesPerView ?? 1, spaceBetween: data.spaceBetween ?? 0, loop: data.loop ?? false, navigation: data.navigation ?? false, pagination: data.pagination ?? false, keyboard: data.keyboard ?? false });\nfor (const item of data.slides) { const slide = document.createElement('swiper-slide'); slide.innerHTML = item.html; slide.style.height = '320px'; if (item.ariaLabel) slide.setAttribute('aria-label', item.ariaLabel); swiper.appendChild(slide); }\ndocument.getElementById('swiper-root').appendChild(swiper); swiper.initialize();",
+    "widget": "// swiper-container 以 JS 创建后落在 widget shadowRoot,内部再使用上游自带 shadow CSS(铁律 4)\nimport { register } from 'https://cdn.jsdelivr.net/npm/swiper@14/element/bundle/+esm'; register();\nconst swiper = document.createElement('swiper-container'); swiper.setAttribute('init', 'false'); swiper.style.height = '320px';\nObject.assign(swiper, { initialSlide: data.initialSlide ?? 0, slidesPerView: data.slidesPerView ?? 1, spaceBetween: data.spaceBetween ?? 0, loop: data.loop ?? false, navigation: data.navigation ?? false, pagination: data.pagination ?? false, keyboard: data.keyboard ?? false });\nfor (const item of data.slides) { const slide = document.createElement('swiper-slide'); slide.innerHTML = item.html; slide.style.height = '320px'; if (item.ariaLabel) slide.setAttribute('aria-label', item.ariaLabel); swiper.appendChild(slide); }\nshadowRoot.appendChild(swiper); swiper.initialize();",
+    "codex": "// sandbox iframe 内同样只用 JS 创建 custom elements\nimport { register } from 'https://cdn.jsdelivr.net/npm/swiper@14/element/bundle/+esm'; register();\nconst swiper = document.createElement('swiper-container'); swiper.setAttribute('init', 'false'); swiper.style.height = '320px';\nObject.assign(swiper, { initialSlide: data.initialSlide ?? 0, slidesPerView: data.slidesPerView ?? 1, spaceBetween: data.spaceBetween ?? 0, loop: data.loop ?? false, navigation: data.navigation ?? false, pagination: data.pagination ?? false, keyboard: data.keyboard ?? false });\nfor (const item of data.slides) { const slide = document.createElement('swiper-slide'); slide.innerHTML = item.html; slide.style.height = '320px'; if (item.ariaLabel) slide.setAttribute('aria-label', item.ariaLabel); swiper.appendChild(slide); }\ndocument.getElementById('swiper-root').appendChild(swiper); swiper.initialize();"
+  },
+  "example": {
+    "_why_no_minimal": "slides 是单层有序 HTML 项,参数均为标量且默认已钉死,裁剪 schema 足够一次拼对;只保留空态 fixture。",
+    "empty": {
+      "slides": []
+    }
+  },
+  "uplink": "display/local-interact 类默认无需上行;活动下标若需外传,由消费 AI 读取 swiper.swiper.activeIndex 并按载体处理,不预设事件出口。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:bundle 注册的元素自带内部 shadow CSS,外层元素通过 JS createElement 挂入 widget shadowRoot;无 head 污染",
+    "codex": "supported:ESM CDN + custom elements + Pointer Events,无外置 CSS/worker/wasm"
+  }
+}

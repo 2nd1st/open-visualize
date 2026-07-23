@@ -1,0 +1,42 @@
+{
+  "entry_version": "thin-1",
+  "id": "cm-chessboard",
+  "name": "cm-chessboard",
+  "when_to_use": "需要把 FEN 盘面渲成带棋子、坐标、动画且可继续接走子输入的 SVG 棋盘时用它,而非手写 table/SVG——原生手写在棋子资源、翻转、响应式布局和拖子状态上失败;规则、合法性与复盘树不在本条。",
+  "why_valuable": "AI 默认只能给出 FEN 文本、Unicode 棋盘或一次性静态方格,做不到稳定的棋子 sprite、盘面翻转、位置动画和指针走子输入;本库以轻量原生 SVG 把这些 UI 能力闭环。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "cm-chessboard",
+    "version": "8.12.14",
+    "github": "shaack/cm-chessboard"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "FEN 是 AI 原生记法,schema 钉死为组件实际消费的盘面摆放段即可,不附 minimal example。",
+    "schema": {
+      "fen": "string —— FEN 的 piece-placement 段:恰好 8 个以 / 分隔的横行,只含 PNBRQKpnbrqk 与空格计数 1..8;不要传回合方、王车易位等其余五段",
+      "orientation?": "'white' | 'black' —— 底边视角,默认 white"
+    }
+  },
+  "spec": {
+    "height": 480,
+    "note": "棋盘为 1:1 SVG;boot 默认容器 480×480px并允许 max-width:100%,AI 可用固定 px 覆盖,禁用 vh/百分比高。响应式布局变化由库自身处理。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合前按此推断写\nimport { Chessboard, COLOR } from 'https://cdn.jsdelivr.net/npm/cm-chessboard@8/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/cm-chessboard@8.12.14/assets/chessboard.css' });\ndocument.head.appendChild(css); // 铁律 2:artifact CSS 进 head\nconst el = document.getElementById('board'); el.style.cssText = 'width:480px;max-width:100%;height:480px';\nnew Chessboard(el, { position: data.fen, orientation: data.orientation === 'black' ? COLOR.black : COLOR.white, assetsUrl: 'https://cdn.jsdelivr.net/npm/cm-chessboard@8.12.14/assets/' });",
+    "widget": "import { Chessboard, COLOR } from 'https://cdn.jsdelivr.net/npm/cm-chessboard@8/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/cm-chessboard@8.12.14/assets/chessboard.css' });\nshadowRoot.appendChild(css); // 铁律 2:widget CSS 进 shadow\nconst el = document.createElement('div'); el.style.cssText = 'width:480px;max-width:100%;height:480px';\nshadowRoot.appendChild(el);\nnew Chessboard(el, { position: data.fen, orientation: data.orientation === 'black' ? COLOR.black : COLOR.white, assetsUrl: 'https://cdn.jsdelivr.net/npm/cm-chessboard@8.12.14/assets/' });",
+    "codex": "同 artifact(sandbox iframe):ESM import jsDelivr /npm/ + head CSS + new Chessboard(el,原生 props),默认 height 480px。"
+  },
+  "peer": {
+    "id": "chess-js",
+    "note": "本条只负责棋盘 UI;合法走子、将杀判断和 PGN 由 chess.js 规则引擎承担。若启用 move input,消费 AI 自己接原生回调,不预设统一事件契约。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:CSS 必须进 shadow,棋子 SVG 从 pinned img-cdn 读取;原生构造器直接接收 shadow 内 HTMLElement",
+    "codex": "supported:ESM CDN + SVG/img-cdn,无 uplink 需求"
+  }
+}

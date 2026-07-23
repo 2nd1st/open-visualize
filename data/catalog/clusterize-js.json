@@ -1,0 +1,58 @@
+{
+  "entry_version": "thin-1",
+  "id": "clusterize-js",
+  "name": "Clusterize.js",
+  "when_to_use": "需要在 vanilla DOM 中显示成千上万条等高 HTML 行而不全量挂载时用它而非手写滚动窗口,因为原生手写在滚动高度记账、簇切换和占位行计算上失败;非做排序、筛选或变高内容。",
+  "why_valuable": "AI 默认会把所有行一次插入 DOM 并卡住 iframe;默认做不到稳定的虚拟窗口、上下占位高度、滚动位置保持和表格行奇偶一致性。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "clusterize.js",
+    "version": "1.0.0",
+    "github": "NeXTs/Clusterize.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "Clusterize 原生 rows 是完整同标签 HTML 字符串数组;表格路径每项必须是一个 tr,内容必须先由消费侧转义或净化,本库不会把记录对象映射成单元格。",
+    "schema": {
+      "rows": "string[] —— 每项为一个完整、可信或已净化的同标签 HTML 行;表格时为 <tr>...</tr>",
+      "rows_in_block?": "positive integer —— 默认 50",
+      "blocks_in_cluster?": "positive integer —— 默认 4",
+      "show_no_data_row?": "boolean —— 默认 true",
+      "no_data_text?": "string —— 默认 'No data'",
+      "keep_parity?": "boolean —— 默认 true"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "虚拟滚动必须有确定视口;boot 给 clusterize-scroll 默认 400px 高,AI 可传其他明确像素值,禁止百分比或视口单位。行应近似等高,变高段落改用 virtua 或 Lit virtualizer。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:Clusterize CSS 进入 document.head\nimport Clusterize from 'https://cdn.jsdelivr.net/npm/clusterize.js@1/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/clusterize.js@1/clusterize.css' }); document.head.appendChild(css);\nconst scroll = document.getElementById('rows'); scroll.className = 'clusterize-scroll'; scroll.style.height = `${spec.height ?? 400}px`;\nconst table = document.createElement('table'); const body = document.createElement('tbody'); body.className = 'clusterize-content'; table.appendChild(body); scroll.appendChild(table);\nconst cluster = new Clusterize({ rows: data.rows, scrollElem: scroll, contentElem: body, rows_in_block: data.rows_in_block ?? 50, blocks_in_cluster: data.blocks_in_cluster ?? 4, show_no_data_row: data.show_no_data_row ?? true, no_data_text: data.no_data_text ?? 'No data', keep_parity: data.keep_parity ?? true });",
+    "widget": "// CSS 与元素引用都落 shadow 容器;使用 scrollElem/contentElem,不走 document id 查询\nimport Clusterize from 'https://cdn.jsdelivr.net/npm/clusterize.js@1/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/clusterize.js@1/clusterize.css' });\nconst scroll = document.createElement('div'); scroll.className = 'clusterize-scroll'; scroll.style.height = `${spec.height ?? 400}px`;\nconst table = document.createElement('table'); const body = document.createElement('tbody'); body.className = 'clusterize-content'; table.appendChild(body); scroll.appendChild(table); shadowRoot.append(css, scroll);\nconst cluster = new Clusterize({ rows: data.rows, scrollElem: scroll, contentElem: body, rows_in_block: data.rows_in_block ?? 50, blocks_in_cluster: data.blocks_in_cluster ?? 4, show_no_data_row: data.show_no_data_row ?? true, no_data_text: data.no_data_text ?? 'No data', keep_parity: data.keep_parity ?? true });",
+    "codex": "// sandbox iframe:原生元素引用分支\nimport Clusterize from 'https://cdn.jsdelivr.net/npm/clusterize.js@1/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/clusterize.js@1/clusterize.css' }); document.head.appendChild(css);\nconst scroll = document.getElementById('rows'); scroll.className = 'clusterize-scroll'; scroll.style.height = `${spec.height ?? 400}px`;\nconst table = document.createElement('table'); const body = document.createElement('tbody'); body.className = 'clusterize-content'; table.appendChild(body); scroll.appendChild(table);\nconst cluster = new Clusterize({ rows: data.rows, scrollElem: scroll, contentElem: body, rows_in_block: data.rows_in_block ?? 50, blocks_in_cluster: data.blocks_in_cluster ?? 4, show_no_data_row: data.show_no_data_row ?? true, no_data_text: data.no_data_text ?? 'No data', keep_parity: data.keep_parity ?? true });"
+  },
+  "example": {
+    "_why": "表格路径要求 rows 已经是完整 tr 字符串而不是记录对象,附 minimal 防止把轴向和挂载层级拼错。",
+    "minimal": {
+      "rows": [
+        "<tr><td>alpha</td><td>42</td></tr>",
+        "<tr><td>beta</td><td>17</td></tr>"
+      ],
+      "show_no_data_row": true,
+      "no_data_text": "No rows"
+    },
+    "empty": {
+      "rows": [],
+      "show_no_data_row": true,
+      "no_data_text": "No rows"
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:上游原生支持 scrollElem/contentElem 直接元素引用,CSS link 与全部表格 DOM 可留在 shadowRoot",
+    "codex": "supported:ESM CDN + CSS + DOM 虚拟窗口,无 worker/wasm/uplink"
+  }
+}

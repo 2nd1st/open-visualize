@@ -1,0 +1,65 @@
+{
+  "entry_version": "thin-1",
+  "id": "vanta",
+  "name": "Vanta.js",
+  "when_to_use": "需要给 hero、封面或演示页铺一层可随指针响应的 WebGL 波浪背景时用它,而非手写 shader——原生 WebGL 的相机、光照、网格动画与销毁清理是 AI 徒手接近 0% 的失败区。非做前景 3D 模型、数据图或真粒子物理。",
+  "why_valuable": "AI 默认只能拼静态渐变或脆弱的 canvas 噪声,做不到稳定的 WebGL 网格、逐帧波动、指针响应和 resize/destroy 生命周期;Vanta 把这些压成一个原生 effect 实例。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "vanta",
+    "version": "0.5.24",
+    "github": "tengbao/vanta"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "当前 boot 保守钉死上游 WAVES effect,避免把不同 effect 的 three/p5 依赖和异构 options 混成一个不可靠动态入口。data_in.options 原样传给 WAVES,el 与 THREE 由 boot 注入。",
+    "schema": {
+      "effect": "'waves' —— 当前已校准的 effect,固定必填",
+      "options?": {
+        "_default": "默认 {}，其余键走 WAVES 上游默认",
+        "color?": "number(0xRRGGBB) —— 默认 0x005588",
+        "shininess?": "number —— 默认 30",
+        "waveHeight?": "number —— 默认 15",
+        "waveSpeed?": "number —— 默认 1",
+        "zoom?": "number —— 默认 1",
+        "mouseControls?": "boolean —— 默认 true",
+        "touchControls?": "boolean —— 默认 true",
+        "gyroControls?": "boolean —— 默认 false"
+      }
+    }
+  },
+  "spec": {
+    "height": 420,
+    "note": "Vanta canvas 读取宿主元素尺寸;默认显式 height 420px,AI 可覆盖为另一固定 px 值。禁用 vh/百分比高(铁律 3),宽度可由容器决定;卸载时调用 effect.destroy()。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:使用 README 对应的 three r134;Vanta 0.x 的 +esm effect 包装需取内层 default\nimport * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.134.0/+esm';\nimport wavesModule from 'https://cdn.jsdelivr.net/npm/vanta@0/dist/vanta.waves.min.js/+esm';\nconst WAVES = wavesModule.default ?? wavesModule;\nconst el = document.getElementById('vanta'); el.style.height = '420px';\nconst effect = WAVES({ ...data.options, el, THREE });",
+    "widget": "// canvas 落 shadow 容器;Vanta 样式由实例内联到该 canvas,不向 document.head 注入\nimport * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.134.0/+esm';\nimport wavesModule from 'https://cdn.jsdelivr.net/npm/vanta@0/dist/vanta.waves.min.js/+esm';\nconst WAVES = wavesModule.default ?? wavesModule;\nconst el = document.createElement('div'); el.style.height = '420px'; shadowRoot.appendChild(el);\nconst effect = WAVES({ ...data.options, el, THREE });",
+    "codex": "同 artifact(sandbox iframe fragment):ESM import three r134 与 vanta@0 WAVES +esm,给固定 px 高容器后调用 WAVES({el,THREE,...options})。"
+  },
+  "example": {
+    "_why": "effect options 虽短,但颜色须是数值色且 three 必须显式注入;minimal 用来钉死一次可运行形状。",
+    "minimal": {
+      "effect": "waves",
+      "options": {
+        "color": 22015,
+        "shininess": 35,
+        "waveHeight": 18,
+        "waveSpeed": 1
+      }
+    },
+    "empty": {
+      "effect": "waves",
+      "options": {}
+    }
+  },
+  "uplink": "纯 display/local-interact,默认无需上行;指针响应由 Vanta 内部处理,消费 AI 只负责保留 effect 引用并在卸载时 destroy。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:需 WebGL + ESM CDN;effect canvas 挂进 shadow 容器且零 head CSS 注入",
+    "codex": "supported:iframe 内 WebGL + ESM CDN,无 uplink 需求"
+  }
+}

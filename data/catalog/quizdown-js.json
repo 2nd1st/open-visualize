@@ -1,0 +1,45 @@
+{
+  "entry_version": "thin-1",
+  "id": "quizdown-js",
+  "name": "quizdown-js",
+  "when_to_use": "需要把 Markdown 式题目一次变成单选、多选、排序与本地判分测验时用它,而非逐题手写 HTML——原生在多题型解析、评分归一和结果页状态上失败。",
+  "why_valuable": "AI 默认只能稳定写单题按钮 demo,做不到从一段可读文本统一解析单选/多选/排序、正确答案、提示和反馈;quizdown 让 AI 只产出接近 Markdown 的原生记法。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": { "github": "bonartm/quizdown-js" },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "Quizdown 是 AI 原生的 Markdown/task-list 记法,schema 已钉死题型判别,不附 minimal example。",
+    "schema": {
+      "source": "string —— 每题以 Markdown 标题开头;无序 task list(- [x]/- [ ])=多选,有序 task list(1. [x]/1. [ ])=单选,无 checkbox 的有序列表=排序;[x] 标正确项",
+      "config?": {
+        "shuffleAnswers?": "boolean —— 默认 true",
+        "shuffleQuestions?": "boolean —— 默认 false",
+        "nQuestions?": "positive integer —— 默认 undefined,即使用全部题目",
+        "primaryColor?": "CSS color string —— 默认 'steelblue'",
+        "secondaryColor?": "CSS color string —— 默认 '#f2f2f2'",
+        "textColor?": "CSS color string —— 默认 'black'",
+        "locale?": "'de'|'en'|'es'|'fr'|null —— 默认 null,自动取浏览器语言",
+        "enableRetry?": "boolean —— 默认 true",
+        "_default": "省略 config 时使用以上上游默认"
+      }
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:picks 无 npm/version,故固定到上游 commit 的 jsDelivr /gh/ 浏览器包\nawait import('https://cdn.jsdelivr.net/gh/bonartm/quizdown-js@3c831c461dcf11c0f97adfa568ac761094e0ccc9/public/build/quizdown.js');\nconst host = document.createElement('div');\ndocument.getElementById('quiz').appendChild(host);\nglobalThis.quizdown.createApp(data.source, host, data.config ?? {});\n// 上游 createApp 会在 host 内创建自己的 shadow root",
+    "widget": "// 普通 host 先落我们的 shadowRoot;上游再建立一层自带样式的 nested shadow\nawait import('https://cdn.jsdelivr.net/gh/bonartm/quizdown-js@3c831c461dcf11c0f97adfa568ac761094e0ccc9/public/build/quizdown.js');\nconst host = document.createElement('div');\nshadowRoot.appendChild(host);\nglobalThis.quizdown.createApp(data.source, host, data.config ?? {});\n// 不用 .quizdown 声明式扫描,直接调用原生 createApp",
+    "codex": "// sandbox iframe 内加载 pinned UMD 浏览器包\nawait import('https://cdn.jsdelivr.net/gh/bonartm/quizdown-js@3c831c461dcf11c0f97adfa568ac761094e0ccc9/public/build/quizdown.js');\nconst host = document.createElement('div');\ndocument.getElementById('quiz').appendChild(host);\nglobalThis.quizdown.createApp(data.source, host, data.config ?? {});\n// 默认本地判分,无需上行"
+  },
+  "uplink": {
+    "widget": "默认仅在组件内本地判分;若产品需要回传,消费 AI 自行写 sendPrompt 边界逻辑,上游没有稳定公开的结果读取 API。",
+    "codex": "默认仅本地判分;若需要会话回传,消费 AI 自行写 sendFollowUpMessage 边界逻辑。",
+    "artifact": "artifact 无上行;保留可见结果页,或由消费 AI 另做结果 JSON 下载兜底。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:host 落我们的 shadowRoot,quizdown createApp 再 attachShadow,组件 CSS 自封闭",
+    "codex": "conditional:使用 pinned /gh/ UMD 副作用加载并读取 globalThis.quizdown;非 npm +esm 通道"
+  }
+}

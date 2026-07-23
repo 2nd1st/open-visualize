@@ -1,0 +1,68 @@
+{
+  "entry_version": "thin-1",
+  "id": "gridjs",
+  "name": "Grid.js",
+  "when_to_use": "需要轻量框架无关的本地搜索、排序和分页数据表时用它而非手写 table 状态机,因为原生手写在排序类型、筛选状态、分页边界和重绘一致性上失败;一次性静态小表格非做它。",
+  "why_valuable": "AI 默认只能写静态 table,做不到可靠的搜索/排序/分页组合状态与边界处理;Grid.js 用 columns+data 的浅契约补齐交互层。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "gridjs",
+    "version": "6.2.0",
+    "github": "grid-js/gridjs"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "data_in.config 直接传给 new Grid(config);本条主路径固定为 columns + 二维 data,每行单元格数必须与列数一致。",
+    "schema": {
+      "config": {
+        "columns": "(string | {name:string,id?:string,sort?:boolean,width?:string})[] —— id 默认从 name 规范化,sort 默认继承 config.sort,width 默认 auto",
+        "data": "(string | number | boolean | null)[][]",
+        "search?": "boolean —— boot 默认 true",
+        "sort?": "boolean | Gridjs.SortConfig —— boot 默认 true",
+        "pagination?": "false | {limit?:number,summary?:boolean} —— boot 默认 {limit:10},limit 默认 10,summary 默认 true",
+        "language?": "Gridjs.Language —— 默认上游英文文案",
+        "className?": "Gridjs.ClassName —— 默认主题类名"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "表格自身按内容增高;boot 给外层容器默认 max-height 400px与 overflow:auto,避免长数据撑穿载体,铁律 3 禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:主题 CSS 进入 document.head\nimport { Grid } from 'https://cdn.jsdelivr.net/npm/gridjs@6/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/gridjs@6/dist/theme/mermaid.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('grid'); el.style.maxHeight = '400px'; el.style.overflow = 'auto';\nconst config = { search: true, sort: true, pagination: { limit: 10 }, ...data.config };\nnew Grid(config).render(el);",
+    "widget": "import { Grid } from 'https://cdn.jsdelivr.net/npm/gridjs@6/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/gridjs@6/dist/theme/mermaid.min.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); el.style.maxHeight = '400px'; el.style.overflow = 'auto'; shadowRoot.appendChild(el);\nconst config = { search: true, sort: true, pagination: { limit: 10 }, ...data.config };\nnew Grid(config).render(el);",
+    "codex": "import { Grid } from 'https://cdn.jsdelivr.net/npm/gridjs@6/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/gridjs@6/dist/theme/mermaid.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('grid'); el.style.maxHeight = '400px'; el.style.overflow = 'auto';\nconst config = { search: true, sort: true, pagination: { limit: 10 }, ...data.config };\nnew Grid(config).render(el);"
+  },
+  "example": {
+    "_why": "表格 columns/data 的轴向容易颠倒,分页又有对象分支,附最小原生 config。",
+    "minimal": {
+      "config": {
+        "columns": ["Name", "Score"],
+        "data": [
+          ["Ada", 98],
+          ["Linus", 95]
+        ],
+        "search": true,
+        "sort": true,
+        "pagination": {
+          "limit": 10
+        }
+      }
+    },
+    "empty": {
+      "config": {
+        "columns": ["Name", "Score"],
+        "data": []
+      }
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:主题 CSS 放入 shadowRoot,Grid.js DOM 全落 shadow 容器",
+    "codex": "supported:ESM CDN + 同源 CSS,无上行依赖"
+  }
+}

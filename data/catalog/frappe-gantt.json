@@ -1,0 +1,100 @@
+{
+  "entry_version": "thin-1",
+  "id": "frappe-gantt",
+  "name": "Frappe Gantt",
+  "when_to_use": "需要任务区间、完成度、依赖箭头与日/周/月视图的交互甘特图时用它而非手写 SVG,因为原生在时间刻度、依赖布线、拖动几何和跨尺度视图上失败;非做普通点事件时间轴或仅展示三五项的静态清单。",
+  "why_valuable": "AI 默认只能写约 60% 的静态 Mermaid 甘特,做不到可靠的依赖箭头、可拖任务条/进度柄、日期刻度与多视图切换;Frappe Gantt 用浅 tasks 数组补齐这些能力。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "frappe-gantt",
+    "version": "1.2.2",
+    "github": "frappe/gantt"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "interval-set",
+    "note": "tasks 直接传给原生 new Gantt(element, tasks, options);start/end 使用 YYYY-MM-DD 或含时间的日期字符串,end 早于 start 或跨度超过十年会被上游判无效。下面不收回调,交互后的上行由消费 AI 自己接。",
+    "schema": {
+      "tasks": [
+        {
+          "id": "string —— 唯一且不要含空格;dependencies 引用此值",
+          "name": "string",
+          "start": "string —— YYYY-MM-DD 或 YYYY-MM-DD HH:mm",
+          "end": "string —— YYYY-MM-DD 或 YYYY-MM-DD HH:mm",
+          "progress?": "number 0..100 —— 默认 0",
+          "dependencies?": "string | string[] —— 前置任务 id,字符串用逗号分隔;默认 []",
+          "description?": "string —— popup 副标题,默认空字符串",
+          "custom_class?": "string —— 任务条 CSS class,默认不设置"
+        }
+      ],
+      "options?": {
+        "_default": "缺省为 {}",
+        "view_mode?": "'Hour' | 'Quarter Day' | 'Half Day' | 'Day' | 'Week' | 'Month' | 'Year' —— 默认 'Day'",
+        "readonly?": "boolean —— 默认 false",
+        "readonly_dates?": "boolean —— 默认 false",
+        "readonly_progress?": "boolean —— 默认 false",
+        "scroll_to?": "'today' | 'start' | 'end' | string-date —— 默认 'today'",
+        "language?": "ISO 639-1 string —— 默认 'en'",
+        "view_mode_select?": "boolean —— 默认 false"
+      },
+      "empty_text?": "string —— tasks 为空时由 boot 显示,默认 '暂无任务'"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "甘特表格/几何布局必须在初始化前获得明确像素高度;默认 400px,AI 可覆盖。boot 同时设置容器 height 与上游 container_height,禁用 vh/百分比高(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合前按此推断写\nimport Gantt from 'https://cdn.jsdelivr.net/npm/frappe-gantt@1/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/frappe-gantt@1/dist/frappe-gantt.css' }); document.head.appendChild(css);\nconst el = document.getElementById('gantt'); el.style.height = `${spec.height ?? 400}px`;\nconst gantt = data.tasks.length ? new Gantt(el, data.tasks, { ...(data.options ?? {}), container_height: spec.height ?? 400 }) : null;\nif (!gantt) el.textContent = data.empty_text ?? '暂无任务';",
+    "widget": "// CSS 与挂载点都落 shadow 容器内(widget 零足迹)\nimport Gantt from 'https://cdn.jsdelivr.net/npm/frappe-gantt@1/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/frappe-gantt@1/dist/frappe-gantt.css' });\nconst el = document.createElement('div'); el.style.height = `${spec.height ?? 400}px`; shadowRoot.append(css, el);\nconst gantt = data.tasks.length ? new Gantt(el, data.tasks, { ...(data.options ?? {}), container_height: spec.height ?? 400 }) : null;\nif (!gantt) el.textContent = data.empty_text ?? '暂无任务';",
+    "codex": "import Gantt from 'https://cdn.jsdelivr.net/npm/frappe-gantt@1/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/frappe-gantt@1/dist/frappe-gantt.css' }); document.head.appendChild(css);\nconst el = document.getElementById('gantt'); el.style.height = `${spec.height ?? 400}px`;\nconst gantt = data.tasks.length ? new Gantt(el, data.tasks, { ...(data.options ?? {}), container_height: spec.height ?? 400 }) : null;\nif (!gantt) el.textContent = data.empty_text ?? '暂无任务';"
+  },
+  "example": {
+    "_why": "甘特图的日期区间、依赖 id 与视图选项组合有歧义,minimal example 用原生 tasks/options 形状消歧。",
+    "minimal": {
+      "tasks": [
+        {
+          "id": "design",
+          "name": "Design",
+          "start": "2026-07-20",
+          "end": "2026-07-23",
+          "progress": 100
+        },
+        {
+          "id": "build",
+          "name": "Build",
+          "start": "2026-07-24",
+          "end": "2026-07-30",
+          "progress": 45,
+          "dependencies": [
+            "design"
+          ]
+        }
+      ],
+      "options": {
+        "view_mode": "Day",
+        "readonly": false,
+        "view_mode_select": true
+      }
+    },
+    "empty": {
+      "tasks": [],
+      "empty_text": "暂无任务"
+    }
+  },
+  "uplink": "display/local-interact 类,默认无需上行。若要回传改期或进度,由消费 AI 直接接 Frappe Gantt 原生回调并按载体分支;本条不规定统一事件出口。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:须把 frappe-gantt.css 与容器一并落入 shadowRoot;构造器直接接收 HTMLElement,SVG、popup 与交互 DOM 均留在该容器内",
+    "codex": "supported:ESM CDN + 外部 CSS + SVG/DOM,无 worker/wasm 或默认上行依赖"
+  },
+  "scenarios": [
+    "data-explore",
+    "input-cocreate",
+    "browse-compare"
+  ],
+  "owner": true,
+  "owner_note": "pick 合并三个场景;本条以 data-explore 为 owner,交互共创与浏览比较复用同一原生组件。"
+}

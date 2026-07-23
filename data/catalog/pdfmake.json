@@ -1,0 +1,104 @@
+{
+  "entry_version": "thin-1",
+  "id": "pdfmake",
+  "name": "pdfmake",
+  "when_to_use": "需要在浏览器把声明式文档树稳定生成含多栏、表格、页眉页脚和自动分页的真 PDF 时用它而非手写 PDF 或 print CSS，因为原生在字体嵌入、跨页表格和分页确定性上失败；非做所见即所得编辑器或浏览器交互应用。",
+  "why_valuable": "AI 默认做不到 PDF 字节生成、字体嵌入、跨页表头复现和多页排版，只会生成不稳定的 print CSS；pdfmake 把难点收敛到可校验的 docDefinition 树。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "pdfmake",
+    "version": "0.3.11",
+    "github": "bpampuch/pdfmake"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "hierarchy",
+    "note": "data_in.docDefinition 直接传给 pdfMake.createPdf；下面只钉死高频节点，未列路径查上游 0.3 API，不另造中间格式。",
+    "schema": {
+      "docDefinition": {
+        "content": "Content[] —— 每项为 string，或含 text/stack/columns/table/ul/ol/image/svg/qr 之一的节点",
+        "pageSize?": "string | {width:number,height:number} —— 默认 'A4'",
+        "pageOrientation?": "'portrait' | 'landscape' —— 默认 'portrait'",
+        "pageMargins?": "number | [horizontal,vertical] | [left,top,right,bottom] —— 默认 40pt 四边",
+        "header?": "Content | ((currentPage:number,pageCount:number,pageSize:object)=>Content) —— 默认省略",
+        "footer?": "Content | ((currentPage:number,pageCount:number,pageSize:object)=>Content) —— 默认省略",
+        "styles?": "Record<string,Style> —— 默认 {}",
+        "defaultStyle?": "Style —— 默认 {fontSize:12,font:'Roboto'}",
+        "info?": "{title?:string,author?:string,subject?:string,keywords?:string} —— 默认省略",
+        "table_node": {
+          "table": {
+            "body": "Cell[][] —— 至少一行且各行列数一致",
+            "headerRows?": "integer —— 默认 0",
+            "widths?": "(number | 'auto' | '*')[] —— 默认每列 'auto'"
+          },
+          "layout?": "string | object —— 默认无外框自定义（用内置默认表格布局）"
+        }
+      }
+    }
+  },
+  "spec": {
+    "height": 640,
+    "note": "预览通过 iframe 显示 PDF blob，容器必须显式 height；默认 640px，AI 可覆盖，铁律 3 禁 vh/百分比高。生成文件本身的纸张尺寸由 docDefinition.pageSize 决定。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:原生 browser API + 内置 Roboto VFS\nimport pdfMake from 'https://cdn.jsdelivr.net/npm/pdfmake@0/+esm';\nimport vfs from 'https://cdn.jsdelivr.net/npm/pdfmake@0/build/vfs_fonts.js/+esm';\npdfMake.addVirtualFileSystem(vfs);\nconst blob = await pdfMake.createPdf(data.docDefinition).getBlob();\nconst f = document.createElement('iframe'); f.style.cssText = 'width:100%;height:640px;border:0'; f.src = URL.createObjectURL(blob);\ndocument.getElementById('pdf').appendChild(f);",
+    "widget": "// PDF iframe 落到 shadowRoot；无 document.head 注入\nimport pdfMake from 'https://cdn.jsdelivr.net/npm/pdfmake@0/+esm';\nimport vfs from 'https://cdn.jsdelivr.net/npm/pdfmake@0/build/vfs_fonts.js/+esm';\npdfMake.addVirtualFileSystem(vfs);\nconst blob = await pdfMake.createPdf(data.docDefinition).getBlob();\nconst f = document.createElement('iframe'); f.style.cssText = 'width:100%;height:640px;border:0'; f.src = URL.createObjectURL(blob);\nshadowRoot.appendChild(f);",
+    "codex": "// sandbox iframe:同 artifact；createPdf(...).getBlob() 后把 blob URL 交给显式 640px 高的 iframe\n// 若只需文件，由消费 AI 对同一 OutputDocument 调用 download(filename)，不建立事件契约。"
+  },
+  "example": {
+    "_why": "docDefinition 是深 config，尤其 table.body/headerRows/widths 容易错位，minimal 用真实上游字段校准。",
+    "minimal": {
+      "docDefinition": {
+        "content": [
+          {
+            "text": "Quarterly report",
+            "style": "title"
+          },
+          {
+            "table": {
+              "headerRows": 1,
+              "widths": [
+                "*",
+                "auto"
+              ],
+              "body": [
+                [
+                  "Item",
+                  "Value"
+                ],
+                [
+                  "Revenue",
+                  "120"
+                ]
+              ]
+            }
+          }
+        ],
+        "styles": {
+          "title": {
+            "fontSize": 20,
+            "bold": true,
+            "margin": [
+              0,
+              0,
+              0,
+              12
+            ]
+          }
+        }
+      }
+    },
+    "empty": {
+      "docDefinition": {
+        "content": []
+      }
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:jsDelivr ESM + Roboto VFS + blob URL + iframe 均须放行；生成与预览全在 shadow 容器内，无 head CSS",
+    "codex": "supported:browser ESM、Blob、object URL 与 iframe；远程 image/font 另受 img-cdn/font-cdn 策略约束"
+  }
+}

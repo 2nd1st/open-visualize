@@ -1,0 +1,59 @@
+{
+  "entry_version": "thin-1",
+  "id": "tsparticles-confetti",
+  "name": "tsParticles Confetti",
+  "when_to_use": "需要一次性礼花、炮筒、坠落或 emoji/card 等异形彩屑且还要精确控制发射物理时用它而非手写 canvas,因为原生在 emitter、粒子寿命、旋转与多形状组合上失败;只有普通彩纸爆炸时优先更轻的 confetti 包。",
+  "why_valuable": "AI 默认只能画一批同形矩形并给近似抛物线,做不到 emitter、shape plugin、逐粒子寿命/翻滚/摇摆的稳定协同;本包把完整 tsParticles 子引擎收进一个 confetti API。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@tsparticles/confetti",
+    "version": "4.3.2",
+    "github": "tsparticles/tsparticles"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "_why_no_example": "配置虽可扩展,但本条只暴露 confetti 的浅层原生参数,裁剪 schema 已足以一次拼对,不附 minimal example。",
+    "note": "data_in.options 精确传给 @tsparticles/confetti 的 confetti.create(canvas, options);本条不是通用 tsParticles 背景编辑器,也不暴露底层 engine plugin 配置。",
+    "schema": {
+      "options?": {
+        "_default": "{} —— 全部采用上游默认值",
+        "count?": "integer —— 粒子数,默认 50",
+        "angle?": "number —— 发射角度(度),默认 90",
+        "spread?": "number —— 扇形张角(度),默认 45",
+        "startVelocity?": "number —— 初速度,默认 45",
+        "decay?": "number —— 速度衰减系数,默认 0.9",
+        "flat?": "boolean —— 是否扁平渲染,默认 false",
+        "gravity?": "number —— 重力倍率,默认 1",
+        "drift?": "number —— 水平漂移,默认 0",
+        "ticks?": "integer —— 粒子寿命帧数,默认 200",
+        "position?": {
+          "_default": "{x:50,y:50}",
+          "x?": "number —— 画布宽度百分比,默认 50",
+          "y?": "number —— 画布高度百分比,默认 50"
+        },
+        "colors?": "string[] —— CSS 颜色列表,默认 ['#26ccff','#a25afd','#ff5e7e','#88ff5a','#fcff42','#ffa62d','#ff36ff']",
+        "shapes?": "string[] —— 已随 bundle 注册的形状名,默认 ['square','circle']",
+        "scalar?": "number —— 粒子缩放倍率,默认 1",
+        "zIndex?": "integer —— 画布层级,默认 100",
+        "disableForReducedMotion?": "boolean —— 系统偏好减少动画时停用,默认 true"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "自定义 canvas 必须有显式像素高度;默认 400px,宽度取容器 clientWidth(不可用时按 640px),禁用 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:自定义 canvas 把粒子限制在 artifact 容器\nimport { confetti } from 'https://cdn.jsdelivr.net/npm/@tsparticles/confetti@4/+esm';\nconst el = document.getElementById('confetti'); el.style.height = `${spec.height ?? 400}px`;\nconst canvas = document.createElement('canvas'); canvas.style.cssText = `width:100%;height:${spec.height ?? 400}px;display:block`;\ncanvas.width = el.clientWidth || 640; canvas.height = spec.height ?? 400; el.appendChild(canvas);\nconst fire = await confetti.create(canvas, data.options ?? {});",
+    "widget": "// canvas 直接落 shadow 容器,无 CSS/head 注入\nimport { confetti } from 'https://cdn.jsdelivr.net/npm/@tsparticles/confetti@4/+esm';\nconst el = document.createElement('div'); el.style.height = `${spec.height ?? 400}px`; shadowRoot.appendChild(el);\nconst canvas = document.createElement('canvas'); canvas.style.cssText = `width:100%;height:${spec.height ?? 400}px;display:block`;\ncanvas.width = el.clientWidth || 640; canvas.height = spec.height ?? 400; el.appendChild(canvas);\nconst fire = await confetti.create(canvas, data.options ?? {});",
+    "codex": "import { confetti } from 'https://cdn.jsdelivr.net/npm/@tsparticles/confetti@4/+esm';\nconst el = document.getElementById('confetti'); el.style.height = `${spec.height ?? 400}px`;\nconst canvas = document.createElement('canvas'); canvas.style.cssText = `width:100%;height:${spec.height ?? 400}px;display:block`;\ncanvas.width = el.clientWidth || 640; canvas.height = spec.height ?? 400; el.appendChild(canvas);\nconst fire = await confetti.create(canvas, data.options ?? {});"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:显式 canvas 落 shadowRoot,包内无 CSS/head 注入;需允许 jsDelivr ESM 与 canvas",
+    "codex": "supported:ESM CDN + canvas,无 worker/wasm/uplink 硬依赖"
+  }
+}

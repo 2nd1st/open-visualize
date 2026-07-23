@@ -1,0 +1,47 @@
+{
+  "entry_version": "thin-1",
+  "id": "json-formatter-js",
+  "name": "json-formatter-js",
+  "when_to_use": "需要渐进展开、折叠和类型着色地阅读深层对象或大数组时用它而非手写递归 details 树,因为原生手写在深层展开状态、大数组分块和节点创建性能上失败。",
+  "why_valuable": "AI 默认只能稳定输出浅层 JSON 的 pre 或少量 details;默认做不到任意深度折叠、大数组自动分块、按深度展开和类型一致着色。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "json-formatter-js",
+    "version": "2.5.23",
+    "github": "mohsen1/json-formatter-js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "_why_no_example": "JSON 是 AI 原生数据形态,value 直传构造器且无深 config,不附 minimal example。",
+    "note": "构造器只接收已解析的 object 或 array,不要传原始 JSON 字符串;ESM 入口会在 import 时把内置 CSS 写入 document.head。",
+    "schema": {
+      "value": "JSON object | JSON array —— 已解析值,不可为原始 JSON 字符串",
+      "open?": "non-negative integer | Infinity —— 初始展开深度,默认 1",
+      "config?": {
+        "_default": "未提供时使用上游 defaultConfig",
+        "hoverPreviewEnabled?": "boolean —— 默认 false",
+        "hoverPreviewArrayCount?": "number —— 默认 100",
+        "hoverPreviewFieldCount?": "number —— 默认 5",
+        "animateOpen?": "boolean —— 默认 true",
+        "animateClose?": "boolean —— 默认 true",
+        "theme?": "'dark' | null —— 默认 null",
+        "useToJSON?": "boolean —— 默认 true",
+        "maxArrayItems?": "positive integer —— 默认 100",
+        "exposePath?": "boolean —— 默认 false"
+      }
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:ESM import 自带 CSS 并写入 document.head\nimport JSONFormatter from 'https://cdn.jsdelivr.net/npm/json-formatter-js@2/+esm';\nconst el = document.getElementById('json-view');\nconst formatter = new JSONFormatter(data.value, data.open ?? 1, data.config ?? {});\nel.appendChild(formatter.render());",
+    "widget": "unsupported:json-formatter-js v2.5.23 的 ESM 入口在 import 时无条件向 document.head 追加内置 style,上游没有关闭或指定 shadow 样式目标的参数。",
+    "codex": "// sandbox iframe 吸收 ESM 的 document.head 样式副作用\nimport JSONFormatter from 'https://cdn.jsdelivr.net/npm/json-formatter-js@2/+esm';\nconst el = document.getElementById('json-view');\nconst formatter = new JSONFormatter(data.value, data.open ?? 1, data.config ?? {});\nel.appendChild(formatter.render());"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "unsupported:模块导入阶段固定注入 document.head,无法满足 CSS 只落 shadowRoot 的零足迹要求",
+    "codex": "supported:内置 CSS 与 DOM 树均被 sandbox iframe 隔离,无 worker/wasm/uplink"
+  }
+}

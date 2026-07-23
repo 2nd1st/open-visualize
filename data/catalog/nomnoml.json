@@ -1,0 +1,38 @@
+{
+  "entry_version": "thin-1",
+  "id": "nomnoml",
+  "name": "nomnoml",
+  "when_to_use": "需要用极简 DSL 画 UML/框线关系图且在意体积时用它,而非手写 canvas/SVG——原生手写在自动布局、连线避让和文本量尺上会失败。非做自由画布、实时协作或复杂 BPMN。",
+  "why_valuable": "AI 默认虽会写框线文本,却做不好稳定的 UML 节点布局与连线几何;nomnoml 让 AI 只写低歧义 DSL,由 graphre 确定性排版到 canvas。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "nomnoml",
+    "version": "1.7.0",
+    "github": "skanaar/nomnoml"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_minimal": "nomnoml DSL 是短文本原生记法,schema 足矣;不为浅配置附 minimal。",
+    "schema": {
+      "source": "string —— nomnoml DSL;节点用 [Name],关系如 [A]->[B],指令行以 # 开头",
+      "scale?": "number > 0 —— canvas 渲染倍率,默认 1"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "canvas 外层默认显式高 400px并滚动,禁 vh/百分比高(铁律 3);canvas 像素宽高由 nomnoml 按 DSL 布局写入,不要在 CSS 中拉伸变形。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:原生 canvas API\nimport nomnoml from 'https://cdn.jsdelivr.net/npm/nomnoml@1/+esm';\nconst host = document.getElementById('diagram'); host.style.cssText = 'height:400px;overflow:auto';\nconst canvas = document.createElement('canvas'); host.replaceChildren(canvas);\nnomnoml.draw(canvas, data.source, data.scale ?? 1);",
+    "widget": "// canvas 落到 shadow 容器,无 CSS/head 注入\nimport nomnoml from 'https://cdn.jsdelivr.net/npm/nomnoml@1/+esm';\nconst host = document.createElement('div'); host.style.cssText = 'height:400px;overflow:auto';\nconst canvas = document.createElement('canvas'); host.appendChild(canvas); shadowRoot.appendChild(host);\nnomnoml.draw(canvas, data.source, data.scale ?? 1);",
+    "codex": "// sandbox iframe fragment\nimport nomnoml from 'https://cdn.jsdelivr.net/npm/nomnoml@1/+esm';\nconst host = document.getElementById('diagram'); host.style.cssText = 'height:400px;overflow:auto';\nconst canvas = document.createElement('canvas'); host.replaceChildren(canvas);\nnomnoml.draw(canvas, data.source, data.scale ?? 1);"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:canvas 与 graphre 纯 JS 均落 shadow 容器,无 CSS/worker/wasm/uplink",
+    "codex": "supported:ESM CDN + canvas"
+  }
+}

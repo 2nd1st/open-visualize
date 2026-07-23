@@ -1,0 +1,100 @@
+{
+  "entry_version": "thin-1",
+  "id": "qr-code-styling",
+  "name": "qr-code-styling",
+  "when_to_use": "需要把 URL/文本做成带圆点、品牌色、渐变或 logo 且仍可扫码的 QR 交付物时用它而非手拼 SVG，因为原生在纠错编码、finder pattern、logo 遮挡与模块留白上失败；非做扫码识别器。",
+  "why_valuable": "AI 默认只能画“像二维码”的随机方格，做不到 QR 版本选择、纠错码、掩模、定位图形与 logo 背景点隐藏，输出不可验证扫描；该库把标准编码和品牌样式放在同一配置里。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "qr-code-styling",
+    "version": "1.9.2",
+    "github": "kozakdenys/qr-code-styling"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "options 直接传给 new QRCodeStyling；boot 仅把默认输出校准为 256×256 SVG，未列函数扩展不进入纯数据 schema。",
+    "schema": {
+      "options": {
+        "data": "string —— 待编码文本；空字符串为空态，不绘制码",
+        "type?": "'svg' | 'canvas' —— 本 entry 默认 svg",
+        "shape?": "'square' | 'circle' —— 默认 square",
+        "width?": "positive integer CSS pixels —— 默认 256",
+        "height?": "positive integer CSS pixels —— 默认取 spec.height（初始 256）",
+        "margin?": "non-negative number CSS pixels —— 默认 0",
+        "image?": "string URL 或 data URI —— 默认省略，不放 logo",
+        "qrOptions?": {
+          "_default": "{typeNumber:0,errorCorrectionLevel:'Q'}，mode 自动",
+          "typeNumber?": "integer 0..40 —— 默认 0，自动选择",
+          "mode?": "'Numeric' | 'Alphanumeric' | 'Byte' | 'Kanji' —— 默认自动",
+          "errorCorrectionLevel?": "'L' | 'M' | 'Q' | 'H' —— 默认 Q"
+        },
+        "imageOptions?": {
+          "_default": "{saveAsBlob:true,hideBackgroundDots:true,imageSize:0.4,margin:0}",
+          "saveAsBlob?": "boolean —— 默认 true",
+          "hideBackgroundDots?": "boolean —— 默认 true",
+          "imageSize?": "number 0..1 —— 默认 0.4",
+          "crossOrigin?": "string —— 默认省略",
+          "margin?": "non-negative number CSS pixels —— 默认 0"
+        },
+        "dotsOptions?": {
+          "_default": "{type:'square',color:'#000',roundSize:true}",
+          "type?": "'dots' | 'rounded' | 'classy' | 'classy-rounded' | 'square' | 'extra-rounded' —— 默认 square",
+          "color?": "CSS color string —— 默认 #000",
+          "roundSize?": "boolean —— 默认 true",
+          "gradient?": "{type:'linear'|'radial',rotation?:number,colorStops:{offset:number 0..1,color:string}[]} —— 默认省略；rotation 默认 0"
+        },
+        "cornersSquareOptions?": "{type?:'dot'|'square'|'extra-rounded'|DotType,color?:string,gradient?:Gradient} —— 默认省略，沿用黑色方形定位框",
+        "cornersDotOptions?": "{type?:'dot'|'square'|DotType,color?:string,gradient?:Gradient} —— 默认省略，沿用黑色方形定位点",
+        "backgroundOptions?": "{round?:number,color?:string,gradient?:Gradient} —— 默认 {round:0,color:'#fff'}"
+      }
+    }
+  },
+  "spec": {
+    "height": 256,
+    "note": "SVG/canvas 二维码必须有明确像素尺寸；boot 默认 256px 高并让 options.height 覆盖 spec.height，禁止 vh/百分比高，宽度由 options.width 默认 256px。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:输出节点只追加到指定容器，无 CSS/head 注入\nimport { QRCodeStyling } from 'https://cdn.jsdelivr.net/npm/qr-code-styling@1/+esm';\nconst opt={type:'svg',width:256,height:spec.height??256,...data.options};\nconst host=document.getElementById('qr'); host.style.cssText=`width:${opt.width}px;height:${opt.height}px;max-width:100%`;\nconst qr=new QRCodeStyling(opt);\nqr.append(host);",
+    "widget": "// QR 生成的 SVG/canvas 落到 shadowRoot 容器\nimport { QRCodeStyling } from 'https://cdn.jsdelivr.net/npm/qr-code-styling@1/+esm';\nconst opt={type:'svg',width:256,height:spec.height??256,...data.options};\nconst host=document.createElement('div'); host.style.cssText=`width:${opt.width}px;height:${opt.height}px;max-width:100%`; shadowRoot.appendChild(host);\nconst qr=new QRCodeStyling(opt);\nqr.append(host);",
+    "codex": "import { QRCodeStyling } from 'https://cdn.jsdelivr.net/npm/qr-code-styling@1/+esm';\nconst opt={type:'svg',width:256,height:spec.height??256,...data.options};\nconst host=document.getElementById('qr'); host.style.cssText=`width:${opt.width}px;height:${opt.height}px;max-width:100%`;\nconst qr=new QRCodeStyling(opt);\nqr.append(host);"
+  },
+  "example": {
+    "_why": "样式 config 深且 dots/corners/background/qrOptions 容易错层，minimal 保留一个可扫描的品牌化 SVG。",
+    "minimal": {
+      "options": {
+        "data": "https://example.com",
+        "type": "svg",
+        "width": 256,
+        "height": 256,
+        "qrOptions": {
+          "errorCorrectionLevel": "Q"
+        },
+        "dotsOptions": {
+          "type": "rounded",
+          "color": "#111827"
+        },
+        "cornersSquareOptions": {
+          "type": "extra-rounded",
+          "color": "#2563EB"
+        },
+        "backgroundOptions": {
+          "color": "#FFFFFF"
+        }
+      }
+    },
+    "empty": {
+      "options": {
+        "data": ""
+      }
+    }
+  },
+  "uplink": "纯生成/显示组件，默认无需上行；下载由消费 AI 直接调用 qr.download({name,extension}) 或 getRawData(extension)，不封装统一事件。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:无 logo 时纯 SVG/canvas 且完全落 shadowRoot；远程 image 需宿主放行图片域与 CORS，建议 data URI",
+    "codex": "supported:ESM CDN + SVG/canvas；远程 logo 仍受图片 CORS，默认无 logo"
+  }
+}

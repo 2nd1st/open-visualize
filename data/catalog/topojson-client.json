@@ -1,0 +1,50 @@
+{
+  "entry_version": "thin-1",
+  "id": "topojson-client",
+  "name": "topojson-client",
+  "when_to_use": "需要把 atlas 类 TopoJSON 解码成 GeoJSON、提取共享边界或合并行政区时用它而非手写弧段解码,因为原生在 delta/transform 还原、反向弧与拓扑拼接上失败。",
+  "why_valuable": "AI 默认做不到正确还原 TopoJSON 的 delta-encoded arcs、负索引反向弧和 transform,手写合并还会破坏共享边界;本 primitive 是 us-atlas/world-atlas 到 d3-geo 或 ECharts 的可靠桥。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "topojson-client",
+    "version": "3.1.0",
+    "github": "topojson/topojson-client"
+  },
+  "license": "ISC",
+  "data_in": {
+    "shape": "geometry",
+    "note": "输入精确是 TopoJSON Topology 与其 objects 中的一个键;不是 GeoJSON。object_name 必须命中 topology.objects,例如 us-atlas counties-10m.json 的 'counties'。",
+    "schema": {
+      "topology": {
+        "type": "'Topology'",
+        "objects": "Record<string, TopoJSON Geometry | GeometryCollection>",
+        "arcs": "number[][][]",
+        "transform?": "{scale:[number,number], translate:[number,number]} —— 默认缺省,缺省时 arcs 已是绝对坐标",
+        "bbox?": "[number, number, number, number] —— 默认缺省"
+      },
+      "object_name": "string —— topology.objects 的现有键"
+    }
+  },
+  "provides": {
+    "shape": "geometry",
+    "_note": "headless-primitive:不渲染、无 L 级、无 carriers 矩阵;它生产标准 GeoJSON 或共享边界几何。",
+    "outputs": {
+      "feature": "feature(topology, object) → GeoJSON Feature | FeatureCollection",
+      "mesh": "mesh(topology, object, filter?) → GeoJSON MultiLineString",
+      "merge": "merge(topology, geometries) → GeoJSON MultiPolygon",
+      "neighbors": "neighbors(geometryCollections) → number[][] 邻接索引"
+    }
+  },
+  "peer": {
+    "ids": [
+      "d3-geo",
+      "echarts"
+    ],
+    "note": "最常见链路是 pinned atlas JSON → feature(...) → d3-geo geoPath 或 ECharts registerMap;atlas 是生产者,地图组件是消费者。"
+  },
+  "boot": {
+    "shared": "import { feature } from 'https://cdn.jsdelivr.net/npm/topojson-client@3/+esm';\nconst object = data.topology.objects[data.object_name];\nif (!object) throw new Error(`Unknown TopoJSON object: ${data.object_name}`);\nconst geojson = feature(data.topology, object);\n// geojson 可直接交给 d3-geo 或 ECharts registerMap",
+    "note": "主路径只做 feature 解码。共享州界/县界改用 mesh(topology, object, (a,b) => a !== b);行政区合并改用 merge,不要把 Topology 直接冒充 GeoJSON。"
+  }
+}

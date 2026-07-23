@@ -1,0 +1,70 @@
+{
+  "entry_version": "thin-1",
+  "id": "vanilla-jsoneditor",
+  "name": "vanilla-jsoneditor (svelte-jsoneditor)",
+  "when_to_use": "需要 tree/text/table 三模式编辑、JSON 修复、校验与大文档虚拟化时用它而非手写编辑器,因为原生 AI 在结构编辑、undo、错误定位和大数组性能上失败;非做通用代码编辑器或 JSON Schema 表单。",
+  "why_valuable": "AI 默认只能做静态 JSON 展示或一个 textarea,做不到树形结构编辑、table 投影、可靠 undo、解析修复、校验错误定位与大文档虚拟化;该库把这些能力收敛到 content + mode 与 editor.get()。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "vanilla-jsoneditor",
+    "version": "3.12.0",
+    "github": "josdejong/svelte-jsoneditor"
+  },
+  "license": "ISC",
+  "data_in": {
+    "shape": "key-value",
+    "note": "content 精确使用上游互斥 union:{json:JSONValue} 或 {text:string};不要把裸 JSON 直接当 props.content。table 模式只适合对象数组等可投影结构。",
+    "schema": {
+      "content": "{ json: JSONValue } | { text: string } —— 二选一",
+      "JSONValue": "null | boolean | number | string | JSONValue[] | { [key: string]: JSONValue }",
+      "mode?": "'tree'|'text'|'table' —— 默认 'tree'",
+      "readOnly?": "boolean —— 默认 false",
+      "mainMenuBar?": "boolean —— 默认 true",
+      "navigationBar?": "boolean —— 默认 true",
+      "statusBar?": "boolean —— 默认 true",
+      "indentation?": "number | string —— 默认 2"
+    }
+  },
+  "spec": {
+    "height": 520,
+    "note": "编辑器/表格模式须有显式像素高度;默认 520px,AI 可覆盖,铁律 3 禁 vh/百分比高。挂载点必须已可见并允许内部滚动。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:上游 ESM 会把基底 .jse-* CSS 写入 artifact document.head\nimport { createJSONEditor } from 'https://cdn.jsdelivr.net/npm/vanilla-jsoneditor@3/+esm';\nconst el = document.getElementById('jsoneditor'); el.style.height = `${spec.height ?? 520}px`;\nconst editor = createJSONEditor({ target: el, props: { content: data.content, mode: data.mode ?? 'tree', readOnly: data.readOnly ?? false, mainMenuBar: data.mainMenuBar ?? true, navigationBar: data.navigationBar ?? true, statusBar: data.statusBar ?? true, indentation: data.indentation ?? 2 } });\nconst snapshot = () => editor.get();",
+    "widget": "// 上游基底 CSS 硬写 document.head;动态导入后把本次 .jse-* style 移入 shadow(铁律 2)\nconst before = new Set(document.head.querySelectorAll('style'));\nconst { createJSONEditor } = await import('https://cdn.jsdelivr.net/npm/vanilla-jsoneditor@3/+esm?ov-shadow=' + crypto.randomUUID());\nconst css = [...document.head.querySelectorAll('style')].filter((s) => !before.has(s) && s.textContent.includes('.jse-')); shadowRoot.append(...css);\nconst el = document.createElement('div'); el.style.height = `${spec.height ?? 520}px`; shadowRoot.appendChild(el);\nconst editor = createJSONEditor({ target: el, props: { content: data.content, mode: data.mode ?? 'tree', readOnly: data.readOnly ?? false, mainMenuBar: data.mainMenuBar ?? true, navigationBar: data.navigationBar ?? true, statusBar: data.statusBar ?? true, indentation: data.indentation ?? 2 } });",
+    "codex": "// sandbox iframe 内按上游原生 API 挂载;模块基底样式留在 iframe head\nimport { createJSONEditor } from 'https://cdn.jsdelivr.net/npm/vanilla-jsoneditor@3/+esm';\nconst el = document.getElementById('jsoneditor'); el.style.height = `${spec.height ?? 520}px`;\nconst editor = createJSONEditor({ target: el, props: { content: data.content, mode: data.mode ?? 'tree', readOnly: data.readOnly ?? false, mainMenuBar: data.mainMenuBar ?? true, navigationBar: data.navigationBar ?? true, statusBar: data.statusBar ?? true, indentation: data.indentation ?? 2 } });\nconst snapshot = () => editor.get();"
+  },
+  "example": {
+    "_why": "编辑器的 content union 与 table/tree 模式有高歧义;minimal 同时钉死 content 包装层和 mode。",
+    "minimal": {
+      "content": {
+        "json": [
+          { "name": "Alpha", "score": 8 },
+          { "name": "Beta", "score": 13 }
+        ]
+      },
+      "mode": "table",
+      "readOnly": false,
+      "mainMenuBar": true,
+      "navigationBar": true,
+      "statusBar": true,
+      "indentation": 2
+    },
+    "empty": {
+      "content": { "json": {} },
+      "mode": "tree"
+    }
+  },
+  "uplink": {
+    "widget": "消费 AI 自行在明确的确认控件中读取 editor.get(),再拼 sendPrompt 文案;不预设统一事件出口。",
+    "codex": "消费 AI 自行读取 editor.get() 并调用 sendFollowUpMessage。",
+    "artifact": "artifact 无上行;提供 editor.get() 结果的 JSON 下载导出兜底。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:3.12.0 基底 CSS 在模块求值时硬写 document.head;boot 以唯一查询串动态导入并把本次 .jse-* style 移入 shadowRoot,宿主须允许动态 ESM 与 crypto.randomUUID",
+    "codex": "supported:jsDelivr +esm 可得 createJSONEditor;基底样式封在 sandbox iframe head,无 worker/wasm"
+  }
+}

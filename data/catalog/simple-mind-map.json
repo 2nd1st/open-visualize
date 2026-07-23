@@ -1,0 +1,89 @@
+{
+  "entry_version": "thin-1",
+  "id": "simple-mind-map",
+  "name": "simple-mind-map",
+  "when_to_use": "需要多种布局、完整 JSON 回放和富功能大纲/思维导图编辑时用它而非手写 SVG,因为原生在复杂自动布局、节点编辑、视图变换和序列化一致性上失败。非做静态大纲或小型只读树。",
+  "why_valuable": "AI 默认只能生成静态树或 Mermaid;默认做不到十余种导图布局、节点级编辑、缩放平移、历史回退及包含布局/主题/视图的全量结构回读。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "simple-mind-map",
+    "version": "0.14.0-fix.3",
+    "github": "wanglin2/mind-map"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "hierarchy",
+    "note": "构造器的 data 参数吃单个根 Node,所以 catalog 用 data.root 明确根边界;不要把 getData(true) 返回的全量对象直接塞给 data,全量对象的根在其 root 字段。",
+    "schema": {
+      "root": {
+        "data": {
+          "text": "string",
+          "expand?": "boolean —— 是否展开,根节点固定 true,其余默认 true",
+          "note?": "string —— 默认省略",
+          "hyperlink?": "string URL —— 默认省略"
+        },
+        "children?": "Node[] —— 递归同结构,默认 []"
+      },
+      "options?": {
+        "layout?": "'logicalStructure'|'logicalStructureLeft'|'mindMap'|'organizationStructure'|'catalogOrganization'|'timeline'|'verticalTimeline'|'fishbone' —— 默认 'logicalStructure'",
+        "readonly?": "boolean —— 默认 false"
+      }
+    }
+  },
+  "spec": {
+    "height": 500,
+    "note": "该 SVG 编辑器在构造时读取容器宽高;默认 height 500px,AI 可覆盖为其他明确像素值,禁用 vh/百分比高(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:官方静态 CSS 与运行时样式均进入 document.head\nimport MindMap from 'https://cdn.jsdelivr.net/npm/simple-mind-map@0/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/simple-mind-map@0/dist/simpleMindMap.esm.css' });\ndocument.head.appendChild(css);\nconst el = document.getElementById('mindmap'); el.style.height = `${spec.height ?? 500}px`;\nconst mindMap = new MindMap({ el, data: data.root, layout: data.options?.layout ?? 'logicalStructure', readonly: data.options?.readonly ?? false, fit: true });",
+    "widget": "unsupported:上游实例化时把必要的动态 <style> 直接追加到 document.head;该样式无法穿透 widget shadowRoot,原生 API 没有样式根参数。",
+    "codex": "// sandbox iframe 可接受上游的 document.head 样式写入\nimport MindMap from 'https://cdn.jsdelivr.net/npm/simple-mind-map@0/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/simple-mind-map@0/dist/simpleMindMap.esm.css' });\ndocument.head.appendChild(css);\nconst el = document.getElementById('mindmap'); el.style.height = `${spec.height ?? 500}px`;\nconst mindMap = new MindMap({ el, data: data.root, layout: data.options?.layout ?? 'logicalStructure', readonly: data.options?.readonly ?? false, fit: true });"
+  },
+  "example": {
+    "_why": "上游构造器吃裸根节点,而全量导出又用 root 包裹;minimal 明确 catalog 包裹层与递归节点层的边界。",
+    "minimal": {
+      "root": {
+        "data": {
+          "text": "Product plan"
+        },
+        "children": [
+          {
+            "data": {
+              "text": "Discovery"
+            }
+          },
+          {
+            "data": {
+              "text": "Delivery"
+            }
+          }
+        ]
+      },
+      "options": {
+        "layout": "mindMap",
+        "readonly": false
+      }
+    },
+    "empty": {
+      "root": {
+        "data": {
+          "text": "Untitled"
+        },
+        "children": []
+      }
+    }
+  },
+  "uplink": {
+    "_note": "本条不预置统一事件出口;消费 AI 需要回传时自行读取 mindMap.getData(true)。",
+    "widget": "unsupported:原生样式不能满足 shadow 隔离,不提供 widget 上行。",
+    "codex": "消费 AI 自行把 mindMap.getData(true) 交给 sendFollowUpMessage。",
+    "artifact": "artifact 无上行;提供把 mindMap.getData(true) 下载为 JSON 的兜底。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "unsupported:运行时动态样式硬写 document.head,不能作用于 shadowRoot 内的导图 DOM",
+    "codex": "supported-with-global-style:iframe 内允许上游向 document.head 写实例样式;另需官方 CSS"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "entry_version": "thin-1",
+  "id": "openchemlib",
+  "name": "OpenChemLib JS",
+  "when_to_use": "需要把 SMILES 或 Molfile 校验并描绘成清晰 2D 化学结构时用它而非手写 SVG,因为原生在键型、芳香环、立体化学和坐标布局上失败;非做 3D 构象查看或完整化学编辑器。",
+  "why_valuable": "AI 默认无法从线性化学记法可靠恢复带立体信息的 2D 键线图,也不能保证芳香性与价态布局;OpenChemLib 用纯 JS 完成解析、坐标生成和 SVG 描绘。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "openchemlib",
+    "version": "9.24.0",
+    "github": "cheminfo/openchemlib-js"
+  },
+  "license": "BSD-3-Clause",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "SMILES/Molfile 是 AI 原生记法,schema 已钉死传入字符串与解析分支,不附 minimal example。",
+    "schema": {
+      "source": "string —— 完整 SMILES 或 MDL Molfile 文本,不要传包裹它的 JSON",
+      "format?": "'smiles' | 'molfile' —— 默认 'smiles'"
+    }
+  },
+  "spec": {
+    "height": 320,
+    "note": "toSVG 必须收到像素宽高;默认 height 320px,width 取容器像素宽或 480px,禁用 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合\nimport { Molecule } from 'https://cdn.jsdelivr.net/npm/openchemlib@9/+esm';\nconst el = document.getElementById('molecule'); el.style.height = '320px';\nconst mol = data.format === 'molfile' ? Molecule.fromMolfile(data.source) : Molecule.fromSmiles(data.source);\nel.innerHTML = mol.toSVG(el.clientWidth || 480, 320); // SVG 仅来自上游描绘器",
+    "widget": "// 纯 JS 解析;生成 SVG 落到 shadow 容器\nimport { Molecule } from 'https://cdn.jsdelivr.net/npm/openchemlib@9/+esm';\nconst el = document.createElement('div'); el.style.height = '320px'; shadowRoot.appendChild(el);\nconst mol = data.format === 'molfile' ? Molecule.fromMolfile(data.source) : Molecule.fromSmiles(data.source);\nel.innerHTML = mol.toSVG(el.clientWidth || 480, 320);",
+    "codex": "同 artifact(sandbox iframe):导入 Molecule,按 format 调 fromSmiles/fromMolfile,再把库生成的 toSVG(width,320) 放入容器。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:纯 ESM + 库生成 SVG,无 WASM/worker/CSS/font/uplink 足迹,DOM 落 shadow 容器",
+    "codex": "supported:ESM CDN + SVG"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "entry_version": "thin-1",
+  "id": "opensheetmusicdisplay",
+  "name": "OpenSheetMusicDisplay",
+  "when_to_use": "已有完整 MusicXML 且要在浏览器里自动分页、排版成可读 SVG 五线谱时用它,而非逐符号手写 VexFlow/SVG——原生手写在 MusicXML 解析、跨小节布局和整曲重排上失败;它非做谱面编辑器或音频播放器。",
+  "why_valuable": "AI 默认虽能生成 MusicXML,却无法把巨型 XML 直接变成可读且稳定的专业谱面,徒手渲染接近 0%;OSMD 把解析、VexFlow 刻版与响应式重排一次闭环。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "opensheetmusicdisplay",
+    "version": "2.0.0",
+    "github": "opensheetmusicdisplay/opensheetmusicdisplay"
+  },
+  "license": "BSD-3-Clause",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "MusicXML 是 AI 原生且标准化的 XML 记法,schema 钉死为完整文档即可;示例会喂入大量无助于挂载的样板,故不附 minimal。",
+    "schema": {
+      "musicxml": "string —— 完整 MusicXML 3.x/4.x XML 文档,根元素必须是 <score-partwise> 或 <score-timewise>;不要只传 measure/part 片段",
+      "drawTitle?": "boolean —— 是否绘制 MusicXML 标题,默认 true"
+    }
+  },
+  "spec": {
+    "height": 480,
+    "note": "OSMD 的 SVG 高度随谱面页数自然增长;boot 给容器 min-height 480px作为空载/首屏基线,实际不裁切。必须使用固定 px,禁 vh/百分比高;容器宽变化后可调用 osmd.render() 重排。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:jsDelivr +esm 将上游 UMD 暴露为 opensheetmusicdisplay 命名空间\nimport { opensheetmusicdisplay as OSMD } from 'https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@2/+esm';\nconst el = document.getElementById('score'); el.style.minHeight = '480px';\nconst osmd = new OSMD.OpenSheetMusicDisplay(el, { backend: 'svg', autoResize: true, drawTitle: data.drawTitle ?? true });\nawait osmd.load(data.musicxml);\nosmd.render();",
+    "widget": "import { opensheetmusicdisplay as OSMD } from 'https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@2/+esm';\nconst el = document.createElement('div'); el.style.minHeight = '480px';\nshadowRoot.appendChild(el);\nconst osmd = new OSMD.OpenSheetMusicDisplay(el, { backend: 'svg', autoResize: true, drawTitle: data.drawTitle ?? true });\nawait osmd.load(data.musicxml);\nosmd.render();",
+    "codex": "同 artifact(sandbox iframe):从 +esm 的 opensheetmusicdisplay 命名空间取 OpenSheetMusicDisplay,再 load(string) + render()。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:大包 ESM CDN;构造器直接接 shadow 内 HTMLElement并把 SVG 留在容器内,无外部 CSS",
+    "codex": "supported:ESM CDN + SVG;长 MusicXML 仅有解析/布局耗时,无 wasm/uplink"
+  }
+}

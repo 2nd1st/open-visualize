@@ -1,0 +1,52 @@
+{
+  "entry_version": "thin-1",
+  "id": "js-confetti",
+  "name": "JS Confetti",
+  "when_to_use": "需要零配置全幅纸屑或按对话语境换成 emoji 粒子时用它,而非手写 canvas 动画——原生在 emoji 旋转、屏宽自适应、DPR 与批次清理上失败。",
+  "why_valuable": "AI 默认只能拼出短命的 emoji 粒子 demo,做不到跨屏宽速度校准、HiDPI 重绘与批次完成管理；JS Confetti 把 emoji/颜色效果压成一个浅 options 对象。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "js-confetti",
+    "version": "0.13.1",
+    "github": "loonywizard/js-confetti"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "boot 总是传自建 canvas,避免 new JSConfetti() 默认向 document.body 注入全屏 canvas；origin 存在时走上游 addConfettiAtPosition。",
+    "schema": {
+      "options?": {
+        "emojis?": "string[] —— 默认 []；非空时默认粒子数 40",
+        "emojiSize?": "positive number px —— 默认 80",
+        "confettiColors?": "CSS color string[] —— 默认上游八色调色板",
+        "confettiRadius?": "positive number px —— 默认 6",
+        "confettiNumber?": "non-negative integer —— 默认:emoji 为 40,普通纸屑为 250"
+      },
+      "origin?": "{x:number,y:number} —— viewport client 坐标；默认无,从画布两侧发射"
+    }
+  },
+  "spec": {
+    "height": 240,
+    "note": "自定义 canvas 的 CSS width/height 与宿主区域都必须可计算；boot 默认明确 240px 高,库按 devicePixelRatio 更新 backing store。禁用 vh/百分比高度。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:传 custom canvas,避免默认写 document.body\nimport JSConfetti from 'https://cdn.jsdelivr.net/npm/js-confetti@0/+esm';\nconst host = document.getElementById('confetti'); host.style.cssText = `position:relative;height:${spec.height ?? 240}px;overflow:hidden`;\nconst canvas = document.createElement('canvas'); canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%'; host.appendChild(canvas);\nconst fx = new JSConfetti({canvas});\nawait (data.origin ? fx.addConfettiAtPosition({...data.options, confettiDispatchPosition:data.origin}) : fx.addConfetti(data.options ?? {}));",
+    "widget": "// custom canvas 与动画均留在 shadowRoot\nimport JSConfetti from 'https://cdn.jsdelivr.net/npm/js-confetti@0/+esm';\nconst host = document.createElement('div'); host.style.cssText = `position:relative;height:${spec.height ?? 240}px;overflow:hidden`; shadowRoot.appendChild(host);\nconst canvas = document.createElement('canvas'); canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%'; host.appendChild(canvas);\nconst fx = new JSConfetti({canvas});\nawait (data.origin ? fx.addConfettiAtPosition({...data.options, confettiDispatchPosition:data.origin}) : fx.addConfetti(data.options ?? {}));",
+    "codex": "import JSConfetti from 'https://cdn.jsdelivr.net/npm/js-confetti@0/+esm';\nconst host = document.getElementById('confetti'); host.style.cssText = `position:relative;height:${spec.height ?? 240}px;overflow:hidden`;\nconst canvas = document.createElement('canvas'); canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%'; host.appendChild(canvas);\nconst fx = new JSConfetti({canvas});\nawait (data.origin ? fx.addConfettiAtPosition({...data.options, confettiDispatchPosition:data.origin}) : fx.addConfetti(data.options ?? {}));"
+  },
+  "example": {
+    "_why_no_minimal": "emoji 与颜色配置是浅键值,无需 minimal；空态把粒子数置零。",
+    "empty": {
+      "options": {
+        "confettiNumber": 0
+      }
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:构造器接收 shadow 内 custom canvas,无需默认 document.body 注入或外部 CSS",
+    "codex": "supported:ESM CDN + canvas,无 worker/wasm/外部资产"
+  }
+}

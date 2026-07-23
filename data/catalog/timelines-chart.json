@@ -1,0 +1,101 @@
+{
+  "entry_version": "thin-1",
+  "id": "timelines-chart",
+  "name": "timelines-chart",
+  "when_to_use": "需要按组/实体展示离散或连续状态区间、颜色图例并用 brush 缩放的泳道图时用它而非手写 SVG,因为原生在区间命中、跨尺度时间轴、纵向泳道布局与缩放同步上失败;非做项目依赖甘特或单点事件列表。",
+  "why_valuable": "AI 默认做不到服务可用性、设备状态或值班表这类状态带泳道:时间段布局、brush 缩放、颜色尺度与大量行的命中检测均为零能力区;本组件用固定三层数组一次表达。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "timelines-chart",
+    "version": "2.14.3",
+    "github": "vasturiano/timelines-chart"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "interval-set",
+    "note": "原生精确形状是 Group[]:group.data[] 是泳道,每条泳道的 data[] 才是时间段;timeRange 接 Date 或 epoch-milliseconds,JSON 传 ISO 字符串也会被上游 new Date 转换。val 全局统一用类别字符串或连续数值。",
+    "schema": {
+      "groups": [
+        {
+          "group": "string —— 分组标题",
+          "data": [
+            {
+              "label": "string —— 泳道标签",
+              "data": [
+                {
+                  "timeRange": "[Date | ISO-8601 string | epoch-milliseconds, Date | ISO-8601 string | epoch-milliseconds] —— [start,end]",
+                  "val": "string | number —— qualitative=true 时用 string,否则用 number",
+                  "labelVal?": "string | number —— 左侧/提示显示值,默认等于 val"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "options?": {
+        "_default": "缺省为 {}",
+        "qualitative?": "boolean —— 类别色标模式,默认 false(连续数值色标)",
+        "use_utc?": "boolean —— 默认 false(本地时区)",
+        "time_format?": "d3-time-format string —— 默认 '%Y-%m-%d %-I:%M:%S %p'",
+        "max_line_height?": "number(px) —— 默认 12",
+        "enable_overview?": "boolean —— 底部 overview brush,默认 true"
+      }
+    }
+  },
+  "spec": {
+    "height": 480,
+    "note": "泳道图的行布局与 brush 需要明确像素高度;默认 maxHeight 480px,AI 可覆盖。容器初始化前设 height:480px,禁用 vh/百分比高(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合前按此推断写;ESM 自行把内置 CSS 写入 document.head\nimport TimelinesChart from 'https://cdn.jsdelivr.net/npm/timelines-chart@2/+esm';\nconst el = document.getElementById('timelines'); el.style.height = `${spec.height ?? 480}px`;\nconst o = data.options ?? {};\nconst chart = new TimelinesChart(el).width(el.clientWidth).maxHeight(spec.height ?? 480).maxLineHeight(o.max_line_height ?? 12);\nchart.zQualitative(o.qualitative ?? false).useUtc(o.use_utc ?? false).timeFormat(o.time_format ?? '%Y-%m-%d %-I:%M:%S %p').enableOverview(o.enable_overview ?? true).data(data.groups);",
+    "widget": "unsupported: timelines-chart@2.14.3 的 ESM 在 import 时硬写 document.head,且发布包无独立 CSS 文件可放入 shadowRoot;违反铁律 2,不得伪装成 shadow-safe。",
+    "codex": "// sandbox iframe 可接受 ESM 把内置 CSS 写入该 iframe 的 document.head\nimport TimelinesChart from 'https://cdn.jsdelivr.net/npm/timelines-chart@2/+esm';\nconst el = document.getElementById('timelines'); el.style.height = `${spec.height ?? 480}px`;\nconst o = data.options ?? {};\nconst chart = new TimelinesChart(el).width(el.clientWidth).maxHeight(spec.height ?? 480).maxLineHeight(o.max_line_height ?? 12);\nchart.zQualitative(o.qualitative ?? false).useUtc(o.use_utc ?? false).timeFormat(o.time_format ?? '%Y-%m-%d %-I:%M:%S %p').enableOverview(o.enable_overview ?? true).data(data.groups);"
+  },
+  "example": {
+    "_why": "时间轴的三层 group/label/segment 嵌套与 qualitative/continuous 分支高歧义,minimal example 用真实原生形状消歧。",
+    "minimal": {
+      "groups": [
+        {
+          "group": "Production",
+          "data": [
+            {
+              "label": "api-01",
+              "data": [
+                {
+                  "timeRange": [
+                    "2026-07-23T00:00:00Z",
+                    "2026-07-23T04:00:00Z"
+                  ],
+                  "val": "healthy"
+                },
+                {
+                  "timeRange": [
+                    "2026-07-23T04:00:00Z",
+                    "2026-07-23T05:15:00Z"
+                  ],
+                  "val": "degraded"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "options": {
+        "qualitative": true,
+        "use_utc": true,
+        "enable_overview": true
+      }
+    },
+    "empty": {
+      "groups": []
+    }
+  },
+  "uplink": "display/local-explore 类,默认无需上行。若需回传泳道或区间点击,由消费 AI 接原生 onLabelClick/onSegmentClick 并按载体处理;不建立统一事件协议。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "unsupported:ESM 硬注入 document.head 且无独立 CSS 资产,shadowRoot 内样式不可得,违反铁律 2",
+    "codex": "supported:ESM CDN + SVG/DOM + pointer brush,无 worker/wasm 或默认上行依赖"
+  }
+}

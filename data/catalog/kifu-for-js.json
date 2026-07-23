@@ -1,0 +1,39 @@
+{
+  "entry_version": "thin-1",
+  "id": "kifu-for-js",
+  "name": "Kifu for JS",
+  "when_to_use": "需要把日式将棋 KIF/KI2 棋谱变成可逐手回放的盘面时用它,而非手写 9×9 棋盘播放器——原生手写在记谱解析、持驹、升变、分支与手番回放上失败。非做国际象棋或将棋 AI 搜索。",
+  "why_valuable": "AI 默认只能复述日文棋谱文本或画静态字符盘,做不到 KIF/KI2 的合法状态推进、持驹/升变显示、分支选择和移动端回放控件；该日本上游把这些能力一体化。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "kifu-for-js",
+    "version": "5.5.0",
+    "github": "na2hiro/Kifu-for-JS"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "KIF/KI2 是 AI 可直接生成的原生记谱,schema 足矣；不附 minimal example。",
+    "schema": {
+      "kifu": "string —— 完整 KIF 或 KI2 棋谱文本,含开局信息与手顺",
+      "ply?": "integer >= 0 —— 初始显示手数；默认 0(初始局面)",
+      "maxWidth?": "positive number | null —— 棋盘最大 CSS pixel 宽；默认 400,null 表示不设上限"
+    }
+  },
+  "spec": {
+    "note": "播放器按内容自动决定高度；默认 maxWidth 400px,由 KifuStore 控制棋盘宽。不要给容器 vh/百分比高,也不要用固定高度裁掉回放控件。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:原生 load(options,id) 通过 document.getElementById 找容器\n+import KifuForJS from 'https://cdn.jsdelivr.net/npm/kifu-for-js@5/+esm';\n+const el = document.createElement('div'); el.id = `kifu_${crypto.randomUUID()}`;\n+document.getElementById('kifu').appendChild(el);\n+const store = await KifuForJS.load({ kifu: data.kifu, ply: data.ply ?? 0, maxWidth: data.maxWidth ?? 400 }, el.id);",
+    "widget": "unsupported:Kifu for JS 5.5.0 原生 load(options,id) 内部调用 document.getElementById(id),不会穿透 ShadowRoot；包又内置 React 16 renderer,不能用外部 React root 无损替代。需做可接收 HTMLElement 的 L2 mount 后再开放 widget。",
+    "codex": "同 artifact(sandbox iframe):kifu-for-js@5/+esm 默认对象的 load(options,id),先把唯一 id 容器挂进 iframe document。"
+  },
+  "uplink": "回放/翻面/分支选择默认全是本地交互,不定义统一事件出口；若题目需要回传当前手数,由消费 AI 直接读取返回的 KifuStore 并按载体自行上行。",
+  "carriers": {
+    "artifact": "inferred-not-tested:原生全局 id 查找可在隔离 document 工作；包内 UI/棋子为自包含 React/SVG,无外部 CSS 文件",
+    "widget": "unsupported:document.getElementById 无法发现 shadow 内节点,不满足 widget 必须落 shadow 容器",
+    "codex": "supported:sandbox iframe 提供独立 document 与全局 id 查找"
+  }
+}

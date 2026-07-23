@@ -1,0 +1,47 @@
+{
+  "entry_version": "thin-1",
+  "id": "tvm-financejs",
+  "name": "tvm-financejs",
+  "when_to_use": "需要按 Excel 参数语义复算 PV/FV/PMT/NPER/RATE 等货币时间价值函数时用它而非手写,因为原生在 RATE 迭代求根、现金流正负号和期初期末付款语义上会失败。",
+  "why_valuable": "AI 默认做不到稳定求解内含利率 RATE,也经常把年利率误传给月度期数或反转 PV/PMT 符号；该库按 Excel 风格签名执行并保留未舍入结果。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "version": null,
+    "github": "kgkars/tvm-financejs"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "scalar",
+    "note": "data_in 精确映射到 Finance 实例的五个 TVM 方法；rate 必须是每期小数利率,例如月度 5.25% 年利率传 0.0525/12,pv 通常按 Excel 约定传负数。",
+    "schema": {
+      "formula": "'PV' | 'FV' | 'PMT' | 'NPER' | 'RATE'",
+      "args": "number[] —— 精确签名:PV=[rate,nper,pmt,fv?（默认 0）,type?（默认 0）],FV=[rate,nper,pmt,pv,type?（默认 0）],PMT=[rate,nper,pv,fv?（默认 0）,type?（默认 0）],NPER=[rate,pmt,pv,fv?（默认 0）,type?（默认 0）],RATE=[nper,pmt,pv,fv?（默认 0）,type?（默认 0）,guess?（默认 0.1）]；type=0 期末,type=1 期初"
+    }
+  },
+  "provides": {
+    "shape": "tvm-scalar",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵；上游是 CommonJS 公式引擎。",
+    "outputs": "PV/FV/PMT/NPER/RATE 的未舍入 number；某些不可解输入可能返回上游错误字符串,消费端须同时检查 Number.isFinite。",
+    "api_surface": {
+      "present_value": "finance.PV(rate, nper, pmt, fv = 0, type = 0)",
+      "future_value": "finance.FV(rate, nper, pmt, pv, type = 0)",
+      "payment": "finance.PMT(rate, nper, pv, fv = 0, type = 0)",
+      "periods": "finance.NPER(rate, pmt, pv, fv = 0, type = 0)",
+      "rate": "finance.RATE(nper, pmt, pv, fv = 0, type = 0, guess = 0.1)"
+    }
+  },
+  "peer": {
+    "ids": [
+      "echarts",
+      "gridjs"
+    ],
+    "note": "本条只产 TVM 数值；参数扫描可交给 ECharts,逐期派生明细可交给 Grid.js,正负号提示由消费 AI 在界面层表达。"
+  },
+  "boot": {
+    "artifact": "unsupported:pick 将此上游标为 github-only 且 version=null；仓库 index.js 是 CommonJS,没有可按 pick 版本固定的浏览器原生 ESM URL。artifact 还必须保持 inferred-not-tested,不能偷偷改用未记录版本。",
+    "widget": "unsupported:pick 未固定 npm/version,GitHub CommonJS 源不能在 widget 里作为原生 ESM 直接导入；先固定发布版本或提供审计过的 ESM 包装。",
+    "codex": "unsupported:pick 未固定 npm/version；Codex 不应从浮动 master 安装。先把一个审计过的 commit/version 写回 pick,再以 package-manager import 调用 new Finance()。",
+    "note": "保守校准:远端 registry 当前可见同名 0.3.0,但 picks 的 npm=null、version=null 是本条必须遵守的来源事实,因此这里不擅自把 0.3.0 写成已固定上游。"
+  }
+}

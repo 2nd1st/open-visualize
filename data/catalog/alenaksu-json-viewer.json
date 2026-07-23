@@ -1,0 +1,35 @@
+{
+  "entry_version": "thin-1",
+  "id": "alenaksu-json-viewer",
+  "name": "json-viewer (@alenaksu)",
+  "when_to_use": "需要折叠展开、按路径或正则过滤搜索深嵌套 JSON 时用它而非手写 <pre>/递归树,因为原生手写在节点状态、路径匹配与搜索定位高亮上失败。",
+  "why_valuable": "AI 默认只能稳定输出静态 <pre>;任意深度 JSON 的可折叠树、路径/正则过滤、逐项搜索定位与高亮无法一次稳定手写,深嵌套 API payload 因而不可探索。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@alenaksu/json-viewer",
+    "version": "2.1.2",
+    "github": "alenaksu/json-viewer"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "主输入直接赋给组件的 data 属性;可递归包含对象、数组与 JSON 基元。挂载后原生 API 可用 RegExp 或 glob 风格路径字符串调用 expand/collapse/filter/search,无需另造配置协议。",
+    "_why_no_example": "JSON 对象是 AI 原生数据形态,data 属性直传且无深 config;裁剪 schema 足够,不附 minimal example。",
+    "schema": {
+      "data": "JSONValue",
+      "JSONValue": "null | boolean | number | string | JSONValue[] | { [key: string]: JSONValue }"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合前按此推断写\nimport 'https://cdn.jsdelivr.net/npm/@alenaksu/json-viewer@2/+esm';\nconst viewer = document.createElement('json-viewer'); // 铁律 4:JS 创建,不写声明式标签\nviewer.data = data.data;\ndocument.getElementById('viewer').appendChild(viewer);",
+    "widget": "// 落到 shadow 容器内;组件自身也以 shadow DOM 封装样式\nimport 'https://cdn.jsdelivr.net/npm/@alenaksu/json-viewer@2/+esm';\nconst host = document.createElement('div'); shadowRoot.appendChild(host);\nconst viewer = document.createElement('json-viewer'); // 铁律 4\nviewer.data = data.data;\nhost.appendChild(viewer);",
+    "codex": "// sandbox iframe fragment:ESM import 会注册 custom element\nimport 'https://cdn.jsdelivr.net/npm/@alenaksu/json-viewer@2/+esm';\nconst viewer = document.createElement('json-viewer'); // 铁律 4\nviewer.data = data.data;\ndocument.getElementById('viewer').appendChild(viewer);"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:需以 JS createElement 挂进 shadow 容器;Lit 组件样式封闭在自身 shadow DOM,无 document.head 注入",
+    "codex": "supported:ESM CDN + custom element,无 worker/wasm/外部图片或 uplink 需求"
+  }
+}

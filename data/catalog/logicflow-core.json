@@ -1,0 +1,102 @@
+{
+  "entry_version": "thin-1",
+  "id": "logicflow-core",
+  "name": "LogicFlow",
+  "when_to_use": "需要面向审批流/BPMN 风格语义的可编辑流程图、连线校验和撤销历史时用它而非手写 SVG,因为原生在编辑约束、锚点连线与历史一致性上失败;非做流程执行、自动排版或业务数据持久化。",
+  "why_valuable": "AI 默认做不到带撤销历史、连接规则和可扩展节点模型的图编辑器;LogicFlow core 原生完成画布交互并以 render/getGraphData 往返稳定 GraphData。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@logicflow/core",
+    "version": "2.2.4",
+    "github": "didi/LogicFlow"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "graph",
+    "note": "data_in 是未配置 adapterIn 时 lf.render() 接受的原生 GraphData;节点 x/y 是形状中心坐标,边端点用 sourceNodeId/targetNodeId,不要混用 React Flow 的 source/target。",
+    "schema": {
+      "nodes": [
+        {
+          "id": "string —— 全图唯一",
+          "type": "'rect'|'circle'|'ellipse'|'polygon'|'diamond'|'text'|'html'|已注册自定义类型",
+          "x": "number —— 节点中心",
+          "y": "number —— 节点中心",
+          "text?": "string | {value:string,x?:number,y?:number} —— 默认空文本;对象中的 x/y 默认跟随节点",
+          "properties?": "object —— 默认 {};宽高等业务/形状属性放这里"
+        }
+      ],
+      "edges": [
+        {
+          "id": "string —— 全图唯一",
+          "type": "'polyline'|'line'|'bezier'|已注册自定义类型",
+          "sourceNodeId": "string",
+          "targetNodeId": "string",
+          "text?": "string | {value:string,x?:number,y?:number} —— 默认空文本",
+          "properties?": "object —— 默认 {}",
+          "pointsList?": "{x:number,y:number}[] —— 默认由路由器计算"
+        }
+      ]
+    }
+  },
+  "spec": {
+    "height": 420,
+    "layout": "freeform",
+    "note": "LogicFlow 依赖容器可测量尺寸,默认显式 height 420px;铁律 3 禁 vh/百分比高,容器尺寸变化后调用 lf.resize(width,height)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合\nimport LogicFlow from 'https://cdn.jsdelivr.net/npm/@logicflow/core@2/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@logicflow/core@2/dist/index.css'; document.head.appendChild(css);\nconst el = document.getElementById('logicflow'); el.style.height = '420px';\nconst lf = new LogicFlow({ container: el, grid: true, height: 420 });\nlf.render(data);",
+    "widget": "import LogicFlow from 'https://cdn.jsdelivr.net/npm/@logicflow/core@2/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@logicflow/core@2/dist/index.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); el.style.height = '420px'; shadowRoot.appendChild(el);\nconst lf = new LogicFlow({ container: el, grid: true, height: 420 });\nlf.render(data);",
+    "codex": "import LogicFlow from 'https://cdn.jsdelivr.net/npm/@logicflow/core@2/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@logicflow/core@2/dist/index.css'; document.head.appendChild(css);\nconst el = document.getElementById('logicflow'); el.style.height = '420px';\nconst lf = new LogicFlow({ container: el, grid: true, height: 420 });\nlf.render(data);"
+  },
+  "example": {
+    "_why": "多个图编辑器对节点坐标与边端点使用不同字段,minimal 钉死 LogicFlow 的中心坐标和 NodeId 键。",
+    "minimal": {
+      "nodes": [
+        {
+          "id": "request",
+          "type": "rect",
+          "x": 120,
+          "y": 120,
+          "text": "Request",
+          "properties": {
+            "width": 120,
+            "height": 60
+          }
+        },
+        {
+          "id": "review",
+          "type": "diamond",
+          "x": 340,
+          "y": 120,
+          "text": "Review",
+          "properties": {}
+        }
+      ],
+      "edges": [
+        {
+          "id": "request-review",
+          "type": "polyline",
+          "sourceNodeId": "request",
+          "targetNodeId": "review",
+          "properties": {}
+        }
+      ]
+    },
+    "empty": {
+      "nodes": [],
+      "edges": []
+    }
+  },
+  "uplink": {
+    "artifact": "artifact 无上行;消费 AI 可把 lf.getGraphData() 的 JSON 做下载或复制兜底。",
+    "widget": "消费 AI 自行读取 lf.getGraphData() 并拼 sendPrompt 文案;本条不绑定统一回调。",
+    "codex": "消费 AI 自行读取 lf.getGraphData() 后调用 sendFollowUpMessage;本条不绑定统一回调。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:core 的 SVG/DOM 都挂入所给 container,官方 dist CSS 放进同一 shadow;未包含会另有足迹的 extension 插件",
+    "codex": "supported:ESM CDN + SVG/DOM,无 React/worker/wasm peer"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "entry_version": "thin-1",
+  "id": "blocknote-core",
+  "name": "BlockNote",
+  "when_to_use": "需要 Notion 风格的嵌套 block 编辑、拖拽与斜杠菜单并把文档保留为 JSON 时用它而非手写 contenteditable,因为原生在嵌套 block、选区与菜单状态上失败;非做分页出版、后端协同协议或纯 Markdown 编辑。",
+  "why_valuable": "AI 默认做不到 ProseMirror 级选区、嵌套 block、拖拽与可序列化文档模型的组合;BlockNote 把这些高耦合编辑状态封进 editor.document。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@blocknote/core",
+    "version": "0.52.1",
+    "github": "TypeCellOS/BlockNote"
+  },
+  "license": "MPL-2.0",
+  "license_note": "MPL-2.0 是文件级弱 copyleft;修改 MPL 覆盖文件时须保留相应源码义务,仅调用未修改包不把整个消费作品改成 MPL。",
+  "data_in": {
+    "shape": "sequence",
+    "note": "blocks 精确对应 BlockNote PartialBlock[];initialContent 不接受空数组,故 boot 把省略或 [] 校准为库的默认空 paragraph。",
+    "schema": {
+      "blocks?": [
+        {
+          "id?": "string —— 默认自动生成",
+          "type?": "'paragraph'|'heading'|'bulletListItem'|'numberedListItem'|'checkListItem'|'quote'|'codeBlock'|'table'|'image'|'video'|'audio'|'file' —— 默认 paragraph",
+          "props?": "object —— 按 block type 裁剪;默认该 type 的默认 props",
+          "content?": "string | {type:'text',text:string,styles?:object}[] —— 默认空字符串",
+          "children?": "PartialBlock[] —— 嵌套子 block,默认 []"
+        }
+      ],
+      "editable?": "boolean —— 是否可编辑,默认 true",
+      "theme?": "'light'|'dark' —— 默认 light"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:@blocknote/core 是文档引擎,可见视图须同版 react+mantine peer;CSS 按铁律 2 进 head\nconst css = ['@mantine/core@9/styles.css','@blocknote/core@0/dist/style.css','@blocknote/react@0/dist/style.css','@blocknote/mantine@0/src/mantineStyles.css','@blocknote/mantine@0/src/blocknoteStyles.css'];\nfor (const p of css) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://cdn.jsdelivr.net/npm/' + p; document.head.appendChild(l); }\nconst [{ default: React }, { createRoot }, { BlockNoteEditor }, { BlockNoteView }] = await Promise.all([import('https://cdn.jsdelivr.net/npm/react@19/+esm'),import('https://cdn.jsdelivr.net/npm/react-dom@19/client/+esm'),import('https://cdn.jsdelivr.net/npm/@blocknote/core@0/+esm'),import('https://cdn.jsdelivr.net/npm/@blocknote/mantine@0/+esm')]);\nconst editor = BlockNoteEditor.create(data.blocks?.length ? { initialContent: data.blocks } : {});\ncreateRoot(document.getElementById('editor')).render(React.createElement(BlockNoteView, { editor, editable: data.editable ?? true, theme: data.theme ?? 'light' }));",
+    "widget": "// CSS 全部 fetch 后落 shadow style(铁律 2),不把 Mantine/BlockNote 样式泄到宿主\nconst base = 'https://cdn.jsdelivr.net/npm/', paths = ['@mantine/core@9/styles.css','@blocknote/core@0/dist/style.css','@blocknote/react@0/dist/style.css','@blocknote/mantine@0/src/mantineStyles.css','@blocknote/mantine@0/src/blocknoteStyles.css'];\nconst style = document.createElement('style'); style.textContent = (await Promise.all(paths.map(p => fetch(base + p).then(r => r.text())))).join('\\n'); shadowRoot.appendChild(style);\nconst [{ default: React }, { createRoot }, { BlockNoteEditor }, { BlockNoteView }] = await Promise.all([import(base+'react@19/+esm'),import(base+'react-dom@19/client/+esm'),import(base+'@blocknote/core@0/+esm'),import(base+'@blocknote/mantine@0/+esm')]);\nconst editor = BlockNoteEditor.create(data.blocks?.length ? { initialContent: data.blocks } : {}), holder = shadowRoot.appendChild(document.createElement('div'));\ncreateRoot(holder).render(React.createElement(BlockNoteView, { editor, editable: data.editable ?? true, theme: data.theme ?? 'light' }));",
+    "codex": "同 artifact(sandbox iframe):加载五份 CSS 到 head,用 BlockNoteEditor.create({initialContent}) 创建模型,再由 React createRoot 渲染 BlockNoteView。"
+  },
+  "example": {
+    "_why": "嵌套 block editor 的 PartialBlock 配置高歧义,用最小 block 数组钉死 content 不等于 Editor.js 的 data 对象。",
+    "minimal": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "开始写作"
+        }
+      ]
+    },
+    "empty": {
+      "blocks": []
+    }
+  },
+  "peer": {
+    "packages": "@blocknote/react@0 + @blocknote/mantine@0 + react@19 + react-dom@19",
+    "note": "@blocknote/core 自身不直接 mount 可见 UI;boot 采用官方 React/Mantine 视图壳,所有 BlockNote 包保持同一 0.x 版本线。"
+  },
+  "uplink": {
+    "widget": "由消费 AI 自己在保存按钮中读取 editor.document,再放入 sendPrompt 文案。",
+    "codex": "由消费 AI 自己在保存按钮中读取 editor.document,再用 sendFollowUpMessage 回传 block 数组。",
+    "artifact": "artifact 无上行;将 editor.document 下载为 .json 作为兜底。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:React/Mantine 多 peer + 五份 CSS;须按 boot 把 CSS 全放进 shadow,菜单 portal 由 BlockNoteView 管理",
+    "codex": "supported:sandbox iframe + ESM CDN;协同/Yjs 与文件上传未在本条启用"
+  }
+}

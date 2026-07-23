@@ -1,0 +1,55 @@
+{
+  "entry_version": "thin-1",
+  "id": "phaser",
+  "name": "Phaser",
+  "when_to_use": "需要在对话里现写有场景、输入、碰撞、相机和游戏循环的 2D 小游戏时用它,而非手写 canvas 引擎——原生手写在生命周期、资源加载、碰撞和帧率独立更新上失败。非做静态插画、3D 游戏或免代码游戏编辑器。",
+  "why_valuable": "AI 默认能拼一个短 canvas demo,但做不到可扩展的 Scene 生命周期、输入、Arcade/Matter 物理、相机、动画与资源缓存协同；Phaser 把新小游戏最容易崩的运行时骨架一次补齐。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "phaser",
+    "version": "4.2.1",
+    "github": "phaserjs/phaser"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geometry",
+    "note": "data_in.scene 是 Phaser 原生 Scene config callback 对象,不是可 JSON 序列化的关卡 DSL；boot 只负责 parent、renderer 与明确像素尺寸,游戏对象在 create/preload/update 内继续使用 this.add、this.load、this.physics 等上游 API。",
+    "schema": {
+      "renderer?": "'auto' | 'webgl' | 'canvas' —— entry 默认 'auto'",
+      "backgroundColor?": "CSS color string | number —— entry 默认 '#000000'",
+      "pixelArt?": "boolean —— 默认 false",
+      "physics?": "Phaser.Types.Core.PhysicsConfig —— 默认省略,即不启用物理系统",
+      "scene": {
+        "preload?": "function(this: Phaser.Scene): void —— 默认 no-op；在此 this.load 资源",
+        "create?": "function(this: Phaser.Scene): void —— 默认 no-op；在此创建游戏对象",
+        "update?": "function(this: Phaser.Scene, time: number, delta: number): void —— 默认 no-op；每帧逻辑"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "Game config 必须收到明确 pixel width/height；boot 默认宽取容器 clientWidth(取不到时 640px)、高 400px,禁止 vh/百分比高。若宿主宽变化,由消费 AI 配 Scale Manager 或重建 game。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:Phaser v4 ESM default 导出,原生 new Phaser.Game(config)\n+import Phaser from 'https://cdn.jsdelivr.net/npm/phaser@4/+esm';\n+const el = document.getElementById('game'); el.style.height = '400px';\n+const renderer = { auto: Phaser.AUTO, webgl: Phaser.WEBGL, canvas: Phaser.CANVAS }[data.renderer ?? 'auto'];\n+const game = new Phaser.Game({ type: renderer, parent: el, width: el.clientWidth || 640, height: 400,\n+  backgroundColor: data.backgroundColor ?? '#000000', pixelArt: data.pixelArt ?? false, physics: data.physics, scene: data.scene });",
+    "widget": "// parent 是 shadow 内 HTMLElement,Phaser canvas 留在该容器\n+import Phaser from 'https://cdn.jsdelivr.net/npm/phaser@4/+esm';\n+const el = document.createElement('div'); el.style.height = '400px'; shadowRoot.appendChild(el);\n+const renderer = { auto: Phaser.AUTO, webgl: Phaser.WEBGL, canvas: Phaser.CANVAS }[data.renderer ?? 'auto'];\n+const game = new Phaser.Game({ type: renderer, parent: el, width: el.clientWidth || 640, height: 400,\n+  backgroundColor: data.backgroundColor ?? '#000000', pixelArt: data.pixelArt ?? false, physics: data.physics, scene: data.scene });",
+    "codex": "同 artifact(sandbox iframe):phaser@4/+esm 默认导入,给 new Phaser.Game 明确 parent/width/height 与原生 scene callbacks。"
+  },
+  "example": {
+    "_why": "Phaser 是代码驱动的深 config,JSON 不能承载函数；minimal_code 用真实可执行 JS 钉死 Scene callback 的 this 绑定与 v4 Game config,不要把它当字符串喂给组件。",
+    "minimal": {
+      "_code": "const data = { renderer: 'auto', backgroundColor: '#101827', pixelArt: false, scene: { create() { this.add.rectangle(320, 200, 180, 90, 0x5eead4); this.add.text(250, 185, 'Hello Phaser', { color: '#101827' }); } } };"
+    },
+    "empty": {
+      "_code": "const data = { scene: { create() {} } };"
+    }
+  },
+  "uplink": "小游戏默认在本地运行,不抽象统一事件契约；分数、胜负或重开按钮如何回传,由消费 AI 在各载体内直接接 Phaser 场景状态。",
+  "carriers": {
+    "artifact": "inferred-not-tested:基础几何只需 ESM + WebGL/Canvas；音频、图片和 tilemap 会额外触发各自 CDN/CORS 能力",
+    "widget": "conditional:canvas 可落 shadow 内 parent；若游戏用 DOMElement 插件、全局键盘或外部资产,须逐项验证 shadow/CORS,基础 Graphics/Input 路径可用",
+    "codex": "conditional:sandbox iframe 支持 ESM/WebGL/Canvas；外部资产与音频自动播放仍受浏览器策略约束"
+  }
+}

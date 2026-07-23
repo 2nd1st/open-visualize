@@ -1,0 +1,40 @@
+{
+  "entry_version": "thin-1",
+  "id": "three",
+  "name": "three.js",
+  "when_to_use": "需要可旋转相机、光照、材质或成组几何体来解释三维空间关系时用它,而非手写 Canvas/WebGL——原生在投影矩阵、深度排序与 GPU 资源管理上高成本且不稳;非做真地图瓦片、完整游戏或物理仿真。",
+  "why_valuable": "AI 默认只能画伪 3D SVG 或一次性 canvas,做不到稳定相机投影、材质/光照、深度缓冲和逐帧渲染;three.js 把这些 0% 区收敛为 Object3D/Camera/Renderer 原生 API。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "three",
+    "version": "0.185.1",
+    "github": "mrdoob/three.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geometry",
+    "_why_no_example": "three.js 是 programmed native API,这里输入已实例化的 Object3D,不是另造一套深 config;schema 与 boot 足够。",
+    "note": "objects 与 camera 必须由同一次 three 模块导入创建;boot 只做 Scene/Renderer 挂载,不发明 JSON 场景协议。所有可选字段均注明默认。",
+    "schema": {
+      "objects": "THREE.Object3D[] —— 要加入 Scene 的 Mesh/Line/Points/Group,必填",
+      "camera?": "THREE.Camera —— 默认 PerspectiveCamera(50, width/height, 0.1, 1000),位置 z=5",
+      "background?": "THREE.ColorRepresentation | null —— 默认 null（透明/由 renderer alpha 决定）"
+    }
+  },
+  "spec": {
+    "height": 480,
+    "note": "WebGL canvas 必须拿到显式像素尺寸;默认高度 480px、宽度取容器 clientWidth,铁律 3 禁 vh/百分比高。容器变化时同步 renderer.setSize 与 camera aspect。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact H0 未闭合\nimport * as THREE from 'https://cdn.jsdelivr.net/npm/three@0/+esm';\nconst el = document.getElementById('scene'); el.style.height = '480px';\nconst scene = new THREE.Scene(); if (data.background != null) scene.background = new THREE.Color(data.background); data.objects.forEach(o => scene.add(o));\nconst camera = data.camera ?? new THREE.PerspectiveCamera(50, el.clientWidth / 480, 0.1, 1000); if (!data.camera) camera.position.z = 5;\nconst renderer = new THREE.WebGLRenderer({ antialias: true, alpha: data.background == null }); renderer.setSize(el.clientWidth, 480); el.appendChild(renderer.domElement);\nrenderer.setAnimationLoop(() => renderer.render(scene, camera));",
+    "widget": "import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0/+esm';\nconst el = document.createElement('div'); el.style.height = '480px'; shadowRoot.appendChild(el);\nconst scene = new THREE.Scene(); if (data.background != null) scene.background = new THREE.Color(data.background); data.objects.forEach(o => scene.add(o));\nconst camera = data.camera ?? new THREE.PerspectiveCamera(50, el.clientWidth / 480, 0.1, 1000); if (!data.camera) camera.position.z = 5;\nconst renderer = new THREE.WebGLRenderer({ antialias: true, alpha: data.background == null }); renderer.setSize(el.clientWidth, 480); el.appendChild(renderer.domElement);\nrenderer.setAnimationLoop(() => renderer.render(scene, camera));",
+    "codex": "import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0/+esm';\nconst el = document.getElementById('scene'); el.style.height = '480px';\nconst scene = new THREE.Scene(); if (data.background != null) scene.background = new THREE.Color(data.background); data.objects.forEach(o => scene.add(o));\nconst camera = data.camera ?? new THREE.PerspectiveCamera(50, el.clientWidth / 480, 0.1, 1000); if (!data.camera) camera.position.z = 5;\nconst renderer = new THREE.WebGLRenderer({ antialias: true, alpha: data.background == null }); renderer.setSize(el.clientWidth, 480); el.appendChild(renderer.domElement);\nrenderer.setAnimationLoop(() => renderer.render(scene, camera));"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:ESM CDN + WebGL canvas 可完全落 ShadowRoot;无 CSS/head/uplink 依赖",
+    "codex": "supported:需宿主提供 WebGL;纯几何不依赖图片或字体 CDN"
+  }
+}

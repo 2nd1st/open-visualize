@@ -1,0 +1,140 @@
+{
+  "entry_version": "thin-1",
+  "id": "d3-celestial",
+  "name": "d3-celestial",
+  "when_to_use": "需要可缩放旋转的全天星图、星座线、银河、深空天体或指定时地的天空投影时用它而非手写 canvas,因为原生在球面投影、星表、坐标变换和天体历算上失败。",
+  "why_valuable": "AI 默认只能画装饰性星点,做不到赤道/黄道/银道坐标变换、几十种球面投影、真实星等/星表、星座边界和行星位置;d3-celestial 把天文数据与 canvas 投影一起交付。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "d3-celestial",
+    "version": "0.7.35",
+    "github": "ofrohn/d3-celestial"
+  },
+  "license": "BSD-3-Clause",
+  "data_in": {
+    "shape": "geometry",
+    "note": "config 原样进入 Celestial.display,但 container/datapath/width 与会创建全局表单的开关由 boot 保守覆盖。恒星、星座、银河和行星数据由 pinned datapath 读取,不是让 AI 现编星表。",
+    "schema": {
+      "config": {
+        "projection?": "Celestial projection name —— 默认 'aitoff'",
+        "projectionRatio?": "positive number | null —— 默认 null,按 projection 推断",
+        "transform?": "'equatorial' | 'ecliptic' | 'galactic' | 'supergalactic' —— 默认 'equatorial'",
+        "center?": "[longitude:number,latitude:number,orientation?:number] | null —— 默认 [0,0,0]",
+        "geopos?": "[latitude:number,longitude:number] | null —— 默认 null",
+        "follow?": "'zenith' | 'center' —— 默认 'zenith'",
+        "zoomlevel?": "number | null —— 默认 null",
+        "zoomextend?": "positive number —— 默认 10",
+        "interactive?": "boolean —— 默认 true",
+        "lang?": "supported language code string —— 默认空字符串,显示 IAU/代号",
+        "culture?": "'' | 'iau' | 'cn' —— 默认空字符串",
+        "stars?": {
+          "_default": "上游默认显示至 6 等星并按光谱着色",
+          "show?": "boolean —— 默认 true",
+          "limit?": "number —— 默认 6",
+          "colors?": "boolean —— 默认 true",
+          "names?": "boolean —— 上游字段为 propername,默认 false",
+          "size?": "positive number(px) —— 默认 7",
+          "data?": "package data filename —— 默认 'stars.6.json'"
+        },
+        "dsos?": {
+          "_default": "上游默认显示亮深空天体",
+          "show?": "boolean —— 默认 true",
+          "limit?": "number —— 默认 6",
+          "names?": "boolean —— 默认 true",
+          "data?": "package data filename —— 默认 'dsos.bright.json'"
+        },
+        "constellations?": {
+          "_default": "上游默认显示名称和连线、不显示边界",
+          "names?": "boolean —— 默认 true",
+          "lines?": "boolean —— 默认 true",
+          "bounds?": "boolean —— 默认 false"
+        },
+        "mw?": {
+          "show?": "boolean —— 默认 true",
+          "style?": "{fill?:CSS color string,opacity?:number 0..1} —— 默认白色 0.15"
+        },
+        "planets?": {
+          "show?": "boolean —— 默认 false",
+          "which?": "('sol'|'mer'|'ven'|'ter'|'lun'|'mar'|'jup'|'sat'|'ura'|'nep')[] —— 默认上游十天体"
+        },
+        "lines?": "Celestial 原生 graticule/equatorial/ecliptic/galactic 配置对象 —— 默认上游样式",
+        "background?": "{fill?:CSS color string,opacity?:number 0..1,stroke?:CSS color string,width?:number} —— 默认黑色",
+        "horizon?": "Celestial 原生 horizon 配置对象 —— 默认不显示",
+        "daylight?": "{show?:boolean} —— 默认 false"
+      }
+    }
+  },
+  "spec": {
+    "height": 420,
+    "note": "Celestial 由 projectionRatio 从显式像素宽推导 canvas 高;boot 用默认 420px 反推最大宽 840px并给容器明确像素高。最终高可能因投影比例略有不同,不得使用 vh/百分比高(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:需允许从 pinned jsDelivr data/ 读取多份 JSON;CSS 进入 iframe head\nimport { Celestial } from 'https://cdn.jsdelivr.net/npm/d3-celestial@0/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/d3-celestial@0/celestial.css' }); document.head.appendChild(css);\nconst el = document.getElementById('celestial-map'); el.style.height = `${spec.height ?? 420}px`;\nconst width = Math.min(el.clientWidth || 840, (spec.height ?? 420) * 2);\nCelestial.display({ ...data.config, width, container: 'celestial-map', datapath: 'https://cdn.jsdelivr.net/npm/d3-celestial@0.7.35/data/', form: false, controls: false, location: false });",
+    "widget": "unsupported: d3-celestial@0.7.35 依赖 document.getElementById、文档级 id、window resize 和 body 辅助节点,且 CSS/选择器不具 shadow 隔离能力;违反铁律 2。",
+    "codex": "// sandbox iframe 隔离其文档级 id、body 辅助节点和 window 监听\nimport { Celestial } from 'https://cdn.jsdelivr.net/npm/d3-celestial@0/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/d3-celestial@0/celestial.css' }); document.head.appendChild(css);\nconst el = document.getElementById('celestial-map'); el.style.height = `${spec.height ?? 420}px`;\nconst width = Math.min(el.clientWidth || 840, (spec.height ?? 420) * 2);\nCelestial.display({ ...data.config, width, container: 'celestial-map', datapath: 'https://cdn.jsdelivr.net/npm/d3-celestial@0.7.35/data/', form: false, controls: false, location: false });"
+  },
+  "example": {
+    "_why": "投影、坐标系和多层天文数据配置深嵌套,minimal example 固定一条真实全天星图路径,避免 AI 编造星表或错放图层字段。",
+    "minimal": {
+      "config": {
+        "projection": "aitoff",
+        "transform": "equatorial",
+        "center": [0, 0, 0],
+        "interactive": true,
+        "stars": {
+          "show": true,
+          "limit": 6,
+          "colors": true,
+          "size": 7,
+          "data": "stars.6.json"
+        },
+        "dsos": {
+          "show": true,
+          "limit": 6,
+          "names": false,
+          "data": "dsos.bright.json"
+        },
+        "constellations": {
+          "names": true,
+          "lines": true,
+          "bounds": false
+        },
+        "mw": {
+          "show": true
+        },
+        "planets": {
+          "show": false
+        }
+      }
+    },
+    "empty": {
+      "config": {
+        "interactive": false,
+        "stars": {
+          "show": false
+        },
+        "dsos": {
+          "show": false
+        },
+        "constellations": {
+          "names": false,
+          "lines": false,
+          "bounds": false
+        },
+        "mw": {
+          "show": false
+        },
+        "planets": {
+          "show": false
+        }
+      }
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:需要跨源读取 pinned data/*.json,并在 iframe document.head 加 CSS",
+    "widget": "unsupported:文档级 id/body/window 与 shadowRoot 不兼容",
+    "codex": "conditional:需允许 jsDelivr ESM、CSS 和 pinned data/*.json 跨源读取;canvas 与交互本身无 worker/wasm 依赖"
+  }
+}

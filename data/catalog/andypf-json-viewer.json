@@ -1,0 +1,45 @@
+{
+  "entry_version": "thin-1",
+  "id": "andypf-json-viewer",
+  "name": "@andypf/json-viewer",
+  "when_to_use": "需要对大 JSON 做折叠层级、工具栏搜索、类型提示与复制时用它而非手写递归 DOM,因为原生手写在几百节点后的状态、搜索定位和性能上失败。",
+  "why_valuable": "AI 默认只能稳定输出静态 <pre>,手写递归 <details> 也缺少搜索、展开深度、类型提示和大树状态维护;该组件把任意 JSON 直接变成自带 shadow 样式的可探索树。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@andypf/json-viewer",
+    "version": "2.8.0",
+    "github": "andypf/json-viewer"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "主输入直接赋给 <andypf-json-viewer> 的 data 属性;用对象属性而非 data HTML attribute,避免 stringify 与转义歧义。",
+    "_why_no_example": "JSON 是 AI 原生数据形态,data 直传且配置浅;裁剪 schema 足够,不附 minimal example。",
+    "schema": {
+      "data": "JSONValue",
+      "JSONValue": "null | boolean | number | string | JSONValue[] | { [key: string]: JSONValue }",
+      "expanded?": "number | boolean —— 初始展开深度,默认 1;true 全展开,false 全折叠",
+      "indent?": "number —— 每层缩进空格数,默认 2",
+      "theme?": "string | Record<string,string> —— 内置主题名或 CSS 变量对象,默认 'default-light'",
+      "showDataTypes?": "boolean —— 默认 true",
+      "showToolbar?": "boolean —— 搜索与展开工具栏,默认 false",
+      "showCopy?": "boolean —— 默认 true",
+      "showSize?": "boolean —— 默认 true",
+      "expandIconType?": "'arrow'|'square'|'circle' —— 默认 'arrow'",
+      "expandEmpty?": "boolean —— 默认 true",
+      "preserveExpanded?": "boolean —— 数据变化时保留展开状态,默认 false"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合前按此推断写\nimport 'https://cdn.jsdelivr.net/npm/@andypf/json-viewer@2/+esm';\nconst viewer = document.createElement('andypf-json-viewer'); // 铁律 4:JS 创建,不写声明式标签\nObject.assign(viewer, { data: data.data, expanded: data.expanded ?? 1, indent: data.indent ?? 2, theme: data.theme ?? 'default-light', showDataTypes: data.showDataTypes ?? true, showToolbar: data.showToolbar ?? false, showCopy: data.showCopy ?? true, showSize: data.showSize ?? true, expandIconType: data.expandIconType ?? 'arrow', expandEmpty: data.expandEmpty ?? true, preserveExpanded: data.preserveExpanded ?? false });\ndocument.getElementById('viewer').appendChild(viewer);",
+    "widget": "// 组件自身已有 shadow DOM;仍以 JS 创建后落入宿主 shadow 容器\nimport 'https://cdn.jsdelivr.net/npm/@andypf/json-viewer@2/+esm';\nconst viewer = document.createElement('andypf-json-viewer'); // 铁律 4\nObject.assign(viewer, { data: data.data, expanded: data.expanded ?? 1, indent: data.indent ?? 2, theme: data.theme ?? 'default-light', showDataTypes: data.showDataTypes ?? true, showToolbar: data.showToolbar ?? false, showCopy: data.showCopy ?? true, showSize: data.showSize ?? true, expandIconType: data.expandIconType ?? 'arrow', expandEmpty: data.expandEmpty ?? true, preserveExpanded: data.preserveExpanded ?? false });\nshadowRoot.appendChild(viewer);",
+    "codex": "// sandbox iframe fragment:ESM import 注册 custom element\nimport 'https://cdn.jsdelivr.net/npm/@andypf/json-viewer@2/+esm';\nconst viewer = document.createElement('andypf-json-viewer'); // 铁律 4\nObject.assign(viewer, { data: data.data, expanded: data.expanded ?? 1, indent: data.indent ?? 2, theme: data.theme ?? 'default-light', showDataTypes: data.showDataTypes ?? true, showToolbar: data.showToolbar ?? false, showCopy: data.showCopy ?? true, showSize: data.showSize ?? true, expandIconType: data.expandIconType ?? 'arrow', expandEmpty: data.expandEmpty ?? true, preserveExpanded: data.preserveExpanded ?? false });\ndocument.getElementById('viewer').appendChild(viewer);"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:以 JS createElement 挂入宿主 shadowRoot;组件再用自身 shadow DOM 封装全部基底样式,无 document.head 注入",
+    "codex": "supported:ESM CDN + custom element,无 worker/wasm/外部图片或 uplink 需求"
+  }
+}

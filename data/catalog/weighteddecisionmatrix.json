@@ -1,0 +1,21 @@
+{
+ "entry_version": "thin-1",
+ "id": "weighteddecisionmatrix",
+ "name": "WeightedDecisionMatrix",
+ "supply_form": "app-needs-fork",
+ "status": "blocked-until-forked",
+ "upstream": {
+  "github": "ilovefreesw/WeightedDecisionMatrix"
+ },
+ "license": "MIT",
+ "scenarios": [
+  "local-tools"
+ ],
+ "fork_note": "应用态,需 fork+改造+发 npm 才过白名单;不作可消费条目上架。one_liner: 纯 HTML/JS 加权决策矩阵计算器(toy 级参考实现)",
+ "data_in": {
+  "shapes": [
+   "tabular",
+   "quantitative"
+  ]
+ }
+}

@@ -1,0 +1,66 @@
+{
+  "entry_version": "thin-1",
+  "id": "jsbarcode",
+  "name": "JsBarcode",
+  "when_to_use": "需要生成可扫描的 CODE128、EAN、UPC、CODE39、ITF 或 MSI 条形码 SVG 时用它而非手画黑条，因为原生在制式编码、校验位、字符集与静区宽度上失败；非做扫码识别器或标签排版系统。",
+  "why_valuable": "AI 默认只能画视觉近似条纹，做不到各制式的起止码、校验位、模块宽度和合法字符验证，结果不可扫描；JsBarcode 把值与浅 options 直接变成标准 SVG 几何。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "jsbarcode",
+    "version": "3.12.3",
+    "github": "lindell/JsBarcode"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "value 与 options 直接传给 JsBarcode(svg,value,options)；空 value 由 boot 留成空 SVG，避免 auto format 对空字符串抛错。",
+    "schema": {
+      "value": "string —— 待编码值；EAN/UPC 等制式必须满足其位数与校验规则，空字符串为空态",
+      "options?": {
+        "_default": "{} —— format auto、条宽 2px、条高 100px、显示人读文本",
+        "format?": "'auto' | 'CODE128' | 'CODE128A' | 'CODE128B' | 'CODE128C' | 'EAN13' | 'EAN8' | 'EAN5' | 'EAN2' | 'UPC' | 'UPCE' | 'CODE39' | 'ITF14' | 'ITF' | 'MSI' | 'MSI10' | 'MSI11' | 'MSI1010' | 'MSI1110' | 'pharmacode' | 'codabar' —— 默认 auto",
+        "width?": "positive number CSS pixels/module —— 默认 2",
+        "height?": "positive number CSS pixels —— 默认 100",
+        "displayValue?": "boolean —— 默认 true",
+        "text?": "string —— 默认使用 value",
+        "fontOptions?": "'' | 'bold' | 'italic' | 'bold italic' —— 默认空字符串",
+        "font?": "CSS font-family string —— 默认 monospace",
+        "textAlign?": "'left' | 'center' | 'right' —— 默认 center",
+        "textPosition?": "'top' | 'bottom' —— 默认 bottom",
+        "textMargin?": "number CSS pixels —— 默认 2",
+        "fontSize?": "positive number CSS pixels —— 默认 20",
+        "background?": "CSS color string —— 默认 #ffffff",
+        "lineColor?": "CSS color string —— 默认 #000000",
+        "margin?": "non-negative number CSS pixels —— 默认 10",
+        "marginTop?": "non-negative number CSS pixels —— 默认继承 margin",
+        "marginRight?": "non-negative number CSS pixels —— 默认继承 margin",
+        "marginBottom?": "non-negative number CSS pixels —— 默认继承 margin",
+        "marginLeft?": "non-negative number CSS pixels —— 默认继承 margin",
+        "flat?": "boolean —— 默认 false"
+      }
+    }
+  },
+  "spec": {
+    "height": 140,
+    "note": "条码 SVG 的实际高由 options.height + 文本与 margin 决定；容器默认至少 140px、禁止 vh/百分比高，若增大 fontSize/margin/options.height 应同步增大 spec.height。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:显式创建 SVG，库不注入 CSS/head\nimport JsBarcode from 'https://cdn.jsdelivr.net/npm/jsbarcode@3/+esm';\nconst host=document.getElementById('barcode'); host.style.minHeight=`${spec.height??140}px`;\nconst svg=document.createElementNS('http://www.w3.org/2000/svg','svg'); svg.setAttribute('role','img'); host.appendChild(svg);\nif(data.value) JsBarcode(svg,data.value,data.options??{});",
+    "widget": "// SVG 落到 shadowRoot 容器，直接传元素引用\nimport JsBarcode from 'https://cdn.jsdelivr.net/npm/jsbarcode@3/+esm';\nconst host=document.createElement('div'); host.style.minHeight=`${spec.height??140}px`; shadowRoot.appendChild(host);\nconst svg=document.createElementNS('http://www.w3.org/2000/svg','svg'); svg.setAttribute('role','img'); host.appendChild(svg);\nif(data.value) JsBarcode(svg,data.value,data.options??{});",
+    "codex": "import JsBarcode from 'https://cdn.jsdelivr.net/npm/jsbarcode@3/+esm';\nconst host=document.getElementById('barcode'); host.style.minHeight=`${spec.height??140}px`;\nconst svg=document.createElementNS('http://www.w3.org/2000/svg','svg'); svg.setAttribute('role','img'); host.appendChild(svg);\nif(data.value) JsBarcode(svg,data.value,data.options??{});"
+  },
+  "example": {
+    "_why_no_minimal": "值加浅 options 没有深层 config；制式约束已在 schema 钉死，保留空 SVG fixture 即可。",
+    "empty": {
+      "value": ""
+    }
+  },
+  "uplink": "纯生成/显示组件，默认无需上行；SVG 序列化、打印或下载由消费 AI 自己实现，不建立平台事件契约。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:SVG 直接写入 shadowRoot 子容器，无 CSS/head、canvas、图片、字体 CDN、worker 或 wasm",
+    "codex": "supported:ESM CDN + SVG DOM；非默认 webfont 由消费端自行承担字体策略"
+  }
+}

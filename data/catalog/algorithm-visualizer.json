@@ -1,0 +1,24 @@
+{
+ "entry_version": "thin-1",
+ "id": "algorithm-visualizer",
+ "name": "algorithm-visualizer",
+ "supply_form": "app-needs-fork",
+ "status": "blocked-until-forked",
+ "upstream": {
+  "npm": "algorithm-visualizer",
+  "version": "2.3.9",
+  "github": "algorithm-visualizer/algorithm-visualizer"
+ },
+ "license": "MIT",
+ "scenarios": [
+  "teach-sim"
+ ],
+ "fork_note": "应用态,需 fork+改造+发 npm 才过白名单;不作可消费条目上架。one_liner: 知名在线算法可视化平台(46k+ stars):代码驱动 tracer,数组/图/图表多种可视化容器分步回放",
+ "data_in": {
+  "shapes": [
+   "sequence",
+   "graph",
+   "grid"
+  ]
+ }
+}

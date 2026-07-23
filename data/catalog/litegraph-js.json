@@ -1,0 +1,115 @@
+{
+  "entry_version": "thin-1",
+  "id": "litegraph-js",
+  "name": "litegraph.js",
+  "when_to_use": "需要带端口类型、可编辑且可执行的 Blueprint 式节点图时用它而非手写 Canvas,因为原生在端口语义、图执行调度和复杂画布交互上失败;非做 DAG 自动布局、业务持久化或协同编辑。",
+  "why_valuable": "AI 默认只能画静态节点示意图,做不到端口类型系统、节点运行周期与编辑器状态序列化;LiteGraph 原生同时提供 LGraph 执行模型、LGraphCanvas 和 serialize/configure 往返。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "litegraph.js",
+    "version": "0.7.18",
+    "github": "jagenjo/litegraph.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "graph",
+    "note": "data_in 是 graph.serialize() 的原生图对象;node.type 必须是当前构建已注册的类型,未知类型不会被 configure 正确实例化。",
+    "schema": {
+      "last_node_id": "number",
+      "last_link_id": "number",
+      "nodes": [
+        {
+          "id": "number",
+          "type": "string —— 已注册节点类型,如 basic/const",
+          "pos": "[number, number]",
+          "size?": "[number, number] —— 默认由节点类型决定",
+          "flags?": "object —— 默认 {}",
+          "order?": "number —— 默认按数组顺序",
+          "mode?": "number —— 默认节点类型的运行模式",
+          "inputs?": "{name:string,type:string,link:number|null}[] —— 默认由节点类型创建",
+          "outputs?": "{name:string,type:string,links:number[]|null}[] —— 默认由节点类型创建",
+          "properties?": "object —— 默认节点类型的属性对象"
+        }
+      ],
+      "links": [
+        "[linkId:number, originNodeId:number, originSlot:number, targetNodeId:number, targetSlot:number, type:string]"
+      ],
+      "groups?": "array —— 默认 []",
+      "config?": "object —— 默认 {}",
+      "extra?": "object —— 默认 {}",
+      "version?": "number —— 默认当前序列化版本"
+    }
+  },
+  "spec": {
+    "height": 420,
+    "layout": "freeform-canvas",
+    "note": "LGraphCanvas 使用 Canvas2D 像素尺寸,默认显式 height 420px 并把 canvas.height 设为 420;铁律 3 禁 vh/百分比高,容器变宽后消费 AI 应同步 canvas.width 并调用 view.resize()。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合\nimport { LGraph, LGraphCanvas } from 'https://cdn.jsdelivr.net/npm/litegraph.js@0/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/litegraph.js@0/css/litegraph.css'; document.head.appendChild(css);\nconst canvas = document.getElementById('graph'); canvas.width = canvas.parentElement.clientWidth || 800; canvas.height = 420;\nconst graph = new LGraph(); const view = new LGraphCanvas(canvas, graph);\ngraph.configure(data); graph.start();",
+    "widget": "import { LGraph, LGraphCanvas } from 'https://cdn.jsdelivr.net/npm/litegraph.js@0/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/litegraph.js@0/css/litegraph.css'; shadowRoot.appendChild(css);\nconst canvas = document.createElement('canvas'); canvas.height = 420; shadowRoot.appendChild(canvas); canvas.width = canvas.parentElement.clientWidth || 800;\nconst graph = new LGraph(); const view = new LGraphCanvas(canvas, graph);\ngraph.configure(data); graph.start(); // 右键菜单仍由上游挂到 document.body,见 carriers",
+    "codex": "import { LGraph, LGraphCanvas } from 'https://cdn.jsdelivr.net/npm/litegraph.js@0/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/litegraph.js@0/css/litegraph.css'; document.head.appendChild(css);\nconst canvas = document.getElementById('graph'); canvas.width = canvas.parentElement.clientWidth || 800; canvas.height = 420;\nconst graph = new LGraph(); const view = new LGraphCanvas(canvas, graph);\ngraph.configure(data); graph.start();"
+  },
+  "example": {
+    "_why": "serialize 图含节点运行元数据与六元组 links,属于深 config;minimal 钉死一个可执行常量节点。",
+    "minimal": {
+      "last_node_id": 1,
+      "last_link_id": 0,
+      "nodes": [
+        {
+          "id": 1,
+          "type": "basic/const",
+          "pos": [
+            80,
+            80
+          ],
+          "size": [
+            140,
+            80
+          ],
+          "flags": {},
+          "order": 0,
+          "mode": 0,
+          "inputs": [],
+          "outputs": [
+            {
+              "name": "value",
+              "type": "number",
+              "links": null
+            }
+          ],
+          "properties": {
+            "value": 4.5
+          }
+        }
+      ],
+      "links": [],
+      "groups": [],
+      "config": {},
+      "extra": {},
+      "version": 0.4
+    },
+    "empty": {
+      "last_node_id": 0,
+      "last_link_id": 0,
+      "nodes": [],
+      "links": [],
+      "groups": [],
+      "config": {},
+      "extra": {},
+      "version": 0.4
+    }
+  },
+  "uplink": {
+    "artifact": "artifact 无上行;消费 AI 可把 graph.serialize() 的 JSON 做下载或复制兜底。",
+    "widget": "消费 AI 自行读取 graph.serialize() 并拼 sendPrompt 文案;本条不绑定统一回调。",
+    "codex": "消费 AI 自行读取 graph.serialize() 后调用 sendFollowUpMessage;本条不绑定统一回调。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:主 Canvas 可落 shadow 且 CSS 进 shadow;0.7.18 的 ContextMenu/search dialog 原生追加到 document.body,完整菜单层会逃逸且失去 shadow CSS",
+    "codex": "supported:ESM CDN + Canvas2D;执行含 audio/webgl 的特定节点时另受对应浏览器能力约束"
+  }
+}

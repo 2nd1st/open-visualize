@@ -1,0 +1,58 @@
+{
+  "entry_version": "thin-1",
+  "id": "lit-labs-virtualizer",
+  "name": "@lit-labs/virtualizer",
+  "when_to_use": "需要以标准 custom element 虚拟化大量变高 DOM 项并直接落入 shadow tree 时用它而非手写滚动窗口,因为原生手写在元素测量、可见范围和滚动位置修正上失败;非做排序筛选表格。",
+  "why_valuable": "AI 默认会全量创建 DOM 或错误假设固定行高;默认做不到基于 ResizeObserver 的自然尺寸测量、视口范围计算、远端索引定位与 DOM 回收。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@lit-labs/virtualizer",
+    "version": "2.1.1",
+    "github": "lit/lit"
+  },
+  "license": "BSD-3-Clause",
+  "data_in": {
+    "shape": "tabular",
+    "note": "import 会注册 lit-virtualizer;items 接数组,renderItem 必须返回 Lit TemplateResult。本条默认渲成单列文本,消费 AI 可替换渲染函数但不在条目中预设事件出口。",
+    "schema": {
+      "items": "JSONValue[] —— 赋给 lit-virtualizer.items",
+      "itemTextField?": "string | null —— 记录要显示的字段名;默认 null,字符串直接显示、其他值 JSON.stringify"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "scroller 模式必须显式定高;boot 默认 400px,AI 可传其他明确像素值,禁止百分比或视口单位。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:import 即注册 custom element\nimport { html } from 'https://cdn.jsdelivr.net/npm/lit@3.3.0/+esm';\nimport 'https://cdn.jsdelivr.net/npm/@lit-labs/virtualizer@2/+esm';\nconst list = document.createElement('lit-virtualizer'); // 铁律 4:只用 JS 创建\nlist.scroller = true; list.style.height = `${spec.height ?? 400}px`; list.items = data.items;\nlist.renderItem = item => html`<div style=\"padding:8px 12px;border-bottom:1px solid #ddd\">${data.itemTextField == null ? (typeof item === 'string' ? item : JSON.stringify(item)) : String(item?.[data.itemTextField] ?? '')}</div>`;\ndocument.getElementById('list').appendChild(list);",
+    "widget": "// custom element 以 JS 创建并落 shadow 容器;无外部 CSS\nimport { html } from 'https://cdn.jsdelivr.net/npm/lit@3.3.0/+esm';\nimport 'https://cdn.jsdelivr.net/npm/@lit-labs/virtualizer@2/+esm';\nconst list = document.createElement('lit-virtualizer'); // 铁律 4\nlist.scroller = true; list.style.height = `${spec.height ?? 400}px`; list.items = data.items;\nlist.renderItem = item => html`<div style=\"padding:8px 12px;border-bottom:1px solid #ddd\">${data.itemTextField == null ? (typeof item === 'string' ? item : JSON.stringify(item)) : String(item?.[data.itemTextField] ?? '')}</div>`;\nshadowRoot.appendChild(list);",
+    "codex": "// sandbox iframe:原生 custom element 属性 API\nimport { html } from 'https://cdn.jsdelivr.net/npm/lit@3.3.0/+esm';\nimport 'https://cdn.jsdelivr.net/npm/@lit-labs/virtualizer@2/+esm';\nconst list = document.createElement('lit-virtualizer'); // 铁律 4\nlist.scroller = true; list.style.height = `${spec.height ?? 400}px`; list.items = data.items;\nlist.renderItem = item => html`<div style=\"padding:8px 12px;border-bottom:1px solid #ddd\">${data.itemTextField == null ? (typeof item === 'string' ? item : JSON.stringify(item)) : String(item?.[data.itemTextField] ?? '')}</div>`;\ndocument.getElementById('list').appendChild(list);"
+  },
+  "example": {
+    "_why": "custom element 的 items 属性与 Lit renderItem 模板分工具有歧义,附单列记录数组 minimal。",
+    "minimal": {
+      "items": [
+        {
+          "id": "a",
+          "summary": "Short row"
+        },
+        {
+          "id": "b",
+          "summary": "A longer row whose content can wrap and change measured height."
+        }
+      ],
+      "itemTextField": "summary"
+    },
+    "empty": {
+      "items": [],
+      "itemTextField": "summary"
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:custom element 通过 JS createElement 落入 shadowRoot;内部使用 DOM、ResizeObserver 与 Lit,无外部 CSS/head 注入",
+    "codex": "supported:ESM CDN + custom element + ResizeObserver,无 worker/wasm/uplink"
+  }
+}

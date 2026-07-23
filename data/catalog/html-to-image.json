@@ -1,0 +1,58 @@
+{
+  "entry_version": "thin-1",
+  "id": "html-to-image",
+  "name": "html-to-image",
+  "when_to_use": "需要在浏览器把一个已渲染 DOM 节点带计算样式、伪元素、图片与字体导出为 PNG/JPEG/SVG/Blob 时用它而非手写,因为原生在深克隆样式、资源内联和 foreignObject→canvas 栅格化上失败。",
+  "why_valuable": "AI 默认完全做不到可靠 DOM 截图:无法递归复制 computed style、嵌入 webfont/背景图、重建伪元素并处理高 DPI canvas;该 primitive 补齐非持久化页面带走成果的最后一公里。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "html-to-image",
+    "version": "1.11.13",
+    "github": "bubkoo/html-to-image"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geometry",
+    "note": "node 必须是已连接并完成布局的 HTMLElement;库读取其计算像素几何并克隆。跨域图片/字体需 CORS 可读,被污染 canvas 或超大 data URI 会失败。",
+    "schema": {
+      "node": "HTMLElement —— 要导出的已渲染根节点,不是 selector 字符串或 HTML 源码",
+      "options?": {
+        "_default": "未提供时按节点计算尺寸、透明背景、设备像素比输出",
+        "width?": "number —— 克隆节点应用的像素宽,默认节点计算宽",
+        "height?": "number —— 克隆节点应用的像素高,默认节点计算高",
+        "canvasWidth?": "number —— 栅格输出像素宽,默认同 width/节点宽",
+        "canvasHeight?": "number —— 栅格输出像素高,默认同 height/节点高",
+        "backgroundColor?": "CSS color string —— 默认透明",
+        "quality?": "number 0..1 —— JPEG 默认 1",
+        "pixelRatio?": "number —— 默认 devicePixelRatio",
+        "cacheBust?": "boolean —— 默认 false",
+        "includeQueryParams?": "boolean —— 默认 false",
+        "imagePlaceholder?": "data URL string —— 默认空字符串",
+        "skipAutoScale?": "boolean —— 默认 false"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "仅作为消费端展示导出结果的默认容器高度 400px,禁止 vh 或百分比高;html-to-image 本身默认读取 node 的计算像素高,除非明确传 options.height/canvasHeight,不要用本 spec 裁剪源节点。"
+  },
+  "provides": {
+    "shape": "image-output",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers;调用者选择一个原生导出函数。",
+    "outputs": "toPng/toJpeg/toSvg→data URL string;toBlob→Blob|null;toCanvas→HTMLCanvasElement;toPixelData→Uint8ClampedArray",
+    "api_surface": {
+      "png": "await toPng(data.node, data.options ?? {})",
+      "jpeg": "await toJpeg(data.node, data.options ?? {})",
+      "svg": "await toSvg(data.node, data.options ?? {})",
+      "blob": "await toBlob(data.node, data.options ?? {})"
+    }
+  },
+  "peer": {
+    "note": "它消费任意已经完成渲染的 component DOM;下载链接、文件命名或回传动作由消费 AI 自己写,本条不规定统一事件出口。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:输入节点先完成字体与图片加载,再调用所需导出函数\nimport { toPng } from 'https://cdn.jsdelivr.net/npm/html-to-image@1/+esm';\nawait document.fonts?.ready;\nconst dataUrl = await toPng(data.node, data.options ?? {});",
+    "note": "默认示范 PNG;若要 SVG/JPEG/Blob/Canvas/PixelData,从同一 +esm 入口改导入对应具名函数。跨域资源无 CORS 时应先改成 data URL 或同源资源。"
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "entry_version": "thin-1",
+  "id": "rough-viz",
+  "name": "roughViz",
+  "when_to_use": "需要刻意手绘感、可悬停且版式稳定的探索图时用它而非手写抖动 SVG,因为原生在一致的 rough path、坐标轴、碰撞与 tooltip 几何上失败;正式报告或静态单一柱线饼非做它。",
+  "why_valuable": "AI 默认只能给普通 SVG 加随机抖动,做不到同一 roughness 下稳定重建柱、弧、坐标轴和命中层;roughViz 把手绘人格与真实图表尺度结合,避免装饰性噪声破坏数据几何。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "rough-viz",
+    "version": "2.0.5",
+    "github": "jwilber/roughViz"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "本条只收上游可直接吃内存 JSON 的六类构造器;Line/Network/Force 的输入分支另有 URL/图结构约束,不在这个裁剪 schema 内。element 由 boot 注入 CSS id 定位器。",
+    "schema": {
+      "type": "'Bar' | 'BarH' | 'Donut' | 'Pie' | 'Scatter' | 'StackedBar'",
+      "series": "{labels:string[],values:number[]}（Bar/BarH/Donut/Pie） | {x:number[],y:number[]}（Scatter） | Record<string,string|number>[]（StackedBar）",
+      "labelKey?": "string —— StackedBar 必填,指向每行的类别字段;其他类型忽略",
+      "options?": {
+        "_default": "{};boot 注入 width/height/element/data",
+        "title?": "string —— 默认无标题",
+        "roughness?": "number —— 默认 1",
+        "bowing?": "number —— 默认 0",
+        "fillStyle?": "'hachure' | 'solid' | 'zigzag' | 'cross-hatch' | 'dots' | 'dashed' | 'zigzag-line' —— 默认 rough.js hachure",
+        "fillWeight?": "number —— 柱/散点默认 0.5,饼/环默认 0.85",
+        "interactive?": "boolean —— 默认 true",
+        "font?": "0 | 1 | 'gaegu' | 'indie flower' | CSS font-family string —— 默认 Gaegu 内嵌字体",
+        "colors?": "CSS color string[] | CSS color string —— 默认上游十色调色板",
+        "color?": "CSS color string —— Bar/BarH 默认 'skyblue'",
+        "stroke?": "CSS color string —— 默认 'black'",
+        "strokeWidth?": "number —— 默认 1",
+        "margin?": "{top:number,right:number,bottom:number,left:number} —— 默认 {top:50,right:20,bottom:70,left:100}",
+        "xLabel?": "string —— 默认空字符串",
+        "yLabel?": "string —— 默认空字符串"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "roughViz 在构造时把 width/height 固化进 SVG viewBox 与坐标尺度;boot 默认量取像素宽并显式传高 400px。尺寸变化应销毁 DOM 后重建,铁律 3 禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 使用文档级 id,无外部 CSS\nimport * as Rough from 'https://cdn.jsdelivr.net/npm/rough-viz@2/+esm';\nconst el = document.getElementById('roughviz'); el.style.height = `${spec.height ?? 400}px`;\nconst Ctor = Rough[data.type]; if (!Ctor) throw new Error('unsupported roughViz type');\nconst cfg = { ...(data.options ?? {}), element: '#roughviz', data: data.series, width: el.clientWidth || 640, height: spec.height ?? 400 };\nif (data.type === 'StackedBar') cfg.labels = data.labelKey; const chart = new Ctor(cfg);",
+    "widget": "unsupported: roughViz@2.0.5 只接受 document 级 CSS 定位器,并用 document.querySelector/document.getElementById 找挂载点与内部 SVG;它看不见 shadowRoot 子树,不能满足铁律 2。",
+    "codex": "import * as Rough from 'https://cdn.jsdelivr.net/npm/rough-viz@2/+esm';\nconst el = document.getElementById('roughviz'); el.style.height = `${spec.height ?? 400}px`;\nconst Ctor = Rough[data.type]; if (!Ctor) throw new Error('unsupported roughViz type');\nconst cfg = { ...(data.options ?? {}), element: '#roughviz', data: data.series, width: el.clientWidth || 640, height: spec.height ?? 400 };\nif (data.type === 'StackedBar') cfg.labels = data.labelKey; const chart = new Ctor(cfg);"
+  },
+  "example": {
+    "_why": "构造器名与三种内存数据形状是判别联合,minimal example 明确 Bar 的 labels/values 必须同层且等长。",
+    "minimal": {
+      "type": "Bar",
+      "series": {
+        "labels": ["Research", "Build", "Review"],
+        "values": [12, 19, 8]
+      },
+      "options": {
+        "title": "Sprint effort",
+        "roughness": 1.2,
+        "fillStyle": "hachure",
+        "interactive": true,
+        "color": "#60a5fa"
+      }
+    },
+    "empty": {
+      "type": "Bar",
+      "series": {
+        "labels": [],
+        "values": []
+      }
+    }
+  },
+  "uplink": "display/local-interact 类,默认无需上行。若需把图元悬停或点击交给宿主,由消费 AI 自行接原生 DOM 并按载体处理;本条不建立统一事件协议。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "unsupported:文档级定位器与内部 document.getElementById 无法定位 shadowRoot 内节点",
+    "codex": "supported:ESM CDN + SVG,内嵌字体 data URL,无外部 CSS 或默认上行依赖"
+  }
+}

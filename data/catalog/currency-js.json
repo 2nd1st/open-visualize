@@ -1,0 +1,54 @@
+{
+  "entry_version": "thin-1",
+  "id": "currency-js",
+  "name": "currency.js",
+  "when_to_use": "需要小体积的单币种金额运算、分摊与格式化时用它而非手写,因为原生 Number 加 toFixed 在链式误差、最小单位和余数分配上失败。",
+  "why_valuable": "AI 默认用浮点数运算后再 toFixed(2),做不到保证内部整数值、显示值和分摊总和一致;currency.js 以最小单位整数闭环这些步骤。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "currency.js",
+    "version": "2.0.4",
+    "github": "scurker/currency.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "scalar",
+    "note": "amount 交给 currency(value,options);operations 保持金额链顺序,split_count 使用原生 distribute 保证余数仍计入各份总和。",
+    "schema": {
+      "amount": "number | string",
+      "options?": {
+        "_default": "{}",
+        "precision?": "integer >= 0 —— 默认 2",
+        "symbol?": "string —— 默认 '$'",
+        "separator?": "string —— 默认 ','",
+        "decimal?": "string —— 默认 '.'",
+        "pattern?": "string —— 默认 '!#'",
+        "negativePattern?": "string —— 默认 '-!#'",
+        "fromCents?": "boolean —— 默认 false",
+        "errorOnInvalid?": "boolean —— 默认 false",
+        "increment?": "number > 0 —— 默认 1 / 10^precision"
+      },
+      "operations?": "{op:'plus'|'minus'|'times'|'divide',operand:number|string}[] —— 默认 []",
+      "split_count?": "integer > 0 —— 默认省略,不分摊"
+    }
+  },
+  "provides": {
+    "shape": "money-value",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;零依赖纯 JS money value-object。",
+    "outputs": "{value:number,intValue:integer,formatted:string,parts?:string[]}；parts 来自 distribute,所有份额之和等于原金额。",
+    "api_surface": {
+      "construct": "currency(amount, options)",
+      "arithmetic": "money.add(x).subtract(y).multiply(k).divide(d)",
+      "allocate": "money.distribute(count)",
+      "serialize": "money.value / money.intValue / money.format()"
+    }
+  },
+  "peer": {
+    "note": "它适合单币种本地计算和显示;需要显式 ISO 币种、scale 与比例分配时改用 dinero-js。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS、无 DOM/uplink/shadow 足迹\nimport currency from 'https://cdn.jsdelivr.net/npm/currency.js@2/+esm';\nlet money = currency(data.amount, data.options ?? {});\nconst methods = { plus:'add', minus:'subtract', times:'multiply', divide:'divide' };\nfor (const step of data.operations ?? []) money = money[methods[step.op]](step.operand);\nconst parts = data.split_count === undefined ? undefined : money.distribute(data.split_count).map(x => x.format());\nconst result = { value: money.value, intValue: money.intValue, formatted: money.format(), parts };",
+    "note": "step.op 必须按 schema 白名单校验;currency.js 不做实时汇率与跨币种换算。"
+  }
+}

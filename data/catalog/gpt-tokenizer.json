@@ -1,0 +1,45 @@
+{
+  "entry_version": "thin-1",
+  "id": "gpt-tokenizer",
+  "name": "gpt-tokenizer",
+  "when_to_use": "需要在浏览器里精确计数或拆解 GPT 文本 token 时用它,而非手写字符估算或 BPE——原生手写在 Unicode、特殊 token 与模型编码差异上必然失败。",
+  "why_valuable": "AI 默认只能按字符数粗估 token,做不到逐 token 的 o200k_base BPE 合并、可逆解码和硬上限判断；本库把文本稳定变成真实 token id 与计数,且无需网络请求。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "gpt-tokenizer",
+    "version": "3.4.0",
+    "github": "niieani/gpt-tokenizer"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "text-span",
+    "note": "data_in.text 原样交给包根导出的 o200k_base 编码器；若目标是旧模型,消费 AI 应改用 gpt-tokenizer/model/<model> 子路径,不要把不同模型的 token id 混用。",
+    "schema": {
+      "text": "string —— 要编码或计数的完整文本；空字符串合法并得到空 token 序列"
+    }
+  },
+  "provides": {
+    "shape": "token-sequence",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵；它只生产计数、token id 与可逆文本片段。",
+    "outputs": {
+      "tokens": "number[] —— o200k_base token id 序列",
+      "count": "number —— countTokens(text) 的精确结果",
+      "decoded": "string —— decode(tokens) 的回读文本",
+      "withinLimit": "false | number —— 超限为 false,未超限为实际 token 数"
+    },
+    "api_surface": {
+      "encode": "encode(text) → number[]",
+      "decode": "decode(tokens) → string",
+      "countTokens": "countTokens(text) → number",
+      "isWithinTokenLimit": "isWithinTokenLimit(text, limit) → false | number"
+    }
+  },
+  "peer": {
+    "note": "把 tokens/count 喂给自写的 token 高亮、上下文预算条或提示词检查器；本条不自带 UI,消费 AI 自己决定如何分段着色与呈现。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯同步 JS,包根默认 o200k_base\nimport { encode, decode, countTokens, isWithinTokenLimit } from 'https://cdn.jsdelivr.net/npm/gpt-tokenizer@3/+esm';\nconst tokens = encode(data.text);\nconst result = { tokens, count: countTokens(data.text), decoded: decode(tokens) };\nconst withinLimit = isWithinTokenLimit(data.text, tokenLimit);",
+    "note": "默认拒绝文本中的特殊 token；只有业务明确需要时才向 encode/countTokens 第二维参数传 allowedSpecial,不要默认为 'all'。"
+  }
+}

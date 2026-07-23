@@ -1,0 +1,50 @@
+{
+  "entry_version": "thin-1",
+  "id": "party-js",
+  "name": "party.js",
+  "when_to_use": "需要从某个按钮、答案或文字元素的实际几何位置发射 confetti/sparkles 时用它,而非手算粒子起点——原生在元素锚定、变化区间与 DOM 粒子三维变换上失败。",
+  "why_valuable": "AI 默认能做全屏粒子,却做不到稳定地从任意 DOM 元素边界采样发射点并组合数量、速度、尺寸变化；party.js 把元素锚定与成熟模板封装为原生函数。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "party-js",
+    "version": "2.2.0",
+    "github": "yiliansource/party-js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "targetSelector 相对 party-stage 查询并必须命中 HTMLElement；effect 直接映射上游 party.confetti/party.sparkles,count 用 party.variation.range。",
+    "schema": {
+      "targetSelector": "string —— party-stage 内唯一锚点的 CSS selector",
+      "effect?": "'confetti' | 'sparkles' —— 默认 'confetti'",
+      "count?": "[non-negative number,non-negative number] —— 随机范围；省略时用上游默认:confetti 20..40,sparkles 10..20"
+    }
+  },
+  "spec": {
+    "height": 120,
+    "note": "party-stage 默认显式 120px 高,供锚点完成布局后再采样几何。上游粒子根层固定挂 document.body 并覆盖 viewport,不受该高度裁剪；禁用 vh/百分比高度作为 stage 尺寸。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:上游会把 #party-js-container 写入 document.body\nimport party from 'https://cdn.jsdelivr.net/npm/party-js@2/+esm';\nconst stage = document.getElementById('party-stage'); stage.style.height = `${spec.height ?? 120}px`;\nconst target = stage.querySelector(data.targetSelector); if (!(target instanceof HTMLElement)) throw new Error('party target not found');\nconst options = data.count ? {count:party.variation.range(data.count[0], data.count[1])} : {};\nconst emitter = (data.effect ?? 'confetti') === 'sparkles' ? party.sparkles(target, options) : party.confetti(target, options);",
+    "widget": "unsupported:party.js 2.2.0 的公开 API 固定把全局 #party-js-container 挂到 document.body,无法把粒子根落入 widget shadowRoot；违反 widget 零足迹要求。",
+    "codex": "import party from 'https://cdn.jsdelivr.net/npm/party-js@2/+esm';\nconst stage = document.getElementById('party-stage'); stage.style.height = `${spec.height ?? 120}px`;\nconst target = stage.querySelector(data.targetSelector); if (!(target instanceof HTMLElement)) throw new Error('party target not found');\nconst options = data.count ? {count:party.variation.range(data.count[0], data.count[1])} : {};\nconst emitter = (data.effect ?? 'confetti') === 'sparkles' ? party.sparkles(target, options) : party.confetti(target, options);"
+  },
+  "example": {
+    "_why_no_minimal": "只有锚点、模板和数量范围三个浅字段,无需 minimal；空态把数量范围置零。",
+    "empty": {
+      "targetSelector": "#celebrate",
+      "effect": "confetti",
+      "count": [
+        0,
+        0
+      ]
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:DOM 粒子根注入 document.body,元素锚点必须已完成布局",
+    "widget": "unsupported:粒子根固定越出 shadowRoot 且使用全局 id,无法满足 widget 零足迹",
+    "codex": "supported:sandbox iframe 内 document.body 隔离可承接全局粒子根；无 CSS/图片/font CDN"
+  }
+}

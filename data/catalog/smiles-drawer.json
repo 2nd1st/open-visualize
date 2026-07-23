@@ -1,0 +1,40 @@
+{
+  "entry_version": "thin-1",
+  "id": "smiles-drawer",
+  "name": "smiles-drawer",
+  "when_to_use": "需要把 SMILES 字符串渲成可读的 2D 分子结构式时用它,而非手拼 canvas/SVG——原生绘制在环布局、键角、芳香性、元素标签和重叠消解上失败。",
+  "why_valuable": "AI 默认能生成 SMILES 文本却完全做不到可信的化学结构布局,手拼分子图会画错键角、环和标签；smiles-drawer 把解析、图布局与 canvas/SVG 绘制闭环在浏览器内。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "smiles-drawer",
+    "version": "2.4.1",
+    "github": "reymond-group/smilesDrawer"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "_why_no_example": "SMILES 是 AI 原生记法,schema 足矣,不附 minimal example。",
+    "schema": {
+      "smiles": "string —— 一个 molecule SMILES；本 entry 不走 reaction SMILES 分支",
+      "theme?": "'light' | 'dark' —— 默认 light",
+      "width?": "positive integer CSS pixels —— 默认 480",
+      "height?": "positive integer CSS pixels —— 默认 320"
+    }
+  },
+  "spec": {
+    "height": 320,
+    "note": "canvas 默认 480×320px,宽高同时写 canvas attribute 与 Drawer options；禁止 vh/百分比高。需要响应式时由消费 AI 按新的整数 pixel 尺寸重新 draw。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:SMILES 直接解析,无额外数据 fetch\nimport SmilesDrawer from 'https://cdn.jsdelivr.net/npm/smiles-drawer@2/+esm';\nconst canvas = document.createElement('canvas');\ncanvas.width = data.width ?? 480; canvas.height = data.height ?? 320;\ndocument.getElementById('molecule').appendChild(canvas);\nconst drawer = new SmilesDrawer.Drawer({ width: canvas.width, height: canvas.height });\nSmilesDrawer.parse(data.smiles, tree => drawer.draw(tree, canvas, data.theme ?? 'light', false), err => { throw err; });",
+    "widget": "// canvas 先落 shadow；Drawer.draw 接受 HTMLCanvasElement,不要传会穿不透 shadow 的 id\nimport SmilesDrawer from 'https://cdn.jsdelivr.net/npm/smiles-drawer@2/+esm';\nconst canvas = document.createElement('canvas');\ncanvas.width = data.width ?? 480; canvas.height = data.height ?? 320; shadowRoot.appendChild(canvas);\nconst drawer = new SmilesDrawer.Drawer({ width: canvas.width, height: canvas.height });\nSmilesDrawer.parse(data.smiles, tree => drawer.draw(tree, canvas, data.theme ?? 'light', false), err => { throw err; });",
+    "codex": "同 artifact(sandbox iframe):default ESM import → new SmilesDrawer.Drawer(options) → SmilesDrawer.parse → drawer.draw(tree, canvasElement, theme, false)。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:parse 纯 JS,draw 可直接吃 shadow 内 HTMLCanvasElement；无 CSS/head/图片/font CDN 注入",
+    "codex": "supported:ESM CDN + canvas,无额外 fetch/worker/wasm/uplink"
+  }
+}

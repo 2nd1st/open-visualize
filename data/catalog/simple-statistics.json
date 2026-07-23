@@ -1,0 +1,43 @@
+{
+  "entry_version": "thin-1",
+  "id": "simple-statistics",
+  "name": "simple-statistics",
+  "when_to_use": "需要百分位、样本方差、相关性或一元回归的可复算统计核时用它而非手写公式,因为原生 AI 在样本/总体分母、分位插值、ties 与空集边界上失败。",
+  "why_valuable": "AI 默认只能给出看似正确的统计公式,无法稳定保持 sample/population 语义、分位规则和异常输入处理;simple-statistics 用零依赖命名函数固定这些数值口径。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "simple-statistics",
+    "version": "7.9.3",
+    "github": "simple-statistics/simple-statistics"
+  },
+  "license": "ISC",
+  "data_in": {
+    "shape": "tabular",
+    "note": "描述统计吃 number[];一元回归严格吃 [x,y][]。不要把对象行直接喂给函数,先按列投影并过滤非有限数。",
+    "schema": {
+      "values": "number[] —— 描述统计样本;调用前须全部为有限数",
+      "quantileP?": "number | number[] —— 0..1 分位概率,默认 0.5",
+      "points?": "[number, number][] —— 一元线性回归点,默认 [](不计算回归)"
+    }
+  },
+  "provides": {
+    "shape": "statistics-values",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;纯 JS 数值层。",
+    "outputs": "均值、中位数、分位数、样本/总体方差、标准差、相关系数,以及 {m,b} 回归参数和预测函数。",
+    "api_surface": {
+      "summary": "mean(values), median(values), quantile(values, p)",
+      "variance": "sampleVariance(values) 与 variance(values) 语义分开",
+      "correlation": "sampleCorrelation(xValues, yValues)",
+      "regression": "linearRegression(points) → {m,b}; linearRegressionLine(model) → (x)=>y"
+    }
+  },
+  "peer": {
+    "id": "echarts",
+    "note": "本条只产标量或采样序列;回归线可把 x 代入预测函数后生成 [x,y][],再交给图表组件。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS、无 DOM/uplink/shadow 足迹\nimport { mean, median, quantile, sampleVariance, linearRegression, linearRegressionLine } from 'https://cdn.jsdelivr.net/npm/simple-statistics@7/+esm';\nconst summary = { mean: mean(data.values), median: median(data.values), quantile: quantile(data.values, data.quantileP ?? 0.5), sampleVariance: sampleVariance(data.values) };\nconst model = data.points?.length ? linearRegression(data.points) : null;\nconst predict = model ? linearRegressionLine(model) : null;",
+    "note": "多数函数对空数组会抛错或没有统计意义;消费 AI 须先拒绝空 values,并显式选择 sampleVariance 或 variance,不可互换。"
+  }
+}

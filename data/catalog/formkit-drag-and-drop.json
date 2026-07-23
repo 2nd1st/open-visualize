@@ -1,0 +1,55 @@
+{
+  "entry_version": "thin-1",
+  "id": "formkit-drag-and-drop",
+  "name": "FormKit drag-and-drop",
+  "when_to_use": "需要把一个或多个列表做成 data-first 拖拽排序/跨列转移时用它而非手写 Pointer Events,因为原生在落点判定、触屏拖动、动画和数组顺序同步上失败。非做只有上移/下移按钮的简单排序。",
+  "why_valuable": "AI 默认能画静态列表,但默认做不到流畅拖拽、触屏与鼠标统一命中、多列表转移及 DOM 顺序和源数组始终一致;该库把最终顺序直接保留为数组。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@formkit/drag-and-drop",
+    "version": "0.6.1",
+    "github": "formkit/drag-and-drop"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "sequence",
+    "note": "data.items 是状态源;boot 为每个值创建一个同序 DOM 子项,再把 getValues/setValues 交给上游原生 dragAndDrop。条目不另造拖拽事件协议。",
+    "schema": {
+      "items": [
+        {
+          "id": "string —— 稳定且唯一",
+          "label": "string —— 子项显示文本",
+          "disabled?": "boolean —— 是否作为不可拖子项由消费 AI 另配规则,默认 false"
+        }
+      ]
+    }
+  },
+  "spec": {
+    "height": 320,
+    "note": "拖拽落点计算需要稳定滚动区域;列表默认 height 320px 且内部滚动,AI 可改成其他明确像素值,禁用 vh/百分比高(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:vanilla data-first API\nimport { dragAndDrop } from 'https://cdn.jsdelivr.net/npm/@formkit/drag-and-drop@0/+esm';\nlet values = [...data.items];\nconst el = document.getElementById('list'); el.style.cssText = `height:${spec.height ?? 320}px;overflow:auto;display:grid;gap:8px`;\nfor (const item of values) { const row = document.createElement('div'); row.textContent = item.label; row.dataset.id = item.id; row.style.cssText = 'padding:10px;border:1px solid #ccc;border-radius:8px;cursor:grab'; el.appendChild(row); }\ndragAndDrop({ parent: el, getValues: () => values, setValues: next => { values = next; } });",
+    "widget": "// 挂载点与全部列表 DOM 落在 shadowRoot\nimport { dragAndDrop } from 'https://cdn.jsdelivr.net/npm/@formkit/drag-and-drop@0/+esm';\nlet values = [...data.items];\nconst el = document.createElement('div'); el.style.cssText = `height:${spec.height ?? 320}px;overflow:auto;display:grid;gap:8px`; shadowRoot.appendChild(el);\nfor (const item of values) { const row = document.createElement('div'); row.textContent = item.label; row.dataset.id = item.id; row.style.cssText = 'padding:10px;border:1px solid #ccc;border-radius:8px;cursor:grab'; el.appendChild(row); }\ndragAndDrop({ parent: el, getValues: () => values, setValues: next => { values = next; } });",
+    "codex": "// sandbox iframe 内直接使用 vanilla dragAndDrop\nimport { dragAndDrop } from 'https://cdn.jsdelivr.net/npm/@formkit/drag-and-drop@0/+esm';\nlet values = [...data.items];\nconst el = document.getElementById('list'); el.style.cssText = `height:${spec.height ?? 320}px;overflow:auto;display:grid;gap:8px`;\nfor (const item of values) { const row = document.createElement('div'); row.textContent = item.label; row.dataset.id = item.id; row.style.cssText = 'padding:10px;border:1px solid #ccc;border-radius:8px;cursor:grab'; el.appendChild(row); }\ndragAndDrop({ parent: el, getValues: () => values, setValues: next => { values = next; } });"
+  },
+  "example": {
+    "_why_no_minimal": "sequence 是 AI 原生浅结构,getValues/setValues 的精确契约已由 schema 与 boot 钉死,不需要额外 minimal。",
+    "empty": {
+      "items": []
+    }
+  },
+  "uplink": {
+    "_note": "本条只维护局部 values,不焊接统一回调;消费 AI 在需要回传时读取当前 values。",
+    "widget": "消费 AI 自行把 values 的 JSON 编入 sendPrompt 文案。",
+    "codex": "消费 AI 自行把 values 交给 sendFollowUpMessage。",
+    "artifact": "artifact 无上行;提供把 values 下载为 JSON 的兜底。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:vanilla DOM + Pointer Events,挂载点可完全位于 shadowRoot,无外部 CSS/worker/wasm",
+    "codex": "supported:单一 ESM CDN,无外部资产"
+  }
+}

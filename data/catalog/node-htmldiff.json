@@ -1,0 +1,41 @@
+{
+  "entry_version": "thin-1",
+  "id": "node-htmldiff",
+  "name": "htmldiff.js",
+  "when_to_use": "需要比较两段渲染态 HTML 并保留标签层级、用 ins/del 标出文案或合同条款变化时用它而非手写,因为原生字符串 diff 会切坏标签并丢失富文本语义。",
+  "why_valuable": "AI 默认只能一次性猜写 ins/del,做不到对任意两段 HTML 在运行时稳定分词、对齐标签层级并复算语义差异;本库确定地产出可渲染 diff HTML。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "node-htmldiff",
+    "version": "0.9.4",
+    "github": "tnwinc/htmldiff.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "text-span",
+    "note": "入口是两个完整 HTML 片段字符串,不是 DOM 节点或代码补丁;输出会复用输入 HTML,不可信输入须先按消费场景净化。",
+    "schema": {
+      "before": "string —— 原始 HTML 片段;空字符串合法",
+      "after": "string —— 变更后 HTML 片段;空字符串合法",
+      "class_name?": "string | null —— 附到每个 ins/del 的 class,默认 null(不附 class)",
+      "data_prefix?": "string | null —— operation-index 数据属性前缀,默认 null,即 data-operation-index",
+      "atomic_tags?": "string | null —— 逗号分隔且整段视为原子节点的标签名,默认 null;0.9.4 源码默认 iframe,object,math,svg,script,video,head,style,a"
+    }
+  },
+  "provides": {
+    "shape": "html-string",
+    "_note": "headless-primitive:只计算字符串、不直接渲染,因此无 L 级和 carriers 矩阵。",
+    "outputs": "string —— 保留共同 HTML,差异文本或节点由 <ins>/<del> 包裹,并带 data-operation-index。",
+    "api_surface": {
+      "diff": "diff(before, after, className?, dataPrefix?, atomicTags?) → HTML string"
+    }
+  },
+  "peer": {
+    "note": "消费者是能显示受信 HTML 的 DOM/富文本视图;若 before/after 来自用户输入,先净化再写入 innerHTML,本库不是 sanitizer。"
+  },
+  "boot": {
+    "shared": "import diff from 'https://cdn.jsdelivr.net/npm/node-htmldiff@0/+esm';\nconst html = diff(\n  data.before, data.after, data.class_name ?? null,\n  data.data_prefix ?? null, data.atomic_tags ?? null\n);\n// html 交给消费端的受信 HTML 视图",
+    "note": "保守使用包的单一默认函数;不在本条内渲染或绑定回调。jsDelivr +esm 已把 0.9.4 的 CommonJS 入口转换为 default export。"
+  }
+}

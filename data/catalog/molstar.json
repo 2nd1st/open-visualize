@@ -1,0 +1,39 @@
+{
+  "entry_version": "thin-1",
+  "id": "molstar",
+  "name": "Mol*",
+  "when_to_use": "需要查看大型蛋白质或核酸的 PDB/mmCIF、装配体与复杂表示时用它而非手写 WebGL,因为原生在大分子解析、层级表示和高性能拾取上失败;非做小分子 2D 编辑或分子动力学计算。",
+  "why_valuable": "AI 默认只能描述残基与坐标文本,无法呈现大分子折叠、装配体和结构层级;Mol* 提供面向大型结构的解析、状态树、表示预设和 WebGL UI。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "molstar",
+    "version": "5.11.0",
+    "github": "molstar/molstar"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geometry",
+    "note": "本条只接收内联结构正文并走 Viewer.loadStructureFromData;不要把 PDB id 或 URL 塞进 source。",
+    "schema": {
+      "source": "string —— 完整 PDB 或文本 mmCIF 正文",
+      "format": "'pdb' | 'mmcif' —— 与 source 精确匹配"
+    }
+  },
+  "spec": {
+    "height": 520,
+    "note": "Mol* viewer 要求父容器 position:relative 且有显式像素高度;默认 520px,禁用 vh/百分比高。容器变化后调用 viewer.handleResize()。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合;官方 viewer 是 classic bundle\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/molstar@5.11.0/build/viewer/molstar.css'; document.head.appendChild(css);\nconst script = document.createElement('script'); script.src = 'https://cdn.jsdelivr.net/npm/molstar@5.11.0/build/viewer/molstar.js';\nawait new Promise((ok, bad) => { script.onload = ok; script.onerror = bad; document.head.appendChild(script); });\nconst el = document.getElementById('molstar'); el.style.cssText = 'position:relative;height:520px';\nconst viewer = await window.molstar.Viewer.create(el);\nawait viewer.loadStructureFromData(data.source, data.format);",
+    "widget": "// CSS 必须落 shadow;官方 classic JS 仅负责注册 window.molstar\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/molstar@5.11.0/build/viewer/molstar.css'; shadowRoot.appendChild(css);\nconst script = document.createElement('script'); script.src = 'https://cdn.jsdelivr.net/npm/molstar@5.11.0/build/viewer/molstar.js';\nawait new Promise((ok, bad) => { script.onload = ok; script.onerror = bad; document.head.appendChild(script); });\nconst el = document.createElement('div'); el.style.cssText = 'position:relative;height:520px'; shadowRoot.appendChild(el);\nconst viewer = await window.molstar.Viewer.create(el);\nawait viewer.loadStructureFromData(data.source, data.format);",
+    "codex": "同 artifact(sandbox iframe):把 molstar.css 放 iframe head,加载官方 build/viewer classic bundle,再 Viewer.create + loadStructureFromData。",
+    "note": "molstar@5.11.0 无根入口,根 /+esm 为 404,细分 app.js 的 jsDelivr +esm 也无法解析内部 import;因此保守使用上游发布的 build/viewer/molstar.js + molstar.css。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:需 WebGL 且允许在 document.head 加载 classic JS;组件 UI 与 CSS 落 shadow,全屏/门户行为未探针验证",
+    "codex": "conditional:需 sandbox WebGL,官方 viewer bundle 较大但数据内联时无需结构 CDN"
+  }
+}

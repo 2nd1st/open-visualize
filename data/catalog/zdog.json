@@ -1,0 +1,102 @@
+{
+  "entry_version": "thin-1",
+  "id": "zdog",
+  "name": "Zdog",
+  "when_to_use": "需要圆头、扁平着色、可拖拽旋转的伪 3D 小雕塑或概念模型时用它,而非手写 SVG/CSS 透视——原生手写在三轴组合、遮挡排序和统一圆润描边上稳定失败。非做写实 3D、材质光照或大型网格。",
+  "why_valuable": "AI 默认只能画平面 SVG 或不稳的 CSS 立方体,做不到一组可旋转且遮挡顺序一致的伪 3D 几何;Zdog 用 2D canvas/SVG 渲染补齐空间变换与设计师质感。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "zdog",
+    "version": "1.1.3",
+    "github": "metafizzy/zdog"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geometry",
+    "note": "data_in 映射到一个 Zdog.Illustration 与一组上游 Shape 构造器。boot 注入 element/addTo;shape.type 必须是白名单内真实构造器名,options 仍是上游原生几何字段。",
+    "schema": {
+      "illustration?": {
+        "_default": "默认 {}",
+        "zoom?": "number —— 默认 1",
+        "centered?": "boolean —— 默认 true",
+        "dragRotate?": "boolean —— 默认 false",
+        "resize?": "boolean —— 默认 false"
+      },
+      "shapes": [
+        {
+          "type": "'Shape'|'Ellipse'|'Rect'|'RoundedRect'|'Polygon'|'Hemisphere'|'Cylinder'|'Cone'|'Box'",
+          "options": {
+            "color": "CSS color string",
+            "stroke?": "number | boolean —— 默认采用该构造器上游值",
+            "fill?": "boolean —— 默认 false",
+            "translate?": "{x?:number,y?:number,z?:number} —— 默认各轴 0",
+            "rotate?": "{x?:number,y?:number,z?:number} —— 默认各轴 0(弧度)",
+            "scale?": "number | {x?:number,y?:number,z?:number} —— 默认 1",
+            "path?": "({x?:number,y?:number,z?:number}|{arc:[point,point]}|{bezier:[point,point,point]})[] —— Shape 默认单点",
+            "diameter?": "number —— Ellipse 默认 1",
+            "width?": "number —— Rect/Box 默认 1",
+            "height?": "number —— Rect/Box 默认 1",
+            "depth?": "number —— Box 默认 1",
+            "sides?": "number —— Polygon 默认 3"
+          }
+        }
+      ]
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "canvas 必须有显式像素尺寸;boot 默认 width 640、height 400,同时允许 CSS 宽度随容器缩放。禁用 vh/百分比高(铁律 3);若 illustration.resize=true,Zdog 会按显示尺寸重设 canvas。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:原生 Illustration + 各 shape 构造器\nimport Zdog from 'https://cdn.jsdelivr.net/npm/zdog@1/+esm';\nconst canvas = document.createElement('canvas'); canvas.width = 640; canvas.height = 400;\ncanvas.style.cssText = 'display:block;width:100%;height:400px'; document.getElementById('zdog').appendChild(canvas);\nconst illo = new Zdog.Illustration({ ...data.illustration, element: canvas });\nfor (const s of data.shapes) new Zdog[s.type]({ ...s.options, addTo: illo });\n(function frame(){ illo.updateRenderGraph(); requestAnimationFrame(frame); })();",
+    "widget": "// canvas 由 JS 创建并落 shadow 容器,无外部 CSS/head 注入\nimport Zdog from 'https://cdn.jsdelivr.net/npm/zdog@1/+esm';\nconst canvas = document.createElement('canvas'); canvas.width = 640; canvas.height = 400;\ncanvas.style.cssText = 'display:block;width:100%;height:400px'; shadowRoot.appendChild(canvas);\nconst illo = new Zdog.Illustration({ ...data.illustration, element: canvas });\nfor (const s of data.shapes) new Zdog[s.type]({ ...s.options, addTo: illo });\n(function frame(){ illo.updateRenderGraph(); requestAnimationFrame(frame); })();",
+    "codex": "同 artifact(sandbox iframe fragment):ESM default import Zdog,JS 创建固定 px 高 canvas,构造 Illustration 与 shape,逐帧调用 illo.updateRenderGraph()。"
+  },
+  "example": {
+    "_why": "三轴位置、构造器名与 shape 专属尺寸字段高度歧义;minimal 让 AI 一次拼对 geometry 到原生构造器的映射。",
+    "minimal": {
+      "illustration": {
+        "zoom": 4,
+        "dragRotate": true
+      },
+      "shapes": [
+        {
+          "type": "Ellipse",
+          "options": {
+            "color": "#636",
+            "diameter": 20,
+            "stroke": 5,
+            "translate": {
+              "z": 10
+            }
+          }
+        },
+        {
+          "type": "Rect",
+          "options": {
+            "color": "#e62",
+            "width": 20,
+            "height": 20,
+            "stroke": 3,
+            "fill": true,
+            "translate": {
+              "z": -10
+            }
+          }
+        }
+      ]
+    },
+    "empty": {
+      "illustration": {},
+      "shapes": []
+    }
+  },
+  "uplink": "display/local-interact 类,拖拽旋转由 Zdog 原生处理且默认不上行;业务回调由消费 AI 自行连接,不抽象统一事件契约。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:canvas 与全部绘制留在 shadow 容器,无字体/图片/CDN CSS 依赖",
+    "codex": "supported:ESM CDN + canvas + requestAnimationFrame"
+  }
+}

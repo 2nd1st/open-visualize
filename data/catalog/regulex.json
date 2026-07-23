@@ -1,0 +1,42 @@
+{
+  "entry_version": "thin-1",
+  "id": "regulex",
+  "name": "Regulex",
+  "when_to_use": "需要把 JavaScript 正则表达式解释成可缩放 railroad SVG 时用它而非手写,因为原生在分支、回溯引用、字符集和量词的精确布局上失败。",
+  "why_valuable": "AI 默认只能用文字解释正则,做不到从正则 AST 稳定生成带分支连线、字符集盒和量词回路的 SVG;解析与布局两层都不应由 AI 重写。",
+  "supply_form": "component",
+  "level": "L2",
+  "mode": "our-entry",
+  "upstream": {
+    "npm": "regulex",
+    "version": "0.0.5",
+    "github": "CJex/regulex"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "note": "regex 只传表达式正文,不要带 /.../ 定界符;flags 单独传给 visualizer。Regulex 0.0.5 是 legacy ECMAScript 解析器,不保证接受后来的 Unicode property escape 等新语法。",
+    "_why_no_example": "正则表达式是 AI 原生记法,schema 足以校准输入,不附 minimal example。",
+    "schema": {
+      "regex": "string —— JavaScript RegExp source,例如 ^(?:foo|bar)+$ 的正文",
+      "flags?": "string —— 仅由 g、i、m 组成,默认 ''；可视化布局实际只读取 m,其余用于标题标注"
+    }
+  },
+  "spec": {
+    "height": 360,
+    "note": "Regulex 由内容计算 SVG 的真实宽高;外层默认显式 360px 高并双向滚动,AI 可用像素值覆盖。禁用 vh/百分比高度。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:0.0.5 的 +esm 主入口只有 parser,薄 mount 改载 documented browser bundle\nasync function mount(el, _id, data, { spec, onEvent: _onEvent }) {\n  el.style.cssText = `height:${spec.height}px;overflow:auto`;\n  const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/regulex@0.0.5/dist/regulex.js'; document.head.appendChild(s);\n  await new Promise((ok, fail) => { s.onload = ok; s.onerror = fail; });\n  const { parse, visualize, Raphael } = globalThis.require('regulex');\n  visualize(parse(data.regex), data.flags ?? '', Raphael(el, 0, 0));\n}\nawait mount(document.getElementById('regex'), 'regulex', data, { spec: { height: 360 } });",
+    "widget": "// legacy bundle 会声明全局 require/define,故在 shadow 内的 iframe 隔离其全局足迹\nasync function mount(el, _id, data, { spec, onEvent: _onEvent }) {\n  const f = document.createElement('iframe'); f.style.cssText = `width:100%;height:${spec.height}px;border:0`; f.srcdoc = '<div id=\"rx\"></div>'; el.appendChild(f);\n  await new Promise(ok => f.addEventListener('load', ok, { once: true }));\n  const s = f.contentDocument.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/regulex@0.0.5/dist/regulex.js'; f.contentDocument.head.appendChild(s);\n  await new Promise((ok, fail) => { s.onload = ok; s.onerror = fail; });\n  const R = f.contentWindow.require('regulex'); R.visualize(R.parse(data.regex), data.flags ?? '', R.Raphael(f.contentDocument.getElementById('rx'), 0, 0));\n}\nawait mount(shadowRoot, 'regulex', data, { spec: { height: 360 } });",
+    "codex": "async function mount(el, _id, data, { spec, onEvent: _onEvent }) {\n  el.style.cssText = `height:${spec.height}px;overflow:auto`;\n  const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/regulex@0.0.5/dist/regulex.js'; document.head.appendChild(s);\n  await new Promise((ok, fail) => { s.onload = ok; s.onerror = fail; });\n  const R = globalThis.require('regulex'); R.visualize(R.parse(data.regex), data.flags ?? '', R.Raphael(el, 0, 0));\n}\nawait mount(document.getElementById('regex'), 'regulex', data, { spec: { height: 360 } });",
+    "note": "保守路径已按 0.0.5 README 校对:dist/regulex.js 内含 parse、visualize 与 Raphael,经其 AMD loader 的 require('regulex') 取得。不要改用包根 /+esm,该入口确实只暴露 parser。"
+  },
+  "raw_source_url": "https://cdn.jsdelivr.net/npm/regulex@0.0.5/src/regulex.js",
+  "uplink": "纯展示组件,默认无需上行;若要回传正则编辑结果,由消费 AI 自己按载体读取输入并写回调,不规定统一事件出口。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:需允许同源 iframe、iframe 内 classic script 与 jsDelivr;iframe 挂在 shadowRoot 中以隔离 legacy require/define 全局",
+    "codex": "conditional:sandbox iframe 需允许 classic script CDN;无 worker/wasm/font/uplink 需求"
+  }
+}

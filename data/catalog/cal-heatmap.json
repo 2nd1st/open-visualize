@@ -1,0 +1,112 @@
+{
+  "entry_version": "thin-1",
+  "id": "cal-heatmap",
+  "name": "cal-heatmap",
+  "when_to_use": "需要把每日习惯、活跃度或提交量压成 GitHub contribution 风格的日历格网时用它而非手写 SVG,因为原生在日期分桶、周/月边界、色阶和跨域导航上失败。",
+  "why_valuable": "AI 默认只能拼静态方格,做不到按时区稳定归桶、处理缺失日期、跨月周对齐、连续色阶与日期导航;cal-heatmap 用 date/value 记录直接闭环这些高错率步骤。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "cal-heatmap",
+    "version": "4.2.4",
+    "github": "wa0x6e/cal-heatmap"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "grid",
+    "note": "points 直接成为 paint().data.source;date 字符串由上游转为时间戳,value 按同一子域聚合。boot 固定 x='date'、y='value',避免让 AI 再拼字段映射。",
+    "schema": {
+      "points": [
+        {
+          "date": "ISO-8601 date/time string | epoch-milliseconds",
+          "value": "number"
+        }
+      ],
+      "start?": "ISO-8601 date/time string | epoch-milliseconds —— 默认当前时间",
+      "range?": "positive integer —— boot 默认 12 个 domain",
+      "aggregate?": "'sum' | 'count' | 'min' | 'max' | 'average' —— 默认 'sum'",
+      "domain?": {
+        "_default": "{type:'month',gutter:4,sort:'asc'}",
+        "type?": "'year' | 'month' | 'week' | 'xDay' | 'ghDay' | 'day' | 'hour' | 'minute' —— boot 默认 'month'",
+        "gutter?": "number(px) —— 默认 4",
+        "sort?": "'asc' | 'desc' —— 默认 'asc'",
+        "label?": "Cal-Heatmap 原生 domain.label 对象 —— 默认按 domain 类型生成并放在 bottom"
+      },
+      "subDomain?": {
+        "_default": "{type:'day',width:10,height:10,gutter:2,radius:0,label:null}",
+        "type?": "与所选 domain 兼容的原生子域名 —— boot 默认 'day'",
+        "width?": "positive number(px) —— 默认 10",
+        "height?": "positive number(px) —— 默认 10",
+        "gutter?": "number(px) —— 默认 2",
+        "radius?": "number(px) —— 默认 0",
+        "label?": "dayjs format string | null —— 默认 null"
+      },
+      "scale?": {
+        "_default": "上游默认 color quantize,domain [0,100],scheme 'YlOrBr'",
+        "color?": {
+          "domain": "number[]",
+          "scheme?": "d3 chromatic scheme name —— 默认 'YlOrBr'",
+          "range?": "CSS color string[] —— 默认由 scheme 生成",
+          "type?": "d3 scale type string —— 默认 'quantize'"
+        },
+        "opacity?": "Cal-Heatmap 原生 opacity scale 对象 —— 默认不设置"
+      },
+      "theme?": "'light' | 'dark' —— 默认 'light'",
+      "vertical?": "boolean —— 默认 false"
+    }
+  },
+  "spec": {
+    "height": 190,
+    "note": "日历 SVG 的格网几何需要稳定像素空间;boot 默认容器高度 190px,实际宽度由 range 与 cell 尺寸决定。只传明确 px 高度,禁用 vh/百分比高(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact CSS 进入 document.head\nimport CalHeatmap from 'https://cdn.jsdelivr.net/npm/cal-heatmap@4/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/cal-heatmap@4/cal-heatmap.css' }); document.head.appendChild(css);\nconst el = document.getElementById('cal-heatmap'); el.style.height = `${spec.height ?? 190}px`;\nconst cal = new CalHeatmap();\nawait cal.paint({ itemSelector: el, range: data.range ?? 12, date: { start: new Date(data.start ?? Date.now()) }, domain: { type: 'month', ...(data.domain ?? {}) }, subDomain: { type: 'day', ...(data.subDomain ?? {}) }, data: { source: data.points, x: 'date', y: 'value', groupY: data.aggregate ?? 'sum' }, scale: data.scale, theme: data.theme ?? 'light', verticalOrientation: data.vertical ?? false });",
+    "widget": "// CSS 与 Element 挂载点都落 shadowRoot;不加载会向 body 放 tooltip 的可选插件\nimport CalHeatmap from 'https://cdn.jsdelivr.net/npm/cal-heatmap@4/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/cal-heatmap@4/cal-heatmap.css' });\nconst el = document.createElement('div'); el.style.height = `${spec.height ?? 190}px`; shadowRoot.append(css, el);\nconst cal = new CalHeatmap();\nawait cal.paint({ itemSelector: el, range: data.range ?? 12, date: { start: new Date(data.start ?? Date.now()) }, domain: { type: 'month', ...(data.domain ?? {}) }, subDomain: { type: 'day', ...(data.subDomain ?? {}) }, data: { source: data.points, x: 'date', y: 'value', groupY: data.aggregate ?? 'sum' }, scale: data.scale, theme: data.theme ?? 'light', verticalOrientation: data.vertical ?? false });",
+    "codex": "import CalHeatmap from 'https://cdn.jsdelivr.net/npm/cal-heatmap@4/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/cal-heatmap@4/cal-heatmap.css' }); document.head.appendChild(css);\nconst el = document.getElementById('cal-heatmap'); el.style.height = `${spec.height ?? 190}px`;\nconst cal = new CalHeatmap();\nawait cal.paint({ itemSelector: el, range: data.range ?? 12, date: { start: new Date(data.start ?? Date.now()) }, domain: { type: 'month', ...(data.domain ?? {}) }, subDomain: { type: 'day', ...(data.subDomain ?? {}) }, data: { source: data.points, x: 'date', y: 'value', groupY: data.aggregate ?? 'sum' }, scale: data.scale, theme: data.theme ?? 'light', verticalOrientation: data.vertical ?? false });"
+  },
+  "example": {
+    "_why": "domain/subDomain 配对、日期字段映射和色阶嵌套高歧义,minimal example 明确每日记录进入月域格网的原生路径。",
+    "minimal": {
+      "points": [
+        {
+          "date": "2026-01-02",
+          "value": 3
+        },
+        {
+          "date": "2026-01-03",
+          "value": 8
+        },
+        {
+          "date": "2026-01-10",
+          "value": 5
+        }
+      ],
+      "start": "2026-01-01",
+      "range": 3,
+      "domain": {
+        "type": "month"
+      },
+      "subDomain": {
+        "type": "day",
+        "radius": 2
+      },
+      "scale": {
+        "color": {
+          "domain": [0, 10],
+          "scheme": "Blues"
+        }
+      }
+    },
+    "empty": {
+      "points": [],
+      "start": "2026-01-01",
+      "range": 1
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:须把 cal-heatmap.css 与 Element 挂载点一并放入 shadowRoot;本 boot 不启用可能创建额外浮层的 Tooltip 插件",
+    "codex": "supported:ESM CDN + shadow-neutral SVG + 同源 CSS,无 worker/wasm 或默认上行依赖"
+  }
+}

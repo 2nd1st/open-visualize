@@ -1,0 +1,78 @@
+{
+  "entry_version": "thin-1",
+  "id": "matter-js",
+  "name": "Matter.js",
+  "when_to_use": "需要可拖拽的 2D 碰撞、重力、刚体约束或弹簧教学模拟时用它,而非手写积分器——原生实现会在碰撞响应、堆叠稳定性和约束求解上爆炸。",
+  "why_valuable": "AI 默认做不到稳定的刚体碰撞与约束求解,徒手 canvas 通常只是 keyframe 假动画；Matter.js 把 broadphase、碰撞响应、迭代求解、runner 和 canvas renderer 放进同一确定闭环。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "matter-js",
+    "version": "0.20.0",
+    "github": "liabru/matter-js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geometry",
+    "note": "这是 entry 高频几何裁剪层,boot 将每项精确映射到 Bodies.rectangle/Bodies.circle；坐标和尺寸单位都是 renderer 的 CSS pixel,原点在左上、y 向下。",
+    "schema": {
+      "gravityY?": "number —— Engine.gravity.y,默认 1",
+      "bodies": [
+        {
+          "shape": "'rectangle' | 'circle'",
+          "x": "number —— 物体中心 x",
+          "y": "number —— 物体中心 y",
+          "width?": "positive number —— rectangle 宽,默认 40",
+          "height?": "positive number —— rectangle 高,默认 40",
+          "radius?": "positive number —— circle 半径,默认 20",
+          "isStatic?": "boolean —— 是否固定,默认 false",
+          "restitution?": "number 0..1 —— 弹性,默认 0"
+        }
+      ],
+      "mouseDrag?": "boolean —— 是否挂 MouseConstraint,默认 true"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "Render.create 需要明确的 pixel 尺寸；默认高 400px、宽取容器 clientWidth(取不到时 640px),禁止 vh/百分比高。容器宽变化后要由消费 AI重建 renderer 或同步 canvas/options 尺寸。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合\nimport Matter from 'https://cdn.jsdelivr.net/npm/matter-js@0/+esm';\nconst { Engine, Render, Runner, Bodies, Composite, Mouse, MouseConstraint } = Matter;\nconst el = document.getElementById('world'); el.style.height = '400px';\nconst engine = Engine.create(); engine.gravity.y = data.gravityY ?? 1;\nconst opts = s => ({ isStatic: s.isStatic ?? false, restitution: s.restitution ?? 0 });\nComposite.add(engine.world, data.bodies.map(s => s.shape === 'circle' ? Bodies.circle(s.x, s.y, s.radius ?? 20, opts(s)) : Bodies.rectangle(s.x, s.y, s.width ?? 40, s.height ?? 40, opts(s))));\nconst render = Render.create({ element: el, engine, options: { width: el.clientWidth || 640, height: 400, wireframes: false } });\nif (data.mouseDrag ?? true) Composite.add(engine.world, MouseConstraint.create(engine, { mouse: Mouse.create(render.canvas) }));\nRender.run(render); Runner.run(Runner.create(), engine);",
+    "widget": "// 先落 shadow 容器；Matter 只把 canvas 挂到传入 element,无 document.head/CSS 注入\nimport Matter from 'https://cdn.jsdelivr.net/npm/matter-js@0/+esm';\nconst el = document.createElement('div'); el.style.height = '400px'; shadowRoot.appendChild(el);\nconst { Engine, Render, Runner, Bodies, Composite, Mouse, MouseConstraint } = Matter;\nconst engine = Engine.create(); engine.gravity.y = data.gravityY ?? 1;\nconst opts = s => ({ isStatic: s.isStatic ?? false, restitution: s.restitution ?? 0 });\nComposite.add(engine.world, data.bodies.map(s => s.shape === 'circle' ? Bodies.circle(s.x, s.y, s.radius ?? 20, opts(s)) : Bodies.rectangle(s.x, s.y, s.width ?? 40, s.height ?? 40, opts(s))));\nconst render = Render.create({ element: el, engine, options: { width: el.clientWidth || 640, height: 400, wireframes: false } });\nif (data.mouseDrag ?? true) Composite.add(engine.world, MouseConstraint.create(engine, { mouse: Mouse.create(render.canvas) }));\nRender.run(render); Runner.run(Runner.create(), engine);",
+    "codex": "同 artifact(sandbox iframe):ESM default import → Engine.create → Render.create({element}) → Render.run + Runner.run；iframe/fragment 显式高 400px。"
+  },
+  "example": {
+    "_why": "刚体几何同时有形状分支、静态地面和物理参数,属于高歧义 config；minimal 对齐中心坐标与 rectangle/circle 尺寸语义。",
+    "minimal": {
+      "gravityY": 1,
+      "bodies": [
+        {
+          "shape": "rectangle",
+          "x": 320,
+          "y": 380,
+          "width": 640,
+          "height": 40,
+          "isStatic": true
+        },
+        {
+          "shape": "circle",
+          "x": 320,
+          "y": 80,
+          "radius": 24,
+          "restitution": 0.8
+        }
+      ],
+      "mouseDrag": true
+    },
+    "empty": {
+      "bodies": [],
+      "mouseDrag": false
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:Render.create 的 element 可直接是 shadow 内普通 div,canvas 与指针监听均留在该容器；无 CSS/head 注入",
+    "codex": "supported:ESM CDN + canvas,无 worker/wasm/uplink"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "entry_version": "thin-1",
+  "id": "jsondiffpatch",
+  "name": "jsondiffpatch",
+  "when_to_use": "需要把两个嵌套 JSON 值按对象键和数组身份对齐后渲成增删改树时用它而非手写递归对照,因为原生在深层路径、数组 LCS 与移动识别上失败;非做纯文本逐行 diff。",
+  "why_valuable": "AI 默认只能手写浅层 JSON 对照,做不到对未知深对象、大数组和元素换位稳定计算 delta 并生成一致的 HTML 视图。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "jsondiffpatch",
+    "version": "0.7.6",
+    "github": "benjamine/jsondiffpatch"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "text-span",
+    "note": "shape 沿 picks 保留为 text-span,但组件实际精确输入是两个 JSONValue;arrayIdentityKey 用数据字段安全构造 objectHash,不把函数塞进 JSON。",
+    "schema": {
+      "left": "JSONValue —— 基准对象/数组/标量",
+      "right": "JSONValue —— 对照对象/数组/标量",
+      "arrayIdentityKey?": "string —— 数组元素为对象时用此字段稳定匹配身份,默认省略并按位置比较"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:formatter CSS 按铁律 2 进入 head\nconst link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'https://cdn.jsdelivr.net/npm/jsondiffpatch@0/lib/formatters/styles/html.css'; document.head.appendChild(link);\nconst [{ create }, { format }] = await Promise.all([import('https://cdn.jsdelivr.net/npm/jsondiffpatch@0/+esm'), import('https://cdn.jsdelivr.net/npm/jsondiffpatch@0/formatters/html/+esm')]);\nconst opts = data.arrayIdentityKey ? { objectHash: o => o && typeof o === 'object' && o[data.arrayIdentityKey] != null ? String(o[data.arrayIdentityKey]) : undefined } : {};\nconst delta = create(opts).diff(data.left, data.right), el = document.getElementById('diff');\nel.innerHTML = delta === undefined ? '<div>无差异</div>' : format(delta, data.left);",
+    "widget": "// formatter CSS fetch 后只放进 shadow(铁律 2)\nconst style = document.createElement('style'); style.textContent = await fetch('https://cdn.jsdelivr.net/npm/jsondiffpatch@0/lib/formatters/styles/html.css').then(r => r.text()); shadowRoot.appendChild(style);\nconst [{ create }, { format }] = await Promise.all([import('https://cdn.jsdelivr.net/npm/jsondiffpatch@0/+esm'), import('https://cdn.jsdelivr.net/npm/jsondiffpatch@0/formatters/html/+esm')]);\nconst opts = data.arrayIdentityKey ? { objectHash: o => o && typeof o === 'object' && o[data.arrayIdentityKey] != null ? String(o[data.arrayIdentityKey]) : undefined } : {};\nconst delta = create(opts).diff(data.left, data.right), el = shadowRoot.appendChild(document.createElement('div'));\nel.innerHTML = delta === undefined ? '<div>无差异</div>' : format(delta, data.left);",
+    "codex": "同 artifact(sandbox iframe):加载 HTML formatter CSS,create(options).diff(left,right),再用 format(delta,left) 生成视图。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:纯 ESM + DOM;formatter CSS 必须按 boot 落 shadow",
+    "codex": "supported:ESM CDN + 静态 HTML formatter,无 worker/wasm/uplink"
+  }
+}

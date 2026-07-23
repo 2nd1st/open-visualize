@@ -1,0 +1,58 @@
+{
+  "entry_version": "thin-1",
+  "id": "littlefoot",
+  "name": "littlefoot",
+  "when_to_use": "需要把长文的标准脚注引用变成就地弹出、自动贴边且不打断阅读流的注释层时用它而非手写,因为原生锚点只会跳页而自制 popover 在定位、触摸和多实例状态上失败。",
+  "why_valuable": "AI 默认只能生成 sup 跳转或 details,做不到从脚注引用自动配对正文、响应式重定位、触摸关闭和多脚注互斥;littlefoot 把既有脚注 HTML 直接升级为可读 popover。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "littlefoot",
+    "version": "4.1.4",
+    "github": "goblindegook/littlefoot"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "text-span",
+    "note": "html 必须是可信或已净化的渲染态长文;每个引用 a[href='#fn:...'] 要能在同一 document 找到对应 id,对应节点默认须位于 li 内。",
+    "schema": {
+      "root_selector": "string —— document 内唯一文章根 selector,也作为 littlefoot scope",
+      "html": "string —— 含正文脚注引用与对应脚注节点的 HTML;空字符串合法",
+      "options?": {
+        "_default": "省略时使用全部上游默认值",
+        "activateOnHover?": "boolean —— 默认 false",
+        "allowDuplicates?": "boolean —— 默认 true",
+        "allowMultiple?": "boolean —— 默认 false",
+        "activateDelay?": "number —— 毫秒,默认 100",
+        "dismissDelay?": "number —— 毫秒,4.1.4 源码默认 100",
+        "dismissOnDocumentTouch?": "boolean —— 默认 true",
+        "dismissOnUnhover?": "boolean —— 默认 false",
+        "hoverDelay?": "number —— 毫秒,默认 250",
+        "anchorParentSelector?": "string —— 默认 'sup'",
+        "footnoteSelector?": "string —— 默认 'li'"
+      }
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:littlefoot CSS 进入 document.head(铁律 2)\nimport { littlefoot } from 'https://cdn.jsdelivr.net/npm/littlefoot@4/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/littlefoot@4/dist/littlefoot.css'; document.head.appendChild(css);\nconst root = document.querySelector(data.root_selector); root.innerHTML = data.html;\nconst footnotes = littlefoot({ ...(data.options ?? {}), scope: data.root_selector });",
+    "widget": "unsupported: littlefoot@4.1.4 的 setup/findReference 硬编码从 document.querySelectorAll 扫描,scope 也只是 document 下的 selector 前缀,无法穿透 widget ShadowRoot。",
+    "codex": "// sandbox iframe 有独立 document,可安全限定 scope\nimport { littlefoot } from 'https://cdn.jsdelivr.net/npm/littlefoot@4/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/littlefoot@4/dist/littlefoot.css'; document.head.appendChild(css);\nconst root = document.querySelector(data.root_selector); root.innerHTML = data.html;\nconst footnotes = littlefoot({ ...(data.options ?? {}), scope: data.root_selector });"
+  },
+  "example": {
+    "_why": "脚注引用、目标 id 与 li 容器必须精确配对,是高歧义 HTML 结构,附一个最小原生 fixture。",
+    "minimal": {
+      "root_selector": "#article",
+      "html": "<p>结论<sup id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup></p><ol><li id=\"fn:1\">证据说明 <a href=\"#fnref:1\">↩</a></li></ol>"
+    },
+    "empty": {
+      "root_selector": "#article",
+      "html": ""
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "unsupported:4.1.4 扫描根写死为 document,无法发现 ShadowRoot 内引用与脚注;不伪造跨根 boot",
+    "codex": "supported:sandbox iframe 自有 document,ESM 与 CSS 都可限定在该文档"
+  }
+}

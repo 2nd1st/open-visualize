@@ -1,0 +1,78 @@
+{
+  "entry_version": "thin-1",
+  "id": "spin-wheel",
+  "name": "spin-wheel",
+  "when_to_use": "需要可拖拽甩动、带减速手感且能精确停到指定项的决定轮盘时用它,而非手写 CSS rotate——原生手写在动量、命中索引、加权扇区和响应式重绘上经常失败。非做有现金价值的随机后端或安全抽奖判定。",
+  "why_valuable": "AI 默认只能画出会转的圆盘,做不到稳定的触摸甩动、旋转阻力、加权扇区命中和指定索引缓动;spin-wheel 用无依赖 canvas 原生封装补齐完整手感。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "spin-wheel",
+    "version": "5.0.2",
+    "github": "CrazyTim/spin-wheel"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "data_in 是 Wheel 构造器的裁剪版 props;items 每行对应一个扇区。若奖品有真实价值,中奖 index 必须由可信后端决定,前端只调用 spinToItem 展示结果。",
+    "schema": {
+      "items": [
+        {
+          "label": "string",
+          "value?": "任意 JSON 值 —— 默认 null",
+          "weight?": "number > 0 —— 默认 1",
+          "backgroundColor?": "CSS color string —— 默认 null,回落到 itemBackgroundColors",
+          "labelColor?": "CSS color string —— 默认 null,回落到 itemLabelColors"
+        }
+      ],
+      "isInteractive?": "boolean —— 默认 true",
+      "itemBackgroundColors?": "CSS color string[] —— 默认 ['#fff']",
+      "itemLabelColors?": "CSS color string[] —— 默认 ['#000']",
+      "itemLabelFont?": "string —— 默认 'sans-serif'",
+      "itemLabelFontSizeMax?": "number(px) —— 默认 100",
+      "pointerAngle?": "number(deg) —— 默认 0;库只计算指针角,指针图形需由 DOM 或 overlayImage 自绘",
+      "rotationResistance?": "number —— 默认 -35",
+      "rotationSpeedMax?": "number —— 默认 250"
+    }
+  },
+  "spec": {
+    "height": 420,
+    "note": "Wheel 会在容器内建 canvas 并随 ResizeObserver 重绘;默认容器显式 width 100%、height 420px。禁用 vh/百分比高(铁律 3);方形视觉由容器较短边决定。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:原生 Wheel(container, props)\nimport { Wheel } from 'https://cdn.jsdelivr.net/npm/spin-wheel@5/+esm';\nconst el = document.getElementById('wheel');\nel.style.cssText = 'width:100%;height:420px;position:relative';\nconst wheel = new Wheel(el, data);\n// 需要展示可信结果时: wheel.spinToItem(winningIndex, 4000, true, 3);",
+    "widget": "// Wheel 创建的 canvas 落到 shadow 容器,无 CSS/head 注入\nimport { Wheel } from 'https://cdn.jsdelivr.net/npm/spin-wheel@5/+esm';\nconst el = document.createElement('div');\nel.style.cssText = 'width:100%;height:420px;position:relative'; shadowRoot.appendChild(el);\nconst wheel = new Wheel(el, data);\n// winner index 与业务回调由消费 AI 自行连接",
+    "codex": "同 artifact(sandbox iframe fragment):从 spin-wheel@5/+esm 取 Wheel,创建固定 px 高容器后 new Wheel(el,data);指定落点用原生 spinToItem(index,duration,...)。"
+  },
+  "example": {
+    "_why": "items 行字段、weight 语义和 pointerAngle 容易与别的 wheel 库混淆,minimal 用来钉死本包原生 props。",
+    "minimal": {
+      "items": [
+        {
+          "label": "火锅",
+          "backgroundColor": "#ff6b6b"
+        },
+        {
+          "label": "寿司",
+          "backgroundColor": "#ffd166"
+        },
+        {
+          "label": "披萨",
+          "backgroundColor": "#06d6a0"
+        }
+      ],
+      "isInteractive": true,
+      "pointerAngle": 0
+    },
+    "empty": {
+      "items": []
+    }
+  },
+  "uplink": "local-interact 默认不需上行;若要回传当前 index 或奖品,消费 AI 直接接上游 onRest 并按载体分别实现消息通道,本条不规定统一事件对象。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:canvas 挂进 shadow 容器,ResizeObserver/Pointer Events 可用,无外部 CSS",
+    "codex": "supported:ESM CDN + canvas + Pointer Events"
+  }
+}

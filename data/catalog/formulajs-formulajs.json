@@ -1,0 +1,47 @@
+{
+  "entry_version": "thin-1",
+  "id": "formulajs-formulajs",
+  "name": "Formula.js",
+  "when_to_use": "需要在 JavaScript 里复算 Excel 风格的财务与统计函数时用它而非手写,因为原生在付款时点、IRR 迭代和 Excel 参数顺序上失败;非做整张 spreadsheet、单元格引用或公式解析器。",
+  "why_valuable": "AI 默认凭记忆重写 PMT/NPV/IRR,做不到持续保持 Excel 的符号约定、可选参数默认值和错误边界;Formula.js 提供已命名的纯函数入口。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@formulajs/formulajs",
+    "version": "4.6.0",
+    "github": "formulajs/formulajs"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "scalar",
+    "note": "call 必须取白名单,args 严格按对应 Excel/Formula.js 原生位置传入;利率使用每期小数而非百分数字符串。",
+    "schema": {
+      "call": "'PMT'|'PV'|'FV'|'NPER'|'NPV'|'IRR'",
+      "args": {
+        "PMT": "[rate:number,nper:number,pv:number,fv?:number=0,type?:0|1=0]",
+        "PV": "[rate:number,nper:number,pmt:number,fv?:number=0,type?:0|1=0]",
+        "FV": "[rate:number,nper:number,pmt:number,pv?:number=0,type?:0|1=0]",
+        "NPER": "[rate:number,pmt:number,pv:number,fv?:number=0,type?:0|1=0]",
+        "NPV": "[rate:number,...cashflows:number[]] —— 至少一个 cashflow,均视为期末发生",
+        "IRR": "[cashflows:number[],guess?:number=0.1] —— cashflows 必须同时含正值和负值"
+      }
+    }
+  },
+  "provides": {
+    "shape": "compute-engine",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;纯函数计算层。",
+    "outputs": "财务函数标量或 Formula.js Error 对象;消费方必须显式识别 Error,不要把错误值格式化成正常金额。",
+    "api_surface": {
+      "annuity": "PMT(rate,nper,pv,fv?,type?) / PV(...) / FV(...) / NPER(...)",
+      "discounted_cashflow": "NPV(rate,...cashflows)",
+      "return_rate": "IRR(cashflows,guess?)"
+    }
+  },
+  "peer": {
+    "note": "结果可交给 currency-js 格式化或交给图表展示现金流;本条不保存 workbook 状态。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS、无 DOM/uplink/shadow 足迹\nimport * as Formula from 'https://cdn.jsdelivr.net/npm/@formulajs/formulajs@4/+esm';\nconst allowed = new Set(['PMT','PV','FV','NPER','NPV','IRR']);\nif (!allowed.has(data.call)) throw new Error('Unsupported Formula.js function');\nconst result = Formula[data.call](...data.args);\nif (result instanceof Error) throw result;",
+    "note": "必须保持 Excel 的现金流符号约定与 type(0=期末,1=期初);不要在调用前把缺省位置从参数数组中间删除。"
+  }
+}

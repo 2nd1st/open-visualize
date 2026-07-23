@@ -1,0 +1,77 @@
+{
+  "entry_version": "thin-1",
+  "id": "antv-s2",
+  "name": "AntV S2",
+  "when_to_use": "需要多层行列维度树、交叉汇总、冻结表头与海量单元格虚拟滚动时用它,而非手写 canvas/table——原生在透视坐标、合并表头和滚动同步上失败;非做普通明细小表或可编辑电子表格。",
+  "why_valuable": "AI 默认只能静态拼简单交叉表,做不到多级行列 facet、稳定的合并表头、冻结区域与 canvas 虚拟滚动;多维透视表手写成功率为 0-20%。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": { "npm": "@antv/s2", "version": "2.7.2", "github": "antvis/S2" },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "data_in 就是 PivotSheet 的 dataCfg;fields 中每个字段名都必须存在于 data 行对象,values 指向数值度量。",
+    "schema": {
+      "_defaults": {
+        "meta": "[]",
+        "meta[*].name": "使用 field"
+      },
+      "data": "Record<string, string | number | null>[]",
+      "fields": {
+        "rows": "string[] —— 行维度字段;无行维度时传 []",
+        "columns": "string[] —— 列维度字段;无列维度时传 []",
+        "values": "string[] —— 度量字段"
+      },
+      "meta?": [
+        {
+          "field": "string",
+          "name?": "string —— 显示名,默认使用 field"
+        }
+      ]
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "S2 canvas 必须收到数值 width/height;默认 height 400px,禁用 vh/百分比高。boot 读取容器 clientWidth,若挂载时宽度为 0 应在容器可见后再 render。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:外部 CSS 按铁律 2 放 document.head\nimport { PivotSheet } from 'https://cdn.jsdelivr.net/npm/@antv/s2@2/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@antv/s2@2.7.2/dist/s2.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('s2'); el.style.height = '400px';\nconst sheet = new PivotSheet(el, data, { width: el.clientWidth, height: 400 });\nsheet.render();",
+    "widget": "// CSS 与 canvas 落 shadow;tooltip.getContainer 必钉到 el,否则上游默认 document.body\nimport { PivotSheet } from 'https://cdn.jsdelivr.net/npm/@antv/s2@2/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@antv/s2@2.7.2/dist/s2.min.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); el.style.height = '400px'; shadowRoot.appendChild(el);\nconst sheet = new PivotSheet(el, data, { width: el.clientWidth, height: 400, tooltip: { getContainer: () => el } });\nsheet.render();",
+    "codex": "import { PivotSheet } from 'https://cdn.jsdelivr.net/npm/@antv/s2@2/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@antv/s2@2.7.2/dist/s2.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('s2'); el.style.height = '400px';\nconst sheet = new PivotSheet(el, data, { width: el.clientWidth, height: 400 });\nsheet.render();"
+  },
+  "example": {
+    "_why": "透视表的 data/fields/meta 三处字段必须互相对齐,minimal 用一个 2×2 透视面固定形状。",
+    "minimal": {
+      "data": [
+        { "region": "East", "year": "2025", "sales": 120 },
+        { "region": "East", "year": "2026", "sales": 150 },
+        { "region": "West", "year": "2025", "sales": 90 }
+      ],
+      "fields": {
+        "rows": ["region"],
+        "columns": ["year"],
+        "values": ["sales"]
+      },
+      "meta": [
+        { "field": "region", "name": "Region" },
+        { "field": "year", "name": "Year" },
+        { "field": "sales", "name": "Sales" }
+      ]
+    },
+    "empty": {
+      "data": [],
+      "fields": {
+        "rows": ["region"],
+        "columns": ["year"],
+        "values": ["sales"]
+      }
+    }
+  },
+  "uplink": "本条默认只做本地透视探索;消费 AI 若要回传当前单元格或筛选上下文,自行按载体接原生回调,不建立统一事件出口。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:s2.min.css 与 canvas 落 shadow,tooltip.getContainer 显式返回 shadow 内 el 以阻止默认 document.body 外溢",
+    "codex": "supported:ESM CDN + canvas + 外链 CSS,无 worker/wasm 硬依赖"
+  }
+}

@@ -1,0 +1,21 @@
+{
+ "entry_version": "thin-1",
+ "id": "cfiresim",
+ "name": "cFIREsim",
+ "supply_form": "app-needs-fork",
+ "status": "blocked-until-forked",
+ "upstream": {
+  "github": "boknows/cFIREsim-open"
+ },
+ "license": "Apache-2.0",
+ "scenarios": [
+  "local-tools"
+ ],
+ "fork_note": "应用态,需 fork+改造+发 npm 才过白名单;不作可消费条目上架。one_liner: 开源退休提取模拟器:基于历史市场回报(Shiller 数据)跑 FIRE 成功率",
+ "data_in": {
+  "shapes": [
+   "expression",
+   "quantitative"
+  ]
+ }
+}

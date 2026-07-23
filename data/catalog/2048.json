@@ -1,0 +1,20 @@
+{
+ "entry_version": "thin-1",
+ "id": "2048",
+ "name": "2048",
+ "supply_form": "app-needs-fork",
+ "status": "blocked-until-forked",
+ "upstream": {
+  "github": "gabrielecirulli/2048"
+ },
+ "license": "MIT",
+ "scenarios": [
+  "ambient-viral"
+ ],
+ "fork_note": "应用态,需 fork+改造+发 npm 才过白名单;不作可消费条目上架。one_liner: 病毒式滑块合成游戏原版:标志性配色/动画/手感,MIT 许可",
+ "data_in": {
+  "shapes": [
+   "grid"
+  ]
+ }
+}

@@ -1,0 +1,45 @@
+{
+  "entry_version": "thin-1",
+  "id": "jstat",
+  "name": "jStat",
+  "when_to_use": "需要正态以外的 pdf/cdf/分位数/抽样或参数变化曲线时用它而非手写,因为原生 AI 在 t、F、Gamma、Beta 分布的累计概率和反函数上会失败。",
+  "why_valuable": "AI 默认只能较稳定写出正态 pdf,对 t/F/Gamma/Beta 的 cdf、inv 和参数顺序经常出错；jStat 用同一分布 API 给出可复算数值。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "jstat",
+    "version": "1.9.6",
+    "github": "jstat/jstat"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "expression",
+    "note": "输入映射到 jStat[distribution][operation](input, ...params)；params 必须按原生签名排序,不混用命名参数。",
+    "schema": {
+      "distribution": "'normal' | 'studentt' | 'centralF' | 'chisquare' | 'gamma' | 'beta' | 'poisson' | 'binomial'",
+      "operation?": "'pdf' | 'cdf' | 'inv' | 'sample' | 'mean' | 'variance' —— 默认 'pdf'",
+      "params": "number[] —— 原生参数顺序:normal=[mean,sd],studentt=[dof],centralF=[dof1,dof2],chisquare=[dof],gamma=[shape,scale],beta=[alpha,beta],poisson=[lambda],binomial=[n,p]",
+      "x?": "number —— pdf/cdf 的输入,默认省略；这两种 operation 时必填",
+      "p?": "number —— inv 的 0..1 概率,默认省略；operation='inv' 时必填"
+    }
+  },
+  "provides": {
+    "shape": "distribution-values",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵；纯 JS 数值层。",
+    "outputs": "pdf/cdf/inv/mean/variance 的标量,或 sample 的随机样本；按一组 x 迭代可产出 [x,y][] 曲线。",
+    "api_surface": {
+      "normal_pdf": "jStat.normal.pdf(x, mean, sd)",
+      "beta_cdf": "jStat.beta.cdf(x, alpha, beta)",
+      "studentt_inv": "jStat.studentt.inv(p, dof)",
+      "gamma_sample": "jStat.gamma.sample(shape, scale)"
+    }
+  },
+  "peer": {
+    "id": "echarts",
+    "note": "本条只产数值；把多点计算得到的 [x,y][] 交给折线/面积图组件,参数滑杆由消费 AI 自行接线。"
+  },
+  "boot": {
+    "shared": "// 三载体一致：纯 JS、无 DOM/uplink/shadow 足迹\nimport jStatModule from 'https://cdn.jsdelivr.net/npm/jstat@1/+esm';\nconst jStat = jStatModule.jStat ?? jStatModule;\nconst operation = data.operation ?? 'pdf';\nconst input = operation === 'inv' ? data.p : (operation === 'pdf' || operation === 'cdf' ? data.x : undefined);\nconst args = input === undefined ? data.params : [input, ...data.params];\nconst result = jStat[data.distribution][operation](...args);",
+    "note": "分布名和 operation 应按 schema 白名单取值；不要把用户字符串直接当属性链执行。"
+  }
+}

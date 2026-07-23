@@ -1,0 +1,68 @@
+{
+  "entry_version": "thin-1",
+  "id": "mathbox",
+  "name": "MathBox",
+  "when_to_use": "需要可旋转的三维曲面、向量场、坐标系或线性变换动画时用它而非手写,因为原生 Three.js 在数学坐标轴、采样管线、相机控制和演示级画质上会失败；非做二维函数图。",
+  "why_valuable": "AI 默认只能拼出粗糙 Three.js 场景,无法稳定处理数学坐标范围、采样器、标签、相机与连续变换；MathBox 把这些封装为声明式 WebGL 图元树。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "mathbox",
+    "version": "2.3.2-rc1",
+    "github": "unconed/mathbox"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "expression",
+    "note": "裁剪为 MathBox 原生 cartesian → axis → interval → line 管线；curve.expression 在 boot 中编成 interval.expr 所需回调,只允许 AI 生成的可信表达式。",
+    "schema": {
+      "range?": "[[xmin,xmax],[ymin,ymax],[zmin,zmax]] —— 默认 [[-3,3],[-2,2],[-2,2]]",
+      "scale?": "[number, number, number] —— 默认 [1,1,1]",
+      "axes?": "(1 | 2 | 3)[] —— 默认 [1,2,3]",
+      "curve?": {
+        "expression": "string —— 以 x 为变量、可用 Math.* 的可信 JavaScript 表达式,映射为 [x,f(x),0]",
+        "domain?": "[number, number] —— 默认 range[0]",
+        "samples?": "integer —— 默认 128",
+        "width?": "number —— 默认 4",
+        "color?": "integer —— Three.js 十六进制颜色数值,默认 0x3090ff"
+      }
+    }
+  },
+  "spec": {
+    "height": 480,
+    "note": "WebGL canvas 容器必须显式给 480px 高度(铁律 3 禁 vh/百分比高)；2.3.2-rc1 的 ESM 图依赖 Three.js 0.148,OrbitControls 必须匹配该版本。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested；MathBox CSS 只进 document.head(铁律 2)\nimport { mathBox } from 'https://cdn.jsdelivr.net/npm/mathbox@2.3.2-rc1/+esm';\nimport { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.148.0/examples/jsm/controls/OrbitControls.js/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/mathbox@2.3.2-rc1/build/mathbox.css' }); document.head.appendChild(css);\nconst el = document.getElementById('mathbox'); el.style.height = '480px';\nconst root = mathBox({ element: el, controls: { klass: OrbitControls } });\nconst view = root.cartesian({ range: data.range ?? [[-3,3],[-2,2],[-2,2]], scale: data.scale ?? [1,1,1] });\nfor (const axis of data.axes ?? [1,2,3]) view.axis({ axis });\nif (data.curve) { const f = Function('x', 'return (' + data.curve.expression + ')'); view.interval({ width: data.curve.samples ?? 128, channels: 3, range: data.curve.domain ?? (data.range?.[0] ?? [-3,3]), expr: (emit, x) => emit(x, f(x), 0) }).line({ width: data.curve.width ?? 4, color: data.curve.color ?? 0x3090ff }); }",
+    "widget": "// CSS 文本只落 shadow,WebGL 根也挂同一 shadow 容器(铁律 2)\nimport { mathBox } from 'https://cdn.jsdelivr.net/npm/mathbox@2.3.2-rc1/+esm';\nimport { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.148.0/examples/jsm/controls/OrbitControls.js/+esm';\nconst style = document.createElement('style'); style.textContent = await fetch('https://cdn.jsdelivr.net/npm/mathbox@2.3.2-rc1/build/mathbox.css').then(r => r.text());\nconst el = document.createElement('div'); el.style.height = '480px'; shadowRoot.append(style, el);\nconst root = mathBox({ element: el, controls: { klass: OrbitControls } });\nconst view = root.cartesian({ range: data.range ?? [[-3,3],[-2,2],[-2,2]], scale: data.scale ?? [1,1,1] });\nfor (const axis of data.axes ?? [1,2,3]) view.axis({ axis });\nif (data.curve) { const f = Function('x', 'return (' + data.curve.expression + ')'); view.interval({ width: data.curve.samples ?? 128, channels: 3, range: data.curve.domain ?? (data.range?.[0] ?? [-3,3]), expr: (emit, x) => emit(x, f(x), 0) }).line({ width: data.curve.width ?? 4, color: data.curve.color ?? 0x3090ff }); }",
+    "codex": "同 artifact(sandbox iframe):固定 mathbox@2.3.2-rc1 + Three.js/OrbitControls 0.148.0,给容器明确 480px 高度。"
+  },
+  "example": {
+    "_why": "MathBox 图元链深且 channels/emit/range 容易拼错,最小例固定为三维坐标中的 sinc 曲线。",
+    "minimal": {
+      "range": [[-6, 6], [-2, 2], [-2, 2]],
+      "scale": [1, 1, 1],
+      "axes": [1, 2, 3],
+      "curve": {
+        "expression": "x === 0 ? 1 : Math.sin(x) / x",
+        "domain": [-6, 6],
+        "samples": 128,
+        "width": 4,
+        "color": 3182847
+      }
+    },
+    "empty": {
+      "axes": [1, 2, 3]
+    }
+  },
+  "peer": {
+    "id": "three",
+    "note": "MathBox 是 Three.js 上层；此 boot 采用其 ESM 实际依赖的 0.148.0 OrbitControls,不要混入另一份 Three 实例。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:需 WebGL + ESM；canvas/overlay 与 CSS 均落 shadow,但 GPU/上下文配额须宿主探针确认",
+    "codex": "conditional:需 sandbox iframe 开放 WebGL；无 worker/wasm/uplink"
+  }
+}
