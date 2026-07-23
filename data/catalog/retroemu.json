@@ -9,7 +9,7 @@
       "when_to_use": "Use it when the conversation should actually play or embed a classic Game Boy Advance game: a built-in library of 985 GBA titles (fuzzy-searched by name), or a direct ROM URL; with neither, it shows a searchable picker. This is not a data chart — it embeds a playable emulator into the chat. Do not use it for static screenshots, mermaid, or native UI; an AI cannot hand-write a libretro WASM emulator.",
       "why_valuable": "Running a console game in the browser needs a libretro core compiled to WASM, ROM download/unzip, input mapping, and save states — a 0% hand-write for an AI. This component wraps EmulatorJS as a shadow-DOM-isolated, mountable component (the emulator lives in an inner iframe with a real document), with an on-screen controller (D-pad / L / R / Select / Start / B / A, placed below the screen without overlapping it) and a built-in 985-title GBA index with fuzzy name search. The AI only supplies a game name or ROM URL.",
       "data_in": {
-        "note": "The input selects WHICH game to play, not data to visualize. romUrl wins; otherwise gameName is fuzzy-matched against the 985-title library; with neither, a search picker is shown. ROMs load from jsDelivr /gh (vbaemulator/GBA-Roms).",
+        "note": "The input selects WHICH game to play, not data to visualize. romUrl wins; otherwise gameName is fuzzy-matched against the 985-title library; with neither, a search picker is shown. ROMs load from jsDelivr /gh (vbaemulator/GBA-Roms). The built-in 985-game list is separately fetchable at https://cdn.jsdelivr.net/gh/2nd1st/open-visualize@main/packages/retroemu/src/games.json (each {name,file}; gameName fuzzy-matches within it).",
         "schema": {
           "romUrl?": "string -- direct URL to a GBA ROM (.zip/.gba); highest precedence, loaded directly",
           "gameName?": "string -- a game name (e.g. 'Advance Wars', 'Pokemon FireRed'); fuzzy-matched against the built-in 985-title library and auto-loaded",
@@ -30,7 +30,7 @@
   "license": "GPL-3.0",
   "data_in": {
     "shape": "key-value",
-    "note": "输入是「玩哪个游戏」的选择,不是要可视化的数据(data-first 不应把普通 KV 数据荐到这里)。romUrl 优先;否则 gameName 在内置 985 库里模糊匹配;都没有则显示搜索 picker。ROM 从 jsDelivr /gh(vbaemulator/GBA-Roms)加载(下版本可能移除内置 ROM select)。",
+    "note": "输入是「玩哪个游戏」的选择,不是要可视化的数据(data-first 不应把普通 KV 数据荐到这里)。romUrl 优先;否则 gameName 在内置 985 库里模糊匹配;都没有则显示搜索 picker。ROM 从 jsDelivr /gh(vbaemulator/GBA-Roms)加载(下版本可能移除内置 ROM select)。 内置 985 游戏列表可单独 fetch:https://cdn.jsdelivr.net/gh/2nd1st/open-visualize@main/packages/retroemu/src/games.json(每项 {name,file};gameName 在其中模糊匹配)。",
     "schema": {
       "romUrl?": "string —— GBA ROM(.zip/.gba)的直链;给了就直接加载,优先级最高",
       "gameName?": "string —— 游戏名(如 'Advance Wars'、'Pokemon FireRed');在内置 985 库里模糊匹配自动加载",
@@ -56,5 +56,6 @@
     "evidence": "组件 attachShadow({mode:'open'}) + 内部 iframe(EmulatorJS 需 document.querySelector 找容器 + 注入全局,故用 iframe 给它隔离的真 document),`:host{display:block;width:100%}`,零 document.head 注入。自定义手柄在 shadow root 内、postMessage→iframe 内 simulateInput 转输入。浏览器实测:Advance Wars 渲染 started=true、canvas 948×720、10 键齐、按 START 进游戏。",
     "note": "全 jsDelivr:frontend @emulatorjs/emulatorjs /npm + 核心经 EJS_paths 重定向到 @emulatorjs/core-mgba /npm(摆脱 cdn.emulatorjs.org failsafe)+ ROM 走 jsDelivr /gh + 组件本体 /gh。均在 AI 宿主 CSP 白名单(jsDelivr)。浏览器实测全链路 jsDelivr、零 cdn.emulatorjs.org、游戏 boot+输入通。connect-src 是否放行 jsDelivr fetch(核心/ROM)待真机 Codex 验。",
     "confidence": "medium"
-  }
+  },
+  "games_list": "https://cdn.jsdelivr.net/gh/2nd1st/open-visualize@main/packages/retroemu/src/games.json"
 }
