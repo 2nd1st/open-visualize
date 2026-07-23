@@ -1,0 +1,60 @@
+{
+  "entry_version": "thin-1",
+  "id": "retroemu",
+  "name": "Retroemu (GBA emulator)",
+  "when_to_use": "当对话里要真正「玩」或嵌入一款经典 Game Boy Advance 游戏时用它——内置 985 个 GBA 游戏库(按名字模糊搜),或直接给一个 ROM 的 URL;都不给则弹搜索列表让用户挑。这不是画数据图,而是把一台可玩的模拟器嵌进对话。普通静态截图、mermaid、原生 UI 别用它;AI 徒手也写不出 libretro WASM 模拟器。",
+  "why_valuable": "浏览器里跑经典主机游戏需要 libretro 核心编译成 WASM + ROM 加载解压 + 手柄输入映射 + 存档,AI 徒手 0% 成功。本组件把 EmulatorJS 封装成 shadow-DOM 隔离(内部 iframe 给模拟器真 document)、自带屏幕手柄(D-pad / L / R / Select / Start / B / A 全 10 键,在游戏下方不叠画面)、985 个 GBA 游戏内置索引 + 名字模糊搜的可 mount 组件,AI 只需给游戏名或 ROM URL,零逻辑徒手成本。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when the conversation should actually play or embed a classic Game Boy Advance game: a built-in library of 985 GBA titles (fuzzy-searched by name), or a direct ROM URL; with neither, it shows a searchable picker. This is not a data chart — it embeds a playable emulator into the chat. Do not use it for static screenshots, mermaid, or native UI; an AI cannot hand-write a libretro WASM emulator.",
+      "why_valuable": "Running a console game in the browser needs a libretro core compiled to WASM, ROM download/unzip, input mapping, and save states — a 0% hand-write for an AI. This component wraps EmulatorJS as a shadow-DOM-isolated, mountable component (the emulator lives in an inner iframe with a real document), with an on-screen controller (D-pad / L / R / Select / Start / B / A, placed below the screen without overlapping it) and a built-in 985-title GBA index with fuzzy name search. The AI only supplies a game name or ROM URL.",
+      "data_in": {
+        "note": "The input selects WHICH game to play, not data to visualize. romUrl wins; otherwise gameName is fuzzy-matched against the 985-title library; with neither, a search picker is shown. ROMs load from jsDelivr /gh (vbaemulator/GBA-Roms).",
+        "schema": {
+          "romUrl?": "string -- direct URL to a GBA ROM (.zip/.gba); highest precedence, loaded directly",
+          "gameName?": "string -- a game name (e.g. 'Advance Wars', 'Pokemon FireRed'); fuzzy-matched against the built-in 985-title library and auto-loaded",
+          "height?": "number -- emulator screen height in px, default 360"
+        }
+      }
+    }
+  },
+  "supply_form": "component",
+  "level": "L2",
+  "mode": "direct-import",
+  "upstream": {
+    "github": "EmulatorJS/EmulatorJS",
+    "version": "v4.2.3",
+    "npm": null,
+    "_note": "自研封装(packages/retroemu),底层是 EmulatorJS(libretro WASM 核心);ROM 库为 github vbaemulator/GBA-Roms。"
+  },
+  "license": "GPL-3.0",
+  "data_in": {
+    "shape": "key-value",
+    "note": "输入是「玩哪个游戏」的选择,不是要可视化的数据(data-first 不应把普通 KV 数据荐到这里)。romUrl 优先;否则 gameName 在内置 985 库里模糊匹配;都没有则显示搜索 picker。ROM 从 jsDelivr /gh(vbaemulator/GBA-Roms)加载(下版本可能移除内置 ROM select)。",
+    "schema": {
+      "romUrl?": "string —— GBA ROM(.zip/.gba)的直链;给了就直接加载,优先级最高",
+      "gameName?": "string —— 游戏名(如 'Advance Wars'、'Pokemon FireRed');在内置 985 库里模糊匹配自动加载",
+      "height?": "number —— 模拟器屏幕高度 px,默认 360"
+    }
+  },
+  "boot": {
+    "artifact": "// retroemu:自研 EmulatorJS 组件(全 jsDelivr:frontend+核心+ROM 均 jsDelivr,AI 宿主白名单兼容)。宿主 HTML 放一个空容器 div,JS 里 import + mount(铁律:JS 挂载,不放声明式标签)。\nconst host = document.getElementById('retroemu-host');\nconst { mount } = await import('https://cdn.jsdelivr.net/gh/2nd1st/open-visualize@main/packages/retroemu/dist/index.mjs');\nmount(host, 'retroemu', data);   // data = {gameName:'Advance Wars'} 或 {romUrl:'https://.../game.zip'} 或 {}(弹搜索列表)",
+    "widget": "同 artifact:const { mount } = await import('https://cdn.jsdelivr.net/gh/2nd1st/open-visualize@main/packages/retroemu/dist/index.mjs'); mount(container, 'retroemu', data)。",
+    "codex": "同 artifact。"
+  },
+  "example": {
+    "minimal": {
+      "gameName": "Advance Wars"
+    },
+    "_why": "给游戏名即从内置 985 库模糊匹配自动加载,这是最常见用法;不传则弹搜索 picker。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "组件 attachShadow({mode:'open'}) + 内部 iframe(EmulatorJS 需 document.querySelector 找容器 + 注入全局,故用 iframe 给它隔离的真 document),`:host{display:block;width:100%}`,零 document.head 注入。自定义手柄在 shadow root 内、postMessage→iframe 内 simulateInput 转输入。浏览器实测:Advance Wars 渲染 started=true、canvas 948×720、10 键齐、按 START 进游戏。",
+    "note": "全 jsDelivr:frontend @emulatorjs/emulatorjs /npm + 核心经 EJS_paths 重定向到 @emulatorjs/core-mgba /npm(摆脱 cdn.emulatorjs.org failsafe)+ ROM 走 jsDelivr /gh + 组件本体 /gh。均在 AI 宿主 CSP 白名单(jsDelivr)。浏览器实测全链路 jsDelivr、零 cdn.emulatorjs.org、游戏 boot+输入通。connect-src 是否放行 jsDelivr fetch(核心/ROM)待真机 Codex 验。",
+    "confidence": "medium"
+  }
+}
