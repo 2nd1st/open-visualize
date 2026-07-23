@@ -2,6 +2,8 @@
 
 给你(AI)一套「能开口说的视觉词汇」:预打包上 CDN 的开源可视化组件 + 面向 AI 的用法描述。**只在原生写得烂/贵/不稳处用**(简单柱线饼/mermaid/tabs/长表单 → 原生手写)。先读 `install.md`(augment 原则 + 4 步)。
 
+> 路径基于**仓库根**(fetch 时 = 给你的根 URL):`data/catalog/…`、`discovery/by-scene/…` 都从根算起,不是相对本文件。
+
 **本文件只有类目、不含条目**(轻)。定位后按需读一片:
 - **有数据** → 下方「按数据形态」找 id → 直接读 `data/catalog/<id>.json`(schema + 按载体 boot)。
 - **有场景没数据** → 下方「按场景」→ 读 `discovery/by-scene/<scene>.md` 拿该场景条目 → 选 id 读其 JSON。

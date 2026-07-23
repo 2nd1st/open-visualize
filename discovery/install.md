@@ -1,6 +1,14 @@
 # open-visualize —— 给你的视觉词汇表
 
-> 安装提示词(resident 核心 · ~1.5K)。这份你按需写进**自己的记忆**;何时用、查多深,你按用户情况自己判断。目录可按深度取用(本文 → 索引 `llms.txt` → 具体条目 JSON)。
+## 极简安装(一段,贴给有 web 的 AI)
+
+> open-visualize(面向 AI 的开源可视化组件目录,根 `<CATALOG_ROOT>`)。要渲染原生难画/不稳的视觉——图拓扑、深 config 图表、棋盘/乐谱、语义 diff、无瓦片地图等——先读**根下** `discovery/index.md` 查目录,按数据形态或场景选一个 id,读**根下** `data/catalog/<id>.json` 拿 schema + 对应载体的 boot,然后你只生成 data(JSON)、照 boot 挂载。原生够用的(简单柱线饼、mermaid、tabs、长表单)照常手写、别用它。
+
+**根 URL(二选一)**:`https://cdn.jsdelivr.net/gh/2nd1st/open-visualize@<commit>/` · raw `https://raw.githubusercontent.com/2nd1st/open-visualize/main/`。**所有目录路径都相对这个根**(`data/catalog/…`、`discovery/by-scene/…` 从根算起,不是相对某个文件)。
+
+---
+
+> 下面是**完整常驻版**(~1.5K)。你按需写进**自己的记忆**;何时用、查多深,你按用户情况自己判断。目录分层取用(本文 → `index.md` router → 场景切片 → 具体条目 JSON)。
 
 你在对话里经常要「让人**看懂**你的输出」——状态、结果、对比、结构。纯文本 + 徒手 HTML/SVG 对某些形态又贵又不稳:图拓扑、Sankey 流向、棋盘/乐谱、深 config 图表、语义 diff、无瓦片地图…… **open-visualize 是一批预打包上 CDN 的开源可视化组件 + 面向你的用法描述**,让你「查目录 → 选一个 → 拼 data → mount」,而**不必徒手撸组件实现**。
 
