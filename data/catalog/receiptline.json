@@ -1,0 +1,74 @@
+{
+  "entry_version": "thin-1",
+  "id": "receiptline",
+  "name": "ReceiptLine",
+  "when_to_use": "交付点单小票/收据/厨房单——要么给顾客一张票面图(SVG),要么直接驱动热敏打印机(ESC/POS、StarPRNT)时用它;普通发票/报表走 jspdf/pptxgenjs。它独占「收据标记 → 票面图 + 打印机指令」这一层。",
+  "why_valuable": "等宽列对齐、分隔线、条码/QR、切纸标记、字号加倍等收据专有排版,原生 AI 既画不准等宽票面、更产不出热敏打印机的二进制命令流(ESC/POS)。receiptline 用一种「收据版 Markdown」把这些固化成一次 transform 调用。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "receiptline",
+    "version": "4.0.2",
+    "github": "receiptline/receiptline"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "receipt-markup",
+    "note": "输入是 ReceiptLine 标记文档字符串 + printer 配置。command 决定产物:'svg'(默认)出可展示的票面 SVG 字符串;'escpos'/'epson'/'sii'/'citizen'/'starsbcs' 等出对应热敏打印机命令流(非展示用)。encoding 影响非 ASCII(中日韩用 cp932/gb18030/big5)。cpl 是每行字符数。",
+    "schema": {
+      "doc": "string —— ReceiptLine 文档(收据版 Markdown:'|' 分列、'-' 分隔线、'^' 放大、'{code:...}' 条码/QR、'\"...\"' 文本)",
+      "cpl?": "number —— 每行字符数,默认 48",
+      "encoding?": "'cp437'|'cp932'|'cp936'|'gb18030'|'shiftjis'|'big5'|'ksc5601'|... —— 码页,默认 cp437",
+      "command?": "'svg'(默认,出票面图) | 'escpos'|'epson'|'sii'|'citizen'|'fit'|'impact'|'generic'|'starsbcs'|'starmbcs'|... —— 输出目标",
+      "gradient?": "boolean —— true 照片抖动 / false 纯文本条码,默认 true",
+      "gamma?": "number —— 图像 gamma(0.1-10.0,默认 1.8)",
+      "upsideDown?": "boolean —— 倒置打印,默认 false",
+      "cutting?": "boolean —— 末尾切纸,默认 true"
+    }
+  },
+  "provides": {
+    "shape": "receipt",
+    "_note": "headless-primitive:收据标记转换器,不挂视觉组件;command:'svg' 出 SVG 字符串由消费 AI 注入,其它 command 出打印机命令流。",
+    "outputs": "command:'svg' → 收据票面 SVG 字符串(等宽列对齐、分隔线、条码/QR、切纸、字号加倍);command:'escpos'/'star...' → 对应热敏打印机二进制命令流。",
+    "api_surface": {
+      "transform": "transform(doc, printer?) → string(SVG 或打印机命令流,由 printer.command 决定)",
+      "stream": "createTransform(printer?) → Node Transform 流(流式转换)",
+      "codes": "barcode.generate(symbol) / qrcode.generate(symbol) —— 条码/QR 底层生成器;commands 暴露各机型命令集"
+    }
+  },
+  "peer": {
+    "id": "none",
+    "note": "command:'svg' 时无渲染依赖,SVG 字符串直接注入 <div>/shadowRoot;其它 command 的命令流交打印通道(WebUSB/网络打印服务)。"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to deliver an order ticket, receipt, or kitchen ticket: either produce a customer-facing ticket image (SVG) or drive a thermal printer directly (ESC/POS, StarPRNT). For regular invoices/reports, use jspdf/pptxgenjs. It uniquely covers the \"receipt markup -> ticket image + printer commands\" layer.",
+      "why_valuable": "Receipt-specific layout includes monospaced column alignment, separators, barcodes/QR, cut marks, and doubled text sizes. Native AI cannot draw a precise fixed-width ticket or produce a thermal printer's binary command stream (ESC/POS). receiptline fixes these semantics in a \"receipt-flavored Markdown\" transformed with one call.",
+      "data_in": {
+        "note": "Input is a ReceiptLine markup document string plus printer configuration. command selects the result: 'svg' (default) returns a displayable ticket SVG string; 'escpos'/'epson'/'sii'/'citizen'/'starsbcs', etc. return the corresponding thermal-printer command stream (not for display). encoding controls non-ASCII text (use cp932/gb18030/big5 for CJK). cpl is characters per line.",
+        "schema": {
+          "doc": "string -- ReceiptLine document (receipt-flavored Markdown: '|' separates columns, '-' is a rule, '^' enlarges, '{code:...}' makes barcode/QR, and '\"...\"' is text)",
+          "cpl?": "number -- characters per line; default 48",
+          "encoding?": "'cp437'|'cp932'|'cp936'|'gb18030'|'shiftjis'|'big5'|'ksc5601'|... -- code page; default cp437",
+          "command?": "'svg' (default, ticket image) | 'escpos'|'epson'|'sii'|'citizen'|'fit'|'impact'|'generic'|'starsbcs'|'starmbcs'|... -- output target",
+          "gradient?": "boolean -- true for image dithering / false for text and barcodes only; default true",
+          "gamma?": "number -- image gamma (0.1-10.0; default 1.8)",
+          "upsideDown?": "boolean -- print upside down; default false",
+          "cutting?": "boolean -- cut paper at the end; default true"
+        }
+      }
+    }
+  },
+  "boot": {
+    "shared": "// 三载体一致:标记→SVG 字符串(默认)或打印机命令流,零 DOM 足迹\nimport { transform } from 'https://cdn.jsdelivr.net/npm/receiptline@4/+esm';\n// command:'svg'(默认)返回可展示的 SVG 字符串;'escpos' 等返回打印机命令\nconst svg = transform(data.doc, {\n  cpl: data.cpl ?? 48,\n  encoding: data.encoding ?? 'cp437',\n  command: data.command ?? 'svg',\n  gradient: data.gradient ?? true,\n  upsideDown: data.upsideDown ?? false,\n  cutting: data.cutting ?? true\n});\n// 展示票面:container.innerHTML = svg;(widget 内注入 shadowRoot)\n// 驱动打印机:改 command:'escpos' 拿命令字节交打印通道",
+    "note": "transform(doc, printer) 单函数即出结果(具名导出)。printer.command='svg'(默认)出 SVG 字符串;设为 'escpos'/'epson'/'starsbcs' 等出对应二进制命令流(非展示用)。非 ASCII 收据须选对 encoding。SVG 输出是纯字符串,注入 shadowRoot 安全。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm 200(约 133KB),具名导出 {barcode,commands,createTransform,qrcode,transform} + default。lib/receiptline.d.ts:transform(doc:string, printer?:Printer)→string,Printer 字段 cpl/encoding/command/gradient/gamma/upsideDown/cutting 与 schema 对齐,command 联合类型含 svg/escpos/epson/sii/citizen/starsbcs 等全机型。+esm grep 全文件无 document.*(仅 window.×2 特性探测),SVG 与命令流均纯字符串生成;iconv-lite/pngjs 经 +esm 打包为纯 JS。零 DOM/style/event 足迹 → 天然 shadow-safe(SVG 由消费 AI 注入 shadowRoot)。",
+    "confidence": "high"
+  }
+}

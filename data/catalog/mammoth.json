@@ -1,0 +1,77 @@
+{
+  "entry_version": "thin-1",
+  "id": "mammoth",
+  "name": "Mammoth.js",
+  "when_to_use": "需要把 .docx(OOXML zip)转成干净、语义化、可再排版的 HTML 以「读内容/抽取正文」时用它,而非手写 OOXML 解析;要高保真复刻 Word 版面外观(分页/页眉页脚/精确样式)则改用 docx-preview,二者取向相反。",
+  "why_valuable": "AI 默认无法解压解析 OOXML zip,更做不到把 Word 的标题/列表/表格/加粗映射成语义标签并丢弃噪声内联样式;mammoth 以 convertToHtml 把 .docx 字节收敛成一段干净 HTML 字符串,渲染交由消费方,自身零 DOM 足迹。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "mammoth",
+    "version": "1.12.0",
+    "github": "mwilliamson/mammoth.js"
+  },
+  "license": "BSD-2-Clause",
+  "data_in": {
+    "shape": "docx-document",
+    "note": "浏览器端入口只吃 {arrayBuffer}(不是 Node 的 {path}/{buffer});输出是 HTML 字符串,由消费方 innerHTML 到自己的容器(widget 落 shadow)。图片默认内联为 data URI,无外链。convertToHtml 返回 Promise,须 await。",
+    "schema": {
+      "arrayBuffer": "ArrayBuffer —— 完整 .docx 二进制(File.arrayBuffer()/fetch().arrayBuffer() 得到),不可传解压 XML 或纯文本",
+      "options?": {
+        "_default": "省略时使用下列上游默认值",
+        "styleMap?": "string | string[] —— 自定义 Word 样式→HTML 映射规则,默认用内置映射",
+        "includeDefaultStyleMap?": "boolean —— 默认 true",
+        "ignoreEmptyParagraphs?": "boolean —— 默认 true",
+        "idPrefix?": "string —— 生成的书签/脚注 id 前缀,默认 ''",
+        "transformDocument?": "(element)=>element —— 转换前改写文档树,默认恒等"
+      }
+    }
+  },
+  "provides": {
+    "shape": "html-string",
+    "_note": "headless-primitive:自身不渲染、无 L 级、无 carriers 矩阵;产出的是 HTML 字符串 + 警告列表,渲染与消毒由消费方负责。",
+    "outputs": "{ value: string(语义化 HTML), messages: Array<{type:'warning'|'error', message}> };另有 extractRawText 产纯文本 {value},convertToMarkdown 产 Markdown {value}。",
+    "api_surface": {
+      "convert": "convertToHtml({arrayBuffer}, options?) → Promise<{value, messages}>",
+      "rawText": "extractRawText({arrayBuffer}) → Promise<{value, messages}>",
+      "markdown": "convertToMarkdown({arrayBuffer}, options?) → Promise<{value, messages}>",
+      "images": "默认已把内嵌图片转为 data URI(mammoth.images.dataUri);自定义走 options.convertImage = mammoth.images.imgElement(fn)"
+    }
+  },
+  "peer": {
+    "id": "docx-preview",
+    "note": "本条只产「可读/可再排版」的语义 HTML、丢弃精确版面;要保留分页/页眉页脚/字体的高保真 Word 外观,改用 docx-preview(渲染型组件),二者取向相反、不可互替。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:mammoth 只做 docx→HTML 转换,不触碰 document/head/window;渲染容器由消费方决定\nimport { convertToHtml } from 'https://cdn.jsdelivr.net/npm/mammoth@1.12.0/+esm';\nconst { value: html, messages } = await convertToHtml({ arrayBuffer: data.arrayBuffer }, data.options ?? {});\n// 渲染(图片已是 data URI,无外链):\n//   artifact/codex → document.getElementById('doc').innerHTML = html;\n//   widget        → const el=document.createElement('div'); shadowRoot.appendChild(el); el.innerHTML = html;\n// messages 里可能含未映射样式等非致命警告",
+    "note": "convertToHtml/extractRawText/convertToMarkdown 均为异步,须 await。输入必须是 ArrayBuffer(浏览器 browser 构建已把 zip 解压重映射到浏览器实现,无 Node fs/zlib)。输出 HTML 来自受控映射,但若源文档不可信,消费方仍应按宿主策略消毒后再 innerHTML。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "mammoth@1.12.0 +esm named exports `ga as convertToHtml, Ea as extractRawText, wa as convertToMarkdown, fe as default` — import {convertToHtml} correct (also default namespace works). lib/index.d.ts: convertToHtml(input:Input, options?:Options)=>Promise<{value:string, messages:Array<Warning|Error>}>; browser Input = ArrayBufferInput {arrayBuffer:ArrayBuffer}; Options keys styleMap/includeDefaultStyleMap/ignoreEmptyParagraphs/idPrefix/transformDocument/convertImage all real. package.json browser field remaps ./lib/unzip.js→./browser/unzip.js and ./lib/docx/files.js→browser build, so jsDelivr +esm ships the browser variant (79 KB). Verified footprint of /tmp browser bundle: 0 document.head, 0 createElement('style')/adoptedStyleSheets, 0 window|document.addEventListener, 0 document.body — convertToHtml is a pure in-memory transform over JSZip returning an HTML string; consumer owns rendering → trivially shadow-safe. Default image handling inlines as data URI (mammoth.images.dataUri) → no external fetch.",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to turn a .docx (OOXML zip) into clean, semantic, reflowable HTML for reading or extracting body content instead of parsing OOXML by hand. For a high-fidelity reproduction of Word appearance, including pagination, headers/footers, and exact styles, use docx-preview instead; the two tools have opposite goals.",
+      "why_valuable": "AI cannot unpack and parse an OOXML zip by default, much less map Word headings, lists, tables, and bold text to semantic tags while discarding noisy inline styles. mammoth reduces .docx bytes to one clean HTML string through convertToHtml, leaves rendering to the consumer, and has no DOM footprint.",
+      "data_in": {
+        "note": "The browser entry point accepts only {arrayBuffer}, not Node's {path}/{buffer}. Output is an HTML string that the consumer inserts into its own container; a widget inserts it into shadow DOM. Images are inlined as data URIs by default with no external link. convertToHtml returns a Promise and must be awaited.",
+        "schema": {
+          "arrayBuffer": "ArrayBuffer -- Complete .docx binary from File.arrayBuffer()/fetch().arrayBuffer(); do not pass extracted XML or plain text",
+          "options?": {
+            "_default": "Uses the following upstream defaults when omitted",
+            "styleMap?": "string | string[] -- Custom Word style -> HTML mapping rules; defaults to built-in mappings",
+            "includeDefaultStyleMap?": "boolean -- Default true",
+            "ignoreEmptyParagraphs?": "boolean -- Default true",
+            "idPrefix?": "string -- Prefix for generated bookmark/footnote ids; default ''",
+            "transformDocument?": "(element)=>element -- Rewrites the document tree before conversion; defaults to identity"
+          }
+        }
+      }
+    }
+  }
+}

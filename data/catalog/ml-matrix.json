@@ -1,0 +1,65 @@
+{
+  "entry_version": "thin-1",
+  "id": "ml-matrix",
+  "name": "ml-matrix",
+  "when_to_use": "需要 SVD/特征分解(EVD)/QR/LU/Cholesky、矩阵求逆、伪逆或线性方程组求解(solve Ax=b)这类经过工程验证的数值线代时用它,而非手算或让 mathjs 凑——mathjs 只打包基础 multiply/inv/det/eigs,缺完整分解族与 pseudoInverse/solve;非做符号运算(那用 mathjs/nerdamer)。",
+  "why_valuable": "AI 徒手做矩阵分解(SVD、特征值、QR、LU、Cholesky)几乎必错:这些是迭代数值算法而非可背诵的闭式公式,连求逆和最小二乘在 4×4 以上都累积算术误差。ml-matrix 给出经验证的分解与方程组求解,让线代可视化/降维/拟合建立在正确数值上。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "ml-matrix",
+    "version": "6.14.0",
+    "github": "mljs/matrix"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "matrix",
+    "note": "喂 number[][] 行优先二维数组(每行等长);ml-matrix 的 API 大量返回 Matrix 实例而非数组,消费 AI 渲染前须用 .to2DArray()/.to1DArray() 取回。determinant/inverse 需方阵。",
+    "schema": {
+      "matrix": "number[][] —— 行优先二维数组,每行等长;传给 new Matrix(matrix)",
+      "operation?": "'mmul'|'transpose'|'inverse'|'solve'|'svd'|'evd' —— 不预设动词,消费 AI 直接调对应 API",
+      "rightHandSide?": "number[][] —— solve(A,b) 的右端项 b(列向量或矩阵),行数须等于 A 的行数"
+    }
+  },
+  "provides": {
+    "shape": "matrix",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;纯 JS 数值层。",
+    "outputs": "Matrix 对象及其运算结果:mmul/transpose/inverse/pseudoInverse/solve,以及 SVD/EVD/QR/LU/Cholesky 分解产物(均为 Matrix,用 .to2DArray() 取回原生数组)。",
+    "api_surface": {
+      "construct": "new Matrix(number[][]) · Matrix.zeros/ones/eye/columnVector/rowVector",
+      "core": "A.mmul(B) · A.transpose() · A.to2DArray() · A.get(r,c)/set(r,c,v) · A.rows / A.columns(维度)",
+      "solve": "solve(A, b, useSVD?) → Matrix(解 Ax=b) · inverse(A) · pseudoInverse(A, threshold?) · determinant(A)",
+      "decompose": "new SVD(A) → {leftSingularVectors, rightSingularVectors} · new EVD(A) → {realEigenvalues, imaginaryEigenvalues, eigenvectorMatrix}"
+    }
+  },
+  "peer": {
+    "id": "echarts",
+    "note": "本条只产 Matrix / 标量:把变换后坐标或分解结果 .to2DArray() 后交给图表组件画热力图/向量/降维散点。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS 数值层,无 DOM/uplink/shadow 足迹\nimport { Matrix, SVD, EVD, solve, inverse, pseudoInverse, determinant } from 'https://cdn.jsdelivr.net/npm/ml-matrix@6/+esm';\nconst A = new Matrix(data.matrix);                 // 行优先 number[][]\nconst At = A.transpose().to2DArray();              // 转置→原生数组\nconst det = A.rows === A.columns ? determinant(A) : null;\nconst svd = new SVD(A);                            // svd.leftSingularVectors / svd.rightSingularVectors 均为 Matrix\nconst U = svd.leftSingularVectors.to2DArray();\nconst x = data.rightHandSide ? solve(A, new Matrix(data.rightHandSide)).to2DArray() : null; // 解 A x = b",
+    "note": "所有分解/求解结果是 ml-matrix Matrix 实例,取回原生数组须 .to2DArray();determinant/inverse 要求方阵,solve 的 A 与 b 行数须一致,消费 AI 调用前自检维度。EVD 适用于方阵(实特征值在 realEigenvalues)。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr ml-matrix@6.14.0 +esm: named exports present — Matrix, SingularValueDecomposition as SVD, EigenvalueDecomposition as EVD, QR, LU, CholeskyDecomposition, solve, inverse, pseudoInverse, determinant, correlation, covariance; `export default Matrix` (matrix.d.ts:1058). Signatures from matrix.d.ts: solve(leftHandSide, rightHandSide, useSVD?)→Matrix (1369); inverse(MaybeMatrix, useSVD?)→Matrix (1380); pseudoInverse(MaybeMatrix, threshold?)→Matrix (1421); class SingularValueDecomposition{ readonly leftSingularVectors:Matrix; readonly rightSingularVectors:Matrix } (1465–1491); class EigenvalueDecomposition{ eigenvectorMatrix; realEigenvalues; imaginaryEigenvalues } (1508–1513). MaybeMatrix=Matrix|number[][] so boot passes plain arrays. grep of +esm for document.*/window.*/globalThis.*/appendChild/createElement/addEventListener/localStorage = 0 hits — pure numeric, zero DOM/global footprint, trivially shadow-safe.",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for production-tested numerical linear algebra such as SVD/eigendecomposition (EVD)/QR/LU/Cholesky, matrix inverse, pseudoinverse, or solving linear systems (Ax=b), instead of hand calculation or forcing mathjs to do it. mathjs only bundles basic multiply/inv/det/eigs and lacks the full decomposition family and pseudoInverse/solve. Not for symbolic math; use mathjs/nerdamer for that.",
+      "why_valuable": "Handwritten matrix decomposition by AI, including SVD, eigenvalues, QR, LU, and Cholesky, is almost always wrong: these are iterative numerical algorithms, not memorized closed-form formulas, and even inverse and least squares accumulate arithmetic error above 4x4. ml-matrix provides verified decompositions and system solvers so linear-algebra visualizations, dimensionality reduction, and fitting use correct numbers.",
+      "data_in": {
+        "note": "Pass a row-major number[][] with equal-length rows. Many ml-matrix APIs return Matrix instances rather than arrays; consuming AI must call .to2DArray()/.to1DArray() before rendering. determinant/inverse require square matrices.",
+        "schema": {
+          "matrix": "number[][] -- Row-major two-dimensional array with equal-length rows; passed to new Matrix(matrix)",
+          "operation?": "'mmul'|'transpose'|'inverse'|'solve'|'svd'|'evd' -- No verb is preselected; consuming AI calls the corresponding API directly",
+          "rightHandSide?": "number[][] -- Right-hand side b for solve(A,b), as a column vector or matrix; row count must equal A's row count"
+        }
+      }
+    }
+  }
+}

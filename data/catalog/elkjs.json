@@ -6,7 +6,11 @@
   "why_valuable": "AI 默认做不到稳定的分层排序、边交叉压缩、端口约束与正交折点计算;徒手只能猜坐标,复杂依赖图布局成功率为 0%。",
   "supply_form": "headless-primitive",
   "mode": "direct-import",
-  "upstream": { "npm": "elkjs", "version": "0.12.0", "github": "kieler/elkjs" },
+  "upstream": {
+    "npm": "elkjs",
+    "version": "0.12.0",
+    "github": "kieler/elkjs"
+  },
   "license": "EPL-2.0 OR GPL-3.0-or-later",
   "data_in": {
     "shape": "graph",
@@ -48,7 +52,11 @@
     }
   },
   "peer": {
-    "ids": ["sigma", "vis-network", "force-graph"],
+    "ids": [
+      "sigma",
+      "vis-network",
+      "force-graph"
+    ],
     "note": "把输出的节点 x/y 与边折点转换为具体渲染器的 data_in;转换由消费 AI 显式完成,本条不假设统一图事件或渲染契约。"
   },
   "boot": {
@@ -66,11 +74,27 @@
           "elk.edgeRouting": "ORTHOGONAL"
         },
         "children": [
-          { "id": "a", "width": 80, "height": 40 },
-          { "id": "b", "width": 80, "height": 40 }
+          {
+            "id": "a",
+            "width": 80,
+            "height": 40
+          },
+          {
+            "id": "b",
+            "width": 80,
+            "height": 40
+          }
         ],
         "edges": [
-          { "id": "a-b", "sources": ["a"], "targets": ["b"] }
+          {
+            "id": "a-b",
+            "sources": [
+              "a"
+            ],
+            "targets": [
+              "b"
+            ]
+          }
         ]
       }
     },
@@ -88,7 +112,42 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Headless layout engine — no DOM API surface at all (provides.shape=geometry-layout). +esm bundles its worker inline (grep: `self.onmessage` present, `new Worker` x1, `workerFactory` x6), so no <style>/body/document-listener footprint. Only side effect is spawning a Web Worker (a CSP worker-src concern, NOT a shadow-DOM isolation issue). Works identically regardless of shadow boundary.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to calculate layered, orthogonal, port-aware coordinates for dependency graphs, flowcharts, or port graphs instead of writing a layout algorithm by hand, which fails at cross-layer ordering, crossing minimization, and polyline routing. It produces geometry only and does not render.",
+      "why_valuable": "AI cannot reliably perform layered ordering, reduce edge crossings, enforce port constraints, or calculate orthogonal bend points by default; hand-written code can only guess coordinates, with a 0% success rate for complex dependency-graph layout.",
+      "data_in": {
+        "note": "Input is an ELK JSON graph; node width/height are layout constraints rather than rendering results, and edge endpoint fields must be sources/targets arrays.",
+        "schema": {
+          "_defaults": {
+            "graph.layoutOptions": "{} (boot adds 'elk.algorithm':'layered' and 'elk.direction':'RIGHT')"
+          },
+          "graph": {
+            "id": "string",
+            "layoutOptions?": {
+              "elk.algorithm?": "string -- Default 'layered'",
+              "elk.direction?": "'RIGHT' | 'LEFT' | 'DOWN' | 'UP' -- Default 'RIGHT'",
+              "elk.edgeRouting?": "'ORTHOGONAL' | 'POLYLINE' | 'SPLINES' -- Default is determined by the algorithm"
+            },
+            "children": [
+              {
+                "id": "string",
+                "width": "number -- Positive pixels",
+                "height": "number -- Positive pixels"
+              }
+            ],
+            "edges": [
+              {
+                "id": "string",
+                "sources": "string[] -- References children.id",
+                "targets": "string[] -- References children.id"
+              }
+            ]
+          }
+        }
+      }
+    }
   }
 }

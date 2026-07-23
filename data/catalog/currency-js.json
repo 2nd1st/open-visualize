@@ -5,6 +5,32 @@
   "when_to_use": "需要小体积的单币种金额运算、分摊与格式化时用它而非手写,因为原生 Number 加 toFixed 在链式误差、最小单位和余数分配上失败。",
   "why_valuable": "AI 默认用浮点数运算后再 toFixed(2),做不到保证内部整数值、显示值和分摊总和一致;currency.js 以最小单位整数闭环这些步骤。",
   "supply_form": "headless-primitive",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written code when you need small-footprint single-currency arithmetic, allocation, and formatting, because native Number plus toFixed fails at chained errors, minor units, and remainder distribution.",
+      "why_valuable": "AI normally performs floating-point arithmetic and then calls toFixed(2), which cannot guarantee that the internal integer value, displayed value, and allocated total agree; currency.js closes these steps around integers in the minor unit.",
+      "data_in": {
+        "note": "amount is passed to currency(value,options); operations preserves the monetary operation order, and split_count uses the native distribute method so remainders remain included in the total of all shares.",
+        "schema": {
+          "amount": "number | string",
+          "options?": {
+            "_default": "{}",
+            "precision?": "integer >= 0 -- default 2",
+            "symbol?": "string -- default '$'",
+            "separator?": "string -- default ','",
+            "decimal?": "string -- default '.'",
+            "pattern?": "string -- default '!#'",
+            "negativePattern?": "string -- default '-!#'",
+            "fromCents?": "boolean -- default false",
+            "errorOnInvalid?": "boolean -- default false",
+            "increment?": "number > 0 -- default 1 / 10^precision"
+          },
+          "operations?": "{op:'plus'|'minus'|'times'|'divide',operand:number|string}[] -- default []",
+          "split_count?": "integer > 0 -- omitted by default; no allocation"
+        }
+      }
+    }
+  },
   "mode": "direct-import",
   "upstream": {
     "npm": "currency.js",
@@ -57,7 +83,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "currency.d.ts exposes only add/subtract/multiply/divide (Constructor value+opts), distribute(count):Array<currency>, format():string, readonly value/intValue — boot maps plus/minus/times/divide→add/subtract/multiply/divide and split_count→distribute correctly, and reads value/intValue/format()/distribute().map(format). Options interface confirms all schema keys real (precision/symbol/separator/decimal/pattern/negativePattern/fromCents/errorOnInvalid/increment). Zero DOM/CSS/event API — pure headless money value-object, nothing renders, shadow-irrelevant (safe).",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

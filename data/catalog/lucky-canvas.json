@@ -2,6 +2,48 @@
   "entry_version": "thin-1",
   "id": "lucky-canvas",
   "name": "lucky-canvas",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need one of three prize-draw forms: a wheel, a 3x3 marquee grid, or a slot machine, instead of a hand-written canvas state machine, which often fails at acceleration/cruise/deceleration, stopping on a specified prize, and high-resolution cross-device rendering. Do not use it for trusted randomness, payments, or prize-fulfillment backends.",
+      "why_valuable": "AI can normally produce only a rigid rotate animation or timer-driven grid. It cannot provide shared high-resolution canvas rendering, phase-based animation, and precise prize stopping across all three draw forms. lucky-canvas covers wheels, grids, and reels with the same prize records.",
+      "data_in": {
+        "note": "data_in is a trimmed union of the second constructor argument for LuckyWheel/LuckyGrid/SlotMachine. variant selects the actual upstream constructor, and boot passes the host HTMLElement as the first argument. Callback functions are not strict JSON data; the consuming AI connects them after mount.",
+        "schema": {
+          "variant?": "'wheel' | 'grid' | 'slot' -- catalog defaults to 'wheel'",
+          "width?": "number | px string -- catalog defaults to '400px'",
+          "height?": "number | px string -- catalog defaults to '400px'",
+          "prizes": [
+            {
+              "range?": "number -- defaults to 1",
+              "background?": "CSS color string -- transparent by default",
+              "fonts?": {
+                "_default": "defaults to []",
+                "items": [
+                  {
+                    "text": "string",
+                    "top?": "number | CSS length string -- defaults to 0px",
+                    "fontColor?": "CSS color string -- defaults to #000",
+                    "fontSize?": "CSS length string -- defaults to 22px"
+                  }
+                ]
+              },
+              "imgs?": "upstream image descriptor[] -- defaults to []"
+            }
+          ],
+          "blocks?": "upstream background-block object[] -- defaults to []",
+          "buttons?": "button object[] for wheel/grid -- defaults to []",
+          "rows?": "number -- grid defaults to 3",
+          "cols?": "number -- grid defaults to 3",
+          "slots?": "reel object[] for slot -- defaults to []",
+          "defaultConfig?": "native config object for the selected variant -- defaults to {}",
+          "defaultStyle?": "native style object for the selected variant -- defaults to {}"
+        }
+      },
+      "spec": {
+        "note": "lucky-canvas width/height are canvas geometry inputs, not ordinary CSS. boot explicitly passes '400px' x '400px' by default. vh and percentage heights are forbidden by iron rule 3; AI overrides should still be fixed px values."
+      }
+    }
+  },
   "when_to_use": "需要大转盘、九宫格跑马灯或老虎机三种抽奖形态之一时用它,而非手写 canvas 状态机——原生手写在加速/匀速/减速、指定奖项停靠和多端高清绘制上容易失败。非做可信随机、支付或奖品核销后端。",
   "why_valuable": "AI 默认只能写僵硬的 rotate 或定时器跑格子,做不到三种抽奖形态共享的高清 canvas、阶段动画和精确停奖;lucky-canvas 用同一组 prize records 覆盖轮盘、九宫格与滚轴。",
   "supply_form": "component",
@@ -120,7 +162,6 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "esm grep: 4× document.createElement (canvas elements), 1× appendChild into the given container, NO document.head/document.body, no adoptedStyleSheets — pure canvas rendering, no style injection, no body mutation. globalEvents=yes and it's a LEAK: `window.addEventListener('resize', ...)` is registered (guarded by a typeof-function check) with ZERO removeEventListener in the bundle and no destroy that unbinds it; the click listener is element-scoped (`canvasElement.addEventListener('click')`), fine. shadowCompatible=conditional: the canvas + text/color config render fully inside a shadow container, but (a) it leaks an uncleaned window resize listener that keeps referencing the instance after teardown, and (b) remote prize/block `imgs` need CDN+CORS (catalog's stated conditional). Rendering mechanics themselves work in shadow.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

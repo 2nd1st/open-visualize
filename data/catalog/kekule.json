@@ -1,0 +1,72 @@
+{
+  "entry_version": "thin-1",
+  "id": "kekule",
+  "name": "kekule",
+  "when_to_use": "化学场景超出单个 2D 结构式时用它:reaction scheme(reactant→product,箭头上带 agent/条件)、谱图(NMR/IR/MS/UV)、3D 分子渲染或可编辑结构 widget;从 MOL/SMILES/CML 载入分子。单个 2D 结构式用 smiles-drawer/openchemlib/jsme,需要反应式、谱图、3D 或编辑才上 kekule。",
+  "why_valuable": "cheminformatics 工具箱:reaction 布局(reactant→product、箭头上方 agent)、谱图峰/轴绘制、3D 渲染、结构编辑,外加 MOL/SMILES/CML 格式 IO;原生 AI 画反应式与谱图都不可靠,更无法解析化学格式。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "umd-global",
+  "upstream": {
+    "npm": "kekule",
+    "version": "1.0.4",
+    "github": "partridgejiang/Kekule.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "molecule",
+    "note": "kekule 的 +esm 自动打包失败(bundle 依赖 Node 内建 'vm'),必须走 UMD dist/kekule.min.js(挂全局 Kekule)。Kekule.IO.loadFormatData(data, format) 解析,Viewer 渲染。",
+    "schema": {
+      "data": "string —— 化学数据:SMILES(如 'O=C=O')、MOLfile 文本 或 CML",
+      "format": "string —— 'smi' | 'mol' | 'cml' | 'kcj' ...(与 data 对应的格式标识)",
+      "renderDimension?": "string —— '2D'(默认) | '3D'",
+      "viewerOptions?": "object —— Kekule.ChemWidget.Viewer 选项(如 enableToolbar 等),默认最简查看器"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "Kekule.ChemWidget.Viewer 读取元素尺寸;给容器显式 px 宽高(如 400x300),禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:kekule +esm 失败(Node 'vm'),必须 UMD 全局 + theme CSS\nawait new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/kekule@1.0.4/dist/kekule.min.js'; s.onload = res; s.onerror = rej; document.head.appendChild(s); });\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/kekule@1.0.4/dist/themes/default/kekule.css'; document.head.appendChild(css);\nconst mol = Kekule.IO.loadFormatData(data.data, data.format);\nconst el = document.getElementById('kekule'); el.style.width = '100%';\nconst viewer = new Kekule.ChemWidget.Viewer(el); viewer.setChemObj(mol);",
+    "widget": "// caveat:Kekule 是完整 widget 框架,UMD 全局 + 全局 widget manager 会向 document.body 追加 tooltip/context-menu;shadow 内为 best-effort,建议先活体探针\nawait new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/kekule@1.0.4/dist/kekule.min.js'; s.onload = res; s.onerror = rej; document.head.appendChild(s); });\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/kekule@1.0.4/dist/themes/default/kekule.css'; shadowRoot.appendChild(css);\nconst mol = Kekule.IO.loadFormatData(data.data, data.format);\nconst el = document.createElement('div'); el.style.width = '100%'; shadowRoot.appendChild(el);\nconst viewer = new Kekule.ChemWidget.Viewer(el); viewer.setChemObj(mol);",
+    "codex": "await new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/kekule@1.0.4/dist/kekule.min.js'; s.onload = res; s.onerror = rej; document.head.appendChild(s); });\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/kekule@1.0.4/dist/themes/default/kekule.css'; document.head.appendChild(css);\nconst mol = Kekule.IO.loadFormatData(data.data, data.format);\nconst el = document.getElementById('kekule'); el.style.width = '100%';\nconst viewer = new Kekule.ChemWidget.Viewer(el); viewer.setChemObj(mol);"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:UMD script 挂全局 Kekule + theme CSS,document 上下文可用",
+    "widget": "conditional:UMD 全局 + widget 框架向 body 追加 UI,shadow 隔离不干净,建议活体探针",
+    "codex": "supported:script-global 在 JS 运行时可加载"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "Load path verified: jsDelivr +esm returns 200 but body is a stub — 'Failed to bundle using Rollup ... imports an unsupported Node.js built-in module \"vm\"'; UMD dist/kekule.min.js 200 sets global Kekule; theme dist/themes/default/kekule.css 200. API verified in min.js: Kekule.ChemWidget.Viewer (95 hits), setChemObj (34), Kekule.IO.loadFormatData (12) / saveFormatData (4); README shows new Kekule.Molecule() + Kekule.IO.saveFormatData(mol,'smi'). License: registry top-level `license` is null but the version carries `licenses:[{type:'MIT'}]`, a /LICENSE file (200), and README states 'released under MIT license' → MIT. globalStyleInjection=yes (theme CSS + framework). globalDomMutation/globalEvents=yes: Kekule.Widget is a full widget framework with a global widget manager that appends tooltips/context-menus/measurement nodes to document.body and binds document-level pointer/resize. shadowCompatible=conditional (leaning no). confidence low: large minified UMD not fully audited; project VERIFY rule → run one live probe before shelving.",
+    "confidence": "low"
+  },
+  "example": {
+    "minimal": {
+      "data": "caffeine\n\n\n 14 15  0  0  0  0  0  0  0  0999 V2000\n    3.7321    2.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    2.0000   -1.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    3.7321   -1.0000    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0\n    5.5443    0.8047    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0\n    2.8660    0.5000    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0\n    5.5443   -0.8047    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0\n    4.5981    0.5000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    4.5981   -0.5000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    3.7321    1.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    2.8660   -0.5000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.1279    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    3.7321   -2.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    5.8550    1.7553    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    2.0000    1.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n  1  9  2  0  0  0  0\n  2 10  2  0  0  0  0\n  3  8  1  0  0  0  0\n  3 10  1  0  0  0  0\n  3 12  1  0  0  0  0\n  4  7  1  0  0  0  0\n  4 11  1  0  0  0  0\n  4 13  1  0  0  0  0\n  5  9  1  0  0  0  0\n  5 10  1  0  0  0  0\n  5 14  1  0  0  0  0\n  6  8  1  0  0  0  0\n  6 11  2  0  0  0  0\n  7  8  2  0  0  0  0\n  7  9  1  0  0  0  0\nM  END",
+      "format": "mol"
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when the chemistry scenario goes beyond one 2D structural formula: a reaction scheme with reactant -> product and agents/conditions above the arrow, spectra (NMR/IR/MS/UV), 3D molecule rendering, or an editable structure widget. Load molecules from MOL/SMILES/CML. For one 2D structure use smiles-drawer/openchemlib/jsme; use kekule only when you need reactions, spectra, 3D, or editing.",
+      "why_valuable": "A cheminformatics toolkit with reaction layout, including reactant -> product and agents above the arrow, spectrum peak/axis drawing, 3D rendering, structure editing, and MOL/SMILES/CML format IO. Native AI cannot draw reactions or spectra reliably, much less parse chemical formats.",
+      "data_in": {
+        "note": "The kekule +esm auto-bundle fails because the bundle depends on Node's built-in 'vm'; use UMD dist/kekule.min.js, which exposes global Kekule. Parse with Kekule.IO.loadFormatData(data, format) and render with Viewer.",
+        "schema": {
+          "data": "string -- Chemical data: SMILES such as 'O=C=O', MOLfile text, or CML",
+          "format": "string -- 'smi' | 'mol' | 'cml' | 'kcj' ... format identifier matching data",
+          "renderDimension?": "string -- '2D' (default) | '3D'",
+          "viewerOptions?": "object -- Kekule.ChemWidget.Viewer options such as enableToolbar; defaults to a minimal viewer"
+        }
+      },
+      "spec": {
+        "note": "Kekule.ChemWidget.Viewer reads element dimensions; give the container explicit pixel width and height, such as 400x300. vh and percentage heights are forbidden."
+      }
+    }
+  }
+}

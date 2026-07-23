@@ -1,0 +1,169 @@
+{
+  "entry_version": "thin-1",
+  "id": "pricing-table",
+  "name": "Pricing table",
+  "when_to_use": "需要让读者一眼比较 2–4 个套餐的价格、计费周期和核心权益时用它：适合产品定价页、方案建议、服务包交付和采购摘要。若重点是逐项审计大量能力差异，应改用 comparison-table；若需要结账、切换币种并把选择回传给 AI，则应使用带业务逻辑的专用交互界面。",
+  "why_valuable": "定价比较的判断依赖视觉层级而不只是表格数据；本模板把价格、周期、推荐档位和 included／excluded／partial 权益统一成可扫读的卡片，并在窄屏自动重排，避免推荐标识、卡片高度和深色主题各自失真。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "inline-template",
+  "upstream": {
+    "npm": null,
+    "version": null,
+    "github": null
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "comparison-matrix",
+    "note": "data 是 plan-major 的定价比较：plans 中每个对象是一张套餐卡，features 是该套餐内按顺序展示的权益。建议提供 2–4 个 plans，并只设置零或一个 highlight:true；模板允许更多卡片但会自然换行。price 使用已格式化字符串，因此货币符号、免费或定制报价都可直接表达；period 省略时不保留空位。features.state 默认为 included，partial 使用琥珀色提示，excluded 使用红色叉号；所有文本均以 textContent 渲染。",
+    "schema": {
+      "title?": "string —— 区块标题；省略时显示 “Plans for every stage”",
+      "subtitle?": "string —— 标题下的一句比较说明；省略时显示套餐数量摘要",
+      "plans": "{name:string,description?:string,price:string,period?:string,badge?:string,highlight?:boolean,features:{label:string,state?:'included'|'excluded'|'partial',note?:string}[]}[] —— 套餐数组；highlight:true 强调推荐卡，badge 是其顶部短标签；features.state 默认 included",
+      "_planFields": {
+        "name": "string —— 套餐名称",
+        "description?": "string —— 套餐适用对象或定位短句",
+        "price": "string —— 已格式化价格，例如 “$24”／“Free”／“Custom”",
+        "period?": "string —— 价格周期，例如 “/ user / month”",
+        "badge?": "string —— highlight 卡顶部标签；highlight:true 且省略时显示 “Most popular”",
+        "highlight?": "boolean —— 是否以强调色边框和顶部标签突出",
+        "features": "{label:string,state?:'included'|'excluded'|'partial',note?:string}[] —— 权益项目列表"
+      },
+      "_featureFields": {
+        "label": "string —— 权益主文本",
+        "state?": "'included'|'excluded'|'partial' —— 默认 included；分别显示绿色 ✓、红色 ✗、琥珀色 Partial 语义",
+        "note?": "string —— 权益下方的简短限定说明"
+      }
+    }
+  },
+  "spec": {
+    "height": "auto",
+    "note": "按标题和最长套餐卡自然增高；桌面端以自适应列并排，窄屏自动折为单列。无 vh、固定容器高度或载体尺寸测量。"
+  },
+  "boot": {
+    "artifact": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{padding:24px;border:1px solid var(--_line);border-radius:18px;background:var(--_soft);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{max-width:720px;margin-bottom:20px}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(22px,3vw,29px);font-weight:750;letter-spacing:-.03em;line-height:1.18}\n.meta{margin:8px 0 0;color:var(--_muted);font-size:14px;line-height:1.5}\n.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;align-items:stretch}\n.plan{position:relative;display:flex;min-width:0;flex-direction:column;padding:22px;border:1px solid var(--_line);border-radius:16px;background:var(--_raised);box-shadow:0 5px 16px rgba(15,23,42,.045)}\n.plan.recommended{border-color:var(--_accent);box-shadow:0 12px 28px color-mix(in srgb,var(--_accent) 14%,transparent),inset 0 3px 0 var(--_accent)}\n.badge{align-self:flex-start;display:inline-flex;align-items:center;margin:-7px 0 14px;padding:4px 9px;border-radius:999px;background:var(--_accent);color:#fff;font-size:9px;font-weight:850;letter-spacing:.09em;line-height:1.4;text-transform:uppercase}\n.name{margin:0;color:var(--_text);font-size:17px;font-weight:780;letter-spacing:-.015em;line-height:1.3}\n.description{min-height:38px;margin:5px 0 0;color:var(--_muted);font-size:12px;line-height:1.45}\n.price-line{display:flex;min-height:64px;align-items:baseline;gap:6px;margin:18px 0 17px;padding-bottom:17px;border-bottom:1px solid var(--_line);font-variant-numeric:tabular-nums}\n.price{color:var(--_text);font-size:clamp(29px,4vw,40px);font-weight:800;letter-spacing:-.045em;line-height:1}\n.period{max-width:110px;color:var(--_muted);font-size:11px;font-weight:600;line-height:1.3}\nul{display:grid;gap:12px;margin:0;padding:0;list-style:none}\nli{display:grid;grid-template-columns:47px minmax(0,1fr);gap:9px;align-items:start}\n.mark{display:inline-flex;width:23px;height:23px;align-items:center;justify-content:center;border-radius:999px;font-size:13px;font-weight:850;line-height:1}\n.mark.yes{background:color-mix(in srgb,var(--_ok) 12%,var(--_bg));color:var(--_ok)}\n.mark.no{background:color-mix(in srgb,var(--_no) 11%,var(--_bg));color:var(--_no)}\n.mark.partial{width:auto;min-width:23px;padding:0 6px;background:color-mix(in srgb,var(--_partial) 13%,var(--_bg));color:var(--_partial);font-size:10px}\n.feature-label{display:block;padding-top:2px;color:var(--_text);font-size:13px;font-weight:630;line-height:1.4}\n.feature-note{display:block;margin-top:2px;color:var(--_muted);font-size:11px;line-height:1.35}\n.empty{padding:38px 20px;border:1px dashed var(--_line);border-radius:14px;background:var(--_raised);color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:520px){.frame{padding:18px}.heading{margin-bottom:16px}.grid{grid-template-columns:1fr}.plan{padding:20px}.description{min-height:0}.price-line{min-height:0}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}.plan{box-shadow:0 6px 18px rgba(0,0,0,.16)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst plans=Array.isArray(data.plans)?data.plans:[];\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Plans for every stage';\nconst subtitle=typeof data.subtitle==='string'&&data.subtitle.trim()?data.subtitle.trim():plans.length+' plan'+(plans.length===1?'':'s')+' · compare price and included features';\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title);\nconst heading=make('header','heading'); heading.appendChild(make('div','eyebrow','Pricing plans')); heading.appendChild(make('h2','',title)); heading.appendChild(make('p','meta',subtitle)); frame.appendChild(heading);\nif(!plans.length){\n  frame.appendChild(make('div','empty','Add at least one plan to build the pricing comparison.'));\n}else{\n  const grid=make('div','grid');\n  plans.forEach((plan) => {\n    const highlighted=plan&&plan.highlight===true;\n    const card=make('article','plan'+(highlighted?' recommended':''));\n    if(highlighted) card.appendChild(make('span','badge',plan&&plan.badge?String(plan.badge):'Most popular'));\n    card.appendChild(make('h3','name',plan&&plan.name!=null?String(plan.name):'Untitled plan'));\n    card.appendChild(make('p','description',plan&&plan.description?String(plan.description):''));\n    const priceLine=make('div','price-line'); priceLine.appendChild(make('span','price',plan&&plan.price!=null?String(plan.price):'—')); if(plan&&plan.period) priceLine.appendChild(make('span','period',String(plan.period))); card.appendChild(priceLine);\n    const list=make('ul');\n    const features=plan&&Array.isArray(plan.features)?plan.features:[];\n    features.forEach((feature) => {\n      const state=feature&&feature.state==='excluded'?'no':feature&&feature.state==='partial'?'partial':'yes';\n      const item=make('li'); const label=state==='yes'?'Included':state==='no'?'Not included':'Partially included';\n      const mark=make('span','mark '+state,state==='yes'?'✓':state==='no'?'✗':'Partial'); mark.setAttribute('aria-label',label); item.appendChild(mark);\n      const copy=make('div'); copy.appendChild(make('span','feature-label',feature&&feature.label!=null?String(feature.label):'Untitled feature')); if(feature&&feature.note) copy.appendChild(make('span','feature-note',String(feature.note))); item.appendChild(copy); list.appendChild(item);\n    });\n    card.appendChild(list); grid.appendChild(card);\n  });\n  frame.appendChild(grid);\n}\nroot.appendChild(frame);\nparent.appendChild(host);",
+    "widget": "const parent = shadowRoot;\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{padding:24px;border:1px solid var(--_line);border-radius:18px;background:var(--_soft);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{max-width:720px;margin-bottom:20px}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(22px,3vw,29px);font-weight:750;letter-spacing:-.03em;line-height:1.18}\n.meta{margin:8px 0 0;color:var(--_muted);font-size:14px;line-height:1.5}\n.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;align-items:stretch}\n.plan{position:relative;display:flex;min-width:0;flex-direction:column;padding:22px;border:1px solid var(--_line);border-radius:16px;background:var(--_raised);box-shadow:0 5px 16px rgba(15,23,42,.045)}\n.plan.recommended{border-color:var(--_accent);box-shadow:0 12px 28px color-mix(in srgb,var(--_accent) 14%,transparent),inset 0 3px 0 var(--_accent)}\n.badge{align-self:flex-start;display:inline-flex;align-items:center;margin:-7px 0 14px;padding:4px 9px;border-radius:999px;background:var(--_accent);color:#fff;font-size:9px;font-weight:850;letter-spacing:.09em;line-height:1.4;text-transform:uppercase}\n.name{margin:0;color:var(--_text);font-size:17px;font-weight:780;letter-spacing:-.015em;line-height:1.3}\n.description{min-height:38px;margin:5px 0 0;color:var(--_muted);font-size:12px;line-height:1.45}\n.price-line{display:flex;min-height:64px;align-items:baseline;gap:6px;margin:18px 0 17px;padding-bottom:17px;border-bottom:1px solid var(--_line);font-variant-numeric:tabular-nums}\n.price{color:var(--_text);font-size:clamp(29px,4vw,40px);font-weight:800;letter-spacing:-.045em;line-height:1}\n.period{max-width:110px;color:var(--_muted);font-size:11px;font-weight:600;line-height:1.3}\nul{display:grid;gap:12px;margin:0;padding:0;list-style:none}\nli{display:grid;grid-template-columns:47px minmax(0,1fr);gap:9px;align-items:start}\n.mark{display:inline-flex;width:23px;height:23px;align-items:center;justify-content:center;border-radius:999px;font-size:13px;font-weight:850;line-height:1}\n.mark.yes{background:color-mix(in srgb,var(--_ok) 12%,var(--_bg));color:var(--_ok)}\n.mark.no{background:color-mix(in srgb,var(--_no) 11%,var(--_bg));color:var(--_no)}\n.mark.partial{width:auto;min-width:23px;padding:0 6px;background:color-mix(in srgb,var(--_partial) 13%,var(--_bg));color:var(--_partial);font-size:10px}\n.feature-label{display:block;padding-top:2px;color:var(--_text);font-size:13px;font-weight:630;line-height:1.4}\n.feature-note{display:block;margin-top:2px;color:var(--_muted);font-size:11px;line-height:1.35}\n.empty{padding:38px 20px;border:1px dashed var(--_line);border-radius:14px;background:var(--_raised);color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:520px){.frame{padding:18px}.heading{margin-bottom:16px}.grid{grid-template-columns:1fr}.plan{padding:20px}.description{min-height:0}.price-line{min-height:0}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}.plan{box-shadow:0 6px 18px rgba(0,0,0,.16)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst plans=Array.isArray(data.plans)?data.plans:[];\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Plans for every stage';\nconst subtitle=typeof data.subtitle==='string'&&data.subtitle.trim()?data.subtitle.trim():plans.length+' plan'+(plans.length===1?'':'s')+' · compare price and included features';\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title);\nconst heading=make('header','heading'); heading.appendChild(make('div','eyebrow','Pricing plans')); heading.appendChild(make('h2','',title)); heading.appendChild(make('p','meta',subtitle)); frame.appendChild(heading);\nif(!plans.length){\n  frame.appendChild(make('div','empty','Add at least one plan to build the pricing comparison.'));\n}else{\n  const grid=make('div','grid');\n  plans.forEach((plan) => {\n    const highlighted=plan&&plan.highlight===true;\n    const card=make('article','plan'+(highlighted?' recommended':''));\n    if(highlighted) card.appendChild(make('span','badge',plan&&plan.badge?String(plan.badge):'Most popular'));\n    card.appendChild(make('h3','name',plan&&plan.name!=null?String(plan.name):'Untitled plan'));\n    card.appendChild(make('p','description',plan&&plan.description?String(plan.description):''));\n    const priceLine=make('div','price-line'); priceLine.appendChild(make('span','price',plan&&plan.price!=null?String(plan.price):'—')); if(plan&&plan.period) priceLine.appendChild(make('span','period',String(plan.period))); card.appendChild(priceLine);\n    const list=make('ul');\n    const features=plan&&Array.isArray(plan.features)?plan.features:[];\n    features.forEach((feature) => {\n      const state=feature&&feature.state==='excluded'?'no':feature&&feature.state==='partial'?'partial':'yes';\n      const item=make('li'); const label=state==='yes'?'Included':state==='no'?'Not included':'Partially included';\n      const mark=make('span','mark '+state,state==='yes'?'✓':state==='no'?'✗':'Partial'); mark.setAttribute('aria-label',label); item.appendChild(mark);\n      const copy=make('div'); copy.appendChild(make('span','feature-label',feature&&feature.label!=null?String(feature.label):'Untitled feature')); if(feature&&feature.note) copy.appendChild(make('span','feature-note',String(feature.note))); item.appendChild(copy); list.appendChild(item);\n    });\n    card.appendChild(list); grid.appendChild(card);\n  });\n  frame.appendChild(grid);\n}\nroot.appendChild(frame);\nparent.appendChild(host);",
+    "codex": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{padding:24px;border:1px solid var(--_line);border-radius:18px;background:var(--_soft);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{max-width:720px;margin-bottom:20px}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(22px,3vw,29px);font-weight:750;letter-spacing:-.03em;line-height:1.18}\n.meta{margin:8px 0 0;color:var(--_muted);font-size:14px;line-height:1.5}\n.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;align-items:stretch}\n.plan{position:relative;display:flex;min-width:0;flex-direction:column;padding:22px;border:1px solid var(--_line);border-radius:16px;background:var(--_raised);box-shadow:0 5px 16px rgba(15,23,42,.045)}\n.plan.recommended{border-color:var(--_accent);box-shadow:0 12px 28px color-mix(in srgb,var(--_accent) 14%,transparent),inset 0 3px 0 var(--_accent)}\n.badge{align-self:flex-start;display:inline-flex;align-items:center;margin:-7px 0 14px;padding:4px 9px;border-radius:999px;background:var(--_accent);color:#fff;font-size:9px;font-weight:850;letter-spacing:.09em;line-height:1.4;text-transform:uppercase}\n.name{margin:0;color:var(--_text);font-size:17px;font-weight:780;letter-spacing:-.015em;line-height:1.3}\n.description{min-height:38px;margin:5px 0 0;color:var(--_muted);font-size:12px;line-height:1.45}\n.price-line{display:flex;min-height:64px;align-items:baseline;gap:6px;margin:18px 0 17px;padding-bottom:17px;border-bottom:1px solid var(--_line);font-variant-numeric:tabular-nums}\n.price{color:var(--_text);font-size:clamp(29px,4vw,40px);font-weight:800;letter-spacing:-.045em;line-height:1}\n.period{max-width:110px;color:var(--_muted);font-size:11px;font-weight:600;line-height:1.3}\nul{display:grid;gap:12px;margin:0;padding:0;list-style:none}\nli{display:grid;grid-template-columns:47px minmax(0,1fr);gap:9px;align-items:start}\n.mark{display:inline-flex;width:23px;height:23px;align-items:center;justify-content:center;border-radius:999px;font-size:13px;font-weight:850;line-height:1}\n.mark.yes{background:color-mix(in srgb,var(--_ok) 12%,var(--_bg));color:var(--_ok)}\n.mark.no{background:color-mix(in srgb,var(--_no) 11%,var(--_bg));color:var(--_no)}\n.mark.partial{width:auto;min-width:23px;padding:0 6px;background:color-mix(in srgb,var(--_partial) 13%,var(--_bg));color:var(--_partial);font-size:10px}\n.feature-label{display:block;padding-top:2px;color:var(--_text);font-size:13px;font-weight:630;line-height:1.4}\n.feature-note{display:block;margin-top:2px;color:var(--_muted);font-size:11px;line-height:1.35}\n.empty{padding:38px 20px;border:1px dashed var(--_line);border-radius:14px;background:var(--_raised);color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:520px){.frame{padding:18px}.heading{margin-bottom:16px}.grid{grid-template-columns:1fr}.plan{padding:20px}.description{min-height:0}.price-line{min-height:0}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}.plan{box-shadow:0 6px 18px rgba(0,0,0,.16)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst plans=Array.isArray(data.plans)?data.plans:[];\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Plans for every stage';\nconst subtitle=typeof data.subtitle==='string'&&data.subtitle.trim()?data.subtitle.trim():plans.length+' plan'+(plans.length===1?'':'s')+' · compare price and included features';\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title);\nconst heading=make('header','heading'); heading.appendChild(make('div','eyebrow','Pricing plans')); heading.appendChild(make('h2','',title)); heading.appendChild(make('p','meta',subtitle)); frame.appendChild(heading);\nif(!plans.length){\n  frame.appendChild(make('div','empty','Add at least one plan to build the pricing comparison.'));\n}else{\n  const grid=make('div','grid');\n  plans.forEach((plan) => {\n    const highlighted=plan&&plan.highlight===true;\n    const card=make('article','plan'+(highlighted?' recommended':''));\n    if(highlighted) card.appendChild(make('span','badge',plan&&plan.badge?String(plan.badge):'Most popular'));\n    card.appendChild(make('h3','name',plan&&plan.name!=null?String(plan.name):'Untitled plan'));\n    card.appendChild(make('p','description',plan&&plan.description?String(plan.description):''));\n    const priceLine=make('div','price-line'); priceLine.appendChild(make('span','price',plan&&plan.price!=null?String(plan.price):'—')); if(plan&&plan.period) priceLine.appendChild(make('span','period',String(plan.period))); card.appendChild(priceLine);\n    const list=make('ul');\n    const features=plan&&Array.isArray(plan.features)?plan.features:[];\n    features.forEach((feature) => {\n      const state=feature&&feature.state==='excluded'?'no':feature&&feature.state==='partial'?'partial':'yes';\n      const item=make('li'); const label=state==='yes'?'Included':state==='no'?'Not included':'Partially included';\n      const mark=make('span','mark '+state,state==='yes'?'✓':state==='no'?'✗':'Partial'); mark.setAttribute('aria-label',label); item.appendChild(mark);\n      const copy=make('div'); copy.appendChild(make('span','feature-label',feature&&feature.label!=null?String(feature.label):'Untitled feature')); if(feature&&feature.note) copy.appendChild(make('span','feature-note',String(feature.note))); item.appendChild(copy); list.appendChild(item);\n    });\n    card.appendChild(list); grid.appendChild(card);\n  });\n  frame.appendChild(grid);\n}\nroot.appendChild(frame);\nparent.appendChild(host);"
+  },
+  "example": {
+    "_why": "三档 SaaS 套餐同时覆盖免费、按月计费、推荐档位和 included／partial／excluded 三种权益语义，可完整检验卡片等高、视觉强调与窄屏重排。",
+    "minimal": {
+      "title": "Choose the right workspace",
+      "subtitle": "Start free, then add collaboration and control as your team grows.",
+      "plans": [
+        {
+          "name": "Starter",
+          "description": "For personal projects and early ideas.",
+          "price": "$0",
+          "period": "forever",
+          "features": [
+            {
+              "label": "3 active projects"
+            },
+            {
+              "label": "5 GB storage"
+            },
+            {
+              "label": "Guest sharing",
+              "state": "partial",
+              "note": "View-only links"
+            },
+            {
+              "label": "Single sign-on",
+              "state": "excluded"
+            }
+          ]
+        },
+        {
+          "name": "Team",
+          "description": "For teams shipping together every week.",
+          "price": "$24",
+          "period": "/ user / month",
+          "badge": "Most popular",
+          "highlight": true,
+          "features": [
+            {
+              "label": "Unlimited projects"
+            },
+            {
+              "label": "1 TB shared storage"
+            },
+            {
+              "label": "Guest collaboration"
+            },
+            {
+              "label": "Single sign-on",
+              "state": "partial",
+              "note": "SAML add-on"
+            }
+          ]
+        },
+        {
+          "name": "Scale",
+          "description": "For organizations with advanced controls.",
+          "price": "Custom",
+          "period": "annual contract",
+          "features": [
+            {
+              "label": "Unlimited projects"
+            },
+            {
+              "label": "Unlimited storage"
+            },
+            {
+              "label": "Advanced guest controls"
+            },
+            {
+              "label": "SAML SSO and SCIM"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "uplink": "纯 display，无 uplink；套餐卡不创建选择状态，也不向 AI 回传任何值。",
+  "carriers": {
+    "artifact": "supported:boot.artifact 已在 sandboxed iframe 中以 example.minimal 原样渲染验证；CSS 与 DOM 全部位于自有 shadow root",
+    "widget": "supported:与 artifact 同一零依赖模板，仅 parent 改为 shadowRoot；可在载体 shadow 内再挂自有 shadow",
+    "codex": "supported:与已验证的 artifact boot 相同，document.getElementById('viz') 为唯一载体挂载点"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "self-authored inline-template, owns its shadow, zero global footprint; rendered-verified",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when readers need to compare the price, billing period, and core benefits of 2-4 plans at a glance: suitable for product pricing pages, proposals, service-package deliverables, and procurement summaries. If the focus is auditing many feature differences item by item, use comparison-table instead; if users must check out, switch currency, and send their selection back to AI, use a dedicated interactive interface with business logic.",
+      "why_valuable": "Pricing decisions depend on visual hierarchy, not only tabular data. This template unifies price, period, recommended tier, and included/excluded/partial benefits in scannable cards and automatically reflows on narrow screens, preventing recommendation markers, card height, and dark theme from drifting independently.",
+      "data_in": {
+        "note": "data is a plan-major pricing comparison: each object in plans is one plan card, with features listed in display order. Prefer 2-4 plans and set highlight:true on zero or one plan; more cards are allowed and wrap naturally. price is a preformatted string, so currency symbols, Free, or Custom can be expressed directly; omitting period leaves no blank slot. features.state defaults to included, partial uses an amber cue, and excluded uses a red cross. All text is rendered with textContent.",
+        "schema": {
+          "title?": "string -- Section title; displays \"Plans for every stage\" when omitted",
+          "subtitle?": "string -- One-line comparison description below the title; displays a plan-count summary when omitted",
+          "plans": "{name:string,description?:string,price:string,period?:string,badge?:string,highlight?:boolean,features:{label:string,state?:'included'|'excluded'|'partial',note?:string}[]}[] -- Plan array; highlight:true emphasizes the recommended card, badge is its short top label, and features.state defaults to included",
+          "_planFields": {
+            "name": "string -- Plan name",
+            "description?": "string -- Short statement of the plan's audience or positioning",
+            "price": "string -- Formatted price, such as \"$24\"/\"Free\"/\"Custom\"",
+            "period?": "string -- Price period, such as \"/ user / month\"",
+            "badge?": "string -- Label above a highlighted card; when omitted with highlight:true, displays \"Most popular\"",
+            "highlight?": "boolean -- Whether to emphasize the card with an accent border and top label",
+            "features": "{label:string,state?:'included'|'excluded'|'partial',note?:string}[] -- Benefit list"
+          },
+          "_featureFields": {
+            "label": "string -- Main benefit text",
+            "state?": "'included'|'excluded'|'partial' -- Default included; displays green included, red excluded, or amber Partial semantics",
+            "note?": "string -- Short qualifier below the benefit"
+          }
+        }
+      },
+      "spec": {
+        "note": "Grows naturally with the heading and tallest plan card; desktop uses responsive side-by-side columns and narrow screens collapse to one column. No vh, fixed container height, or carrier-size measurement."
+      }
+    }
+  }
+}

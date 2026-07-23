@@ -58,7 +58,144 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Handlebars is pure JS (no DOM). It compiles the pinned template to a full HTML string; the generated CSS lives inside that returned document via the style.css partial, and the boot mounts it through iframe srcdoc — no host head injection, no listeners. Whole-document output mandates an iframe wrapper (placed in shadowRoot); requires Handlebars ESM + two pinned /gh/ text fetches.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "resume": {
+        "basics": {
+          "name": "Ada Lovelace",
+          "label": "Software Engineer",
+          "email": "ada@example.com",
+          "phone": "(555) 123-4567",
+          "location": {
+            "city": "London",
+            "region": "England",
+            "countryCode": "UK"
+          },
+          "profiles": [
+            {
+              "network": "GitHub",
+              "url": "https://github.com/ada"
+            },
+            {
+              "network": "LinkedIn",
+              "url": "https://linkedin.com/in/ada"
+            }
+          ],
+          "summary": "Backend engineer with 6 years building distributed systems and developer tooling. Focused on clean APIs, observability, and mentoring."
+        },
+        "work": [
+          {
+            "company": "Analytical Engines Inc.",
+            "position": "Senior Software Engineer",
+            "website": "https://analyticalengines.example.com",
+            "startDate": "2021-03",
+            "highlights": [
+              "Led migration of the billing service to an event-driven architecture, cutting p99 latency by 40%.",
+              "Designed a self-serve feature-flag platform now used by 30+ engineers.",
+              "Mentored 4 junior engineers through onboarding and first production launches."
+            ]
+          },
+          {
+            "company": "Babbage Labs",
+            "position": "Software Engineer",
+            "website": "https://babbagelabs.example.com",
+            "startDate": "2019-06",
+            "endDate": "2021-02",
+            "highlights": [
+              "Built the internal metrics pipeline ingesting 2B events/day.",
+              "Reduced CI build times from 22 to 6 minutes."
+            ]
+          }
+        ],
+        "education": [
+          {
+            "institution": "University of Cambridge",
+            "studyType": "B.Sc.",
+            "area": "Computer Science",
+            "startDate": "2015-09",
+            "endDate": "2019-05",
+            "gpa": "First Class"
+          }
+        ],
+        "skills": [
+          {
+            "name": "Languages",
+            "level": "Advanced",
+            "keywords": [
+              "TypeScript",
+              "Go",
+              "Python",
+              "Rust"
+            ]
+          },
+          {
+            "name": "Infrastructure",
+            "keywords": [
+              "Kubernetes",
+              "PostgreSQL",
+              "Kafka",
+              "Terraform"
+            ]
+          }
+        ],
+        "languages": [
+          {
+            "language": "English",
+            "fluency": "Native"
+          },
+          {
+            "language": "French",
+            "fluency": "Professional"
+          }
+        ],
+        "interests": [
+          {
+            "name": "Open Source",
+            "keywords": [
+              "Handlebars",
+              "CLI tooling"
+            ]
+          },
+          {
+            "name": "Chess"
+          }
+        ]
+      }
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to render legacy JSON Resume fields into one-page Handlebars resume HTML entirely in the browser, instead of hand-writing it, because native implementations fail at conditional template branches, print CSS, and dense timeline layout. Not an arbitrary Handlebars template executor.",
+      "why_valuable": "AI cannot maintain nullable JSON Resume sections, right-aligned dates, page-break avoidance, and print state together by default. This repository fixes those conditions in templates without business logic, avoiding a fresh resume layout each time.",
+      "data_in": {
+        "note": "The exact upstream template call shape is {resume:{...}}. This onepage template uses legacy fields work[].company/work[].website, not modern schema name/url. boot pins the source commit and registers a Handlebars partial named style.css.",
+        "schema": {
+          "resume": {
+            "basics": {
+              "name": "string -- Required name",
+              "label?": "string -- Job title hidden by default",
+              "email?": "string -- Email hidden by default",
+              "phone?": "string -- Phone hidden by default",
+              "summary?": "string -- Summary hidden by default",
+              "location?": "{city?:string,region?:string,countryCode?:string} -- Location hidden by default",
+              "profiles?": "{network?:string,url?:string}[] -- Default []"
+            },
+            "work?": "{company?:string,position?:string,website?:string,startDate?:string,endDate?:string,highlights?:string[],details?:{text?:string,comment?:string}[]}[] -- Default []",
+            "publications?": "JSON Resume publication[] (template reads website/highlights) -- Default []",
+            "awards?": "JSON Resume award[] (template reads title/awarder/date/highlights) -- Default []",
+            "volunteer?": "JSON Resume volunteer[] (template reads organization/position/website) -- Default []",
+            "education?": "JSON Resume education[] -- Default []",
+            "skills?": "JSON Resume skill[] (may include details) -- Default []",
+            "languages?": "JSON Resume language[] -- Default []",
+            "interests?": "JSON Resume interest[] -- Default []"
+          }
+        }
+      },
+      "spec": {
+        "note": "The full resume HTML is placed in a scrolling iframe with a default height of 900px. AI may provide another explicit pixel value; vh or percentage height is prohibited."
+      }
+    }
   }
 }

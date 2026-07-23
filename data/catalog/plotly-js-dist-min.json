@@ -51,6 +51,48 @@
     "height": 420,
     "note": "Plotly 的 SVG/canvas/WebGL 图层必须在初始化前获得明确像素高;boot 默认 420px并写入 layout.height,容器变化调用 Plotly.Plots.resize,铁律 3 禁 vh/百分比高。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need 3D scatter/surface plots, contours, scientific statistical charts, or multi-axis exploratory plots with zoom and hover instead of hand-written SVG/WebGL, which tends to fail at 3D cameras, scientific scales, and hit testing across traces. It is not for a simple static bar, line, or pie chart.",
+      "why_valuable": "AI defaults to a static 2D illustration and cannot provide a rotatable 3D camera, surface/contour grids, scientific coordinate scales, cross-trace tooltips, and stable WebGL rendering. Plotly supplies these capabilities through declarative traces/layout.",
+      "data_in": {
+        "note": "traces/layout/config are passed unchanged to Plotly.newPlot. Each trace owns equal-length column arrays; input is not one shared row table. The schema pins only common native paths for high-value scientific charts rather than inventing another chart DSL.",
+        "schema": {
+          "traces": [
+            {
+              "type": "'scatter' | 'bar' | 'scatter3d' | 'surface' | 'contour' | 'heatmap' | 'histogram' | 'box' | 'violin'",
+              "x?": "(number|string)[] -- inferred from point indices by default",
+              "y?": "(number|string)[] -- inferred from point indices by default",
+              "z?": "number[] | number[][] -- one-dimensional for scatter3d; a 2D grid for surface/heatmap/contour",
+              "mode?": "'lines' | 'markers' | 'lines+markers' -- scatter infers from point count by default; scatter3d commonly uses 'markers'",
+              "name?": "string -- defaults to the trace number",
+              "marker?": "native Plotly marker configuration object -- defaults to the upstream theme",
+              "line?": "native Plotly line configuration object -- defaults to the upstream theme"
+            }
+          ],
+          "layout?": {
+            "_default": "{}; boot injects autosize:true and height=420",
+            "title?": "string | {text:string} -- no title by default",
+            "scene?": "{xaxis?:object,yaxis?:object,zaxis?:object,camera?:object} -- 3D scene uses automatic scales by default",
+            "xaxis?": "native Plotly axis configuration object -- automatic scale by default",
+            "yaxis?": "native Plotly axis configuration object -- automatic scale by default",
+            "margin?": "{l?:number,r?:number,t?:number,b?:number,pad?:number} -- defaults to upstream margins",
+            "showlegend?": "boolean -- inferred from traces by default"
+          },
+          "config?": {
+            "_default": "{}",
+            "responsive?": "boolean -- boot defaults to true",
+            "displayModeBar?": "boolean | 'hover' -- default 'hover'",
+            "scrollZoom?": "boolean -- default false",
+            "staticPlot?": "boolean -- default false"
+          }
+        }
+      },
+      "spec": {
+        "note": "Plotly's SVG/canvas/WebGL layers need an explicit pixel height before initialization. boot defaults to 420px and writes it to layout.height. Call Plotly.Plots.resize after container changes; rule 3 forbids vh or percentage heights."
+      }
+    }
+  },
   "boot": {
     "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合;Plotly 会向 iframe document.head 注入运行时样式\nimport Plotly from 'https://cdn.jsdelivr.net/npm/plotly.js-dist-min@3/+esm';\nconst el = document.getElementById('plotly'); el.style.height = `${spec.height ?? 420}px`;\nconst layout = { autosize: true, height: spec.height ?? 420, ...(data.layout ?? {}) };\nawait Plotly.newPlot(el, data.traces, layout, { responsive: true, ...(data.config ?? {}) });\nnew ResizeObserver(() => Plotly.Plots.resize(el)).observe(el);",
     "widget": "unsupported: plotly.js-dist-min@3.7.0 在运行时硬写 document.head 的 plotly.js-style-* 样式;样式不会穿透 shadow root,违反铁律 2,不得伪装成 shadow-safe。",
@@ -63,9 +105,21 @@
         {
           "type": "surface",
           "z": [
-            [1, 2, 1],
-            [2, 4, 2],
-            [1, 2, 1]
+            [
+              1,
+              2,
+              1
+            ],
+            [
+              2,
+              4,
+              2
+            ],
+            [
+              1,
+              2,
+              1
+            ]
           ],
           "name": "Response surface"
         }
@@ -105,7 +159,6 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "STYLE=yes:+esm 实测 createElement(\"style\") x2 + document.head x2 + 字面量 \"plotly.js-style\" x2 —— 运行时向 document.head 注入 <style id=plotly.js-style-*>,不穿透 shadow root(违铁律 2),故 shadowCompatible=no、widget 正确判 unsupported。EVENTS=yes:+esm 实测 addEventListener(\"resize\") x5 于 window(responsive 模式;有配对 removeEventListener x5 但仅经 Plotly.purge 清理)。DOM=no:主渲染(SVG/canvas/WebGL、hover、modebar)落在传入的 el 容器内,未见 document.body 注入。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

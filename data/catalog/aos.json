@@ -1,0 +1,87 @@
+{
+  "entry_version": "thin-1",
+  "id": "aos",
+  "name": "aos",
+  "when_to_use": "分块滚动进入视口时的进场/揭示动画(落地页、scroll-telling)时用它;on-enter 一次性揭示用它,连续视差用 rellax。你给元素打 data-aos='fade-up' 等属性,AOS.init() 接管滚动触发。",
+  "why_valuable": "一套打磨过、久经考验、错峰且缓动正确的 reveal(fade/slide/zoom/flip)配 anchor/offset/once/mirror 逻辑,手写复刻很费劲;裸 scroll observer 很难达到这种成品度。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "aos",
+    "version": "2.3.4",
+    "github": "michalsnik/aos"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "config",
+    "note": "动画词表写在元素的 data-aos 上(fade-up/zoom-in/flip-left…),AOS.init(options) 设全局默认。init 用 document.querySelectorAll('[data-aos]'),只认 light DOM。deps(lodash.debounce/throttle、classlist-polyfill)已打进 +esm。",
+    "schema": {
+      "options?": {
+        "offset?": "number —— 触发提前量 px,默认 120",
+        "duration?": "number —— 时长 ms,默认 400",
+        "easing?": "string —— 默认 'ease'",
+        "delay?": "number —— ms,默认 0",
+        "once?": "boolean —— 只播一次不回滚,默认 false",
+        "mirror?": "boolean —— 滚出时反向播放,默认 false",
+        "anchorPlacement?": "string —— 元素/视口触发锚点,默认 'top-bottom'",
+        "disable?": "boolean | 'phone' | 'tablet' | 'mobile' | function —— 关闭条件,默认 false",
+        "startEvent?": "string —— 初始化事件,默认 'DOMContentLoaded'"
+      },
+      "_perElementAttrs": "data-aos(动画名,必填)· data-aos-delay · data-aos-duration · data-aos-easing · data-aos-anchor · data-aos-once"
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for entrance/reveal animations as page sections scroll into view (landing pages, scroll-telling). Use it for one-time on-enter reveals; use rellax for continuous parallax. Add attributes such as data-aos='fade-up' to elements, then let AOS.init() manage scroll triggers.",
+      "why_valuable": "It provides a polished, battle-tested set of correctly staggered and eased reveals (fade/slide/zoom/flip), together with anchor/offset/once/mirror logic. Reproducing it by hand is laborious, and a bare scroll observer rarely reaches the same finish.",
+      "data_in": {
+        "note": "Put the animation vocabulary on each element's data-aos attribute (fade-up/zoom-in/flip-left...), and set global defaults with AOS.init(options). Initialization uses document.querySelectorAll('[data-aos]') and recognizes only light DOM. The dependencies (lodash.debounce/throttle and classlist-polyfill) are bundled into +esm.",
+        "schema": {
+          "options?": {
+            "offset?": "number -- trigger lead distance in px; default 120",
+            "duration?": "number -- duration in ms; default 400",
+            "easing?": "string -- default 'ease'",
+            "delay?": "number -- ms; default 0",
+            "once?": "boolean -- play only once and do not reverse on scroll-back; default false",
+            "mirror?": "boolean -- reverse when scrolling out; default false",
+            "anchorPlacement?": "string -- element/viewport trigger anchor; default 'top-bottom'",
+            "disable?": "boolean | 'phone' | 'tablet' | 'mobile' | function -- disable condition; default false",
+            "startEvent?": "string -- initialization event; default 'DOMContentLoaded'"
+          },
+          "_perElementAttrs": "data-aos (animation name; required) * data-aos-delay * data-aos-duration * data-aos-easing * data-aos-anchor * data-aos-once"
+        }
+      }
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested。元素带 data-aos='fade-up'(+ 可选 data-aos-delay/duration/anchor)。\nimport AOS from 'https://cdn.jsdelivr.net/npm/aos@2.3.4/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css'; document.head.appendChild(css);\nAOS.init(data.options ?? { duration: 600, once: true });\n// 若 DOM 是在 DOMContentLoaded 之后才插入的,插完调 AOS.refreshHard()",
+    "widget": "// AOS.init() 用 document.querySelectorAll('[data-aos]') 发现目标,无法限定到 shadowRoot —— 把被动元素 与 aos.css 都放 light DOM;shadowRoot 内的内容不会被发现/播放。\nimport AOS from 'https://cdn.jsdelivr.net/npm/aos@2.3.4/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css'; document.head.appendChild(css);\nAOS.init(data.options ?? { duration: 600, once: true });\nAOS.refreshHard();",
+    "codex": "import AOS from 'https://cdn.jsdelivr.net/npm/aos@2.3.4/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css'; document.head.appendChild(css);\nAOS.init(data.options ?? { duration: 600, once: true });"
+  },
+  "example": {
+    "_why": "示例是 init 全局默认;真正的动画名/错峰写在各元素 data-aos / data-aos-delay 上。",
+    "minimal": {
+      "options": {
+        "duration": 600,
+        "once": true,
+        "offset": 120
+      }
+    },
+    "empty": {}
+  },
+  "uplink": "纯 display,无 uplink;进场类切换由 AOS 自管,不外传。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:AOS.init() 只扫 document [data-aos]、无法限定 shadow,被动元素 + aos.css 须落 light DOM",
+    "codex": "supported:light DOM 下 default export + 外链 CSS,无 worker/wasm"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "API correct: +esm 导出(tt as default, rt as AOS)= AOS 对象,方法 init/refresh/refreshHard;deps lodash.debounce/throttle + classlist-polyfill 已打进 +esm。init → document.querySelectorAll('[data-aos]')(document 域,无法限定 shadowRoot),切 aos-init/aos-animate 类;默认已实测:offset 120、duration 400、once false、delay 0、easing 'ease'、startEvent 'DOMContentLoaded'、disable false。globalStyleInjection=no:外链 aos.css(asset 200),库只切类。globalDomMutation=yes:对全 document [data-aos] 元素做类切换(全域发现)。globalEvents=yes:window scroll/resize/orientationchange。shadowCompatible=conditional:仅 light-DOM 发现。",
+    "confidence": "high"
+  }
+}

@@ -30,6 +30,24 @@
     "direction": "bottom-up",
     "note": "SVG 图宽从容器量取,boot 显式设 height 400px与 cellHeight 18px;只使用像素数值,铁律 3 禁 vh/百分比高。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to render hierarchical profiling-time JSON as a flame graph with drill-down, zoom, and search highlighting instead of hand-written SVG, which tends to fail at hierarchical width normalization, depth layout, and local zoom.",
+      "why_valuable": "AI cannot reliably allocate frame widths from cumulative time, preserve parent-child hierarchy, and provide local drill-down. Markdown/mermaid also have no flame-graph capability; d3-flame-graph supplies the complete interactive layout.",
+      "data_in": {
+        "schema": {
+          "root": {
+            "name": "string",
+            "value": "number -- finite and >= 0; with the default selfValue:false, a parent's value should include the weights of all its children",
+            "children?": "recursive Node[] -- default []"
+          }
+        }
+      },
+      "spec": {
+        "note": "SVG width is measured from the container; boot explicitly sets height to 400px and cellHeight to 18px. Use pixel values only; rule 3 forbids vh or percentage heights."
+      }
+    }
+  },
   "boot": {
     "artifact": "// inferred-not-tested:CSS 进入 document.head\nimport flamegraph from 'https://cdn.jsdelivr.net/npm/d3-flame-graph@5/+esm';\nimport { select } from 'https://cdn.jsdelivr.net/npm/d3-selection@3/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/d3-flame-graph@5/dist/d3-flamegraph.css'; document.head.appendChild(css);\nconst el = document.getElementById('flame'); const chart = flamegraph().width(el.clientWidth || 720).height(400).cellHeight(18);\nselect(el).datum(data.root).call(chart);",
     "widget": "import flamegraph from 'https://cdn.jsdelivr.net/npm/d3-flame-graph@5/+esm';\nimport { select } from 'https://cdn.jsdelivr.net/npm/d3-selection@3/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/d3-flame-graph@5/dist/d3-flamegraph.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); shadowRoot.appendChild(el); const chart = flamegraph().width(el.clientWidth || 720).height(400).cellHeight(18);\nselect(el).datum(data.root).call(chart);",
@@ -46,7 +64,50 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "dist/d3-flamegraph.es.js: getName=d.data.n||d.data.name (L255), getValue=d.value||d.data.v||d.data.value (L209/257), children via internal d3.hierarchy — so schema root{name,value,children} is correct. default export=flamegraph factory; boot's flamegraph().width().height().cellHeight() + select(el).datum(root).call(chart) matches README. Chart-internal tooltip2=null (L237) and is used only `if(tooltip2)` (L521/L680); boot never calls .tooltip(), so the body-appending defaultFlamegraphTooltip (L88 `select('body').append('div')`) stays inactive — no body mutation. Theme CSS is external dist/d3-flamegraph.css (file confirmed present) which the widget boot puts into shadowRoot; library injects nothing to head and adds no window resize. SVG renders into the provided container → shadow-safe.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "root": {
+        "name": "root",
+        "value": 100,
+        "children": [
+          {
+            "name": "main()",
+            "value": 100,
+            "children": [
+              {
+                "name": "parseInput()",
+                "value": 30,
+                "children": [
+                  {
+                    "name": "tokenize()",
+                    "value": 20
+                  }
+                ]
+              },
+              {
+                "name": "compute()",
+                "value": 50,
+                "children": [
+                  {
+                    "name": "matmul()",
+                    "value": 40
+                  },
+                  {
+                    "name": "normalize()",
+                    "value": 10
+                  }
+                ]
+              },
+              {
+                "name": "render()",
+                "value": 20
+              }
+            ]
+          }
+        ]
+      }
+    }
   }
 }

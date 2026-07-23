@@ -1,0 +1,63 @@
+{
+  "entry_version": "thin-1",
+  "id": "mathsteps",
+  "name": "mathsteps",
+  "when_to_use": "需要展示『一步步解方程/化简表达式/因式分解』的教学过程时用它:返回一串保持等价的步骤,每步带规则名(changeType)+ before/after 节点 + substeps。用它而非 nerdamer/mathjs(那两个只给最终解,不产出带规则标注的中间步骤)。纯数值计算别用。",
+  "why_valuable": "AI 徒手写代数『过程』极不可靠——能报最终答案,但中间合并同类项/移项/因式分解常跳步或写成非等价变换。mathsteps 把 2x+3x=35 拆成一串带规则名的等价变换,每步可 text/LaTeX 化,给 AI 一份可复算、可展示的解题草稿纸。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "mathsteps",
+    "version": "0.2.0",
+    "github": "socraticorg/mathsteps"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "notation-string",
+    "note": "喂一段代数 STRING:simplifyExpression 吃表达式,solveEquation 吃方程('lhs = rhs')。step 携带 mathjs node——用 node.toString() 或 node.toTex() 渲染。",
+    "schema": {
+      "mode": "string —— 'solve' | 'simplify' | 'factor'",
+      "input": "string —— 如 'solve' 用 '2x + 3x = 35';'simplify' 用 '2x + 2x + x + x'"
+    }
+  },
+  "provides": {
+    "shape": "step-list",
+    "_note": "headless-primitive:纯计算,无 DOM/style/event 足迹;返回 step 对象数组供消费方渲染。bundle 内联了 mathjs@3。",
+    "outputs": "有序步骤;每步 = { changeType(规则名字符串,如 'ADD_POLYNOMIAL_TERMS'/'SIMPLIFY_LEFT_SIDE'),oldNode/newNode(simplify:mathjs Node),oldEquation/newEquation(solve:带 .ascii() 的 Equation),substeps[] }。ChangeTypes 枚举列出全部规则名。",
+    "api_surface": {
+      "simplify": "simplifyExpression(str) → Step[](step.oldNode/newNode 是 mathjs Node,.toString()/.toTex();step.changeType;step.substeps)",
+      "solve": "solveEquation(str) → Step[](step.oldEquation/newEquation 用 .ascii();step.changeType)",
+      "factor": "factor(str) → Step[]",
+      "rules": "ChangeTypes —— changeType 字符串枚举"
+    }
+  },
+  "peer": {
+    "id": "katex",
+    "note": "step 节点是 mathjs Node → node.toTex() 出 LaTeX,喂 KaTeX/MathJax 渲染漂亮公式;node.toString()/.ascii() 给纯文本。"
+  },
+  "boot": {
+    "shared": "// headless:string → 有序、带规则名的解题步骤(无 DOM 足迹)\nimport { simplifyExpression, solveEquation, factor, ChangeTypes } from 'https://cdn.jsdelivr.net/npm/mathsteps@0.2.0/+esm';\nconst run = { simplify: simplifyExpression, solve: solveEquation, factor }[data.mode ?? 'solve'];\nconst steps = run(data.input);\nconst text = (node, eq) => node ? node.toString() : eq.ascii(); // simplify 用 node,solve 用 equation\nconst rendered = steps.map(s => ({ rule: s.changeType, before: text(s.oldNode, s.oldEquation), after: text(s.newNode, s.newEquation), substeps: s.substeps?.length ?? 0 }));",
+    "note": "也可 `import mathsteps from '...+esm'` 用默认命名空间(mathsteps.solveEquation ...)。节点为 mathjs Node → .toTex() 出 LaTeX。⚠️ 项目 VERIFY 规:采用度低(~311/wk)、2022 后停更、内联老版 mathjs@3——上架前在浏览器沙箱活体探针一次。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr mathsteps@0.2.0 +esm (200): named exports present (Cs as simplifyExpression, Ts as solveEquation, gs as factor, hs as ChangeTypes, K as default namespace). README API: simplifyExpression('2x+2x+x+x')→steps where step.oldNode/newNode (mathjs Node, .toString()), step.changeType ('ADD_POLYNOMIAL_TERMS'), step.substeps; solveEquation('2x+3x=35')→steps where step.oldEquation/newEquation (.ascii()), step.changeType ('SIMPLIFY_LEFT_SIDE'); ChangeTypes enum; registry dep = mathjs (bundled/inlined into +esm, v3 era). Pure computation, zero DOM/style/event footprint → shadow-safe (headless-primitive, no carriers/spec by design). confidence medium: API static+README-verified, but adoption low (~311/wk), unmaintained since 2022, inlines old mathjs@3 → one live browser probe recommended per project VERIFY rule before shelving.",
+    "confidence": "medium"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to teach step-by-step equation solving, expression simplification, or factoring: it returns a sequence of equivalent steps, each with a rule name (changeType), before/after nodes, and substeps. Use it instead of nerdamer/mathjs, which return only final answers rather than rule-labeled intermediate steps. Do not use it for pure numerical calculation.",
+      "why_valuable": "Handwritten algebraic working from AI is highly unreliable: it may report the final answer, but often skips steps or makes non-equivalent transformations while combining like terms, moving terms, or factoring. mathsteps breaks 2x+3x=35 into rule-labeled equivalent transformations that can be rendered as text/LaTeX, giving AI a reproducible, displayable scratchpad.",
+      "data_in": {
+        "note": "Pass an algebraic STRING: simplifyExpression accepts an expression and solveEquation accepts an equation ('lhs = rhs'). A step contains mathjs nodes; render them with node.toString() or node.toTex().",
+        "schema": {
+          "mode": "string -- 'solve' | 'simplify' | 'factor'",
+          "input": "string -- For 'solve', such as '2x + 3x = 35'; for 'simplify', such as '2x + 2x + x + x'"
+        }
+      }
+    }
+  }
+}

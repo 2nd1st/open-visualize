@@ -2,6 +2,22 @@
   "entry_version": "thin-1",
   "id": "molstar",
   "name": "Mol*",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to inspect large proteins or nucleic acids from PDB/mmCIF, assemblies, and complex representations instead of hand-written WebGL, which fails at macromolecule parsing, hierarchical representation, and high-performance picking. Do not use it for small-molecule 2D editing or molecular-dynamics computation.",
+      "why_valuable": "AI can normally describe residue and coordinate text but cannot present macromolecular folds, assemblies, and structural hierarchy. Mol* provides parsing, a state tree, representation presets, and a WebGL UI designed for large structures.",
+      "data_in": {
+        "note": "This entry accepts only inline structure text through Viewer.loadStructureFromData. Do not put a PDB id or URL in source.",
+        "schema": {
+          "source": "string -- complete PDB or text mmCIF content",
+          "format": "'pdb' | 'mmcif' -- must match source exactly"
+        }
+      },
+      "spec": {
+        "note": "The Mol* viewer requires a position:relative parent with an explicit pixel height. The default is 520px; do not use vh or percentage heights. Call viewer.handleResize() after the container changes."
+      }
+    }
+  },
   "when_to_use": "需要查看大型蛋白质或核酸的 PDB/mmCIF、装配体与复杂表示时用它而非手写 WebGL,因为原生在大分子解析、层级表示和高性能拾取上失败;非做小分子 2D 编辑或分子动力学计算。",
   "why_valuable": "AI 默认只能描述残基与坐标文本,无法呈现大分子折叠、装配体和结构层级;Mol* 提供面向大型结构的解析、状态树、表示预设和 WebGL UI。",
   "supply_form": "component",
@@ -42,7 +58,12 @@
     "globalDomMutation": "unknown",
     "globalEvents": "yes",
     "evidence": "Full 5.03MB build/viewer/molstar.js: 0 `document.head` refs and 0 createElement('style') -> no global CSS injection, relies on external molstar.css (boot loads it into shadowRoot). globalEvents=yes: registers window blur/keydown/keypress/keyup/message/mousemove/mouseup/resize/touchend AND document fullscreenchange/pointerlock*/mousemove/mouseup/touchmove/webkitfullscreenchange (keyboard shortcuts on window persist while mounted). globalDomMutation=unknown: 4 `document.body` refs (likely fullscreen/drag-drop targets); Mol* renders UI/tooltips/menus inside the container root passed to Viewer.create, but body touchpoints exist and portal behavior was not probe-tested. shadowCompatible=conditional: external CSS loads into shadow root and rendering is container-scoped, but global window/document listeners + WebGL requirement + fullscreen body refs = non-zero footprint (matches entry's honest 'conditional; 全屏/门户行为未探针验证').",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
+  },
+  "example": {
+    "minimal": {
+      "format": "pdb",
+      "source": "HEADER    CAFFEINE (heavy atoms)\nHETATM    1  N1  CFF A   1      38.984  37.034  29.965  1.00  0.00           N\nHETATM    2  C2  CFF A   1      38.490  35.880  29.075  1.00  0.00           C\nHETATM    3  C10 CFF A   1      39.954  37.990  29.308  1.00  0.00           C\nHETATM    4  C6  CFF A   1      38.608  37.207  31.325  1.00  0.00           C\nHETATM    5  N3  CFF A   1      37.635  35.065  29.712  1.00  0.00           N\nHETATM    6  O11 CFF A   1      38.888  35.820  27.943  1.00  0.00           O\nHETATM    7  C12 CFF A   1      37.080  33.905  28.968  1.00  0.00           C\nHETATM    8  C4  CFF A   1      37.218  35.206  31.062  1.00  0.00           C\nHETATM    9  C5  CFF A   1      37.648  36.244  31.844  1.00  0.00           C\nHETATM   10  N9  CFF A   1      36.375  34.424  31.700  1.00  0.00           N\nHETATM   11  O13 CFF A   1      39.056  38.200  32.006  1.00  0.00           O\nHETATM   12  N7  CFF A   1      37.055  36.065  33.097  1.00  0.00           N\nHETATM   13  C8  CFF A   1      36.296  34.968  32.926  1.00  0.00           C\nHETATM   14  C14 CFF A   1      37.201  36.929  34.306  1.00  0.00           C\nEND\n"
+    }
   }
 }

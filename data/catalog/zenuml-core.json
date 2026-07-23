@@ -1,0 +1,71 @@
+{
+  "entry_version": "thin-1",
+  "id": "zenuml-core",
+  "name": "@zenuml/core",
+  "when_to_use": "需要把一段类代码的 ZenUML DSL 编译成 lifeline 精确、fragment 正确嵌套的时序图 SVG 时用它,而非手绘 SVG——原生在 lifeline 几何、activation bar、alt/opt/loop/par 嵌套与对象创建/自调用上失败。它是 mermaid `zenuml` 图类型的引擎;当你要在严格 CSP 下独立、可控地渲染,或需要比 mermaid 默认 sequenceDiagram 更丰富的 fragment/创建语义时直接用它;非通用流程图或类图。",
+  "why_valuable": "AI 能写出 DSL,却做不到稳定求解 lifeline 布局、activation 深度、fragment 嵌套与消息路由;徒手画时序 SVG 会出现箭头交叠、lifeline 漂移、嵌套错乱。@zenuml/core 用 antlr4 解析 DSL 并确定性地布局为工程级 SVG。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-drawing SVG when you need to compile code-like ZenUML DSL into a sequence-diagram SVG with precise lifelines and correctly nested fragments, because native implementations fail at lifeline geometry, activation bars, alt/opt/loop/par nesting, object creation, and self-calls. It is the engine for mermaid's `zenuml` diagram type; use it directly when you need independent, controllable rendering under strict CSP or richer fragment/creation semantics than mermaid's default sequenceDiagram. Not for general flowcharts or class diagrams.",
+      "why_valuable": "AI can write the DSL but cannot stably solve lifeline layout, activation depth, fragment nesting, and message routing; hand-drawn sequence SVG produces overlapping arrows, drifting lifelines, and incorrect nesting. @zenuml/core parses the DSL with antlr4 and deterministically lays it out as engineering-grade SVG.",
+      "data_in": {
+        "note": "code is ZenUML DSL, not mermaid sequenceDiagram syntax: `A.method`=synchronous call, `A->B: msg`=asynchronous message, `-->`=return, `{}`=nested sub-call, `if/else/while/opt/par/alt/try-catch-finally`=fragment, `new X`=object creation, and `@Actor/@Starter`=participant annotation. boot uses the pure renderToSvg function rather than instantiating the React editor path with new ZenUml().",
+        "schema": {
+          "code": "string -- ZenUML DSL source; an empty string returns an empty <svg>",
+          "theme?": "'theme-default' | 'theme-mermaid' -- default 'theme-default'"
+        }
+      },
+      "spec": {
+        "note": "renderToSvg returns a complete SVG with its own viewBox, and height grows with the number of messages; give the carrier an explicit 400px height with two-axis scrolling, set svg.style.maxWidth to none to preserve intrinsic dimensions, and do not use vh or percentage heights (rule 3)."
+      }
+    }
+  },
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@zenuml/core",
+    "version": "4.2.0",
+    "github": "mermaid-js/zenuml-core"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "notation-string",
+    "note": "code 是 ZenUML DSL(非 mermaid sequenceDiagram 语法):`A.method`=同步调用,`A->B: msg`=异步消息,`-->`=返回,`{}`嵌套子调用,`if/else/while/opt/par/alt/try-catch-finally`=fragment,`new X`=对象创建,`@Actor/@Starter`=参与者标注。boot 走纯函数 renderToSvg,不实例化 new ZenUml() 的 React 编辑器路径。",
+    "schema": {
+      "code": "string —— ZenUML DSL 源码;空串返回空 <svg>",
+      "theme?": "'theme-default' | 'theme-mermaid' —— 默认 'theme-default'"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "renderToSvg 返回自带 viewBox 的完整 SVG,高度随消息数增长;承载区给显式 400px 高并双向滚动,把 svg.style.maxWidth 设 none 保持 intrinsic 尺寸,禁 vh/百分比高(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:走纯函数 renderToSvg,主题样式内联进返回的 SVG(<style> in svg),不实例化 new ZenUml()(那条 React+html-to-image+head 注样式路径)\nimport { renderToSvg } from 'https://cdn.jsdelivr.net/npm/@zenuml/core@4/+esm';\nconst el = document.getElementById('zenuml'); el.style.cssText = 'height:400px;overflow:auto';\nconst { svg } = renderToSvg(data.code, { theme: data.theme ?? 'theme-default' });\nel.innerHTML = svg;\nconst s = el.querySelector('svg'); if (s) s.style.maxWidth = 'none';",
+    "widget": "// SVG 字符串只写入 shadowRoot 内新建 host;renderToSvg 不触碰 document.head\nimport { renderToSvg } from 'https://cdn.jsdelivr.net/npm/@zenuml/core@4/+esm';\nconst el = document.createElement('div'); el.style.cssText = 'height:400px;overflow:auto'; shadowRoot.appendChild(el);\nconst { svg } = renderToSvg(data.code, { theme: data.theme ?? 'theme-default' });\nel.innerHTML = svg;\nconst s = el.querySelector('svg'); if (s) s.style.maxWidth = 'none';",
+    "codex": "import { renderToSvg } from 'https://cdn.jsdelivr.net/npm/@zenuml/core@4/+esm';\nconst el = document.getElementById('zenuml'); el.style.cssText = 'height:400px;overflow:auto';\nconst { svg } = renderToSvg(data.code, { theme: data.theme ?? 'theme-default' });\nel.innerHTML = svg;\nconst s = el.querySelector('svg'); if (s) s.style.maxWidth = 'none';"
+  },
+  "example": {
+    "_why": "ZenUML DSL 非 AI 原生记法,minimal 钉死同步调用/嵌套/返回三种基本构造。",
+    "minimal": {
+      "code": "Client.request() {\n  Server.process() {\n    DB.query()\n    return rows\n  }\n  return response\n}\nClient->Logger: log(async)"
+    },
+    "empty": {
+      "code": ""
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:纯 JS 生成 SVG 字符串,主题内联,理论可用,待 renderToSvg 真机渲染确认",
+    "widget": "supported:renderToSvg 返回自包含 SVG 字符串写入 shadow;无 head 注样式/无 worker/无 wasm 在此路径",
+    "codex": "supported:ESM CDN + SVG 字符串,无 worker/wasm/uplink 依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "no",
+    "evidence": "API verified vs @zenuml/core@4.2.0: +esm exports `{Og as default, iM as renderToSvg}` (F); types/index.d.ts: `renderToSvg(code:string, options?:{theme?:'theme-default'|'theme-mermaid'}) => {svg,innerSvg,width,height,viewBox}` — schema code/theme consumed exactly. renderToSvg(iM) 起始即 parse+geometry,文本量测走 OffscreenCanvas(源码 `typeof OffscreenCanvas<'u'?new OffscreenCanvas(1,1).getContext('2d'):document.createElement('canvas')`),返回的 svg 内含 `<style>`+`<defs>`(自包含,主题样式内联而非注 head)。globalStyleInjection=no:bundle 里的 document.head.append(<style>) 与 headlessui-portal-root 都属 `new ZenUml()` 交互编辑器 + getPng/getSvg(react-dom createRoot ×2 / html-to-image toSvg/toPng)路径,boot 用纯 renderToSvg 全避开。globalDomMutation=yes:render 路径含一处 `body.appendChild(t); l.getBBox().width; document.body.removeChild(...)` 的瞬时文本量测(同步 append+remove,非持久泄漏)。globalEvents=no:renderToSvg 不挂全局监听。bundle 有 1 处 WebAssembly 引用,不在 parse/layout 路径。",
+    "confidence": "medium"
+  }
+}

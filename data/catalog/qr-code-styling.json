@@ -4,6 +4,53 @@
   "name": "qr-code-styling",
   "when_to_use": "需要把 URL/文本做成带圆点、品牌色、渐变或 logo 且仍可扫码的 QR 交付物时用它而非手拼 SVG，因为原生在纠错编码、finder pattern、logo 遮挡与模块留白上失败；非做扫码识别器。",
   "why_valuable": "AI 默认只能画“像二维码”的随机方格，做不到 QR 版本选择、纠错码、掩模、定位图形与 logo 背景点隐藏，输出不可验证扫描；该库把标准编码和品牌样式放在同一配置里。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of assembling SVG by hand when you need to turn a URL or text into a scannable branded QR deliverable with dots, brand colors, gradients, or a logo, because native implementations fail at error-correction encoding, finder patterns, logo occlusion, and module quiet zones; not for a QR scanner.",
+      "why_valuable": "AI can normally only draw random squares that look like a QR code; it cannot implement QR version selection, error-correction codes, masks, finder patterns, and hiding background modules behind a logo, so the output is not verifiably scannable. This library combines standard encoding and brand styling in one configuration.",
+      "data_in": {
+        "note": "options is passed directly to new QRCodeStyling; boot only normalizes the default output to 256x256 SVG, and unlisted function extensions do not enter the pure-data schema.",
+        "schema": {
+          "options": {
+            "data": "string -- text to encode; an empty string is an empty state and draws no code",
+            "type?": "'svg' | 'canvas' -- this entry defaults to svg",
+            "shape?": "'square' | 'circle' -- default square",
+            "width?": "positive integer CSS pixels -- default 256",
+            "height?": "positive integer CSS pixels -- defaults to spec.height (initially 256)",
+            "margin?": "non-negative number CSS pixels -- default 0",
+            "image?": "string URL or data URI -- omitted by default; no logo",
+            "qrOptions?": {
+              "_default": "{typeNumber:0,errorCorrectionLevel:'Q'}, with mode automatic",
+              "typeNumber?": "integer 0..40 -- default 0, automatic selection",
+              "mode?": "'Numeric' | 'Alphanumeric' | 'Byte' | 'Kanji' -- automatic by default",
+              "errorCorrectionLevel?": "'L' | 'M' | 'Q' | 'H' -- default Q"
+            },
+            "imageOptions?": {
+              "_default": "{saveAsBlob:true,hideBackgroundDots:true,imageSize:0.4,margin:0}",
+              "saveAsBlob?": "boolean -- default true",
+              "hideBackgroundDots?": "boolean -- default true",
+              "imageSize?": "number 0..1 -- default 0.4",
+              "crossOrigin?": "string -- omitted by default",
+              "margin?": "non-negative number CSS pixels -- default 0"
+            },
+            "dotsOptions?": {
+              "_default": "{type:'square',color:'#000',roundSize:true}",
+              "type?": "'dots' | 'rounded' | 'classy' | 'classy-rounded' | 'square' | 'extra-rounded' -- default square",
+              "color?": "CSS color string -- default #000",
+              "roundSize?": "boolean -- default true",
+              "gradient?": "{type:'linear'|'radial',rotation?:number,colorStops:{offset:number 0..1,color:string}[]} -- omitted by default; rotation defaults to 0"
+            },
+            "cornersSquareOptions?": "{type?:'dot'|'square'|'extra-rounded'|DotType,color?:string,gradient?:Gradient} -- omitted by default, using black square finder frames",
+            "cornersDotOptions?": "{type?:'dot'|'square'|DotType,color?:string,gradient?:Gradient} -- omitted by default, using black square finder dots",
+            "backgroundOptions?": "{round?:number,color?:string,gradient?:Gradient} -- default {round:0,color:'#fff'}"
+          }
+        }
+      },
+      "spec": {
+        "note": "An SVG/canvas QR code must have explicit pixel dimensions; boot defaults to 256px high and lets options.height override spec.height. Do not use vh or percentage heights; width defaults to options.width at 256px."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -57,9 +104,9 @@
     "note": "SVG/canvas 二维码必须有明确像素尺寸；boot 默认 256px 高并让 options.height 覆盖 spec.height，禁止 vh/百分比高，宽度由 options.width 默认 256px。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:输出节点只追加到指定容器，无 CSS/head 注入\nimport { QRCodeStyling } from 'https://cdn.jsdelivr.net/npm/qr-code-styling@1/+esm';\nconst opt={type:'svg',width:256,height:spec.height??256,...data.options};\nconst host=document.getElementById('qr'); host.style.cssText=`width:${opt.width}px;height:${opt.height}px;max-width:100%`;\nconst qr=new QRCodeStyling(opt);\nqr.append(host);",
-    "widget": "// QR 生成的 SVG/canvas 落到 shadowRoot 容器\nimport { QRCodeStyling } from 'https://cdn.jsdelivr.net/npm/qr-code-styling@1/+esm';\nconst opt={type:'svg',width:256,height:spec.height??256,...data.options};\nconst host=document.createElement('div'); host.style.cssText=`width:${opt.width}px;height:${opt.height}px;max-width:100%`; shadowRoot.appendChild(host);\nconst qr=new QRCodeStyling(opt);\nqr.append(host);",
-    "codex": "import { QRCodeStyling } from 'https://cdn.jsdelivr.net/npm/qr-code-styling@1/+esm';\nconst opt={type:'svg',width:256,height:spec.height??256,...data.options};\nconst host=document.getElementById('qr'); host.style.cssText=`width:${opt.width}px;height:${opt.height}px;max-width:100%`;\nconst qr=new QRCodeStyling(opt);\nqr.append(host);"
+    "artifact": "// +esm 的命名 QRCodeStyling 为 undefined,真实构造器是 default export\nimport QRCodeStyling from 'https://cdn.jsdelivr.net/npm/qr-code-styling@1/+esm';\nconst opt={type:'svg',width:256,height:spec.height??256,...data.options};\nconst host=document.getElementById('qr'); host.style.cssText=`width:${opt.width}px;height:${opt.height}px;max-width:100%`;\nconst qr=new QRCodeStyling(opt);\nqr.append(host);",
+    "widget": "// QR 生成的 SVG/canvas 落到 shadowRoot 容器\nimport QRCodeStyling from 'https://cdn.jsdelivr.net/npm/qr-code-styling@1/+esm';\nconst opt={type:'svg',width:256,height:spec.height??256,...data.options};\nconst host=document.createElement('div'); host.style.cssText=`width:${opt.width}px;height:${opt.height}px;max-width:100%`; shadowRoot.appendChild(host);\nconst qr=new QRCodeStyling(opt);\nqr.append(host);",
+    "codex": "import QRCodeStyling from 'https://cdn.jsdelivr.net/npm/qr-code-styling@1/+esm';\nconst opt={type:'svg',width:256,height:spec.height??256,...data.options};\nconst host=document.getElementById('qr'); host.style.cssText=`width:${opt.width}px;height:${opt.height}px;max-width:100%`;\nconst qr=new QRCodeStyling(opt);\nqr.append(host);"
   },
   "example": {
     "_why": "样式 config 深且 dots/corners/background/qrOptions 容易错层，minimal 保留一个可扫描的品牌化 SVG。",
@@ -103,7 +150,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "STYLE=no:+esm 实测无 document.head、无 addEventListener。EVENTS=no:实测无 addEventListener。DOM=no:渲染由 qr.append(host) 落入传入容器;唯一 document.body 用法是下载辅助(实测 document.body.appendChild(e),e.click();...removeChild(e)),仅在 qr.download() 触发、瞬时自清,不在 boot 渲染路径。shadowCompatible=yes:SVG/canvas 完全落 shadow 容器;唯一条件是远程 logo image 需宿主 img-src/CORS(建议 data URI)。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

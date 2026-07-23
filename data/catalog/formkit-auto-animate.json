@@ -1,0 +1,94 @@
+{
+  "entry_version": "thin-1",
+  "id": "formkit-auto-animate",
+  "name": "@formkit/auto-animate",
+  "when_to_use": "需要在列表/网格/DOM 内容发生增删改序时自动平滑过渡(筛选、排序、增删项、展开折叠)时用它:autoAnimate(parentEl) 一句,之后你对该父容器直接子节点的任何 add/remove/move 都会动。它 augment 你的 DOM(不吃数据、不做拖拽);要拖拽重排本身用 formkit-drag-and-drop。widget 内传 shadow 里的真实父容器即可。",
+  "why_valuable": "正确的 FLIP 布局动画(增删改序前后测量→反演→播放)是出了名的难,AI 几乎总做成生硬跳变;auto-animate 用 WAAPI + 一次性全局测量(scroll/ResizeObserver)把这套 FLIP 封成单函数,零 CSS 注入且尊重 prefers-reduced-motion。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when additions, removals, or reordering in a list, grid, or DOM content should transition smoothly automatically, including filtering, sorting, item changes, and expand/collapse. Call autoAnimate(parentEl) once and subsequent add/remove/move operations on that parent's direct children animate. It augments your DOM; it does not consume data or provide dragging. For drag reordering itself, use formkit-drag-and-drop. In a widget, pass the real parent container inside the shadow.",
+      "why_valuable": "Correct FLIP layout animation, measuring before and after a change, inverting, then playing, is notoriously difficult; AI almost always produces abrupt jumps. auto-animate packages FLIP into one function using WAAPI plus one-time global measurement through scroll/ResizeObserver, injects no CSS, and respects prefers-reduced-motion.",
+      "data_in": {
+        "note": "auto-animate consumes no data; it takes a parent container plus optional options. The animated objects are direct children subsequently added, removed, or moved in that container. Use the framework-agnostic core default export, not the /react or /vue subpaths.",
+        "schema": {
+          "_defaults": {
+            "options": "{}"
+          },
+          "container": "HTMLElement - parent whose direct-child additions, removals, and moves should animate automatically (pass the real element)",
+          "options?": {
+            "duration?": "number - duration of each animation in ms, default 250",
+            "easing?": "'linear' | 'ease-in' | 'ease-out' | 'ease-in-out' | string - default 'ease-in-out'",
+            "disrespectUserMotionPreference?": "boolean - default false (respects prefers-reduced-motion; setting true is not recommended)"
+          }
+        }
+      },
+      "spec": {
+        "note": "No independent visual surface; height is determined by the parent container's content. Do not use vh or percentage heights."
+      }
+    }
+  },
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@formkit/auto-animate",
+    "version": "0.10.0",
+    "github": "formkit/auto-animate"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "dom-target",
+    "note": "auto-animate 不吃数据、吃一个父容器 + 可选 options;动画对象是你后续对该容器直接子节点做的 add/remove/move。用框架无关的 core default 导出(非 /react、/vue 子路径)。",
+    "schema": {
+      "_defaults": {
+        "options": "{}"
+      },
+      "container": "HTMLElement —— 要自动动画其直接子元素增删移的父容器(传真实元素)",
+      "options?": {
+        "duration?": "number —— 单次动画时长 ms,默认 250",
+        "easing?": "'linear' | 'ease-in' | 'ease-out' | 'ease-in-out' | string —— 默认 'ease-in-out'",
+        "disrespectUserMotionPreference?": "boolean —— 默认 false(尊重 prefers-reduced-motion;不建议改 true)"
+      }
+    }
+  },
+  "spec": {
+    "height": "content",
+    "note": "无独立视觉;高度由父容器内容撑开,禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// default import(=autoAnimate);先按 minimal 建出直接子节点,之后的增删改序由 WAAPI 自动过渡\nimport autoAnimate from 'https://cdn.jsdelivr.net/npm/@formkit/auto-animate@0.10.0/+esm';\nconst list = document.getElementById('list'); list.style.cssText = 'display:grid;gap:8px;padding:12px';\nfor (const text of data.items ?? []) { const item = document.createElement('div'); item.textContent = text; item.style.cssText = 'padding:8px 12px;border:1px solid #d0d7de;border-radius:6px'; list.appendChild(item); }\nautoAnimate(list, data.options ?? {});",
+    "widget": "// default import;WAAPI 无样式注入,直接作用于 shadow 里的父容器\nimport autoAnimate from 'https://cdn.jsdelivr.net/npm/@formkit/auto-animate@0.10.0/+esm';\nconst list = document.createElement('ul'); shadowRoot.appendChild(list);\n(data.items ?? []).forEach(t => { const li = document.createElement('li'); li.textContent = t; list.appendChild(li); });\nautoAnimate(list, data.options ?? {}); // 模块级 window scroll/ResizeObserver 是全局但无害,不破坏 shadow 隔离",
+    "codex": "import autoAnimate from 'https://cdn.jsdelivr.net/npm/@formkit/auto-animate@0.10.0/+esm';\nconst list = document.getElementById('list'); list.style.cssText = 'display:grid;gap:8px;padding:12px';\nfor (const text of data.items ?? []) { const item = document.createElement('div'); item.textContent = text; item.style.cssText = 'padding:8px 12px;border:1px solid #d0d7de;border-radius:6px'; list.appendChild(item); }\nautoAnimate(list, data.options ?? {});"
+  },
+  "example": {
+    "_why": "钉死它作用于容器 + 后续子节点变动;options 里 easing 枚举是真实字段。",
+    "minimal": {
+      "items": [
+        "Apple",
+        "Banana",
+        "Cherry"
+      ],
+      "options": {
+        "duration": 300,
+        "easing": "ease-in-out"
+      }
+    },
+    "empty": {
+      "items": []
+    }
+  },
+  "uplink": "无上行;返回的 AnimationController(enable/disable/isEnabled)由消费 AI 直接接。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:WAAPI 无 CSS 注入,作用于 shadow 内父容器;模块级 window scroll/ResizeObserver 全局但不破坏隔离",
+    "codex": "supported:ESM CDN,无 worker/wasm/uplink 依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "+esm 导出 default autoAnimate(I) === named autoAnimate,另有 {getTransitionSizes, vAutoAnimate}。index.d.ts:autoAnimate(el:HTMLElement, config?: Partial<AutoAnimateOptions>|plugin) => AnimationController{parent, enable, disable, isEnabled};AutoAnimateOptions={duration, easing='ease-in-out', disrespectUserMotionPreference?}。+esm 隔离扫描:document.head=0、createElement('style')=0、insertRule=0 —— 动画走 WAAPI(el.animate/finish 监听)。全局(模块初始化、各一次):`window.addEventListener('scroll',...)`、`new ResizeObserver(...)`、`window.matchMedia('(prefers-reduced-motion: reduce)')`;document.body 仅作为祖先回溯兜底 `r||(r=document.body)`(读、不改)。这些全局用于坐标/FLIP 测量,不越界也不破坏 shadow —— autoAnimate 对 shadow 内父容器正常工作。",
+    "confidence": "high"
+  }
+}

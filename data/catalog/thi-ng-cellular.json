@@ -1,0 +1,72 @@
+{
+  "entry_version": "thin-1",
+  "id": "thi-ng-cellular",
+  "name": "@thi.ng/cellular",
+  "when_to_use": "教元胞自动机/涌现/自组织/Wolfram 分类/Rule 110 图灵完备时用:配 [{ kernel: WOLFRAM3, rule, states:2, reset:false }] 迭代出各代格点(Uint8Array),你画时空演化图。仅 1D 初等 CA——二维生命游戏它不做。",
+  "why_valuable": "高度可定制的 1D 元胞自动机(Wolfram 初等 CA、多态、共享环境),几行产出 Rule 30/90/110 的时空演化;AI 徒手迭代多代格点易错,它把规则编码与邻域求解固定住。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to teach cellular automata, emergence, self-organization, Wolfram classification, or Rule 110 Turing completeness. With [{ kernel: WOLFRAM3, rule, states:2, reset:false }], iterate generations of cells as Uint8Array values and draw the space-time evolution. It supports only 1D elementary CA, not the 2D Game of Life.",
+      "why_valuable": "It provides highly configurable 1D cellular automata, including elementary Wolfram CA, multiple states, and shared environments, producing the space-time evolution of Rule 30/90/110 in a few lines. AI easily makes mistakes when iterating generations by hand; this library fixes rule encoding and neighborhood evaluation.",
+      "data_in": {
+        "note": "Only 1D elementary CA is supported; rule encoding depends on kernel size. Standard Wolfram configuration is { kernel: WOLFRAM3, states: 2, reset: false }. Pass an array of configuration objects plus width to the constructor.",
+        "schema": {
+          "rule": "number | bigint | string - Wolfram rule number such as 30/90/110; encoding depends on kernel size",
+          "width": "number - number of environment cells, or generation length; second constructor argument",
+          "states?": "number - number of cell states (standard Wolfram=2; must be <=256 because storage uses Uint8Array)",
+          "kernel?": "[number,number][] - neighborhood offset vectors; default exported WOLFRAM3 = [[-1,0],[0,0],[1,0]]",
+          "reset?": "boolean - whether to reset to zero at maximum age; standard two-state Wolfram should use false",
+          "wrap?": "boolean - wraparound boundary joining left and right; third constructor argument, default true"
+        }
+      }
+    }
+  },
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@thi.ng/cellular",
+    "version": "1.0.66",
+    "github": "thi-ng/umbrella"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "ca-rule",
+    "note": "仅 1D 初等 CA;规则编码依赖 kernel 大小。标准 Wolfram 配置 = { kernel: WOLFRAM3, states: 2, reset: false }。配置对象数组 + width 传给构造函数。",
+    "schema": {
+      "rule": "number | bigint | string —— Wolfram 规则号(如 30/90/110);编码依赖 kernel 大小",
+      "width": "number —— 环境格子数(每代长度),构造函数第二参",
+      "states?": "number —— 细胞状态数(标准 Wolfram=2;必须 ≤256,Uint8Array 存储)",
+      "kernel?": "[number,number][] —— 邻域偏移向量;默认用导出的 WOLFRAM3 = [[-1,0],[0,0],[1,0]]",
+      "reset?": "boolean —— 达最大 age 是否归零;标准 2 态 Wolfram 应设 false",
+      "wrap?": "boolean —— 环形边界(左右相连),构造函数第三参,默认 true"
+    }
+  },
+  "provides": {
+    "shape": "ca-generations",
+    "_note": "headless-primitive:纯 JS CA 引擎,无渲染;每代读 current(Uint8Array)自绘。",
+    "outputs": "逐代 Uint8Array(每次 update() 后读 ca.current),或用 updateImage() 一次填满整幅时空图;经典 Rule 30/90/110 演化。",
+    "api_surface": {
+      "ctor": "new MultiCA1D(configs: {kernel, rule, states, reset?}[], width, wrap?)",
+      "step": "ca.current(Uint8Array 当前代);ca.update() 计算下一代;ca.updateProbabilistic()",
+      "seed": "ca.current[i]=1 直接播种,或 ca.setPattern(target,width,stride,val,inc,offset) / ca.setNoise(target,prob)",
+      "batch": "ca.updateImage(pixels, height, opts) 批量填一整幅图",
+      "kernels": "WOLFRAM3 / WOLFRAM5 / WOLFRAM7 标准邻域;randomRule1D(kernelSize) 生成随机规则 bigint"
+    }
+  },
+  "peer": {
+    "id": "p5",
+    "note": "p5 或裸 canvas 把每代 ca.current 画成一行像素,叠成时空演化格点图。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS 1D 元胞自动机,无 DOM;peer deps(@thi.ng/api、@thi.ng/random)由 +esm 自带;命名导出\nimport { MultiCA1D, WOLFRAM3 } from 'https://cdn.jsdelivr.net/npm/@thi.ng/cellular@1.0.66/+esm';\nconst width = data.width ?? 256;\nconst ca = new MultiCA1D([{ kernel: WOLFRAM3, rule: data.rule ?? 110, states: 2, reset: false }], width);\nca.current[Math.floor(width / 2)] = 1; // 播种:中心单个活细胞\nfor (let y = 0; y < rows; y++) { /* 把 ca.current(Uint8Array)画成第 y 行像素 */ ca.update(); }",
+    "note": "仅 1D 初等 CA(不做 2D 生命游戏)。标准 Wolfram = { kernel: WOLFRAM3, states: 2, reset: false },rule 传 30/90/110(number|bigint)。每代读 ca.current(Uint8Array)画一行到自建 canvas(定高 px 禁 vh);states 必须 ≤256;@thi.ng/api、@thi.ng/random 已被 +esm 打包。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "API correct: +esm exports named MultiCA1D, WOLFRAM3, WOLFRAM5, WOLFRAM7, randomRule1D (export{L as MultiCA1D, S as WOLFRAM3, T as WOLFRAM5, $ as WOLFRAM7, P as randomRule1D}) — verified. 1d.d.ts: class MultiCA1D { constructor(configs: CASpec1D[], width, wrap?); get current: Uint8Array; update(); updateProbabilistic(); setPattern(...); setNoise(...); updateImage(pixels, height, opts) }; WOLFRAM3/5/7: Kernel; randomRule1D(kernelSize, rnd?) => bigint. Doc example uses new MultiCA1D([{ kernel:[[-1,0],[0,0],[1,0]], rule:110, states:2, reset:false }], 256) — matches schema. Limits: Uint8Array storage → states ≤256. Pure numeric CA engine: no DOM, no stylesheet, no events → shadow-safe; grid rendering is the consumer's canvas.",
+    "confidence": "high"
+  }
+}

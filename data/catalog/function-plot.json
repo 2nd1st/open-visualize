@@ -48,10 +48,49 @@
     "height": 400,
     "note": "显式传 400px 高度并把容器宽度钉成像素值(铁律 3 禁 vh/百分比高)；function-plot 生成固定尺寸 SVG,容器变宽时应以新 width 重新实例化。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need a 2D function plot or derivative tangent that correctly handles asymptotes, discontinuities, zoom, and pan instead of hand-writing one, because uniform sampling plus a polyline incorrectly joins discontinuities in 1/x and tan(x). It is not for statistical bar, line, or pie charts.",
+      "why_valuable": "AI defaults to uniform sampling followed by connected lines, cannot detect singularities within an interval, and cannot reliably assemble zoom, axes, and derivative guides. function-plot's interval-arithmetic sampler directly covers this failure case.",
+      "data_in": {
+        "note": "data_in is a trimmed subset of native functionPlot options, excluding target/width/height handled by boot. It covers the common y=f(x) path only, not parametric, polar, or implicit equations.",
+        "schema": {
+          "data": [
+            {
+              "fn": "string -- expression in x, for example '1/x'",
+              "range?": "[number, number] -- domain; defaults to the current xAxis.domain",
+              "graphType?": "'interval' | 'polyline' -- default 'interval'",
+              "sampler?": "'interval' | 'builtIn' -- inferred from graphType by default: interval -> interval, otherwise -> builtIn",
+              "color?": "CSS color string -- defaults to the built-in palette",
+              "derivative?": {
+                "fn": "string -- derivative expression",
+                "x0?": "number -- tangent x-coordinate; default 0"
+              }
+            }
+          ],
+          "xAxis?": {
+            "domain?": "[number, number] -- default [-6, 6]",
+            "type?": "'linear' | 'log' -- default 'linear'",
+            "label?": "string -- hidden by default"
+          },
+          "yAxis?": {
+            "domain?": "[number, number] -- inferred by default from the x domain and canvas aspect ratio",
+            "type?": "'linear' | 'log' -- default 'linear'",
+            "label?": "string -- hidden by default"
+          },
+          "grid?": "boolean -- default false",
+          "disableZoom?": "boolean -- default false"
+        }
+      },
+      "spec": {
+        "note": "Pass an explicit 400px height and pin the container width to a pixel value (rule 3 forbids vh or percentage heights). function-plot creates a fixed-size SVG; when the container widens, recreate it with the new width."
+      }
+    }
+  },
   "boot": {
-    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合\nimport functionPlot from 'https://cdn.jsdelivr.net/npm/function-plot@1/+esm';\nconst el = document.getElementById('plot');\nel.style.height = '400px';\nconst width = el.clientWidth || 640;\nconst chart = functionPlot({ ...data, target: el, width, height: 400 });",
-    "widget": "// SVG 全部落到 shadow 容器,无 document.head 样式注入\nimport functionPlot from 'https://cdn.jsdelivr.net/npm/function-plot@1/+esm';\nconst el = document.createElement('div'); el.style.height = '400px';\nshadowRoot.appendChild(el);\nconst width = el.clientWidth || 640;\nconst chart = functionPlot({ ...data, target: el, width, height: 400 });",
-    "codex": "同 artifact(sandbox iframe):从 jsDelivr /npm/ 导入默认函数,传 DOM target、像素 width/height 和 data_in。"
+    "artifact": "// +esm 的 interval-arithmetic 依赖当前在 jsDelivr 失效；使用包内自包含 UMD\nconst el = document.getElementById('plot'); el.style.height = '400px'; el.textContent = 'Loading plot…';\nconst script = document.createElement('script'); script.src = 'https://cdn.jsdelivr.net/npm/function-plot@1.25.4/dist/function-plot.js';\nawait new Promise((ok, fail) => { script.onload = ok; script.onerror = fail; document.head.appendChild(script); });\nconst functionPlot = globalThis.functionPlot; delete globalThis.functionPlot; script.remove(); el.textContent = '';\nconst width = el.clientWidth || 640;\nconst chart = functionPlot({ ...data, target: el, width, height: 400 });",
+    "widget": "// SVG 全部落到 shadow 容器,无持久 document.head 样式或 JS 全局\nconst el = document.createElement('div'); el.style.height = '400px'; el.textContent = 'Loading plot…'; shadowRoot.appendChild(el);\nconst script = document.createElement('script'); script.src = 'https://cdn.jsdelivr.net/npm/function-plot@1.25.4/dist/function-plot.js';\nawait new Promise((ok, fail) => { script.onload = ok; script.onerror = fail; document.head.appendChild(script); });\nconst functionPlot = globalThis.functionPlot; delete globalThis.functionPlot; script.remove(); el.textContent = '';\nconst width = el.clientWidth || 640;\nconst chart = functionPlot({ ...data, target: el, width, height: 400 });",
+    "codex": "const el = document.getElementById('plot'); el.style.height = '400px'; el.textContent = 'Loading plot…';\nconst script = document.createElement('script'); script.src = 'https://cdn.jsdelivr.net/npm/function-plot@1.25.4/dist/function-plot.js';\nawait new Promise((ok, fail) => { script.onload = ok; script.onerror = fail; document.head.appendChild(script); });\nconst functionPlot = globalThis.functionPlot; delete globalThis.functionPlot; script.remove(); el.textContent = '';\nconst width = el.clientWidth || 640;\nconst chart = functionPlot({ ...data, target: el, width, height: 400 });"
   },
   "example": {
     "_why": "表达式采样器的 graphType/sampler 组合容易歧义,给最小原生 options。",
@@ -63,7 +102,10 @@
         }
       ],
       "xAxis": {
-        "domain": [-6, 6]
+        "domain": [
+          -6,
+          6
+        ]
       },
       "grid": true
     },
@@ -82,7 +124,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "function-plot@1.25.4 +esm shows no document.head, no document.body, and no window/document.addEventListener at module/init; the d3 SVG is rendered into the passed target and the hover tip is drawn inside that target SVG; Chart extends an internal EventEmitter (not DOM). d3-zoom adds only transient listeners during active pan/zoom, so the target subtree is fully shadow-contained.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

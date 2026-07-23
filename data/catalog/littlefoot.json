@@ -4,6 +4,32 @@
   "name": "littlefoot",
   "when_to_use": "需要把长文的标准脚注引用变成就地弹出、自动贴边且不打断阅读流的注释层时用它而非手写,因为原生锚点只会跳页而自制 popover 在定位、触摸和多实例状态上失败。",
   "why_valuable": "AI 默认只能生成 sup 跳转或 details,做不到从脚注引用自动配对正文、响应式重定位、触摸关闭和多脚注互斥;littlefoot 把既有脚注 HTML 直接升级为可读 popover。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing popovers when you need to turn standard footnote references in long-form text into in-place annotations that automatically avoid edges without breaking reading flow, because native anchors only jump the page and custom popovers fail at positioning, touch, and multi-instance state.",
+      "why_valuable": "AI can normally only generate a jumping sup link or details element; it cannot automatically pair footnote references with text, reposition responsively, dismiss on touch, and enforce mutual exclusion across multiple footnotes. littlefoot directly upgrades existing footnote HTML into readable popovers.",
+      "data_in": {
+        "note": "html must be trusted or sanitized rendered long-form content; every a[href='#fn:...'] reference must resolve to a matching id in the same document, and the matching node must be inside an li by default.",
+        "schema": {
+          "root_selector": "string -- unique article-root selector in document, also used as the littlefoot scope",
+          "html": "string -- HTML containing body footnote references and their matching footnote nodes; an empty string is valid",
+          "options?": {
+            "_default": "when omitted, use all upstream defaults",
+            "activateOnHover?": "boolean -- default false",
+            "allowDuplicates?": "boolean -- default true",
+            "allowMultiple?": "boolean -- default false",
+            "activateDelay?": "number -- milliseconds, default 100",
+            "dismissDelay?": "number -- milliseconds, 4.1.4 source default 100",
+            "dismissOnDocumentTouch?": "boolean -- default true",
+            "dismissOnUnhover?": "boolean -- default false",
+            "hoverDelay?": "number -- milliseconds, default 250",
+            "anchorParentSelector?": "string -- default 'sup'",
+            "footnoteSelector?": "string -- default 'li'"
+          }
+        }
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -61,7 +87,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "esm grep: zero createElement('style'/'link'), zero head.appendChild, zero adoptedStyleSheets — CSS ships as separate dist/littlefoot.css that the boot links (library JS injects nothing). Popovers placed via `insertAdjacentElement('afterend', button)` within the scoped article, NOT portaled to body. Only element-level listeners: `.addEventListener('mouseenter')` and `.addEventListener('wheel')` on footnote button/popover; ZERO document/window addEventListener (removeEventListener count 0, but element listeners die with DOM removal on unmount). Shadow-incompatible: esm hardcodes `document.body.contains(o)` (popover liveness check) and `o.style.maxWidth=document.body.clientWidth` (popover sizing); shadow-root nodes fail document.body.contains, so the popover lifecycle breaks inside a ShadowRoot — matches catalog widget=unsupported.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

@@ -1,0 +1,112 @@
+{
+  "entry_version": "thin-1",
+  "id": "tom-select",
+  "name": "tom-select",
+  "when_to_use": "要把 <select> 升级成带搜索/多选/分组/输入新建的下拉(指派用户、分类、筛选)时用它;数据模型是「从列表里挑」用它,是「打自由 chip/@mention」用目录里的 tagify。",
+  "why_valuable": "可搜索、多选/tagging、选项分组、输入创建、远程加载、完整键盘/ARIA 的 combobox 是公认难做的组件;手写版常在键盘导航、焦点管理和大列表性能上悄悄崩。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "tom-select",
+    "version": "2.6.2",
+    "github": "orchidjs/tom-select"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "option-list",
+    "note": "挂在一个空 <input> 或 <select> 上;options 每项的取值/显示字段名由 valueField/labelField 决定(默认 value/text)。CSS 是独立文件,widget 必须显式链入 shadow。",
+    "schema": {
+      "options": "Array<{ value: string, text: string, optgroup?: string }> —— 可选项列表(字段名随 valueField/labelField)",
+      "items?": "string[] —— 预选中的 value 数组,默认 []",
+      "valueField?": "string —— option 的值字段,默认 'value'",
+      "labelField?": "string —— option 的显示字段,默认 'text'",
+      "searchField?": "string[] —— 参与搜索的字段,默认 ['text']",
+      "maxItems?": "number | null —— 最多可选数(1=单选,null=多选无限),默认 null",
+      "create?": "boolean —— 允许输入创建新选项,默认 false",
+      "plugins?": "string[] —— 如 'remove_button'|'clear_button'|'dropdown_input'|'checkbox_options'",
+      "placeholder?": "string —— 占位文本",
+      "optgroups?": "Array<{ value, label }> —— 选项分组(配 option.optgroup)"
+    }
+  },
+  "spec": {
+    "height": "auto",
+    "note": "表单控件:控件高度由内容撑开(≈40px),下拉为浮层叠加;:host 撑高即可,无需也勿设固定像素高,禁 vh。"
+  },
+  "boot": {
+    "artifact": "// harness 给的是 div 容器；先创建真实 input，再动态加载 TomSelect\nconst el = document.getElementById('select'); const input = document.createElement('input'); el.appendChild(input);\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/tom-select@2.6.2/dist/css/tom-select.css'; document.head.appendChild(css);\nconst { default: TomSelect } = await import('https://cdn.jsdelivr.net/npm/tom-select@2/+esm');\nconst control = new TomSelect(input, { options: data.options, items: data.items ?? [], valueField: data.valueField ?? 'value', labelField: data.labelField ?? 'text', searchField: data.searchField ?? ['text'], maxItems: data.maxItems ?? null, create: data.create ?? false, plugins: data.plugins ?? [], placeholder: data.placeholder });",
+    "widget": "// CSS 与真实 input 落 shadow；默认 dropdown 留在 .ts-wrapper 内\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/tom-select@2.6.2/dist/css/tom-select.css';\nconst el = document.createElement('input'); shadowRoot.append(css, el);\nconst { default: TomSelect } = await import('https://cdn.jsdelivr.net/npm/tom-select@2/+esm');\nconst control = new TomSelect(el, { options: data.options, items: data.items ?? [], valueField: data.valueField ?? 'value', labelField: data.labelField ?? 'text', searchField: data.searchField ?? ['text'], maxItems: data.maxItems ?? null, create: data.create ?? false, plugins: data.plugins ?? [], placeholder: data.placeholder });",
+    "codex": "const el = document.getElementById('select'); const input = document.createElement('input'); el.appendChild(input);\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/tom-select@2.6.2/dist/css/tom-select.css'; document.head.appendChild(css);\nconst { default: TomSelect } = await import('https://cdn.jsdelivr.net/npm/tom-select@2/+esm');\nconst control = new TomSelect(input, { options: data.options, items: data.items ?? [], valueField: data.valueField ?? 'value', labelField: data.labelField ?? 'text', searchField: data.searchField ?? ['text'], maxItems: data.maxItems ?? null, create: data.create ?? false, plugins: data.plugins ?? [], placeholder: data.placeholder });"
+  },
+  "uplink": "选中项变化由消费 AI 接原生 control.on('change'|'item_add'|'item_remove') 回调外传,本条不预设事件契约。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:需把 tom-select.css 显式链入 shadowRoot;默认 dropdownParent 使下拉留在 .ts-wrapper 内(勿设为 body)",
+    "codex": "supported:ESM CDN + 外链 CSS,无 worker"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "+esm default export TomSelect(grep: '$ as default');构造 new TomSelect(input: string|TomInput, settings: RecursivePartial<TomSettings>) 见 dist/esm/tom-select.d.ts。settings options/optgroups/items/valueField/labelField/searchField/maxItems/maxOptions/create/persist/plugins/placeholder/hideSelected/closeAfterSelect/dropdownParent/controlInput 均真实(dist/esm/types/settings.d.ts)。globalStyleInjection=no:JS 不注入 CSS(+esm grep document.head=0),CSS 是独立文件 dist/css/tom-select.css,本条为 widget 手动链入 shadow。globalDomMutation=no(默认):把传入的 <input>/<select> 原地包成 .ts-wrapper,下拉默认渲染在 .ts-wrapper 内(dropdownParent 默认保持在树内)故留在 shadow——仅 opt-in dropdownParent:'body' 才逃逸。globalEvents=yes:加 document 级 pointerdown/click 关下拉(retarget 安全,destroy() 时移除)。shadowCompatible=conditional:CSS 链入 shadow 且不设 dropdownParent:'body' 即可用。",
+    "confidence": "medium"
+  },
+  "example": {
+    "minimal": {
+      "options": [
+        {
+          "value": "u-alice",
+          "text": "Alice Zhang"
+        },
+        {
+          "value": "u-bob",
+          "text": "Bob Chen"
+        },
+        {
+          "value": "u-carol",
+          "text": "Carol Wang"
+        },
+        {
+          "value": "u-david",
+          "text": "David Liu"
+        },
+        {
+          "value": "u-erin",
+          "text": "Erin Huang"
+        }
+      ],
+      "items": [
+        "u-alice",
+        "u-carol"
+      ],
+      "maxItems": null,
+      "create": false,
+      "placeholder": "Assign reviewers…"
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to upgrade a <select> into a searchable, multi-select, grouped, create-by-typing dropdown for assigning users, categorizing, or filtering. Use it when the data model is choosing from a list; for free-form chips/@mentions, use tagify from the catalog.",
+      "why_valuable": "A combobox with search, multi-select/tagging, option groups, input creation, remote loading, and complete keyboard/ARIA behavior is notoriously difficult. Handwritten versions often fail silently at keyboard navigation, focus management, and large-list performance.",
+      "data_in": {
+        "note": "Mount on an empty <input> or <select>. valueField/labelField select the value/display field names in each option, defaulting to value/text. CSS is a separate file and the widget must link it explicitly into shadow.",
+        "schema": {
+          "options": "Array<{ value: string, text: string, optgroup?: string }> -- Option list (field names follow valueField/labelField)",
+          "items?": "string[] -- Preselected value array; default []",
+          "valueField?": "string -- Option value field; default 'value'",
+          "labelField?": "string -- Option display field; default 'text'",
+          "searchField?": "string[] -- Fields included in search; default ['text']",
+          "maxItems?": "number | null -- Maximum selections (1=single select, null=unlimited multi-select); default null",
+          "create?": "boolean -- Allow typed creation of new options; default false",
+          "plugins?": "string[] -- Such as 'remove_button'|'clear_button'|'dropdown_input'|'checkbox_options'",
+          "placeholder?": "string -- Placeholder text",
+          "optgroups?": "Array<{ value, label }> -- Option groups, paired with option.optgroup"
+        }
+      },
+      "spec": {
+        "note": "Form control: content determines the control height (about 40px), and the dropdown is an overlaid floating layer. Let :host grow; no fixed pixel height is needed or desired, and vh is forbidden."
+      }
+    }
+  }
+}

@@ -39,6 +39,15 @@
     "empty": {
       "src": null,
       "visualizerType": "piano-roll"
+    },
+    "minimal": {
+      "src": "data:audio/midi;base64,TVRoZAAAAAYAAAABAeBNVHJrAAAAdAD/UQMHoSAA/1gEBAIYCACQPFCDYIA8QACQPlCDYIA+QACQQFCDYIBAQACQQVCDYIBBQACQQ1CDYIBDQACQRVCDYIBFQACQR1CDYIBHQACQSFCDYIBIQACQPFAAkEBQAJBDUIdAgDxAAIBAQACAQ0AA/y8A",
+      "visualizerType": "piano-roll",
+      "visualizerConfig": {
+        "noteHeight": 8,
+        "pixelsPerTimeStep": 60
+      },
+      "loop": false
     }
   },
   "carriers": {
@@ -52,7 +61,25 @@
     "globalDomMutation": "no",
     "globalEvents": "unknown",
     "evidence": "两元素样式经 controlsTemplate/visualizerTemplate 的 <style>${controlsCSS}</style> 注入各自 shadow(controlsCSS/visualizerCSS 以 :host 开头,shadow 作用域),不写 document.head。globalEvents 存疑:Tone.js/@magenta 惯常挂 document/window 一次性手势监听解锁 AudioContext,本 bundle 未逐行确认。元素为自带 shadow 的 web component 可 append 进外层 shadowRoot,但需 Web Audio+用户手势+重型传递依赖(carriers.widget=conditional)。",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when MIDI/SMF needs to be playable on a page with a piano-roll, waterfall, or staff visualization, instead of hand-writing Web Audio and a timeline, because native implementations fail at MIDI parsing, audio scheduling, and audio-visual synchronization. Not a MIDI editor or composer.",
+      "why_valuable": "AI can only produce MIDI bytes or base64 by default; it cannot parse, play, and synchronously highlight timed notes in a conversation. This component turns MIDI into an audible, verifiable player and visualizer.",
+      "data_in": {
+        "note": "src is assigned directly to upstream midi-player.src. Prefer data:audio/midi;base64,... to avoid extra cross-origin requests. Use null for the empty state; boot does not trigger loading.",
+        "schema": {
+          "src": "string | null -- .mid URL or data:audio/midi;base64,...; null means empty state",
+          "visualizerType?": "'piano-roll' | 'waterfall' | 'staff' -- Default 'piano-roll'",
+          "visualizerConfig?": "{noteHeight?:number,pixelsPerTimeStep?:number,minPitch?:number,maxPitch?:number} -- Omitted fields use the corresponding @magenta/music visualizer defaults; overall default {}",
+          "loop?": "boolean -- Default false",
+          "soundFont?": "string | null -- SoundFont root URL; default null, using a simple oscillator without fetching a remote sound library"
+        }
+      },
+      "spec": {
+        "note": "The visualization area has an explicit default height of 260px and permits horizontal scrolling; player controls use their natural height. AI may override it with another positive integer pixel value; vh/percentage height is prohibited."
+      }
+    }
   }
 }

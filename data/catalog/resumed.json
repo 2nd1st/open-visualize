@@ -4,6 +4,33 @@
   "name": "resumed",
   "when_to_use": "需要以 JSON Resume 数据和主题生态稳定生成简历 HTML 时应在完成浏览器 fork 后用它而非手写模板，因为原生在 schema 一致性、信息密度和打印主题复用上失败；当前条目非可直接消费组件。",
   "why_valuable": "AI 默认会写一次性简历 HTML，但做不到长期保持 JSON Resume schema、主题可替换性和打印密度；resumed 提供标准数据入口，但其 6.1.0 发布物仍是 Node 管线。",
+  "i18n": {
+    "en": {
+      "when_to_use": "After completing a browser fork, use it instead of hand-writing a template when you need to reliably generate resume HTML from JSON Resume data and its theme ecosystem, because native implementations fail at schema consistency, information density, and reuse of print themes; this entry is not currently a directly consumable component.",
+      "why_valuable": "AI normally writes one-off resume HTML but cannot maintain the JSON Resume schema, theme replaceability, and print density over time; resumed provides a standard data entry point, but its 6.1.0 release is still a Node pipeline.",
+      "data_in": {
+        "note": "The fork's input must remain a JSON Resume object plus a fixed browser-safe theme; do not expose dynamic theme-module resolution to the data layer.",
+        "schema": {
+          "resume": {
+            "basics?": "{name?:string,label?:string,email?:string,phone?:string,url?:string,summary?:string,location?:object,profiles?:object[]} -- omitted by default",
+            "work?": "{name?:string,position?:string,url?:string,startDate?:string,endDate?:string,summary?:string,highlights?:string[]}[] -- default []",
+            "volunteer?": "object[] -- default []",
+            "education?": "{institution?:string,url?:string,area?:string,studyType?:string,startDate?:string,endDate?:string,score?:string,courses?:string[]}[] -- default []",
+            "awards?": "object[] -- default []",
+            "certificates?": "object[] -- default []",
+            "publications?": "object[] -- default []",
+            "skills?": "{name?:string,level?:string,keywords?:string[]}[] -- default []",
+            "languages?": "{language?:string,fluency?:string}[] -- default []",
+            "interests?": "object[] -- default []",
+            "references?": "object[] -- default []",
+            "projects?": "object[] -- default []",
+            "meta?": "{canonical?:string,version?:string,lastModified?:string} -- omitted by default"
+          },
+          "theme": "{render:(resume)=>string|Promise<string>} -- fixed and injected when building the fork; required at runtime"
+        }
+      }
+    }
+  },
   "supply_form": "app-needs-fork",
   "mode": "our-entry",
   "upstream": {

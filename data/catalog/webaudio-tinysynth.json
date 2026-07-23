@@ -2,6 +2,23 @@
   "entry_version": "thin-1",
   "id": "webaudio-tinysynth",
   "name": "WebAudio TinySynth",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing a Web Audio scheduler when you need to synthesize SMF/MIDI directly into sound in the browser without relying on a remote SoundFont, because native implementations fail at MIDI event parsing, 128 instruments, polyphony, and tempo scheduling.",
+      "why_valuable": "AI cannot reliably parse SMF and map program changes, the percussion channel, velocity, and tempo to real-time synthesis with no external timbre assets by default; TinySynth closes the audio loop with pure Web Audio and removes the SoundFont network dependency.",
+      "data_in": {
+        "note": "First fetch src as an ArrayBuffer, then pass it to the native upstream loadMIDI; the sound-producing function must be called during a real user gesture. This package does not need a SoundFont.",
+        "schema": {
+          "src": "string | null -- SMF/MIDI URL or data:audio/midi;base64,...; null is the empty state",
+          "quality?": "0 | 1 -- default 1",
+          "voices?": "positive integer -- maximum polyphony, default 64",
+          "useReverb?": "boolean -- default true",
+          "masterVolume?": "number 0..1 -- default 0.5",
+          "loop?": "boolean -- default false"
+        }
+      }
+    }
+  },
   "when_to_use": "需要在浏览器内把 SMF/MIDI 直接合成为声音且不能依赖远程 SoundFont 时用它,而非手写 Web Audio 调度器——原生在 MIDI 事件解析、128 种音色、复音与节拍调度上失败。",
   "why_valuable": "AI 默认做不到可靠解析 SMF 并把 program change、鼓通道、速度与节拍映射为无外部音色资产的实时合成;TinySynth 用纯 Web Audio 闭环发声,消除 SoundFont 网络依赖。",
   "supply_form": "headless-primitive",
@@ -55,7 +72,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Default import correct (+esm export{E as default}); constructor reads opt.{quality,voices,useReverb} (verified: 'if(opt){if(opt.useReverb!=undefined)...if(opt.quality!=undefined)...') and creates its own AudioContext (internalcontext -> this.actx). Methods loadMIDI/playMIDI/stopMIDI/setMasterVol/setProgram/noteOn/noteOff + .actx/.loop all present — matches provides.api_surface and boot. Headless audio: grep shows 0 document.head, 0 body.append, 0 document/window listeners. Caveat: module load runs customElements.define('webaudio-tinysynth') once (optional GUI element + a createElement('div') GUI path that the boot never invokes; a double-import could throw 'already defined'). shadowCompatible=yes because it emits audio, not DOM.",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

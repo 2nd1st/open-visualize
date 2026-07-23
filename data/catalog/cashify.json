@@ -4,6 +4,23 @@
   "name": "Cashify",
   "when_to_use": "需要基于调用方提供的汇率快照做多币种换算时用它而非手写,因为原生在基准币种反转、交叉汇率和快照时效传递上会失败。",
   "why_valuable": "AI 默认只能做一次乘法,不能稳定判断汇率表相对哪个 base、何时取倒数或怎样求交叉汇率；Cashify 强制注入 rates,不臆造实时汇率。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for multi-currency conversion from a caller-supplied exchange-rate snapshot instead of hand-writing the calculation, because native implementations fail on base-currency inversion, cross rates, and carrying snapshot recency.",
+      "why_valuable": "AI can only perform a single multiplication by default; it cannot reliably determine which base a rate table uses, when to take a reciprocal, or how to derive a cross rate. Cashify requires rates to be injected and does not invent live exchange rates.",
+      "data_in": {
+        "note": "data_in maps exactly to convert(amount,{from,to,base,rates}). rates is a same-instant snapshot relative to base, and rates[base] should be 1. This entry does not fetch exchange rates from the network.",
+        "schema": {
+          "amount": "number - finite monetary amount",
+          "from": "string - currency code in the rate table; uppercase ISO 4217 code recommended",
+          "to": "string - currency code in the rate table; uppercase ISO 4217 code recommended",
+          "base": "string - base currency of rates",
+          "rates": "Record<string, number> - each value is how much of that currency 1 base buys; must cover both from and to, with rates[base]=1",
+          "as_of": "string - ISO 8601 date or time for the rates snapshot; carried through with the result only, not passed to Cashify"
+        }
+      }
+    }
+  },
   "supply_form": "headless-primitive",
   "mode": "direct-import",
   "upstream": {
@@ -52,7 +69,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "dist/convert.d.ts: `convert(amount, { from, to, base, rates, BigJs }): number` and options.d.ts require base+rates — exactly the boot call convert(data.amount,{from,to,base,rates}); index.d.ts + +esm confirm named {Cashify,convert,parse}. Headless pure-math primitive, no DOM/window API in bundle; as_of correctly kept out of the convert() call and only carried into result.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

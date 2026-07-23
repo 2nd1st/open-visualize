@@ -2,6 +2,32 @@
   "entry_version": "thin-1",
   "id": "sequential-workflow-designer",
   "name": "Sequential Workflow Designer",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need a structured workflow designer with sequential, container, and branch steps instead of hand-written nested lists, which fail at cross-level drag and drop, nested branches, and two-way consistency with definition JSON. Do not use it for a free-form node graph, workflow execution engine, or approval backend.",
+      "why_valuable": "AI can output only a static step list. It cannot enforce dragging across nested sequences, visualize branches, or produce undoable definition updates. This library directly consumes and returns compact Definition JSON.",
+      "data_in": {
+        "note": "data_in is the sequential-workflow-model Definition. Root properties and sequence are both required; every step also requires properties. Branches or child sequences appear only for their corresponding componentType.",
+        "schema": {
+          "properties": "Record<string, string|string[]|number|number[]|boolean|boolean[]|null|object>",
+          "sequence": [
+            {
+              "id": "string -- unique across the entire definition",
+              "componentType": "string -- commonly 'task'|'container'|'switch'",
+              "type": "string -- business step type",
+              "name": "string",
+              "properties": "Record<string, JSON value>",
+              "sequence?": "Step[] -- used when componentType is container; absent by default",
+              "branches?": "Record<string, Step[]> -- used when componentType is switch; absent by default"
+            }
+          ]
+        }
+      },
+      "spec": {
+        "note": "The designer workspace needs an explicit container height; this entry defaults to 480px. Iron rule 3 forbids vh and percentage heights. Call designer.updateLayout() after layout changes."
+      }
+    }
+  },
   "when_to_use": "需要顺序、容器与分支步骤的结构化工作流设计器时用它而非手写嵌套列表,因为原生在跨层拖放、分支嵌套和 definition JSON 双向一致性上失败;非做自由节点图、工作流执行引擎或审批后端。",
   "why_valuable": "AI 默认只能输出静态步骤列表,做不到跨嵌套序列的拖放约束、分支可视化与可撤销 definition 更新;该库直接消费并返回紧凑 Definition JSON。",
   "supply_form": "component",
@@ -80,7 +106,6 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "Verified vs jsDelivr @0.40.0: named export `Ie as Designer` (import { Designer } correct); `Designer.create(placeholder, startDefinition, config)` per lib/index.d.ts:1410; DesignerConfiguration keys all real (theme?/undoStackSize?/steps[required, StepsConfiguration all-optional so {} valid]/toolbox:false/editors:false/controlBar:boolean/contextMenu?) and native `shadowRoot?: ShadowRoot` ('Pass the shadow root...if the designer is placed inside the shadow DOM', d.ts:1106) — directly backs widget claim. CSS files designer.css+designer-light.css exist under /css. data_in schema field names exactly match sequential-workflow-model@0.2 lib/index.d.ts: Definition{sequence,properties}, Step{id,componentType,type,name,properties}, SequentialStep adds sequence (container), BranchedStep adds branches (switch), Properties=string|string[]|number|number[]|boolean|boolean[]|null|object. Isolation: +esm has 0 document.head/createElement('style') (styles are external CSS only), overlays use `shadowRoot ?? document.body` so with shadowRoot passed they render in shadow (globalDomMutation no); window mousemove/mouseup/resize/scroll/touch listeners present but destroy() + 19 removeEventListener clean them. Artifact carrier honestly self-marked inferred-not-tested (H0 probe), not a defect.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

@@ -1,0 +1,153 @@
+{
+  "entry_version": "thin-1",
+  "id": "konva",
+  "name": "konva",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to build an interactive canvas editor or diagram where users can select and transform objects (stage -> layer -> shape, built-in Transformer drag/resize/rotate handles, per-node events, and hit detection). Feed it a serialized scene tree for Konva.Node.create. For SVG import/serialization and image filters, use fabric from the catalog; for a scene graph plus node-event model, use konva.",
+      "why_valuable": "Draggable, rotatable, resizable shapes plus Transformer handle UI, per-node hit detection, layers, and tweening make up a complete engine; AI produces very poor hit testing and transform handles when writing them by hand.",
+      "data_in": {
+        "note": "data.scene is a serialized Konva scene tree (input to Konva.Node.create, as produced by node.toObject()). The root must have className:'Stage', and attrs.width/height are required. Event handlers are not stored in JSON, but draggable/name attributes are restored; the consuming AI attaches interactions (Transformer/on).",
+        "schema": {
+          "scene": {
+            "attrs": "{ width: number, height: number } -- Stage dimensions (required)",
+            "className": "'Stage'",
+            "children": "Array -- Layer nodes: each { className:'Layer', children:[ shape nodes ] }"
+          },
+          "_shapeNode": {
+            "className": "'Rect'|'Circle'|'Ellipse'|'Line'|'Text'|'Image'|'Group', etc.",
+            "attrs": "{ x, y, width, height, fill, stroke, draggable?, name? ... } -- name:'editable' lets Transformer select via layer.find('.editable')"
+          },
+          "transform?": "boolean -- attach Konva.Transformer (drag-resize-rotate handles) to nodes with name='editable'; default false"
+        }
+      },
+      "spec": {
+        "note": "Stage dimensions come from data.scene Stage attrs.width/height (boot may also set el.style.height as a fallback). For this canvas class, :host grows with content; do not use vh or percentage heights."
+      }
+    }
+  },
+  "when_to_use": "要构建用户可选中/变换对象的交互式画布编辑器或图示(stage→layer→shape,内建 Transformer 拖拽-缩放-旋转手柄、逐节点事件与命中检测)时用它;喂 Konva.Node.create 的序列化场景树即出。要 SVG 导入/序列化与图像滤镜用目录里的 fabric;要的是 scene-graph + 节点事件模型则用 konva。",
+  "why_valuable": "可拖拽/可旋转/可缩放形状 + Transformer 手柄 UI + 逐节点命中检测 + 分层 + 补间是一整套引擎;AI 徒手写命中测试和变换手柄质量极差。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "konva",
+    "version": "10.3.0",
+    "github": "konvajs/konva"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "scene-graph",
+    "note": "data.scene 是 Konva 序列化场景树(Konva.Node.create 的输入,即 node.toObject() 的产物);root 必须 className:'Stage' 且 attrs.width/height 必填。事件处理器不进 JSON,但 draggable/name 是 attr 会还原;交互(Transformer/on)由消费 AI 挂载。",
+    "schema": {
+      "scene": {
+        "attrs": "{ width: number, height: number } —— Stage 尺寸(必填)",
+        "className": "'Stage'",
+        "children": "Array —— Layer 节点:每个 { className:'Layer', children:[ 形状节点 ] }"
+      },
+      "_shapeNode": {
+        "className": "'Rect'|'Circle'|'Ellipse'|'Line'|'Text'|'Image'|'Group' 等",
+        "attrs": "{ x, y, width, height, fill, stroke, draggable?, name? ... } —— name:'editable' 便于 Transformer 按 layer.find('.editable') 选中"
+      },
+      "transform?": "boolean —— 为 name='editable' 的节点挂 Konva.Transformer(drag-resize-rotate 手柄),默认 false"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "Stage 尺寸来自 data.scene 的 Stage attrs.width/height(boot 内也可 el.style.height 兜底);canvas 类,:host 撑高、禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:konva 零全局样式足迹,canvas 落容器\nimport Konva from 'https://cdn.jsdelivr.net/npm/konva@10/+esm';\nconst el = document.getElementById('stage');\nconst stage = Konva.Node.create(data.scene, el); // data.scene:序列化场景树,root className 'Stage' 且 attrs.width/height 必填\nconst layer = stage.getLayers()[0];\nif (data.transform && layer) { const tr = new Konva.Transformer(); layer.add(tr); tr.nodes(layer.find('.editable')); layer.draw(); }",
+    "widget": "// canvas 落 shadow;konva 不注入全局样式\nimport Konva from 'https://cdn.jsdelivr.net/npm/konva@10/+esm';\nconst el = document.createElement('div'); shadowRoot.appendChild(el);\nconst stage = Konva.Node.create(data.scene, el);\nconst layer = stage.getLayers()[0];\nif (data.transform && layer) { const tr = new Konva.Transformer(); layer.add(tr); tr.nodes(layer.find('.editable')); layer.draw(); }",
+    "codex": "import Konva from 'https://cdn.jsdelivr.net/npm/konva@10/+esm';\nconst el = document.getElementById('stage');\nconst stage = Konva.Node.create(data.scene, el);\nconst layer = stage.getLayers()[0];\nif (data.transform && layer) { const tr = new Konva.Transformer(); layer.add(tr); tr.nodes(layer.find('.editable')); layer.draw(); }"
+  },
+  "uplink": "节点选中/拖拽/变换状态若需外传,由消费 AI 接 Konva 原生 node.on('dragend'|'transformend'|'click') 回调并按载体处理,本条不统一事件契约。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:canvas 落容器/shadow,零全局样式;Transformer 手柄在 stage 内;v10 处理 shadow-root 指针 retarget",
+    "codex": "supported:ESM CDN + canvas,无 worker/wasm 硬依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm default export 为 Konva 命名空间(grep: 'dr as default')。Stage 构造 new Konva.Stage({container: HTMLDivElement|string, width, height})(Stage.d.ts);声明式 Konva.Node.create(data:any, container?:any)(Node.d.ts static create)从序列化场景树 {attrs,className,children} 重建;Transformer 有 attachTo/setNodes/getNodes(Transformer.d.ts),bundle grep 见 Transformer(6)、draggable(7)。零全局足迹:+esm grep document.head=0、document.body=0——Konva 只在传入 container 内构建 div.konvajs-content + <canvas>,不注入全局 stylesheet。拖拽期的 window mousemove/mouseup 监听于 dragstart 加、dragend 清(非泄漏,故记 no)。容器作用域 → shadow 安全。",
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "scene": {
+        "attrs": {
+          "width": 600,
+          "height": 400
+        },
+        "className": "Stage",
+        "children": [
+          {
+            "attrs": {},
+            "className": "Layer",
+            "children": [
+              {
+                "attrs": {
+                  "x": 30,
+                  "y": 24,
+                  "text": "Konva • interactive canvas",
+                  "fontSize": 24,
+                  "fontFamily": "sans-serif",
+                  "fontStyle": "bold",
+                  "fill": "#1f2933"
+                },
+                "className": "Text"
+              },
+              {
+                "attrs": {
+                  "x": 60,
+                  "y": 80,
+                  "width": 190,
+                  "height": 120,
+                  "fill": "#4f8cff",
+                  "stroke": "#1b3a6b",
+                  "strokeWidth": 3,
+                  "cornerRadius": 12,
+                  "draggable": true,
+                  "name": "editable"
+                },
+                "className": "Rect"
+              },
+              {
+                "attrs": {
+                  "x": 440,
+                  "y": 150,
+                  "radius": 72,
+                  "fill": "#ff6b6b",
+                  "stroke": "#a3312f",
+                  "strokeWidth": 3,
+                  "draggable": true
+                },
+                "className": "Circle"
+              },
+              {
+                "attrs": {
+                  "x": 300,
+                  "y": 300,
+                  "numPoints": 5,
+                  "innerRadius": 30,
+                  "outerRadius": 62,
+                  "fill": "#ffd166",
+                  "stroke": "#c79a2e",
+                  "strokeWidth": 2,
+                  "rotation": -10,
+                  "draggable": true
+                },
+                "className": "Star"
+              }
+            ]
+          }
+        ]
+      },
+      "transform": true
+    }
+  }
+}

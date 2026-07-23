@@ -1,0 +1,71 @@
+{
+  "entry_version": "thin-1",
+  "id": "softwaretechnik-dbml-renderer",
+  "name": "@softwaretechnik/dbml-renderer",
+  "when_to_use": "把一段 DBML(简洁的数据库 schema DSL)文本编译成布局好的 ER 图 SVG 时用它,尤其当 schema 是文本生成/编写的场景——原生在多表布局、typed 列、PK/FK 标记与关系基数自动布线上失败。它是静态-从文本这条路;要可编辑画布用搭档 @dineug/erd-editor。",
+  "why_valuable": "多表 ER 图需要图布局 + 一致的表渲染 + FK 自动布线;AI 手绘 ERD 会出现关系交叉/重叠、表框不一致、无法自动路由 FK。dbml-renderer 用 graphviz(viz.js WASM)把 DBML 确定性布局成 ER 图 SVG。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@softwaretechnik/dbml-renderer",
+    "version": "1.0.31",
+    "github": "softwaretechnik-berlin/dbml-renderer"
+  },
+  "license": "ISC",
+  "data_in": {
+    "shape": "notation-string",
+    "note": "dbml 是 DBML 语言:`Table 名 { 列 类型 [pk] }` 定义表与列(列设置 [pk]/[not null]/[unique]/[ref: > other.col]),`Ref: A.col > B.col` 定义关系(> 多对一、- 一对一、<> 多对多)。run 同步返回 SVG 字符串;引擎是 graphviz-wasm,需宿主允许 WebAssembly。",
+    "schema": {
+      "dbml": "string —— DBML 源文本;语法错误 run 抛错",
+      "format?": "'svg' | 'dot' —— 默认 'svg';'dot' 返回 graphviz DOT 文本而非 SVG"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "graphviz 布局 SVG 自带 intrinsic viewBox,随表数增长;承载区给显式 400px 高并滚动,仅把 svg.style.maxWidth 设 100%,禁 vh/百分比高(铁律 3)。"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to compile DBML text (a concise database schema DSL) into a laid-out ER diagram SVG, especially when the schema is generated or authored as text. Native work fails at multi-table layout, typed columns, PK/FK markers, and automatically routed relationship cardinalities. This is the static-from-text path; for an editable canvas, use the companion @dineug/erd-editor.",
+      "why_valuable": "A multi-table ER diagram needs graph layout, consistent table rendering, and automatic FK routing. AI-drawn ERDs produce crossing/overlapping relationships, inconsistent table boxes, and no automatic FK routes. dbml-renderer uses graphviz (viz.js WASM) to lay DBML out deterministically as ER-diagram SVG.",
+      "data_in": {
+        "note": "dbml is the DBML language: `Table name { column type [pk] }` defines tables and columns (columns may use [pk]/[not null]/[unique]/[ref: > other.col]), while `Ref: A.col > B.col` defines relationships (> many-to-one, - one-to-one, <> many-to-many). run synchronously returns an SVG string. The engine is graphviz-wasm, so the host must allow WebAssembly.",
+        "schema": {
+          "dbml": "string -- DBML source text; run throws on syntax errors",
+          "format?": "'svg' | 'dot' -- default 'svg'; 'dot' returns graphviz DOT text rather than SVG"
+        }
+      },
+      "spec": {
+        "note": "The graphviz-laid-out SVG has an intrinsic viewBox and grows with the number of tables. Give the carrier an explicit 400px height and scrolling; set only svg.style.maxWidth to 100%. Rule 3 forbids vh or percentage heights."
+      }
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:引擎 @aduh95/viz.js/sync 为 graphviz-wasm;artifact 主线程 wasm 可用但须待 H0 wasm 探针闭合\nimport { run } from 'https://cdn.jsdelivr.net/npm/@softwaretechnik/dbml-renderer@1/+esm';\nconst el = document.getElementById('erd'); el.style.cssText = 'height:400px;overflow:auto';\nel.innerHTML = run(data.dbml, data.format ?? 'svg');\nconst s = el.querySelector('svg'); if (s) s.style.maxWidth = '100%';",
+    "widget": "// run 纯函数返回 SVG 字符串,落 shadow 内 host;唯一条件是宿主允许 WebAssembly\nimport { run } from 'https://cdn.jsdelivr.net/npm/@softwaretechnik/dbml-renderer@1/+esm';\nconst el = document.createElement('div'); el.style.cssText = 'height:400px;overflow:auto'; shadowRoot.appendChild(el);\nel.innerHTML = run(data.dbml, data.format ?? 'svg');\nconst s = el.querySelector('svg'); if (s) s.style.maxWidth = '100%';",
+    "codex": "import { run } from 'https://cdn.jsdelivr.net/npm/@softwaretechnik/dbml-renderer@1/+esm';\nconst el = document.getElementById('erd'); el.style.cssText = 'height:400px;overflow:auto';\nel.innerHTML = run(data.dbml, data.format ?? 'svg');\nconst s = el.querySelector('svg'); if (s) s.style.maxWidth = '100%';"
+  },
+  "example": {
+    "_why": "DBML 简洁,minimal 给两表 + 一条 FK,展示 pk 与 Ref 基数。",
+    "minimal": {
+      "dbml": "Table users {\n  id int [pk]\n  name varchar\n  email varchar [unique]\n}\n\nTable orders {\n  id int [pk]\n  user_id int\n  total decimal\n}\n\nRef: orders.user_id > users.id"
+    },
+    "empty": {
+      "dbml": "Table t {\n  id int [pk]\n}"
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:主线程 wasm(§CSP)理论可用,但 /sync 为 Node 目标构建 + graphviz-wasm 浏览器执行未实测,待 H0 wasm 探针",
+    "widget": "conditional:宿主 CSP/能力必须允许 WebAssembly(wasm-unsafe-eval);run 生成的 SVG 可完全落 shadow",
+    "codex": "conditional:sandbox 必须允许 WebAssembly 编译;+esm 依赖链(viz.js/sync 3.5MB)加载未实测"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "API verified vs @softwaretechnik/dbml-renderer@1.0.31: lib/api.d.ts `export declare const run: (input:string, format:Format) => string`;lib/renderer.d.ts `type Format = 'dot' | 'svg'`——schema dbml/format 精确消费,run 同步返回字符串。dbml-renderer 自身 +esm grep:0 document.head/body、0 Worker、0 appendChild(纯函数)。引擎:+esm `import*as ua from '/npm/@aduh95/viz.js@3.4.0/sync/+esm'`——graphviz 编译为 wasm。viz.js/sync grep:无 fetch(、无 instantiateStreaming,持 `wasmBinary` + `instantiate`→内联 wasm 字节实例化,不走网络(仅需 wasm-unsafe-eval 编译)。RISK:exports['./sync']=render_sync.cjs 为 Node 目标 emscripten 构建(内含 readFileSync fs shim),browser 字段只重映射主入口而非 /sync,经 jsDelivr +esm 在浏览器实际执行未实测。shadowCompatible=yes(输出 SVG 字符串写 shadow),全局副作用 no,唯一硬约束是 WebAssembly 能力。confidence=medium:API 确证,浏览器 wasm 执行未真机跑。",
+    "confidence": "medium"
+  }
+}

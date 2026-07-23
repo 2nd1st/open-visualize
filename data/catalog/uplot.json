@@ -2,6 +2,48 @@
   "entry_version": "thin-1",
   "id": "uplot",
   "name": "uPlot",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need time-series curves with around 100,000 points, dual axes, a crosshair, or bands instead of hand-written SVG/canvas, which fails at dense-series performance, scale conversion, and synchronized hit-testing. Do not use it for a sparse sparkline.",
+      "why_valuable": "AI cannot provide low-latency zooming, cursor hit-testing, and multi-scale alignment for time series with around 100,000 points; hand-written SVG collapses under the node count. uPlot provides a stable data plane with a tiny runtime.",
+      "data_in": {
+        "note": "uPlot consumes aligned data: the first column is the shared x series and each later column is one y series; every column must have the same length. It is not an array of row objects.",
+        "schema": {
+          "data": "[number[], ...(number | null | undefined)[][]] -- first array contains ascending x values; remaining arrays contain y values of the same length",
+          "options": {
+            "series": [
+              {
+                "label?": "string -- time x series defaults to 'Time'"
+              },
+              {
+                "label?": "string -- defaults to 'Value'",
+                "stroke?": "CSS color string -- defaults to null, drawing no line",
+                "width?": "number -- defaults to 1",
+                "fill?": "CSS color string -- defaults to null, with no fill",
+                "scale?": "string -- defaults to 'y'"
+              }
+            ],
+            "scales?": {
+              "_default": "x is a time scale and y is an automatic linear scale",
+              "x?": {
+                "_default": "{time:true}",
+                "time?": "boolean -- defaults to true"
+              },
+              "y?": {
+                "_default": "{auto:true}",
+                "auto?": "boolean -- defaults to true"
+              }
+            },
+            "axes?": "uPlot.Axis[] -- generates x/y axes by default",
+            "cursor?": "uPlot.Cursor -- local crosshair enabled by default"
+          }
+        }
+      },
+      "spec": {
+        "note": "The uPlot constructor requires integer width/height values. boot measures width from the container and fixes the default height at 400px; use setSize after dimensions change. Iron rule 3 forbids vh and percentage heights."
+      }
+    }
+  },
   "when_to_use": "需要十万点级时序曲线、双轴、十字光标或带区时用它而非手写 SVG/canvas,因为原生手写在密集序列性能、尺度换算和命中同步上失败;稀疏 sparkline 非做它。",
   "why_valuable": "AI 默认做不到十万点级时序的低延迟缩放、游标命中和多尺度对齐,徒手 SVG 会在节点量上直接崩溃;uPlot 用极小运行时提供稳定数据平面。",
   "supply_form": "component",
@@ -60,8 +102,16 @@
     "_why": "aligned 列式数组与 series 的一一对应容易被误写成逐行表,最小配置明确 x/y 对齐关系。",
     "minimal": {
       "data": [
-        [1710000000, 1710000060, 1710000120],
-        [12, 19, 15]
+        [
+          1710000000,
+          1710000060,
+          1710000120
+        ],
+        [
+          12,
+          19,
+          15
+        ]
       ],
       "options": {
         "series": [
@@ -106,7 +156,6 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "+esm (51KB): zero `document.head`, zero `document.body`, zero `createElement('style')`/`insertRule` — all DOM (wrap/over/legend/canvas) is built inside the target container; uPlot.min.css is an external file the boot links into shadowRoot. Event names mousedown/mousemove/mouseup/mouseleave/dblclick/resize are bound via an internal helper, but their targets are minified variables — uPlot's known behavior binds transient document mousemove/mouseup during drag-select + a window rect-invalidation listener, all cleared by destroy(); not byte-confirmed in this bundle. document/window events are shadow-transparent regardless, so shadowCompatible stays yes on the confirmed no-injection facts.",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

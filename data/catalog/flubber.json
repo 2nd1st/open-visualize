@@ -1,0 +1,67 @@
+{
+  "entry_version": "thin-1",
+  "id": "flubber",
+  "name": "flubber",
+  "when_to_use": "教『A 形→B 形』连续形变(图标/地图/字形/数据形状 morph 动画)时用:它解顶点对应与拓扑,产出可按 t 求值的 path 插值器。同顶点数、天然对应的简单 tween 用 animejs/d3 直接插值即可,不必上 flubber;形状数不匹配(1→N)用它的 separate/combine。",
+  "why_valuable": "AI 徒手做 path morph 会顶点错配、闪烁、翻面、点数不齐;flubber 用点数对齐+贪心顶点配对+拓扑处理,把任意两条 SVG path 变成平滑无翻面的插值函数,原生成功率极低。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "flubber",
+    "version": "0.4.2",
+    "github": "veltman/flubber"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "path-strings",
+    "note": "输入形状可为 SVG path 字符串或 [x,y][] ring;interpolate 默认 string:true 返回 path 字符串。形状数不匹配请改用 separate/combine/interpolateAll,不是 interpolate。",
+    "schema": {
+      "fromShape": "string(SVG path) | [number,number][] —— 起始形状(ring 或 path 字符串)",
+      "toShape": "string(SVG path) | [number,number][] —— 目标形状",
+      "maxSegmentLength?": "number —— 越小越平滑越慢,默认 10;设 false/Infinity 关闭平滑",
+      "string?": "boolean —— 输出 SVG path 字符串(true,默认)还是 [x,y][] 点数组(false)"
+    }
+  },
+  "provides": {
+    "shape": "path-interpolator",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;返回插值函数,渲染交消费 AI。",
+    "outputs": "一个插值器函数 (t:0..1)=>path 字符串;另有 toCircle/fromCircle/toRect/fromRect 定形变,separate/combine/interpolateAll 处理形状数不匹配。",
+    "api_surface": {
+      "main": "interpolate(fromShape, toShape, { maxSegmentLength, string }) → (t)=>d",
+      "shapes": "toCircle(shape,x,y,r,opts) / toRect(shape,x,y,w,h,opts) / fromCircle / fromRect",
+      "multi": "separate(from,[toList],{single}) / combine([fromList],to) / interpolateAll(fromList,toList)",
+      "helpers": "toPathString(ring) / splitPathString(d)"
+    }
+  },
+  "peer": {
+    "id": "animejs",
+    "note": "flubber 只出插值器函数;把 t:0→1 的驱动(rAF 或补间)交给 animejs 等,每帧调 morph(t) 赋给 <path d>。"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to teach continuous \"shape A -> shape B\" transformations (morph animations for icons, maps, glyphs, or data shapes): it resolves vertex correspondence and topology, then returns a path interpolator evaluated at t. For a simple tween whose shapes have equal, naturally corresponding vertex counts, interpolate directly with animejs/d3 instead. For mismatched shape counts (1 -> N), use separate/combine.",
+      "why_valuable": "Handwritten AI path morphs suffer from mismatched vertices, flicker, flipped shapes, and unequal point counts. flubber aligns point counts, greedily pairs vertices, and handles topology to turn arbitrary SVG paths into a smooth, non-flipping interpolator; native success rates are very low.",
+      "data_in": {
+        "note": "Input shapes may be SVG path strings or [x,y][] rings. interpolate defaults to string:true and returns a path string. When shape counts differ, use separate/combine/interpolateAll rather than interpolate.",
+        "schema": {
+          "fromShape": "string(SVG path) | [number,number][] -- starting shape (ring or path string)",
+          "toShape": "string(SVG path) | [number,number][] -- target shape",
+          "maxSegmentLength?": "number -- smaller is smoother but slower; default 10; set false/Infinity to disable smoothing",
+          "string?": "boolean -- output an SVG path string (true; default) or a [x,y][] point array (false)"
+        }
+      }
+    }
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS,interpolate 返回 (t)=>path 字符串,无 DOM/shadow 足迹;interpolate 是命名导出\nimport { interpolate } from 'https://cdn.jsdelivr.net/npm/flubber@0.4.2/+esm';\nconst morph = interpolate(data.fromShape, data.toShape, { maxSegmentLength: data.maxSegmentLength ?? 10 });\n// 消费 AI 自驱 t:0→1(rAF 或补间库),把 morph(t) 赋给 <path d> 或 canvas Path2D:\nconst d = morph(0.5);",
+    "note": "interpolate 默认返回 SVG path 字符串(string:true);输入可为 path 字符串或 [x,y][] ring。渲染是消费 AI 的事:artifact/codex 用 document.getElementById 取 <path>,widget 把 <svg> 建进 shadowRoot;容器定高 px、禁 vh。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "API correct: +esm exports named interpolate (export{... x as interpolate, fe as toCircle, ae as toRect, C as fromCircle, N as fromRect, j as separate, oe as combine, ue as interpolateAll, W as splitPathString, E as toPathString}) — verified. README confirms interpolate(fromShape,toShape[,options]) returns a function of t; options.maxSegmentLength default 10, options.string default true (path-string output). Pure computation over path strings / [x,y][] rings; returns a function, touches no DOM, no styles, no events → trivially shadow-safe.",
+    "confidence": "high"
+  }
+}

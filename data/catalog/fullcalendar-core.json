@@ -2,6 +2,36 @@
   "entry_version": "thin-1",
   "id": "fullcalendar-core",
   "name": "FullCalendar Core",
+  "i18n": {
+    "en": {
+      "when_to_use": "FullCalendar would normally be the choice instead of a hand-written implementation when you need month/week/day views, overlapping-event layout, and schedule-dragging geometry, because native implementations fail at cross-view date calculations, event stacking, and hit testing, but the exact current upstream package cannot render directly.",
+      "why_valuable": "AI cannot produce a complete calendar's time-zone date calculations, overlapping-interval layout, multi-view switching, and reliable dragging geometry by default; however, @fullcalendar/core@7.0.1 is only a types/shared-contract package and cannot deliver these capabilities by itself.",
+      "data_in": {
+        "note": "This is the minimal schedule contract a future renderable wrapper should accept; @fullcalendar/core@7.0.1 itself has no mount API, so do not mistake this schema for runnable input.",
+        "schema": {
+          "events": [
+            {
+              "id?": "string -- a future wrapper generates a stable id by default",
+              "title": "string",
+              "start": "ISO-8601 date/time string",
+              "end?": "ISO-8601 date/time string -- treated as a point event by the future view by default",
+              "allDay?": "boolean -- inferred by default from whether the date string contains a time",
+              "groupId?": "string -- no group by default",
+              "url?": "absolute URL string -- no navigation by default",
+              "backgroundColor?": "CSS color string -- default theme color",
+              "borderColor?": "CSS color string -- follows backgroundColor by default",
+              "textColor?": "CSS color string -- default theme contrast color",
+              "extendedProps?": "JSON object -- default {}"
+            }
+          ],
+          "view?": "'dayGridMonth' | 'timeGridWeek' | 'timeGridDay' | 'listWeek' -- future wrapper default 'dayGridMonth'",
+          "initialDate?": "ISO-8601 date string -- default today",
+          "locale?": "BCP-47 language tag -- default 'en'",
+          "timeZone?": "'local' | 'UTC' | IANA zone string -- default 'local'"
+        }
+      }
+    }
+  },
   "when_to_use": "需要月/周/日多视图、重叠事件布局和日程拖拽几何时本应使用 FullCalendar 而非手写,因为原生在跨视图日期运算、事件堆叠和命中上失败,但当前确切 upstream 包不可直接渲染。",
   "why_valuable": "AI 默认做不到完整日历的时区日期运算、重叠区间布局、多视图切换和可靠拖拽几何;不过 @fullcalendar/core@7.0.1 仅是类型/共享契约包,不能独立兑现这些能力。",
   "supply_form": "app-needs-fork",
@@ -45,7 +75,6 @@
     "globalEvents": "no",
     "shadowCompatible": "no",
     "evidence": "import 仅跑 console.log('should not be imported directly');包无 Calendar 构造/渲染器,无法在任何地方挂载",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

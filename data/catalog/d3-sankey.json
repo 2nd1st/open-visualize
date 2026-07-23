@@ -2,6 +2,33 @@
   "entry_version": "thin-1",
   "id": "d3-sankey",
   "name": "d3-sankey",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you already have a weighted nodes/links graph and need customizable Sankey geometry instead of a hand-written layout, which fails at node layering, link-width conservation, and iterative crossing reduction.",
+      "why_valuable": "AI cannot reliably implement Sankey's iterative layout or conserve link widths; even if it can draw rectangles, it cannot calculate stable x/y/width geometry. d3-sankey handles only the layout calculation, leaving the consumer free to render with SVG or canvas.",
+      "data_in": {
+        "note": "Input is a weighted directed acyclic graph; nodeId resolves source and target strings by id. The layout mutates nodes and links, so boot first shallow-clones both arrays to preserve caller data.",
+        "schema": {
+          "nodes": [
+            {
+              "id": "string",
+              "name?": "string -- defaults to id"
+            }
+          ],
+          "links": [
+            {
+              "source": "string -- must match a nodes[].id",
+              "target": "string -- must match a nodes[].id",
+              "value": "number -- finite and >= 0"
+            }
+          ]
+        }
+      },
+      "spec": {
+        "note": "extent requires explicit pixel width/height values. boot defaults to 720x400, nodeWidth 16, nodePadding 10, and iterations 6; iron rule 3 forbids vh and percentage heights."
+      }
+    }
+  },
   "when_to_use": "已有 nodes/links 加权图且需要可自定义渲染的 Sankey 几何时用它而非手写布局,因为原生手写在节点分层、链宽守恒和迭代减交叉上失败。",
   "why_valuable": "AI 默认做不到 Sankey 的迭代布局与链宽守恒,即使能画矩形也算不出稳定 x/y/width 几何;d3-sankey 只负责可靠计算,让消费端自由画 SVG/canvas。",
   "supply_form": "headless-primitive",
@@ -63,7 +90,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Verified: +esm exports `ct as sankey` (named import correct). src/sankey.js confirms methods nodeId/nodeWidth/nodePadding/extent/iterations (boot uses exactly these) and output fields node.x0/x1/y0/y1/value/depth/height/index/sourceLinks/targetLinks, link.source/target/value/width/y0/y1 (matches provides.outputs). Schema nodes[{id,name?}]/links[{source,target,value}] consistent with boot's nodeId(d=>d.id). +esm bundle: 0 document.head/body, 0 createElement/appendChild/addEventListener/insertRule — pure layout math, no rendering.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

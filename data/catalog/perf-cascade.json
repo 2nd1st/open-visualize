@@ -2,6 +2,41 @@
   "entry_version": "thin-1",
   "id": "perf-cascade",
   "name": "PerfCascade",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing a waterfall when you need to render HAR 1.2 requests with color-coded phases, a time scale, and expandable details, because native implementations fail at alignment across requests, timing segmentation, and linking response details.",
+      "why_valuable": "AI can draw only roughly sized div bars by default; it cannot precisely align blocked/DNS/connect/TLS/send/wait/receive against the HAR time origin or provide multi-page selection, warning indicators, and expandable request details.",
+      "data_in": {
+        "note": "har must be a HAR 1.2 document ({log:{...}}) or its log object; this entry always passes the document form. PerfCascade 3.0.3 is unstable with completely empty entries, so the empty-state fixture uses one 204 about:blank sentinel request.",
+        "schema": {
+          "har": {
+            "log": {
+              "version": "string -- usually '1.2'",
+              "creator": {
+                "name": "string",
+                "version": "string"
+              },
+              "pages?": "Array<{id:string,title:string,startedDateTime:ISO-8601 string,pageTimings:{onContentLoad?:number (none by default),onLoad?:number (none by default)}}> -- defaults to a single page synthesized from entries",
+              "entries": "Array<{pageref?:string (default single page),startedDateTime:ISO-8601 string,time:number,request:{method:string,url:string,httpVersion:string,headers:Array<{name:string,value:string}>,queryString:Array<{name:string,value:string}>,cookies:unknown[],headersSize:number,bodySize:number},response:{status:number,statusText:string,httpVersion:string,headers:Array<{name:string,value:string}>,cookies:unknown[],content:{size:number,mimeType:string,text?:string (none by default)},redirectURL:string,headersSize:number,bodySize:number},cache:object,timings:{blocked?:number (default -1),dns?:number (default -1),connect?:number (default -1),ssl?:number (default -1),send:number,wait:number,receive:number}}>"
+            }
+          },
+          "options?": {
+            "rowHeight?": "number -- default 23px",
+            "showAlignmentHelpers?": "boolean -- default true",
+            "showMimeTypeIcon?": "boolean -- default true",
+            "showIndicatorIcons?": "boolean -- default true",
+            "leftColumnWidth?": "number -- left information column percentage, default 25",
+            "selectedPage?": "integer -- default 0",
+            "showUserTiming?": "boolean | string[] -- default false",
+            "showUserTimingEndMarker?": "boolean -- default false"
+          }
+        }
+      },
+      "spec": {
+        "note": "The waterfall SVG's natural height grows with the request count; the outer container defaults to an explicit 520px height with vertical scrolling, and AI may override it with another pixel value. vh/percentage height is prohibited."
+      }
+    }
+  },
   "when_to_use": "需要把 HAR 1.2 请求渲成带阶段着色、时间刻度和详情展开的瀑布图时用它而非手写,因为原生在跨请求对齐、timings 分段和响应详情联读上失败。",
   "why_valuable": "AI 默认只能画近似长度的 div 条,做不到按 HAR 基准时间精确对齐 blocked/DNS/connect/TLS/send/wait/receive,也做不到多页面选择、警告指标和请求详情展开。",
   "supply_form": "component",
@@ -199,7 +234,6 @@
     "globalDomMutation": "yes",
     "globalEvents": "no",
     "evidence": "ZERO document/window.addEventListener in the bundle (grep empty); all 19 listeners are on local SVG rows (returned in-tree, so shadow-safe). Library self-injects no CSS to head (perf-cascade.css is external; widget boot loads it into shadowRoot). BUT the bundle transiently appends temp nodes to document.body for SVG text-width measurement, plus a temp input for clipboard-copy (append→remove), and a `parentElement===undefined && body.appendChild` fallback. Detail panels use SVG foreignObject (host must support). Chart itself goes to the given container.",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

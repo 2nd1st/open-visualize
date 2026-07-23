@@ -105,7 +105,45 @@
     "globalEvents": "no",
     "shadowCompatible": "yes",
     "evidence": "index.min.mjs 零 head/style 注入、零静态 document/window 监听;canvas 包 .canvas-container 落父容器(shadow 内);拖拽期 doc 监听 per-gesture 且 dispose 清理",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need an object canvas with custom selectable, scalable, rotatable, groupable objects and JSON replay, instead of hand-writing Canvas 2D, because native implementations fail at hit testing, controls, transform matrices, and object serialization. Not for a static canvas illustration rendered only once.",
+      "why_valuable": "AI can draw static canvas by default, but cannot provide object-level hit testing, stable transform handles, hierarchical grouping, interactive selection, or round-trip scene JSON. Hand-written versions become especially unstable under scaling and high DPI.",
+      "data_in": {
+        "note": "data.scene must be compatible with Fabric Canvas.toJSON(). loadFromJSON restores object data only; canvas pixel dimensions are fixed separately by spec. The schema below is a trimmed set of common serialized fields, not arbitrary custom Fabric class deserialization.",
+        "schema": {
+          "scene": {
+            "version?": "string -- Fabric export-version marker; omitted by default",
+            "objects": [
+              {
+                "type": "'Rect'|'Circle'|'Ellipse'|'Line'|'Path'|'Text'|'IText'|'Textbox'|'Group'",
+                "left?": "number -- Default 0",
+                "top?": "number -- Default 0",
+                "width?": "number -- Width for Rect/Text/Group; default depends on type",
+                "height?": "number -- Height for Rect/Text/Group; default depends on type",
+                "radius?": "number -- Circle radius; default 0",
+                "rx?": "number -- Ellipse horizontal radius; default 0",
+                "ry?": "number -- Ellipse vertical radius; default 0",
+                "text?": "string -- Text/IText/Textbox content; default empty string",
+                "fill?": "CSS color string -- Default 'rgb(0,0,0)'",
+                "stroke?": "CSS color string | null -- Default null",
+                "strokeWidth?": "number -- Default 1",
+                "angle?": "number -- Angle; default 0",
+                "scaleX?": "number -- Default 1",
+                "scaleY?": "number -- Default 1",
+                "opacity?": "number 0..1 -- Default 1",
+                "objects?": "array with the same structure -- Used for Group; default []"
+              }
+            ],
+            "background?": "CSS color string -- Transparent by default"
+          }
+        }
+      },
+      "spec": {
+        "note": "The Fabric canvas backing buffer and CSS dimensions must use explicit pixel values. By default it uses the container width and height 420px; vh/percentage height is prohibited (Rule 3). After the container width changes, call canvas.setDimensions."
+      }
+    }
   }
 }

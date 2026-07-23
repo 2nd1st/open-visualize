@@ -2,6 +2,50 @@
   "entry_version": "thin-1",
   "id": "jspdf",
   "name": "jsPDF",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of writing PDF bytes by hand when you need to generate receipts, certificates, labels, or fixed-layout PDF Blobs in the browser with absolute coordinates, because native implementations fail on object tables, xref, font encoding, and multi-page file packaging. It is not for automatic flowing layout, WYSIWYG editing, or complex tables spanning pages.",
+      "why_valuable": "AI defaults cannot produce valid PDF binary, xref/object offsets, font encoding, and cross-page resource reuse; they only produce print CSS or corrupt files. jsPDF reduces the hard parts to verifiable page geometry and native drawing calls.",
+      "data_in": {
+        "note": "document is the trimmed geometry that boot maps to the jsPDF constructor, addPage, setFont/setFontSize/setTextColor, and text. x/y uses document.unit, with the coordinate origin at the page's top left.",
+        "schema": {
+          "document": {
+            "orientation?": "'portrait' | 'landscape' -- default portrait",
+            "unit?": "'pt' | 'mm' | 'cm' | 'in' | 'px' | 'pc' | 'em' | 'ex' -- default mm",
+            "format?": "'a4' | 'a3' | 'letter' | [width,height] -- default a4",
+            "compress?": "boolean -- default false",
+            "putOnlyUsedFonts?": "boolean -- default false",
+            "pages": [
+              {
+                "_defaults": "texts defaults to [], producing a valid blank page",
+                "texts?": [
+                  {
+                    "text": "string | string[] -- pass string[] for multiple lines",
+                    "x": "number -- document.unit",
+                    "y": "number -- document.unit",
+                    "font?": "string -- default helvetica",
+                    "fontStyle?": "'normal' | 'bold' | 'italic' | 'bolditalic' -- default normal",
+                    "fontSize?": "positive number points -- default 16",
+                    "color?": "CSS hex color string -- default '#000000'",
+                    "options?": {
+                      "_default": "{} -- left aligned, unrotated, with no maximum-width constraint",
+                      "align?": "'left' | 'center' | 'right' | 'justify' -- default left",
+                      "angle?": "number degrees -- default 0",
+                      "maxWidth?": "non-negative number, in document.unit -- default 0, meaning unconstrained"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "filename?": "string ending in .pdf -- default document.pdf; used only by the consumer for download naming, while boot itself returns only a Blob"
+        }
+      },
+      "spec": {
+        "note": "Headless generation itself occupies no DOM height. If the consumer previews the Blob in an iframe, give the preview container an explicit default height of 640px and do not use vh or percentage heights; PDF paper geometry remains controlled by document.format/orientation."
+      }
+    }
+  },
   "when_to_use": "需要在浏览器按绝对坐标生成票据、证书、标签或固定版式 PDF Blob 时用它而非手写 PDF 字节，因为原生在对象表、xref、字体编码与多页文件封装上失败；非做自动流式排版、所见即所得编辑或复杂跨页表格。",
   "why_valuable": "AI 默认做不到合法 PDF 二进制、xref/对象偏移、字体编码和跨页资源复用，只会产出 print CSS 或损坏文件；jsPDF 把难点收敛为可核对的页面几何与原生绘制调用。",
   "supply_form": "headless-primitive",
@@ -115,7 +159,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Headless PDF byte generation: construct → setFont/setFontSize/setTextColor/text → output('blob'):Blob, with no DOM output. The plain-text path uses AFM font metrics (not a canvas), so no temp elements are appended to document.body and nothing touches head/style/events. Context-agnostic and trivially shadow-safe (produces a Blob the consumer previews/downloads).",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

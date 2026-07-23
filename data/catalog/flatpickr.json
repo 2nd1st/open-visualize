@@ -1,0 +1,106 @@
+{
+  "entry_version": "thin-1",
+  "id": "flatpickr",
+  "name": "flatpickr",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need range selection, an always-open inline calendar, date plus time, or consistent styling/localization. Skip it when one plain date is enough and native <input type=date> is acceptable -- its value is in range/inline/time.",
+      "why_valuable": "A correct date/time picker (calendar grid, range selection, time, min/max, disabled dates, localization, keyboard navigation) is surprisingly large and error-prone; native <input type=date> cannot select ranges/times inside an inline calendar, and browsers render it inconsistently.",
+      "data_in": {
+        "note": "flatpickr(element, options) returns an Instance; the consumer AI receives selections through onChange(selectedDates, dateStr). The calendar appends to document.body by default -- inside shadow, set static:true (or inline:true) so it stays in the shadow. The default export is the flatpickr function.",
+        "schema": {
+          "_defaults": {
+            "mode": "'single'",
+            "dateFormat": "'Y-m-d'",
+            "enableTime": "false",
+            "inline": "false",
+            "static": "false"
+          },
+          "element": "HTMLInputElement | HTMLElement -- required binding target (first constructor argument)",
+          "mode?": "'single' | 'multiple' | 'range' | 'time' -- default 'single'",
+          "dateFormat?": "string -- default 'Y-m-d'",
+          "defaultDate?": "string | Date | Array -- none by default",
+          "minDate?": "string | Date -- none by default",
+          "maxDate?": "string | Date -- none by default",
+          "enableTime?": "boolean -- default false",
+          "inline?": "boolean -- always-open calendar; default false",
+          "static?": "boolean -- default false (calendar appends to body); must be true inside shadow to keep the calendar in the shadow",
+          "disable?": "(string | Date | {from,to})[] -- disabled dates; default []"
+        }
+      },
+      "spec": {
+        "note": "The input itself is about 36px high; inline/static calendars are about 308px. Do not use vh."
+      }
+    }
+  },
+  "when_to_use": "需要范围选择、始终展开的内联日历、日期+时间、或要一致样式/本地化时用它;若单个纯日期够用且原生 <input type=date> 可接受就跳过——它的价值在 range/inline/time。",
+  "why_valuable": "一个正确的日期/时间选择器(日历网格、范围选择、时间、min/max、禁用日期、本地化、键盘导航)出乎意料地庞大易错;原生 <input type=date> 做不了范围/内联/日历内选时,且各浏览器渲染不一。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "flatpickr",
+    "version": "4.6.13",
+    "github": "flatpickr/flatpickr"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "date-range",
+    "note": "flatpickr(element, options) 返回 Instance;选中结果经 onChange(selectedDates, dateStr) 回调交消费 AI。默认日历 append 到 document.body——shadow 内须设 static:true(或 inline:true)使日历留在 shadow。default 导出 flatpickr 函数。",
+    "schema": {
+      "_defaults": {
+        "mode": "'single'",
+        "dateFormat": "'Y-m-d'",
+        "enableTime": "false",
+        "inline": "false",
+        "static": "false"
+      },
+      "element": "HTMLInputElement | HTMLElement —— 必填绑定目标(构造第一参)",
+      "mode?": "'single' | 'multiple' | 'range' | 'time' —— 默认 'single'",
+      "dateFormat?": "string —— 默认 'Y-m-d'",
+      "defaultDate?": "string | Date | Array —— 默认无",
+      "minDate?": "string | Date —— 默认无",
+      "maxDate?": "string | Date —— 默认无",
+      "enableTime?": "boolean —— 默认 false",
+      "inline?": "boolean —— 始终展开日历,默认 false",
+      "static?": "boolean —— 默认 false(日历 append 到 body);shadow 内须 true 使日历留在 shadow",
+      "disable?": "(string | Date | {from,to})[] —— 禁用日期,默认 []"
+    }
+  },
+  "spec": {
+    "height": 308,
+    "note": "input 本身约 36px;inline/static 模式日历约 308px;禁 vh。"
+  },
+  "boot": {
+    "artifact": "// harness 提供的是 div 容器;创建真实 input 并用 inline 模式立即显示日历\nconst mount = document.getElementById('date'); const input = document.createElement('input'); input.type = 'text'; input.setAttribute('aria-label', 'Choose date'); input.style.cssText = 'box-sizing:border-box;width:100%;max-width:307px;padding:8px 10px;margin-bottom:8px'; mount.appendChild(input);\nconst css = document.createElement('link'); css.rel='stylesheet'; css.href='https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css'; document.head.appendChild(css);\nconst { default: flatpickr } = await import('https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/+esm');\nconst fp = flatpickr(input, { inline:true, appendTo:mount, mode:data.mode ?? 'range', dateFormat:data.dateFormat ?? 'Y-m-d', minDate:data.minDate, maxDate:data.maxDate, enableTime:data.enableTime ?? false, defaultDate:data.defaultDate, onChange:(sel, str) => { /* 消费 AI 接选中结果 */ } });",
+    "widget": "const mount = document.createElement('div'); const input = document.createElement('input'); input.type = 'text'; input.setAttribute('aria-label', 'Choose date'); mount.appendChild(input); shadowRoot.appendChild(mount);\nconst css = document.createElement('link'); css.rel='stylesheet'; css.href='https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css'; shadowRoot.appendChild(css);\nconst { default: flatpickr } = await import('https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/+esm');\nconst fp = flatpickr(input, { inline:true, appendTo:mount, mode:data.mode ?? 'range', dateFormat:data.dateFormat ?? 'Y-m-d', minDate:data.minDate, maxDate:data.maxDate, enableTime:data.enableTime ?? false, defaultDate:data.defaultDate, onChange:(sel, str) => {} });",
+    "codex": "const mount = document.getElementById('date'); const input = document.createElement('input'); input.type = 'text'; input.setAttribute('aria-label', 'Choose date'); mount.appendChild(input);\nconst css = document.createElement('link'); css.rel='stylesheet'; css.href='https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css'; document.head.appendChild(css);\nconst { default: flatpickr } = await import('https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/+esm');\nconst fp = flatpickr(input, { inline:true, appendTo:mount, mode:data.mode ?? 'range', dateFormat:data.dateFormat ?? 'Y-m-d', minDate:data.minDate, maxDate:data.maxDate, enableTime:data.enableTime ?? false, defaultDate:data.defaultDate, onChange:(sel, str) => {} });"
+  },
+  "uplink": "选中日期由消费 AI 在 onChange(selectedDates, dateStr) 回调里取用并按载体外传;不预设统一契约。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:flatpickr.min.css 落 shadow + static:true/inline:true 使日历留在 shadow(否则默认 append 到 body)",
+    "codex": "supported:ESM CDN,无 worker/wasm/uplink 硬依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "conditional",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "+esm default export flatpickr(export{y as default});flatpickr(element, options):Instance 已验证;Options mode('single'|'multiple'|'range'|'time')/dateFormat/defaultDate/minDate/maxDate/enableTime/inline/noCalendar/locale 见 dist/types/options.d.ts。globalDomMutation=yes 且 shadowCompatible=conditional:默认(非 inline、非 static)把 calendarContainer append 到 document.body(dist/esm/index.js:413-415;document.body ×6)——设 static:true 或 inline:true 使日历渲染在 shadow 内的包裹容器。globalEvents=yes:bind(window,'resize') + bind(window.document,'touchstart'/'mousedown'/'focus',documentClick) 做外部点击关闭(index.js:281-286),destroy() 移除。globalStyleInjection=conditional:bundle 内含 document.createElement('style')→document.head.appendChild 辅助(压缩源 He()),主题另为外链 dist/flatpickr.min.css(200)。",
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "mode": "range",
+      "dateFormat": "Y-m-d",
+      "enableTime": false,
+      "defaultDate": [
+        "2026-07-20",
+        "2026-07-27"
+      ],
+      "minDate": "2026-07-01",
+      "maxDate": "2026-08-31"
+    }
+  }
+}

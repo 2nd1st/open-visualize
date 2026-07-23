@@ -4,6 +4,22 @@
   "name": "xiangqiboard.js",
   "when_to_use": "需要把中国象棋 FEN 渲成含九宫、河界和中文棋子的 9×10 棋盘时用它,而非拿西洋棋盘或手写 SVG 凑——原生手写在专用盘面几何、棋子资源、翻转与位置动画上失败;规则、合法走子和棋谱解析不在本条。",
   "why_valuable": "AI 默认最多画出约 20% 可用的象棋盘,常漏九宫斜线、河界或把 9×10 坐标画错,更做不到稳定棋子资源与动画;该库把象棋专用棋盘 UI 闭环。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of adapting a Western chessboard or hand-writing SVG when you need to render Chinese-chess FEN as a 9x10 board with palaces, a river, and Chinese pieces, because native implementations fail at specialized board geometry, piece assets, orientation, and position animation; rules, move legality, and game-record parsing are outside this entry.",
+      "why_valuable": "AI can normally produce at most a roughly 20% usable Xiangqi board, often omitting palace diagonals or the river or getting 9x10 coordinates wrong, and it cannot provide stable piece assets and animation; this library closes the loop on Xiangqi-specific board UI.",
+      "data_in": {
+        "note": "picks supplies no release version and the repository has no public npm package; boot keeps version:null, pins assets to repository commit c36e1046c424e7abf1405904006043f6426b8ee8, and uses that commit's included 0.3.3 build.",
+        "schema": {
+          "fen": "string -- the piece-placement segment of Chinese-chess FEN: exactly 10 ranks separated by /, each expanding to 9 squares, with piece letters restricted to rnbakcp/RNBAKCP and empty-square counts 1..9; do not pass the remaining turn fields",
+          "orientation?": "'red' | 'black' -- perspective at the bottom edge, default red"
+        }
+      },
+      "spec": {
+        "note": "The 9x10 board defaults to a 480x540px container; use a fixed px height, not vh or a percentage height. This legacy jQuery component uses document-level selectors for dragging, so the conservative thin-1 boot enables static display only."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -41,7 +57,12 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "The library renders board DOM into the target container via jQuery `.append()` (x7) — not document.body — so no global DOM mutation. Its required CSS is an external stylesheet the boot places (document.head for artifact/codex, shadowRoot for widget); the library itself does not auto-inject style. Drag is bound via jQuery mousedown on pieces (x3) with mousemove/mouseup escalating to document/window level during an ACTIVE drag; with the boot's `draggable:false` no drag initiates, so no document-level listeners attach for static display (globalEvents=no here). shadowCompatible=conditional: static render works in shadow with CSS in the shadowRoot, but the drag path relies on document-level jQuery id selectors and isn't guaranteed in shadow (hence catalog keeps draggable:false).",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
+  },
+  "example": {
+    "minimal": {
+      "fen": "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR",
+      "orientation": "red"
+    }
   }
 }

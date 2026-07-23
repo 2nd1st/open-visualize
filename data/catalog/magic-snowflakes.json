@@ -4,6 +4,36 @@
   "name": "magic-snowflakes",
   "when_to_use": "需要在限定容器内得到有层次、风向、旋转和自动尺寸响应的持续飘雪时用它而非手写 CSS 雪点,因为原生在随机层次、自然轨迹和长时间性能上失败。",
   "why_valuable": "AI 默认只能复制几十个同质圆点与相似 keyframe,做不到尺寸/透明度分布、风偏、旋转、容器尺寸响应和实例清理的稳定组合;该库给出可启停销毁的成品雪层。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written CSS snow dots when you need continuous snowfall inside a bounded container with depth, wind, rotation, and automatic size response, because native implementations fail at randomized depth, natural trajectories, and long-running performance.",
+      "why_valuable": "AI can normally only copy dozens of uniform dots with similar keyframes; it cannot stably combine size/opacity distributions, wind drift, rotation, container-size response, and instance cleanup. This library provides a finished snow layer that can be started, stopped, and destroyed.",
+      "data_in": {
+        "note": "data_in.options is passed exactly to new Snowflakes(params), but boot overrides container/width/height from spec; the full upstream ESM generates CSS at runtime.",
+        "schema": {
+          "options?": {
+            "_default": "{} -- use all upstream defaults",
+            "count?": "integer -- number of snowflakes, default 50",
+            "color?": "CSS color string -- default '#5ECDEF'",
+            "minOpacity?": "number 0..1 -- minimum opacity, default 0.6",
+            "maxOpacity?": "number 0..1 -- maximum opacity, default 1",
+            "minSize?": "number -- minimum pixel size, default 10",
+            "maxSize?": "number -- maximum pixel size, default 25",
+            "rotation?": "boolean -- whether to rotate, default true",
+            "speed?": "number -- fall-speed multiplier, default 1",
+            "stop?": "boolean -- whether initially paused, default false",
+            "types?": "integer -- number of built-in snowflake shapes, default 6",
+            "wind?": "boolean -- whether wind drift is enabled, default true",
+            "zIndex?": "integer -- snow-layer stacking level, default 9999",
+            "autoResize?": "boolean -- whether to respond to container size, default true"
+          }
+        }
+      },
+      "spec": {
+        "note": "The snow layer requires an explicit pixel height; boot defaults to 400px and passes the same value as the upstream height. Width comes from container.clientWidth (or 640px when unavailable). Do not use vh or percentage heights."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -56,7 +86,20 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "globalStyleInjection=yes (defining trait): index.d.ts exposes private mainStyleNode/animationStyleNode/imagesStyleNode + injectStyle/appendStyles/removeStyles; esm confirms `document.head` injection. Flakes DOM is appended to the passed `container` (isBody special-cases body, but boot supplies a div) → globalDomMutation=no. globalEvents=no: window `resize` + orientationchange('change') listeners are registered but destroy() removes them (esm: removeEventListener×3) — cleaned, not leaked. shadowCompatible=conditional: flakes render inside the container (shadow-OK) but CSS injects to document.head, so the widget boot must capture the newly-added <style> nodes and migrate them into shadowRoot (plus dynamic-ESM cache-bust via `?ov-shadow=`+crypto.randomUUID for a fresh instance) — matches catalog conditional.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "options": {
+        "count": 90,
+        "color": "#5ECDEF",
+        "minSize": 14,
+        "maxSize": 34,
+        "minOpacity": 0.7,
+        "maxOpacity": 1,
+        "wind": true,
+        "rotation": true
+      }
+    }
   }
 }

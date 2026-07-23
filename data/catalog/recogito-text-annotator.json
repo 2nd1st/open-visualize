@@ -4,6 +4,51 @@
   "name": "Recogito text-annotator-js",
   "when_to_use": "需要用户在长文本中圈选原句并留下结构化批注时用它而非手写 Selection/Range,因为原生在选区归一化、字符偏移、重叠高亮和持久化定位上失败。非做普通文本展示、全文编辑器或只读搜索高亮。",
   "why_valuable": "AI 默认无法捕获用户实际选中的字符范围,也默认做不到 DOM 变化后的 quote+offset 双重定位、重叠批注渲染和 W3C Annotation JSON 往返。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when users need to select original passages in long text and leave structured annotations instead of hand-writing Selection/Range handling. Native implementations fail on selection normalization, character offsets, overlapping highlights, and persistent positioning. It is not for plain text display, a full-text editor, or read-only search highlighting.",
+      "why_valuable": "AI cannot capture the character range a user actually selected by default, nor can it provide dual quote-plus-offset anchoring after DOM changes, overlapping annotation rendering, and W3C Annotation JSON round-tripping.",
+      "data_in": {
+        "note": "boot writes plain text through textContent, then enables the W3CTextFormat adapter, so annotations accepts W3CTextAnnotation. target.source must equal the effective value of data.source. selector should include both TextQuoteSelector and TextPositionSelector to validate the text and restore exact offsets.",
+        "schema": {
+          "text": "string - complete plain text to annotate",
+          "source?": "string IRI - text-source identifier, default location.href",
+          "annotations?": [
+            {
+              "@context": "'http://www.w3.org/ns/anno.jsonld'",
+              "type": "'Annotation'",
+              "id": "string",
+              "body": [
+                {
+                  "id": "string",
+                  "type": "string",
+                  "purpose": "string",
+                  "value": "string"
+                }
+              ],
+              "target": {
+                "source": "string - must equal the effective value of data.source",
+                "selector": [
+                  {
+                    "type": "'TextQuoteSelector'",
+                    "exact": "string",
+                    "prefix?": "string - omitted by default",
+                    "suffix?": "string - omitted by default"
+                  },
+                  {
+                    "type": "'TextPositionSelector'",
+                    "start": "integer >= 0 - start UTF-16 character offset",
+                    "end": "integer >= start - end UTF-16 character offset, excluding end"
+                  }
+                ]
+              }
+            }
+          ],
+          "annotatingEnabled?": "boolean - whether users may create selection annotations, default true"
+        }
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -118,7 +163,6 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "Default renderer is CSS_HIGHLIGHTS: it injects a dynamic highlight-color <style> into document.head (document.createElement('style'); document.getElementsByTagName('head')[0]...) and uses the global CSS.highlights registry (new Highlight, ::highlight). It attaches document selectionchange(x2)/pointerdown/pointerup/scroll/keyup/contextmenu + window resize listeners, with cleanup (removeEventListener x10, destroy()). It observes document.body via MutationObserver and does Range boundary checks against body but appends no nodes to body. So the API works in shadow but the head <style> injection + document-global highlight registry mean the catalog's 'CSS into shadowRoot' claim understates the footprint; renderer:'SPANS' avoids it.",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

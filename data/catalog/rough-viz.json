@@ -2,6 +2,40 @@
   "entry_version": "thin-1",
   "id": "rough-viz",
   "name": "roughViz",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you want an intentionally hand-drawn, hoverable exploratory chart with stable layout instead of hand-writing jittered SVG, which fails at consistent rough paths, axes, collision handling, and tooltip geometry. Do not use it for formal reports or a static single bar, line, or pie chart.",
+      "why_valuable": "AI can only add random jitter to ordinary SVG; it cannot rebuild bars, arcs, axes, and hit layers consistently at the same roughness. roughViz combines a hand-drawn personality with real chart scales so decorative noise does not damage the data geometry.",
+      "data_in": {
+        "note": "This entry accepts only the six upstream constructors that can directly consume in-memory JSON. Line/Network/Force have separate URL or graph-structure constraints and are excluded from this trimmed schema. boot injects element as a CSS id selector.",
+        "schema": {
+          "type": "'Bar' | 'BarH' | 'Donut' | 'Pie' | 'Scatter' | 'StackedBar'",
+          "series": "{labels:string[],values:number[]} (Bar/BarH/Donut/Pie) | {x:number[],y:number[]} (Scatter) | Record<string,string|number>[] (StackedBar)",
+          "labelKey?": "string -- required for StackedBar and points to each row's category field; ignored by other types",
+          "options?": {
+            "_default": "{}; boot injects width/height/element/data",
+            "title?": "string -- no title by default",
+            "roughness?": "number -- defaults to 1",
+            "bowing?": "number -- defaults to 0",
+            "fillStyle?": "'hachure' | 'solid' | 'zigzag' | 'cross-hatch' | 'dots' | 'dashed' | 'zigzag-line' -- defaults to rough.js hachure",
+            "fillWeight?": "number -- defaults to 0.5 for bars/scatter and 0.85 for pie/donut",
+            "interactive?": "boolean -- defaults to true",
+            "font?": "0 | 1 | 'gaegu' | 'indie flower' | CSS font-family string -- defaults to the embedded Gaegu font",
+            "colors?": "CSS color string[] | CSS color string -- defaults to the upstream ten-color palette",
+            "color?": "CSS color string -- Bar/BarH defaults to 'skyblue'",
+            "stroke?": "CSS color string -- defaults to 'black'",
+            "strokeWidth?": "number -- defaults to 1",
+            "margin?": "{top:number,right:number,bottom:number,left:number} -- defaults to {top:50,right:20,bottom:70,left:100}",
+            "xLabel?": "string -- defaults to an empty string",
+            "yLabel?": "string -- defaults to an empty string"
+          }
+        }
+      },
+      "spec": {
+        "note": "roughViz fixes width/height into the SVG viewBox and coordinate scales at construction. boot measures a pixel width and explicitly passes a height of 400px. On resize, destroy the DOM and rebuild; iron rule 3 forbids vh and percentage heights."
+      }
+    }
+  },
   "when_to_use": "需要刻意手绘感、可悬停且版式稳定的探索图时用它而非手写抖动 SVG,因为原生在一致的 rough path、坐标轴、碰撞与 tooltip 几何上失败;正式报告或静态单一柱线饼非做它。",
   "why_valuable": "AI 默认只能给普通 SVG 加随机抖动,做不到同一 roughness 下稳定重建柱、弧、坐标轴和命中层;roughViz 把手绘人格与真实图表尺度结合,避免装饰性噪声破坏数据几何。",
   "supply_form": "component",
@@ -53,8 +87,16 @@
     "minimal": {
       "type": "Bar",
       "series": {
-        "labels": ["Research", "Build", "Review"],
-        "values": [12, 19, 8]
+        "labels": [
+          "Research",
+          "Build",
+          "Review"
+        ],
+        "values": [
+          12,
+          19,
+          8
+        ]
       },
       "options": {
         "title": "Sprint effort",
@@ -84,7 +126,6 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "rough-viz@2.0.5 +esm: injects a <style type='text/css'> containing @font-face (hand-drawn Gaegu/Indie-Flower fonts as base64 data URLs; @font-face x2, fontFamily x40). document.body x2 used as a transient getBBox text-measurement node (self.document.body.appendChild(n) then removeChild(n)); chart tooltips go inside this.el (select(this.el).select('.tooltip').remove()), not body. addEventListener('resize', this.resizeHandler.bind(this)) — window resize listener with inline .bind(this) (ref not cleanly removable -> leak risk). Mount + internal SVG resolved via document.getElementById x9 / document.querySelector x2 -> cannot see shadow-root subtrees, so shadow-incompatible (matches widget=unsupported).",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

@@ -1,0 +1,74 @@
+{
+  "entry_version": "thin-1",
+  "id": "penrose-core",
+  "name": "@penrose/core",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for mathematical or CS concept diagrams whose layout must satisfy relationships rather than fixed coordinates, such as set containment, geometric constraints including tangency/non-overlap, vectors, and graph structures. Write a Domain/Substance/Style triple, and Penrose's numerical optimizer solves the layout and renders SVG. Use it when constraint-driven layout is better than manually positioning SVG. Note that this has the steepest learning curve in this batch because it requires three DSL programs: .domain/.substance/.style.",
+      "why_valuable": "Declarative diagram synthesis: describe objects and relationships, then a numerical optimizer solves geometry satisfying constraints such as non-overlap, containment, and tangency and renders publication-quality SVG. Native AI cannot manually place geometry that satisfies constraints; Penrose runs a solver.",
+      "data_in": {
+        "note": "Penrose accepts three program STRINGS plus a variation seed: domain (type vocabulary), substance (concrete objects and relationships), and style (rendering plus constraints). These are Penrose DSL source strings, not JSON. Use the self-contained /bundle entry whose root has 14 npm dependencies.",
+        "schema": {
+          "domain": "string -- .domain DSL declaring the type/predicate vocabulary",
+          "substance": "string -- .substance DSL describing concrete objects and their relationships",
+          "style": "string -- .style DSL containing drawing rules, constraints, and objectives",
+          "variation?": "string -- seed controlling randomized layout; any string, self-selected by default"
+        }
+      },
+      "spec": {
+        "note": "Penrose renders SVG at the canvas size defined by Style. The container only needs a width; do not use vh or percentage heights."
+      }
+    }
+  },
+  "when_to_use": "布局需要『满足关系』而非固定坐标的数学/CS 概念图(集合包含、tangency/non-overlap 等几何约束、向量/图结构):你写 Domain/Substance/Style 三元组,Penrose 的数值优化器求解布局并渲成 SVG。约束驱动布局优于手摆 SVG 时用;注意这是本批学习曲线最陡的(要写 .domain/.substance/.style 三元组 DSL)。",
+  "why_valuable": "声明式图形合成:你描述对象与关系,数值优化器求解满足约束的几何(non-overlap、containment、tangency)并渲出出版级 SVG;原生 AI 无法手摆满足约束的几何,而 Penrose 跑的是 solver。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@penrose/core",
+    "version": "3.3.0",
+    "github": "penrose/penrose"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "diagram-spec",
+    "note": "Penrose 吃三个程序 STRING + 一个 variation 种子:domain(类型词汇表)、substance(具体对象与关系)、style(如何画 + 约束)。这些是 Penrose DSL 源码字符串,不是 JSON。用自包含的 /bundle 入口(root 有 14 个 npm 依赖)。",
+    "schema": {
+      "domain": "string —— .domain DSL:声明 type/predicate 词汇表",
+      "substance": "string —— .substance DSL:具体对象与它们的关系",
+      "style": "string —— .style DSL:绘制规则、约束(constraints)与目标(objectives)",
+      "variation?": "string —— 控制随机布局的种子,任意字符串;默认自选"
+    }
+  },
+  "spec": {
+    "height": null,
+    "note": "Penrose 按 Style 的 canvas 尺寸渲出 SVG;容器只需给 width,禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// bundle 用 exported TLA promise 初始化 API；必须等待后再读取 diagram\nimport * as Penrose from 'https://cdn.jsdelivr.net/npm/@penrose/core@3.3.0/bundle/+esm';\nawait Penrose.__tla;\nconst el = document.getElementById('penrose'); el.style.width = '100%';\nawait Penrose.diagram(\n  { domain: data.domain, substance: data.substance, style: data.style, variation: data.variation ?? 'v1', excludeWarnings: [] },\n  el,\n  async () => undefined\n);",
+    "widget": "// diagram 输出是 SVG 追加进 node(shadow-ok);首次含 label 时 MathJax 排版会一次性触 document.body/insertRule\nimport * as Penrose from 'https://cdn.jsdelivr.net/npm/@penrose/core@3.3.0/bundle/+esm';\nawait Penrose.__tla;\nconst el = document.createElement('div'); el.style.width = '100%'; shadowRoot.appendChild(el);\nawait Penrose.diagram({ domain: data.domain, substance: data.substance, style: data.style, variation: data.variation ?? 'v1', excludeWarnings: [] }, el, async () => undefined);",
+    "codex": "import * as Penrose from 'https://cdn.jsdelivr.net/npm/@penrose/core@3.3.0/bundle/+esm';\nawait Penrose.__tla;\nconst el = document.getElementById('penrose'); el.style.width = '100%';\nawait Penrose.diagram({ domain: data.domain, substance: data.substance, style: data.style, variation: data.variation ?? 'v1', excludeWarnings: [] }, el, async () => undefined);"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:/bundle ESM,diagram() 渲 SVG 进 node",
+    "widget": "conditional:diagram SVG 挂进 node 可行,但 MathJax label 排版首次有 document.body/insertRule 全局副作用",
+    "codex": "supported:ESM CDN + 求解器纯 JS,无 worker(bundle 内联 mathjax)"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr @penrose/core@3.3.0/bundle/+esm (200): named exports present (tk as diagram, DC as compile, zC as optimize, iI as toSVG, K0 as showError, Qk as isError). dist/index.d.ts: compile(prog:{substance,style,domain,variation,excludeWarnings?})→Promise<Result<State,PenroseError>> (L60); optimize(state)→Result<State,PenroseError> (L38); diagram(prog:{...,excludeWarnings:string[]}, node:HTMLElement, pathResolver:PathResolver, name?)→Promise<void> (L47) — one-call compile+optimize+render+append. renderer/Renderer.d.ts: toSVG(state, pathResolver, namespace)→Promise<SVGSVGElement>; PathResolver=(path)=>Promise<string|undefined> (async ()=>undefined for self-contained trios). bundle grep: createElementNS x23 (SVG), appendChild x76, document.body x3, insertRule x2, MathJax x15 → diagram output is an SVG appended to node (shadow-ok), but bundled MathJax label typesetting has one-time global side effects (body measurement + insertRule). globalStyleInjection/globalDomMutation=yes (MathJax). shadowCompatible=conditional. confidence medium: signatures verified from .d.ts, full runtime not live-probed; heavy bundled lib, steepest learning curve (author the DSL triple).",
+    "confidence": "medium"
+  },
+  "example": {
+    "minimal": {
+      "domain": "type Set\n\npredicate Disjoint(Set s1, Set s2)\npredicate Intersecting(Set s1, Set s2)\npredicate Subset(Set s1, Set s2)\n",
+      "substance": "Set A, B, C, D, E, F, G\n\nSubset(B, A)\nSubset(C, A)\nSubset(D, B)\nSubset(E, B)\nSubset(F, C)\nSubset(G, C)\n\nDisjoint(E, D)\nDisjoint(F, G)\nDisjoint(B, C)\n\nAutoLabel All",
+      "style": "canvas {\n  width = 800\n  height = 700\n}\n\nforall Set x {\n  shape x.icon = Circle { }\n  shape x.text = Equation {\n    string : x.label\n    fontSize : \"32px\"\n  }\n  ensure contains(x.icon, x.text)\n  encourage norm(x.text.center - x.icon.center) == 0\n  layer x.text above x.icon\n}\n\nforall Set x; Set y\nwhere Subset(x, y) {\n  ensure disjoint(y.text, x.icon, 10)\n  ensure contains(y.icon, x.icon, 5)\n  layer x.icon above y.icon\n}\n\nforall Set x; Set y\nwhere Disjoint(x, y) {\n  ensure disjoint(x.icon, y.icon)\n}\n\nforall Set x; Set y\nwhere Intersecting(x, y) {\n  ensure overlapping(x.icon, y.icon)\n  ensure disjoint(y.text, x.icon)\n  ensure disjoint(x.text, y.icon)\n}",
+      "variation": "MonsoonCaterpillar95943"
+    }
+  }
+}

@@ -2,6 +2,35 @@
   "entry_version": "thin-1",
   "id": "mojs-core",
   "name": "mo.js",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written CSS keyframes when you need like bursts, click ripples, icon morphs, or multi-stage staggered micro-interactions -- native implementations tend to make concentric bursts, staggered child particles, and reproducible easing timelines look rigid or fall out of sync. It is not for full-page scroll choreography or general DOM state management.",
+      "why_valuable": "AI defaults can write one opacity/transform segment but cannot produce professional Burst/ShapeSwirl geometric distribution, child-particle option inheritance, and multi-stage timing; mo.js puts these hard parts into declarative native constructors.",
+      "data_in": {
+        "note": "data_in is a trimmed mo.js constructor choice plus native options. boot exposes only Burst/Shape/ShapeSwirl that can safely render inside an explicit parent; boot overrides parent so it cannot default to document.body.",
+        "schema": {
+          "kind": "'Burst' | 'Shape' | 'ShapeSwirl'",
+          "options": {
+            "left?": "string | number -- uses the selected kind's upstream value by default (usually '50%')",
+            "top?": "string | number -- uses the selected kind's upstream value by default (usually '50%')",
+            "radius?": "number | {from:number,to:number} -- uses the selected kind's upstream value by default",
+            "angle?": "number | {from:number,to:number} -- uses the selected kind's upstream value by default",
+            "count?": "number -- Burst child-shape count; uses the upstream Burst value by default",
+            "duration?": "number(ms) -- uses the selected kind's upstream value by default",
+            "delay?": "number(ms) -- default 0",
+            "repeat?": "number -- default 0",
+            "shape?": "string -- Shape/ShapeSwirl shape; uses the upstream value by default",
+            "fill?": "string | {from:string,to:string} -- uses the upstream value by default",
+            "stroke?": "string | {from:string,to:string} -- uses the upstream value by default",
+            "children?": "object -- native options for Burst child shapes; default {}"
+          }
+        }
+      },
+      "spec": {
+        "note": "mo.js draws absolutely positioned SVG/DOM inside parent; the host defaults to an explicit height of 320px with position:relative. Do not use vh or percentage heights (iron rule 3); the host decides overflow for visuals extending beyond bounds."
+      }
+    }
+  },
   "when_to_use": "需要点赞爆裂、点击涟漪、图标变形或多段 stagger 微动效时用它,而非手写 CSS keyframes——原生手写在同心 burst、子粒子错峰和可复现缓动时间线上容易僵硬或失同步。非做整页滚动编排或通用 DOM 状态管理。",
   "why_valuable": "AI 默认能写单段 opacity/transform,但做不到专业的 Burst/ShapeSwirl 几何分布、子粒子参数继承和多段时间控制;mo.js 把这些难点放进声明式原生构造器。",
   "supply_form": "component",
@@ -39,9 +68,9 @@
     "note": "mo.js 以绝对定位 SVG/DOM 在 parent 内绘制;宿主默认显式 height 320px 且 position:relative。禁用 vh/百分比高(铁律 3);视觉越界需要宿主自行决定 overflow。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:原生 mo.js 构造器;显式 parent 防止落到 body\nimport { mojs } from 'https://cdn.jsdelivr.net/npm/@mojs/core@1/+esm';\nconst el = document.getElementById('mojs');\nel.style.cssText = 'height:320px;position:relative;overflow:hidden';\nconst Ctor = mojs[data.kind];\nconst motion = new Ctor({ ...data.options, parent: el }).play();",
-    "widget": "// SVG/DOM 必须落 shadow 内的显式 parent,不使用 mo.js 默认 document.body\nimport { mojs } from 'https://cdn.jsdelivr.net/npm/@mojs/core@1/+esm';\nconst el = document.createElement('div');\nel.style.cssText = 'height:320px;position:relative;overflow:hidden'; shadowRoot.appendChild(el);\nconst Ctor = mojs[data.kind];\nconst motion = new Ctor({ ...data.options, parent: el }).play();",
-    "codex": "同 artifact(sandbox iframe fragment):从 @mojs/core@1/+esm 取命名导出 mojs,创建固定 px 高且 position:relative 的 parent,再 new mojs[kind](options).play()。"
+    "artifact": "// @mojs/core 1.7.1 的 +esm 命名导出 mojs 实值为 undefined;构造器命名空间是 default\nimport mojs from 'https://cdn.jsdelivr.net/npm/@mojs/core@1.7.1/+esm';\nconst el = document.getElementById('mojs');\nel.style.cssText = 'height:320px;position:relative;overflow:hidden';\nconst toMojsOptions = value => Array.isArray(value) ? value : value && typeof value === 'object' ? ('from' in value && 'to' in value ? { [value.from]:value.to } : Object.fromEntries(Object.entries(value).map(([key, child]) => [key, toMojsOptions(child)]))) : value;\nconst Ctor = mojs[data.kind];\nconst motion = new Ctor({ ...toMojsOptions(data.options), parent: el }).play();",
+    "widget": "// SVG/DOM 必须落 shadow 内的显式 parent,不使用 mo.js 默认 document.body\nimport mojs from 'https://cdn.jsdelivr.net/npm/@mojs/core@1.7.1/+esm';\nconst el = document.createElement('div');\nel.style.cssText = 'height:320px;position:relative;overflow:hidden'; shadowRoot.appendChild(el);\nconst toMojsOptions = value => Array.isArray(value) ? value : value && typeof value === 'object' ? ('from' in value && 'to' in value ? { [value.from]:value.to } : Object.fromEntries(Object.entries(value).map(([key, child]) => [key, toMojsOptions(child)]))) : value;\nconst Ctor = mojs[data.kind];\nconst motion = new Ctor({ ...toMojsOptions(data.options), parent: el }).play();",
+    "codex": "同 artifact(sandbox iframe fragment):从 @mojs/core@1.7.1/+esm 取 default 构造器命名空间,创建固定 px 高且 position:relative 的 parent,再 new mojs[kind](options).play()。"
   },
   "example": {
     "_why": "Burst 的 children 继承、数值补间和时间参数属于深且易歧义的动效 config,minimal 用来钉死原生写法。",
@@ -88,7 +117,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "mo.js builds animation nodes via `createElementNS` (SVG) + innerHTML; +esm `document.head` count 0 → no head/style injection. It DOES default `parent:document.body` (found in +esm) when no parent is given, but the boot ALWAYS overrides with an explicit shadow `el` (`new Ctor({...data.options, parent: el})`), so generated SVG/DOM lands in the shadow container, not body. Animations run on requestAnimationFrame (mojs tweener), no global DOM listeners. Shadow-safe as long as the explicit parent is supplied — which the boot enforces.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

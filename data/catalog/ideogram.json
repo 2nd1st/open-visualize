@@ -1,0 +1,103 @@
+{
+  "entry_version": "thin-1",
+  "id": "ideogram",
+  "name": "ideogram",
+  "when_to_use": "遗传/基因组科普:某基因/SNP/CNV 在染色体上的位置、全基因组注释概览、核型图。提供 organism id + annotations(chr/start/stop/value)。当显带准确性或坐标摆放重要时替代手绘染色体条。重要限制:container 只能是 light DOM 的 CSS 选择器(内部 document.querySelector,不入 shadow),band 数据运行时从 jsDelivr 拉取(需 CSP 放行 cdn.jsdelivr.net),tippy 浮层落 document.body——不适合严格 shadow 隔离,widget 下退化为在宿主 light DOM 建容器。",
+  "why_valuable": "带状染色体 ideogram/核型图:Giemsa 显带、着丝粒,以及按基因组坐标放置的基因/变异注释,覆盖人/鼠及多种真核生物,含 histogram/heatmap/overlay 轨道与共线性。原生 AI 无法手绘准确显带或坐标精确的注释,只会画个带标签的矩形。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for genetics or genomics explanations: showing where a gene/SNP/CNV lies on a chromosome, whole-genome annotation overviews, or karyograms. Provide an organism id plus annotations(chr/start/stop/value). Use it instead of hand-drawn chromosome bars when banding accuracy or coordinate placement matters. Important limits: container must be a light-DOM CSS selector because it uses document.querySelector internally and does not enter shadow DOM; band data is fetched at runtime from jsDelivr, so CSP must allow cdn.jsdelivr.net; and tippy overlays attach to document.body. It does not suit strict shadow isolation, and widgets fall back to creating a container in the host light DOM.",
+      "why_valuable": "It provides banded chromosome ideograms and karyograms with Giemsa bands, centromeres, and gene or variant annotations placed by genomic coordinate. It covers human, mouse, and many eukaryotes, with histogram/heatmap/overlay tracks and synteny. Native AI cannot hand-draw accurate bands or coordinate-precise annotations; it only draws a labeled rectangle.",
+      "data_in": {
+        "note": "Call new Ideogram(config). container is a CSS selector string, default 'body', resolved through document.querySelector. It must target light DOM and cannot be an element or a node inside shadow DOM. annotations are placed by chr plus start/stop base-pair coordinates; value drives histogram/heatmap height or color. Band data is fetched automatically from jsDelivr by default and may be overridden with dataDir.",
+        "schema": {
+          "organism": "string | number - for example 'human', 'mouse', or taxid 9606",
+          "container?": "string - CSS selector, default 'body'; must target a light-DOM node",
+          "annotations?": [
+            {
+              "name?": "string",
+              "chr": "string - for example '17'",
+              "start": "number",
+              "stop": "number",
+              "value?": "number"
+            }
+          ],
+          "annotationsLayout?": "'tracks' | 'histogram' | 'heatmap' | 'overlay'",
+          "chrHeight?": "number - pixel height, default based on container/400",
+          "orientation?": "'vertical' | 'horizontal'",
+          "dataDir?": "string - band-data directory, automatically pointed to jsDelivr by default"
+        }
+      },
+      "spec": {
+        "note": "chrHeight controls chromosome height in pixels, default 400. Give the light-DOM div container pixel dimensions. Do not use vh."
+      }
+    }
+  },
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "ideogram",
+    "version": "1.53.0",
+    "github": "eweitz/ideogram"
+  },
+  "license": "CC0-1.0",
+  "data_in": {
+    "shape": "genomic-annotations",
+    "note": "new Ideogram(config)。container 是 CSS 选择器字符串(默认 'body'),经 document.querySelector 解析——必须 light DOM,不能是元素或 shadow 内节点。annotations 按 chr + start/stop(碱基坐标)摆放;value 驱动 histogram/heatmap 高度/色。band 数据默认从 jsDelivr 自动拉取(可用 dataDir 覆盖)。",
+    "schema": {
+      "organism": "string | number —— 如 'human'、'mouse' 或 taxid 9606",
+      "container?": "string —— CSS 选择器,默认 'body';必须是 light DOM 节点",
+      "annotations?": [
+        {
+          "name?": "string",
+          "chr": "string —— 如 '17'",
+          "start": "number",
+          "stop": "number",
+          "value?": "number"
+        }
+      ],
+      "annotationsLayout?": "'tracks' | 'histogram' | 'heatmap' | 'overlay'",
+      "chrHeight?": "number —— 像素高,默认按容器/400",
+      "orientation?": "'vertical' | 'horizontal'",
+      "dataDir?": "string —— band 数据目录,默认自动指向 jsDelivr"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "chrHeight 控制染色体像素高(默认 400);容器给 light DOM 的 div,px 尺寸。禁 vh。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:default export = Ideogram;container 必须是 light DOM 选择器\nimport Ideogram from 'https://cdn.jsdelivr.net/npm/ideogram@1.53.0/+esm';\nconst el = document.getElementById('ideo'); if (!el.id) el.id = 'ideo';\nconst ideogram = new Ideogram({ organism: data.organism, container: '#' + el.id, annotations: data.annotations ?? [], annotationsLayout: data.annotationsLayout, chrHeight: data.chrHeight ?? 400, orientation: data.orientation ?? 'vertical' });",
+    "widget": "// 非 shadow 友好:Ideogram 用 document.querySelector 找 container 且 tippy 浮层落 document.body。widget 下退化——在宿主 light DOM 建容器,不放进 shadowRoot\nimport Ideogram from 'https://cdn.jsdelivr.net/npm/ideogram@1.53.0/+esm';\nconst host = document.createElement('div'); host.id = 'ideo_' + Math.random().toString(36).slice(2); host.style.width = '100%'; document.body.appendChild(host);\nconst ideogram = new Ideogram({ organism: data.organism, container: '#' + host.id, annotations: data.annotations ?? [], chrHeight: data.chrHeight ?? 400 });",
+    "codex": "import Ideogram from 'https://cdn.jsdelivr.net/npm/ideogram@1.53.0/+esm';\nconst el = document.getElementById('ideo'); if (!el.id) el.id = 'ideo';\nconst ideogram = new Ideogram({ organism: data.organism, container: '#' + el.id, annotations: data.annotations ?? [], chrHeight: data.chrHeight ?? 400 });"
+  },
+  "example": {
+    "_why": "annotation 用 chr + start/stop(碱基坐标),minimal 钉死单基因标注。",
+    "minimal": {
+      "organism": "human",
+      "annotations": [
+        {
+          "name": "BRCA1",
+          "chr": "17",
+          "start": 43044294,
+          "stop": 43125482
+        }
+      ]
+    }
+  },
+  "uplink": "display 默认不上行;注解点击等交互由消费 AI 接 Ideogram 的 onDidRotate/annotation onClick 等原生回调处理。",
+  "carriers": {
+    "artifact": "inferred-not-tested;band 数据运行时从 cdn.jsdelivr.net 拉取(CSP 需放行)",
+    "widget": "conditional:container 走 document.querySelector 只认 light DOM,tippy 落 body;严格 shadow 隔离不适用,退化为宿主 light DOM 容器",
+    "codex": "supported:light DOM + ESM;需网络放行 jsDelivr 取 band 数据"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "+esm default export = Ideogram (Is). README/src: new Ideogram({organism, container(default 'body'), annotations:[{name?,chr,start,stop,value?}], annotationsLayout?, chrHeight?, orientation?, dataDir?}). src/js/init/configure.js line 29 `document.querySelector(container).getBoundingClientRect()` and line 132 `ideo.selector = ideo.config.container + ' #_ideogram'` prove container is a light-DOM CSS selector STRING (not an element, not shadow-reachable). src/js/lib.js getDir(): when location.pathname lacks '/examples/vanilla/' returns `https://cdn.jsdelivr.net/npm/ideogram@${version}/dist/data/${dir}` — band data auto-fetches from jsDelivr at runtime (dist/data/bands/native/homo-sapiens.json verified HTTP 200), a network dependency. globalDomMutation=yes: tippy.js tooltips (grep +esm: tippy x59) append to document.body (document.body x3). globalStyleInjection=yes: tippy + d3/SVG styling. globalEvents=yes: keydown x3. shadowCompatible=no: mandatory light-DOM container + tooltips escape to body. License CC0-1.0 (public-domain grade). Deps: d3-* + crossfilter2 + tippy.js + fflate (bundled via +esm).",
+    "confidence": "high"
+  }
+}

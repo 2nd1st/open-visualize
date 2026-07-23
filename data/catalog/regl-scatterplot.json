@@ -1,0 +1,97 @@
+{
+  "entry_version": "thin-1",
+  "id": "regl-scatterplot",
+  "name": "regl-scatterplot",
+  "when_to_use": "几十万~百万点散点(embedding/t-SNE/UMAP、单细胞、聚类)要缩放/框选/lasso/连续着色地探索时用它;几百点用普通散点(Chart.js/Plotly)即可,别上 GPU。硬要求:坐标须预先归一化到 [-1,1](NDC),且需自备一个 <canvas>。",
+  "why_valuable": "Canvas/SVG 在几万点以上必卡死;regl-scatterplot 用 regl(WebGL)GPU 实例化渲染百万点并保持交互拾取,AI 写不出 GPU 散点渲染管线与相机变换。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "regl-scatterplot",
+    "version": "1.16.0",
+    "github": "flekschas/regl-scatterplot"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "point-cloud",
+    "note": "关键:每个点坐标必须预先归一化到 [-1,1](NDC),库不替你缩放。点是数组不是对象:[x,y] 或 [x,y,category,value];category 为整数(索引调色板做分类着色),value∈[0,1](连续着色/透明度)。",
+    "schema": {
+      "_defaults": {
+        "pointSize": "4"
+      },
+      "points": "Array<[x, y] | [x, y, category, value]> —— x,y∈[-1,1];category:number(整数,分类索引);value:number(0..1,连续通道)",
+      "pointSize?": "number —— 点像素半径,传入 createScatterplot 选项;默认由本条 boot 设为 4"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "自备 <canvas> 填满容器;默认容器 height 400px,禁 vh。构造前 canvas 需有实际尺寸(getBoundingClientRect),尺寸变化后用 scatterplot.set({width,height}) 更新。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested。默认导出 createScatterplot;+esm 经嵌套 +esm 解析 peers regl@2.1.1 + pub-sub-es@3.0.0。点坐标必须先归一化到 [-1,1]。\nimport createScatterplot from 'https://cdn.jsdelivr.net/npm/regl-scatterplot@1.16.0/+esm';\nconst el = document.getElementById('scatter'); el.style.height = '400px';\nconst canvas = document.createElement('canvas'); canvas.style.width = '100%'; canvas.style.height = '100%'; el.appendChild(canvas);\nconst { width, height } = canvas.getBoundingClientRect();\nconst scatterplot = createScatterplot({ canvas, width, height, pointSize: 4 });\nscatterplot.draw(data.points);",
+    "widget": "// canvas 落 shadow、WebGL 正常;注意相机会在 window 挂 mousemove/mouseup/keydown/keyup/resize 等监听,动画辅助向 document.head 注 stylesheet(均全局但无害)。\nimport createScatterplot from 'https://cdn.jsdelivr.net/npm/regl-scatterplot@1.16.0/+esm';\nconst el = document.createElement('div'); el.style.width = '100%'; el.style.height = '400px'; shadowRoot.appendChild(el);\nconst canvas = document.createElement('canvas'); canvas.style.width = '100%'; canvas.style.height = '100%'; el.appendChild(canvas);\nconst { width, height } = canvas.getBoundingClientRect();\nconst scatterplot = createScatterplot({ canvas, width, height, pointSize: 4 });\nscatterplot.draw(data.points);",
+    "codex": "import createScatterplot from 'https://cdn.jsdelivr.net/npm/regl-scatterplot@1.16.0/+esm';\nconst el = document.getElementById('scatter'); el.style.height = '400px';\nconst canvas = document.createElement('canvas'); canvas.style.width = '100%'; canvas.style.height = '100%'; el.appendChild(canvas);\nconst { width, height } = canvas.getBoundingClientRect();\nconst scatterplot = createScatterplot({ canvas, width, height, pointSize: 4 });\nscatterplot.draw(data.points);"
+  },
+  "example": {
+    "_why": "钉死点是数组 [x,y,category,value] 且 x,y∈[-1,1](已归一化)。",
+    "minimal": {
+      "points": [
+        [
+          -0.5,
+          -0.5,
+          0,
+          0.2
+        ],
+        [
+          0.3,
+          0.1,
+          1,
+          0.8
+        ],
+        [
+          0.7,
+          -0.2,
+          0,
+          0.5
+        ]
+      ]
+    },
+    "empty": {
+      "points": []
+    }
+  },
+  "uplink": "display/local-interact 默认不上行;框选/lasso/点击选择若需外传,由消费 AI 接 scatterplot.subscribe('select'/'deselect') 等原生事件并按载体处理。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:canvas 落 shadow、WebGL 正常;但相机在 window 挂 mousemove/mouseup/keydown/keyup/resize/orientationchange 监听,且动画辅助向 document.head 注入 stylesheet(全局但无害)。",
+    "codex": "supported:ESM CDN + WebGL,peers regl/pub-sub-es 经嵌套 +esm 自解析。"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "默认导出 createScatterplot(+esm: export{...,Zu as default};另有 named checkSupport/createRegl/createRenderer)。+esm 头部把 peers 外置为嵌套 import:import Sc from \"/npm/regl@2.1.1/+esm\"、import vc from \"/npm/pub-sub-es@3.0.0/+esm\"——运行时自解析,无需手动载 regl。API(README):createScatterplot({canvas,width,height,pointSize});scatterplot.draw(points),points=[[x,y],[x,y,category,value]];README 明写 points 须归一化到 [-1,1](NDC)。globalStyleInjection=yes:grep 命中 t.createElement(\"style\");document.head.appendChild(e) 与 n.insertRule(...)——注入一张全局动画/过渡 stylesheet。globalEvents=yes:window.addEventListener 命中 blur/keydown/keyup/mousemove/mouseup/orientationchange/resize(dom-2d-camera 平移缩放 + 键盘修饰键 + 尺寸),另有 ResizeObserver。globalDomMutation=no:只画进你提供的 canvas。",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to explore scatterplots with hundreds of thousands to millions of points, such as embeddings, t-SNE/UMAP, single-cell data, or clusters, with zoom, box/lasso selection, and continuous coloring. For a few hundred points, use an ordinary Chart.js/Plotly scatterplot instead of GPU rendering. Hard requirement: coordinates must be normalized to [-1,1] (NDC) in advance, and you must provide a <canvas>.",
+      "why_valuable": "Canvas/SVG becomes unusable above tens of thousands of points; regl-scatterplot uses regl (WebGL) to render millions of instanced points on the GPU while preserving interactive picking. AI cannot write the GPU scatter-rendering pipeline and camera transforms.",
+      "data_in": {
+        "note": "Important: every point coordinate must already be normalized to [-1,1] (NDC); the library does not scale it for you. Points are arrays, not objects: [x,y] or [x,y,category,value]. category is an integer palette index for categorical color, and value is in [0,1] for continuous color/opacity.",
+        "schema": {
+          "_defaults": {
+            "pointSize": "4"
+          },
+          "points": "Array<[x, y] | [x, y, category, value]> -- x,y in [-1,1]; category:number (integer category index); value:number (0..1 continuous channel)",
+          "pointSize?": "number -- Point radius in pixels, passed to createScatterplot options; this entry's boot default is 4"
+        }
+      },
+      "spec": {
+        "note": "Provide a <canvas> that fills the container; default container height is 400px and vh is forbidden. The canvas needs real dimensions from getBoundingClientRect before construction; after resize, update with scatterplot.set({width,height})."
+      }
+    }
+  }
+}

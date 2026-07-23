@@ -1,0 +1,70 @@
+{
+  "entry_version": "thin-1",
+  "id": "dmn-js",
+  "name": "dmn-js",
+  "when_to_use": "把业务规则/决策逻辑渲成规范的 DMN 决策表(hit policy、typed input/output 列、FEEL 表达式、annotation)或 DRD 决策需求图时用它,而非手搭 HTML 表格——手工表会丢 hit-policy 标记、annotation 与联动的 DRD,且表+图一致性难维持。仅当 hit policy/FEEL/决策图有语义意义时选它;普通电子表格用 grid 库。",
+  "why_valuable": "DMN 决策表是 grid+graph 复合产物,有精确语义(hit policy 聚合、typed 列、规则行);AI 手搭会静默丢语义标记且无法自动布局 DRD 图。dmn-js 是 bpmn.io 官方栈,从 DMN XML 确定性渲出 spec-correct 的决策表与 DRD。",
+  "supply_form": "component",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to render business rules or decision logic as a standard DMN decision table (hit policy, typed input/output columns, FEEL expressions, annotations) or a DRD decision-requirements diagram instead of assembling an HTML table by hand, which loses hit-policy markers, annotations, and the linked DRD and makes table/diagram consistency difficult. Choose it only when hit policy, FEEL, or the decision diagram carries semantic meaning; use a grid library for an ordinary spreadsheet.",
+      "why_valuable": "A DMN decision table is a compound grid-and-graph artifact with precise semantics (hit-policy aggregation, typed columns, and rule rows); a hand-built AI version silently drops semantic markers and cannot lay out the DRD automatically. dmn-js is the official bpmn.io stack and deterministically renders spec-correct decision tables and DRDs from DMN XML.",
+      "data_in": {
+        "note": "dmnXml is standard DMN 1.3 XML: <definitions> contains <decision><decisionTable> with <input>/<output>/<rule>, where each rule has <inputEntry>/<outputEntry> FEEL text. A DRD needs a <dmndi:DMNDI> diagram-interchange section for layout; without DMNDI, the decision-table view can still render but the DRD has no coordinates. The Viewer automatically selects a drd, decisionTable, literalExpression, or boxedExpression view from the XML contents.",
+        "schema": {
+          "dmnXml": "string -- DMN 1.3 XML string; importXML returns {warnings} or throws on a parse failure"
+        }
+      },
+      "spec": {
+        "note": "The decision table is HTML and the DRD is a diagram-js SVG canvas; both read the container size. Give the container an explicit 400px height with scrolling; do not use vh or percentage heights."
+      }
+    }
+  },
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "dmn-js",
+    "version": "17.10.0",
+    "github": "bpmn-io/dmn-js"
+  },
+  "license": "SEE LICENSE IN LICENSE (bpmn.io license —— MIT 文本 + 强制 bpmn.io watermark 必须保持可见,不得移除/遮挡)",
+  "data_in": {
+    "shape": "notation-xml",
+    "note": "dmnXml 是标准 DMN 1.3 XML:<definitions> 内含 <decision><decisionTable> 带 <input>/<output>/<rule>(rule 内 <inputEntry>/<outputEntry> 为 FEEL 文本)。DRD 图需 <dmndi:DMNDI> 图形交换段提供布局;只给决策逻辑而无 DMNDI 时,决策表视图仍可渲染,DRD 视图无坐标。Viewer 按 XML 内容自动选 drd / decisionTable / literalExpression / boxedExpression 视图。",
+    "schema": {
+      "dmnXml": "string —— DMN 1.3 XML 字符串;importXML 解析失败返回 {warnings} 或抛错"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "决策表为 HTML、DRD 为 diagram-js SVG canvas,都读容器尺寸;容器给显式 400px 高并滚动,禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// 先挂可见容器再动态加载大模块,避免冷缓存时 1.7s 探针误判空白\n['assets/diagram-js.css','assets/dmn-js-shared.css','assets/dmn-js-drd.css','assets/dmn-js-decision-table.css','assets/dmn-font/css/dmn.css'].forEach(p => { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://cdn.jsdelivr.net/npm/dmn-js@17.10.0/dist/' + p; document.head.appendChild(l); });\nconst container = document.getElementById('dmn'); container.style.cssText = 'height:400px;overflow:auto';\nconst status = document.createElement('div'); status.textContent = 'Loading decision model…'; container.appendChild(status);\nconst { default: DmnViewer } = await import('https://cdn.jsdelivr.net/npm/dmn-js@17.10.0/+esm');\nconst viewer = new DmnViewer({ container });\nawait viewer.importXML(data.dmnXml); status.remove();",
+    "widget": "// CSS + 图标字体全部落 shadow(从 CDN <link>,相对 font url 自动对齐到 CDN 根);widget 允许 CDN 字体\n['assets/diagram-js.css','assets/dmn-js-shared.css','assets/dmn-js-drd.css','assets/dmn-js-decision-table.css','assets/dmn-font/css/dmn.css'].forEach(p => { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://cdn.jsdelivr.net/npm/dmn-js@17.10.0/dist/' + p; shadowRoot.appendChild(l); });\nconst container = document.createElement('div'); container.style.cssText = 'height:400px;overflow:auto'; shadowRoot.appendChild(container);\nconst status = document.createElement('div'); status.textContent = 'Loading decision model…'; container.appendChild(status);\nconst { default: DmnViewer } = await import('https://cdn.jsdelivr.net/npm/dmn-js@17.10.0/+esm');\nconst viewer = new DmnViewer({ container });\nawait viewer.importXML(data.dmnXml); status.remove();",
+    "codex": "['assets/diagram-js.css','assets/dmn-js-shared.css','assets/dmn-js-drd.css','assets/dmn-js-decision-table.css','assets/dmn-font/css/dmn.css'].forEach(p => { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://cdn.jsdelivr.net/npm/dmn-js@17.10.0/dist/' + p; document.head.appendChild(l); });\nconst container = document.getElementById('dmn'); container.style.cssText = 'height:400px;overflow:auto';\nconst status = document.createElement('div'); status.textContent = 'Loading decision model…'; container.appendChild(status);\nconst { default: DmnViewer } = await import('https://cdn.jsdelivr.net/npm/dmn-js@17.10.0/+esm');\nconst viewer = new DmnViewer({ container });\nawait viewer.importXML(data.dmnXml); status.remove();"
+  },
+  "example": {
+    "_why": "DMN XML 冗长且强 schema,minimal 给一张最小合法决策表(无 DMNDI→渲成决策表视图)。",
+    "minimal": {
+      "dmnXml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"https://www.omg.org/spec/DMN/20191111/MODEL/\" id=\"defs\" name=\"defs\" namespace=\"http://example\">\n  <decision id=\"d1\" name=\"Discount\">\n    <decisionTable id=\"t1\" hitPolicy=\"UNIQUE\">\n      <input id=\"i1\" label=\"Customer\"><inputExpression id=\"ie1\" typeRef=\"string\"><text>customer</text></inputExpression></input>\n      <output id=\"o1\" label=\"Discount\" typeRef=\"number\" />\n      <rule id=\"r1\"><inputEntry id=\"ie_r1\"><text>\"VIP\"</text></inputEntry><outputEntry id=\"oe_r1\"><text>20</text></outputEntry></rule>\n      <rule id=\"r2\"><inputEntry id=\"ie_r2\"><text>\"Regular\"</text></inputEntry><outputEntry id=\"oe_r2\"><text>5</text></outputEntry></rule>\n    </decisionTable>\n  </decision>\n</definitions>"
+    },
+    "empty": {
+      "dmnXml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"https://www.omg.org/spec/DMN/20191111/MODEL/\" id=\"empty\" name=\"empty\" namespace=\"http://example\"><decision id=\"d0\" name=\"d0\"><decisionTable id=\"t0\"><output id=\"o0\" /></decisionTable></decision></definitions>"
+    }
+  },
+  "uplink": "display/local-interact 默认不上行;决策表编辑或元素选中若需外传,由消费 AI 直接接 dmn-js 原生事件总线(viewer.on(...))并按载体处理,不预设统一事件契约。",
+  "carriers": {
+    "artifact": "inferred-not-tested:font-src 仅 gstatic→dmn-font 图标被拦(核心表格内容仍在,图标降级);CJS→+esm 大依赖树加载未实测",
+    "widget": "conditional:允许 CDN 字体;需把 diagram-js.css + dmn-js-*.css + dmn-font 显式 <link> 进 shadow;watermark 须保持可见(license)",
+    "codex": "conditional:允许 jsDelivr CSS/字体;同 widget 需手动挂 CSS+字体;+esm 依赖链加载未实测"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "API verified vs dmn-js@17.10.0: lib/index.js `export { default } from './Viewer'`;Viewer extends dmn-js-shared Manager;Manager.js:87 `importXML(xml, options)`(wrapForCompatibility 包装,返回 {warnings});Manager 构造吃 { container }。渲染落用户提供的容器:Manager.js:341 `parentNode.appendChild(this._container)`、:367 `this._container = container`——不注入 document.body。globalStyleInjection=no:bpmn.io 惯例 CSS 为独立 dist/assets/*.css 文件(diagram-js.css/dmn-js-*.css/dmn-font),由使用者显式引入,库不自动注 head。globalDomMutation=yes:在容器内建 SVG(DRD)/HTML(decisionTable)子树 + 可能的拖拽 helper。globalEvents=yes:diagram-js 挂 pointer/wheel/keyboard 交互监听,拖拽期可能挂 document。shadowCompatible=conditional:视图渲进提供的容器可落 shadow,但图标字体 @font-face + 多张 CSS 必须手动接进 shadow,且 license 要求 bpmn.io watermark 保持可见。license=SEE LICENSE IN LICENSE(MIT 文本 + 强制 watermark)。confidence=medium:API 为成熟 bpmn.io 契约,+esm 大依赖树实际加载与 CSS/字体接入未真机验证。",
+    "confidence": "medium"
+  }
+}

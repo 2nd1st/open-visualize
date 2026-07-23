@@ -1,0 +1,92 @@
+{
+  "entry_version": "thin-1",
+  "id": "dimforge-rapier2d-compat",
+  "name": "@dimforge/rapier2d-compat",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for deterministic, reproducible, constraint-heavy 2D mechanism simulations (gears, linkages, ragdolls, conveyor belts, motors). For simple bouncing-ball stacks, the lighter matter-js is enough. Augment boundary: it is a Rust/WASM solver with no rendering. You must first await RAPIER.init(), then read body.translation()/rotation() each frame and render with canvas, PixiJS, or Three.js.",
+      "why_valuable": "The deterministic Rust/WASM solver includes joints, motors, sensors, and continuous collision detection (CCD), with precision and reproducibility far beyond JS physics libraries. AI cannot hand-write a reproducible constraint solver, so native code cannot handle this kind of precision mechanism. The -compat variant inlines the .wasm as base64 in JS, requiring no bundler or extra fetch.",
+      "data_in": {
+        "note": "Assemble the 2D scene one API object at a time, after first awaiting RAPIER.init(). gravity is {x,y}; when Y points upward, use a negative gravity y. Create a RigidBodyDesc for each body, then attach a ColliderDesc.",
+        "schema": {
+          "_defaults": {
+            "gravity": "{x:0,y:-9.81}",
+            "restitution": "0",
+            "density": "1",
+            "timestep": "1/60"
+          },
+          "gravity": "{ x:number, y:number } -- gravity vector; defaults to {x:0,y:-9.81}",
+          "bodies": [
+            {
+              "type": "'dynamic' | 'fixed' | 'kinematicPositionBased' | 'kinematicVelocityBased' -- maps to the same-named static RigidBodyDesc method",
+              "translation": "{ x:number, y:number } -- initial position (setTranslation)",
+              "collider": "{ shape:'cuboid', hx, hy } | { shape:'ball', radius } | { shape:'capsule', halfHeight, radius }",
+              "restitution?": "number -- elasticity from 0..1; defaults to 0",
+              "density?": "number -- density, which determines mass; defaults to 1"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "when_to_use": "需要确定性、可复现、约束密集的 2D 机构模拟(齿轮/连杆/布娃娃/传送带/马达)时用它;简单弹球堆叠用更轻的 matter-js 就够。augment 边界:Rust/WASM 求解、零渲染,必须先 await RAPIER.init(),每帧读 body.translation()/rotation() 交给 canvas/pixi/three 画。",
+  "why_valuable": "确定性 Rust/WASM 求解器带关节/马达/传感器/连续碰撞(CCD),精度与可复现性远超 JS 物理库;AI 徒手写约束求解器不可能可复现,这类精密机构原生完全做不好。-compat 变体把 .wasm 以 base64 内联进 JS,无需 bundler/额外 fetch。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@dimforge/rapier2d-compat",
+    "version": "0.19.3",
+    "github": "dimforge/rapier.js"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "scene",
+    "note": "用 API 逐条组装的 2D 场景;必须先 await RAPIER.init()。gravity 是 {x,y},Y 朝上时重力 y 取负。每个 body 先建 RigidBodyDesc 再挂 ColliderDesc。",
+    "schema": {
+      "_defaults": {
+        "gravity": "{x:0,y:-9.81}",
+        "restitution": "0",
+        "density": "1",
+        "timestep": "1/60"
+      },
+      "gravity": "{ x:number, y:number } —— 重力向量,默认 {x:0,y:-9.81}",
+      "bodies": [
+        {
+          "type": "'dynamic' | 'fixed' | 'kinematicPositionBased' | 'kinematicVelocityBased' —— 映射 RigidBodyDesc 同名静态方法",
+          "translation": "{ x:number, y:number } —— 初始位置(setTranslation)",
+          "collider": "{ shape:'cuboid', hx, hy } | { shape:'ball', radius } | { shape:'capsule', halfHeight, radius }",
+          "restitution?": "number —— 弹性 0..1,默认 0",
+          "density?": "number —— 密度(决定质量),默认 1"
+        }
+      ]
+    }
+  },
+  "provides": {
+    "shape": "rigid-bodies-2d",
+    "_note": "headless-primitive:Rust/WASM 2D 物理、确定性、零渲染、无 L 级、无 carriers 矩阵;每帧读 body.translation()/rotation() 驱动 canvas/pixi/three。",
+    "outputs": "world.step() 后每个 RigidBody 的 translation()→{x,y} 与 rotation()→弧度;消费 AI 据此在 2D 渲染层画。EventQueue 可收碰撞/传感器事件。",
+    "api_surface": {
+      "init": "await RAPIER.init() 必须先执行(编译内联 base64 WASM)",
+      "world": "new RAPIER.World({x,y}); world.step(); world.timestep 默认 1/60",
+      "body": "world.createRigidBody(RAPIER.RigidBodyDesc.dynamic()|.fixed()|.kinematicPositionBased().setTranslation(x,y)) → RigidBody",
+      "collider": "world.createCollider(RAPIER.ColliderDesc.cuboid(hx,hy)|.ball(r)|.capsule(halfHeight,r).setRestitution(n).setDensity(n), body) → Collider",
+      "joints": "RAPIER.JointData.revolute/prismatic/fixed + world.createImpulseJoint(...);EventQueue 收碰撞/传感器事件"
+    }
+  },
+  "peer": {
+    "id": "canvas-2d",
+    "note": "rapier 零渲染:每帧 world.step() 后读 body.translation()/rotation(),用原生 CanvasRenderingContext2D(或 pixi/three)画。目录暂无专属 2D 渲染库时直接用 canvas 2d。"
+  },
+  "boot": {
+    "shared": "import RAPIER from 'https://cdn.jsdelivr.net/npm/@dimforge/rapier2d-compat@0.19.3/+esm';\nawait RAPIER.init(); // 必须先 await:编译内联 base64 WASM\nconst g = data.gravity ?? { x: 0, y: -9.81 };\nconst world = new RAPIER.World(g);\nfor (const b of data.bodies) {\n  const desc = (RAPIER.RigidBodyDesc[b.type] ?? RAPIER.RigidBodyDesc.dynamic)().setTranslation(b.translation.x, b.translation.y);\n  const body = world.createRigidBody(desc);\n  const c = b.collider;\n  const cd = c.shape === 'ball' ? RAPIER.ColliderDesc.ball(c.radius)\n    : c.shape === 'capsule' ? RAPIER.ColliderDesc.capsule(c.halfHeight, c.radius)\n    : RAPIER.ColliderDesc.cuboid(c.hx, c.hy);\n  if (b.restitution != null) cd.setRestitution(b.restitution);\n  if (b.density != null) cd.setDensity(b.density);\n  world.createCollider(cd, body);\n}\n// 每帧:world.step(); 读 body.translation()->{x,y}、body.rotation()->弧度,交给 canvas/pixi/three 画",
+    "note": "compat 版把 WASM 以 base64 内联,无外部 fetch;必须 await RAPIER.init() 后才能用任何 API。零渲染,每帧 world.step() 后读 translation()/rotation() 同步渲染层。宿主须允许 WebAssembly(目录已有 sql-js/rdkit/hpcc-js-wasm 证明支持)。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm 同时 export default(RAPIER 命名空间)与大量 named exports(World, RigidBodyDesc, ColliderDesc, Vector2, ImpulseJoint, EventQueue, init...)已核。必须 await RAPIER.init()(init.d.ts:init():Promise<void>);WASM 以 base64 内联(compat build),无外部 fetch。签名:new World(gravity:{x,y})(world.d.ts:41 constructor(gravity:Vector...)); world.createRigidBody(RigidBodyDesc.dynamic()|.fixed()|.kinematicPositionBased()|.kinematicVelocityBased().setTranslation(x,y)) → RigidBody(rigid_body.d.ts:510/522/514/518/568); world.createCollider(ColliderDesc.cuboid(hx,hy)|.ball(r)|.capsule(hh,r)[.setRestitution(n).setDensity(n)], body) → Collider(collider.d.ts:634/567/574/758/731); world.step()(world.d.ts:72); body.translation()→Vector、body.rotation()→弧度。grep +esm:零 document.head/body、零 window.addEventListener、零 createElement('style')——纯 WASM 模拟、零渲染,配 2D canvas/pixi/three。唯一外部依赖是 init() 编译内联 WASM,需宿主允许 WebAssembly(catalog 先例 sql-js/rdkit/hpcc-js-wasm)。headless-primitive,shadow-safe。",
+    "confidence": "high"
+  }
+}

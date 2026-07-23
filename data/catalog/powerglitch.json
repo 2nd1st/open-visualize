@@ -1,0 +1,125 @@
+{
+  "entry_version": "thin-1",
+  "id": "powerglitch",
+  "name": "powerglitch",
+  "when_to_use": "需要把某个已有元素(标题/logo/图片/div)做成可配置的赛博朋克 glitch(切片错位 + RGB 通道偏移 + 随机抖动)时用它,可选 always/hover/click/manual 触发。用来给现成内容加 glitch 装饰,而非一个通用 keyframe 抖动;它 augment 你的元素、不产出数据也不做布局。widget 内必须把 shadow 里的真实 HTMLElement 传给 glitch(),不能传 selector 字符串(字符串按 document 解析、看不到 shadow)。",
+  "why_valuable": "多层切片遮罩 + 通道分离 + 可信的随机时序是很繁琐的手工活,AI 徒手只能做出一眼假的弱抖动;PowerGlitch 用 WAAPI 生成分层 keyframe,原位包两层容器叠加克隆体,glitch 观感真实且零 CSS 注入。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to apply a configurable cyberpunk glitch (slice displacement, RGB channel offsets, and random jitter) to an existing element such as a title, logo, image, or div, with optional always/hover/click/manual triggering. It decorates existing content rather than providing generic keyframe jitter; it augments your element and produces neither data nor layout. Inside a widget, pass the real HTMLElement from the shadow root to glitch(), not a selector string (strings resolve against document and cannot see shadow DOM).",
+      "why_valuable": "Multi-layer slice masks, channel separation, and convincing randomized timing are tedious to build by hand, and AI-written versions produce obviously fake weak jitter; PowerGlitch uses WAAPI to generate layered keyframes, wraps the element in place with two containers, and overlays clones for a convincing glitch with no CSS injection.",
+      "data_in": {
+        "note": "powerglitch consumes a target element plus glitch options, not data. In a widget/shadow root, target must be a real HTMLElement (selector strings resolve against document); createContainers defaults to true and wraps the element in place with two containers.",
+        "schema": {
+          "_defaults": {
+            "options": "{}"
+          },
+          "target": "string | HTMLElement | NodeListOf<HTMLElement> | HTMLElement[] -- glitch target; inside a widget, pass the real element from shadow DOM, not a selector string",
+          "options?": {
+            "playMode?": "'always' | 'hover' | 'click' | 'manual' -- default 'always'",
+            "timing?": {
+              "duration?": "number -- animation-loop duration in ms, default 1000",
+              "iterations?": "number -- repeat count, default Infinity (forever)",
+              "easing?": "string -- CSS easing"
+            },
+            "glitchTimeSpan?": "false | { start: number, end: number } -- interval within 0..1 where glitching is concentrated, peaking at the midpoint",
+            "shake?": "false | { velocity: number, amplitudeX: number, amplitudeY: number } -- base-layer shake",
+            "slice?": {
+              "count?": "number -- number of slice layers",
+              "velocity?": "number",
+              "minHeight?": "number -- 0..1",
+              "maxHeight?": "number -- 0..1",
+              "hueRotate?": "boolean -- rotate each slice's hue",
+              "cssFilters?": "string -- custom filter (disables hueRotate)"
+            },
+            "pulse?": "false | { scale: number } -- pulse scaling",
+            "createContainers?": "boolean -- default true; when false, the first glitch() argument must be a layer container whose first child is the element to glitch",
+            "hideOverflow?": "boolean"
+          }
+        }
+      },
+      "spec": {
+        "note": "There is no canvas; glitch() wraps the target in place with two containers, and target content determines the size. Do not use vh or percentage heights. For SEO-sensitive scenarios, set optimizeSeo."
+      }
+    }
+  },
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "powerglitch",
+    "version": "2.5.0",
+    "github": "7PH/powerglitch"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "dom-target",
+    "note": "powerglitch 不吃数据、吃一个目标元素 + glitch options。widget/shadow 内 target 必须是真实 HTMLElement(selector 字符串按 document 解析);createContainers 默认 true 会在原位把元素包进两层容器。",
+    "schema": {
+      "_defaults": {
+        "options": "{}"
+      },
+      "target": "string | HTMLElement | NodeListOf<HTMLElement> | HTMLElement[] —— glitch 目标;widget 内传 shadow 里的真实元素,不要传 selector 字符串",
+      "options?": {
+        "playMode?": "'always' | 'hover' | 'click' | 'manual' —— 默认 'always'",
+        "timing?": {
+          "duration?": "number —— 动画循环时长 ms,默认 1000",
+          "iterations?": "number —— 重复次数,默认 Infinity(永久)",
+          "easing?": "string —— CSS easing"
+        },
+        "glitchTimeSpan?": "false | { start: number, end: number } —— glitch 集中在 0..1 区间的一段,峰值在中点",
+        "shake?": "false | { velocity: number, amplitudeX: number, amplitudeY: number } —— 基层抖动",
+        "slice?": {
+          "count?": "number —— 切片层数",
+          "velocity?": "number",
+          "minHeight?": "number —— 0..1",
+          "maxHeight?": "number —— 0..1",
+          "hueRotate?": "boolean —— 每片色相旋转",
+          "cssFilters?": "string —— 自定义 filter(会禁用 hueRotate)"
+        },
+        "pulse?": "false | { scale: number } —— 脉冲缩放",
+        "createContainers?": "boolean —— 默认 true;false 时 glitch() 第一参数须是 layer 容器且其首子为被 glitch 元素",
+        "hideOverflow?": "boolean"
+      }
+    }
+  },
+  "spec": {
+    "height": "content",
+    "note": "无 canvas;glitch() 在原位把目标包进两层容器,尺寸由目标内容撑开,禁 vh/百分比高。SEO 敏感场景可设 optimizeSeo。"
+  },
+  "boot": {
+    "artifact": "// named import；先把 example.text 挂进目标，再让 WAAPI 包装它\nimport { PowerGlitch } from 'https://cdn.jsdelivr.net/npm/powerglitch@2.5.0/+esm';\nconst el = document.getElementById('glitch-target'); el.style.display = 'inline-block'; el.textContent = data.text ?? 'GLITCH';\nPowerGlitch.glitch(el, data.options ?? {});",
+    "widget": "// named import;必须传 shadow 内真实元素(字符串 selector 按 document 解析,看不到 shadow)\nimport { PowerGlitch } from 'https://cdn.jsdelivr.net/npm/powerglitch@2.5.0/+esm';\nconst el = document.createElement('div'); el.style.display = 'inline-block'; el.textContent = data.text ?? 'GLITCH'; shadowRoot.appendChild(el);\nPowerGlitch.glitch(el, data.options ?? {}); // 原位包两层容器 + WAAPI,无样式外泄",
+    "codex": "import { PowerGlitch } from 'https://cdn.jsdelivr.net/npm/powerglitch@2.5.0/+esm';\nconst el = document.getElementById('glitch-target'); el.style.display = 'inline-block'; el.textContent = data.text ?? 'GLITCH';\nPowerGlitch.glitch(el, data.options ?? {});"
+  },
+  "example": {
+    "_why": "钉死 target 是元素 + options 分组,且 playMode/slice 是真实字段名。",
+    "minimal": {
+      "text": "GLITCH",
+      "options": {
+        "playMode": "hover",
+        "slice": {
+          "count": 6,
+          "hueRotate": true
+        }
+      }
+    },
+    "empty": {
+      "options": {}
+    }
+  },
+  "uplink": "display/decoration 默认不上行;glitch() 返回的 startGlitch/stopGlitch(manual 模式手动控制)由消费 AI 直接接。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:WAAPI 无 CSS 注入,作用于 shadow 内的真实元素;务必传 element 而非 selector",
+    "codex": "supported:ESM CDN,无 worker/wasm/uplink 依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm 导出 named {PowerGlitch, mergeOptions},无 default(误用 default import 会拿到 undefined)。build/src/index.d.ts:PowerGlitch.glitch(elOrSelector?, options?) => {containers, startGlitch, stopGlitch},另有 generateLayers/getDefaultOptions。+esm 隔离扫描:document.head=0、createElement('style')=0、insertRule=0、adoptedStyleSheets=0、document.body=0、window/DOMContentLoaded 监听=0 —— 动画走 WAAPI(d.ts 里 timing 为 EffectTiming/KeyframeEffect)。唯一 DOM 副作用是局部:glitch() 在原位把目标包进两层容器并叠加克隆体(index.d.ts createContainers 文档)。注意:字符串首参经 document.querySelectorAll 解析(+esm:`typeof e==\"string\"?...document.queryS...`),故 shadow 内必须传真实 HTMLElement。license:manifest 省略了 license 字段,但仓库 LICENSE 文件为 MIT(Copyright 2022 Benjamin Raymond)。",
+    "confidence": "high"
+  }
+}

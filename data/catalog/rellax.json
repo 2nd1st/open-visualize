@@ -1,0 +1,85 @@
+{
+  "entry_version": "thin-1",
+  "id": "rellax",
+  "name": "rellax",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for continuous depth parallax as hero layers, background layers, or decorative elements move with scrolling. Use rellax for continuous parallax and aos for a one-time entrance reveal. You provide elements plus data-rellax-speed on each, and rellax runs the rAF transform loop.",
+      "why_valuable": "Smooth 60fps scroll parallax that neither jitters nor fights layout is genuinely hard to write. Naive scroll listeners produce janky motion and layout thrashing; rellax uses transforms for smooth, high-performance movement.",
+      "data_in": {
+        "note": "Parallax strength comes from data-rellax-speed on each target element (negative moves backward more slowly, positive moves forward faster). The constructor's first argument is a selector in document scope or an element node.",
+        "schema": {
+          "target": "string selector (document scope) | Element node -- a node can target inside shadow DOM; defaults to '.rellax'",
+          "options?": {
+            "speed?": "number -- global speed when data-rellax-speed is absent; defaults to -2",
+            "center?": "boolean -- use the viewport center as the zero point; defaults to false",
+            "vertical?": "boolean -- vertical parallax; defaults to true",
+            "horizontal?": "boolean -- horizontal parallax; defaults to false",
+            "round?": "boolean -- round pixels to prevent jitter; defaults to true",
+            "wrapper?": "string | Element -- custom scroll container; defaults to null=window"
+          },
+          "_perElementAttrs": "data-rellax-speed / data-rellax-percentage / data-rellax-zindex are set on each target element"
+        }
+      }
+    }
+  },
+  "when_to_use": "hero/分层背景/装饰元素随滚动做连续深度视差时用它;连续视差用它,一次性进场揭示用 aos。你提供元素 + 每元素 data-rellax-speed,rellax 跑 rAF transform 循环。",
+  "why_valuable": "保持 60fps、不抖不与 layout 打架的滚动视差真的难写;朴素 scroll 监听产出 janky、thrash layout 的运动。rellax 用 transform 做到平顺高性能。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "rellax",
+    "version": "1.12.1",
+    "github": "dixonandmoe/rellax"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "config",
+    "note": "视差强度来自每个目标元素的 data-rellax-speed(负=后退更慢,正=前进更快);构造器第一参是选择器(document 域)或元素节点。",
+    "schema": {
+      "target": "string 选择器(document 域)| Element 节点 —— 传节点可命中 shadow;默认 '.rellax'",
+      "options?": {
+        "speed?": "number —— 无 data-rellax-speed 时的全局速度,默认 -2",
+        "center?": "boolean —— 以视口中心为 0 点,默认 false",
+        "vertical?": "boolean —— 纵向视差,默认 true",
+        "horizontal?": "boolean —— 横向视差,默认 false",
+        "round?": "boolean —— 像素取整防抖,默认 true",
+        "wrapper?": "string | Element —— 自定义滚动容器,默认 null=window"
+      },
+      "_perElementAttrs": "data-rellax-speed / data-rellax-percentage / data-rellax-zindex 写在每个目标元素上"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested。每个目标元素带 data-rellax-speed(负=后退,正=前进)。\nimport Rellax from 'https://cdn.jsdelivr.net/npm/rellax@1.12.1/+esm';\nconst rellax = new Rellax(data.target ?? '.rellax', data.options ?? {});\n// rellax.destroy() 可停止并卸载 window 监听",
+    "widget": "// 选择器字符串对 document 解析 —— 想动 shadow 内容改传 shadowRoot 里的 ELEMENT 节点(构造器把单节点当单目标包裹)。\nimport Rellax from 'https://cdn.jsdelivr.net/npm/rellax@1.12.1/+esm';\nconst target = shadowRoot.querySelector('.rellax');\nconst rellax = new Rellax(target, data.options ?? { speed: -3 });\n// 会加 window resize/orientationchange 监听;rellax.destroy() 移除它们",
+    "codex": "import Rellax from 'https://cdn.jsdelivr.net/npm/rellax@1.12.1/+esm';\nconst rellax = new Rellax(data.target ?? '.rellax', data.options ?? {});"
+  },
+  "example": {
+    "_why": "示例钉本库的 target+options 契约;真正的每元素强度写在 data-rellax-speed 上。",
+    "minimal": {
+      "target": ".rellax",
+      "options": {
+        "speed": -4,
+        "center": false
+      }
+    },
+    "empty": {
+      "target": ".rellax"
+    }
+  },
+  "uplink": "纯 display,无 uplink;滚动位置由 rellax 自读 window,不外传状态。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:传元素节点(选择器是 document 域,够不到 shadow);会加 window resize/orientationchange 监听,destroy() 清除",
+    "codex": "supported:default export + rAF transform,无 worker/wasm"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "API correct: +esm default export(Ae as default)= Rellax(target, options);构造器 `typeof s=='string'?document.querySelectorAll(s):[s]` —— 字符串走 document 域,NODE 被接受(包成单元素)故传节点可命中 shadow。默认:speed -2、vertical true、horizontal false、center false、round true。globalStyleInjection=no;globalDomMutation=no:只改 elems[i].style.cssText(transform),读 document.body.scrollTop/scrollLeft 求位置。globalEvents=yes:window.addEventListener('resize'/'orientationchange') + passive 探测;refresh/destroy 里 window.removeEventListener(grep)。shadowCompatible=conditional:传元素节点即可(选择器为 document 域)。",
+    "confidence": "high"
+  }
+}

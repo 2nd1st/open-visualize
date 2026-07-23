@@ -1,0 +1,137 @@
+{
+  "entry_version": "thin-1",
+  "id": "seqviz",
+  "name": "seqviz",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for molecular-biology/genetic-engineering visualization: plasmid maps, cloning/construct design, and annotated gene sequences. Supply a seq string plus an annotations array, and choose linear|circular|both|both_flip for viewer. Use it instead of hand-written SVG for circular plasmid maps and base-level zoom; a table is enough for a plain residue grid. Under strict CSP, always set disableExternalFonts:true (otherwise it fetches Roboto Mono from Google Fonts and injects a link into head).",
+      "why_valuable": "This DNA/RNA/protein sequence viewer renders both linear and circular (plasmid) views with curved feature arrows around the ring, restriction sites, primers, translations/ORFs, base-level zoom, and GenBank/FASTA parsing. Hand-drawing a circular plasmid map (arc math, arrows on curves, and non-overlapping annotation rings) is highly error-prone for native AI, which also cannot parse GenBank or provide interactive base-level selection.",
+      "data_in": {
+        "note": "Use vanilla Viewer(element, options).render(); element may be an id string or a real HTMLElement (including in shadow). annotations uses start/end plus direction(1|-1|0). style applies to the outermost div--give it a px height and prohibit vh (the README's 100vh is a counterexample).",
+        "schema": {
+          "seq": "string -- required DNA/RNA/amino-acid sequence",
+          "name?": "string -- name at the center of the circular view",
+          "annotations?": [
+            {
+              "name": "string",
+              "start": "number",
+              "end": "number",
+              "direction?": "1 | -1 | 0",
+              "color?": "string"
+            }
+          ],
+          "viewer?": "'linear' | 'circular' | 'both' | 'both_flip' -- default 'both'",
+          "seqType?": "'dna' | 'rna' | 'aa' -- inferred by default",
+          "enzymes?": "string[] -- enzyme names, such as ['EcoRI','BamHI']",
+          "translations?": [
+            {
+              "start": "number",
+              "end": "number",
+              "direction": "1 | -1"
+            }
+          ],
+          "highlights?": [
+            {
+              "start": "number",
+              "end": "number",
+              "color?": "string"
+            }
+          ],
+          "disableExternalFonts?": "boolean -- set true in a CSP environment",
+          "style?": "object -- applied to the outermost div, such as {height:'400px',width:'100%'}"
+        }
+      },
+      "spec": {
+        "note": "Viewer needs a sized container; give both the container and style.height px values. vh/percentage height is prohibited."
+      }
+    }
+  },
+  "when_to_use": "分子生物学/基因工程可视化:质粒图、克隆/构建设计、带注释基因序列。给 seq 字符串 + annotations 数组,viewer 选 linear|circular|both|both_flip。要环形质粒图、碱基级缩放时用它替代手写 SVG;纯残基网格用表格即可。严格 CSP 下务必置 disableExternalFonts:true(否则会从 Google Fonts 拉 Roboto Mono 并向 head 注入 link)。",
+  "why_valuable": "DNA/RNA/蛋白序列查看器,同时渲染线性与环形(质粒)图:环上曲线特征箭头、酶切位点、引物、翻译/ORF、碱基级缩放,并解析 GenBank/FASTA。手绘环形质粒图(弧线数学、曲线上的箭头、不重叠注释环)对原生 AI 极易出错,且它不会解析 GenBank 或做碱基级交互选择。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "seqviz",
+    "version": "3.10.24",
+    "github": "Lattice-Automation/seqviz"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "sequence",
+    "note": "vanilla Viewer(element, options).render();element 可为 id 字符串或真实 HTMLElement(可落 shadow)。annotations 用 start/end + direction(1|-1|0)。style 施于最外层 div——给 px 高,禁 vh(README 用 100vh 是反例)。",
+    "schema": {
+      "seq": "string —— 必填,DNA/RNA/氨基酸序列",
+      "name?": "string —— 环形图中心名称",
+      "annotations?": [
+        {
+          "name": "string",
+          "start": "number",
+          "end": "number",
+          "direction?": "1 | -1 | 0",
+          "color?": "string"
+        }
+      ],
+      "viewer?": "'linear' | 'circular' | 'both' | 'both_flip' —— 默认 'both'",
+      "seqType?": "'dna' | 'rna' | 'aa' —— 默认自动猜测",
+      "enzymes?": "string[] —— 酶名,如 ['EcoRI','BamHI']",
+      "translations?": [
+        {
+          "start": "number",
+          "end": "number",
+          "direction": "1 | -1"
+        }
+      ],
+      "highlights?": [
+        {
+          "start": "number",
+          "end": "number",
+          "color?": "string"
+        }
+      ],
+      "disableExternalFonts?": "boolean —— CSP 环境置 true",
+      "style?": "object —— 施于最外层 div,如 {height:'400px',width:'100%'}"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "Viewer 需要有尺寸的容器;容器与 style.height 都给 px。禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// seqviz 主 renderer 用 React 19.2.7，resize-detector 固定到 19.2.3；桥接其 dispatcher 后再 render\nconst el = document.getElementById('seq'); el.style.height = `${spec.height ?? 400}px`; const holder = document.createElement('div'); holder.style.height = `${spec.height ?? 400}px`; holder.textContent = 'Loading sequence…'; el.appendChild(holder);\nconst [{ Viewer }, ReactPrimary, ReactResize] = await Promise.all([import('https://cdn.jsdelivr.net/npm/seqviz@3.10.24/+esm'), import('https://cdn.jsdelivr.net/npm/react@19.2.7/+esm'), import('https://cdn.jsdelivr.net/npm/react@19.2.3/+esm')]);\nconst primary = ReactPrimary.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, resizeInternals = ReactResize.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE; Object.defineProperty(resizeInternals, 'H', { configurable: true, get: () => primary.H, set: value => { primary.H = value; } });\nholder.textContent = ''; Viewer(holder, { seq: data.seq, name: data.name, annotations: data.annotations ?? [], translations: data.translations ?? [], highlights: data.highlights ?? [], viewer: data.viewer ?? 'both', seqType: data.seqType, enzymes: data.enzymes ?? [], disableExternalFonts: true, style: { height: `${spec.height ?? 400}px`, width: '100%' } }).render();",
+    "widget": "// Viewer 接收 shadow 内真实 HTMLElement；仅桥接 resize-detector 的 React patch dispatcher\nconst holder = document.createElement('div'); holder.style.height = `${spec.height ?? 400}px`; holder.textContent = 'Loading sequence…'; shadowRoot.appendChild(holder);\nconst [{ Viewer }, ReactPrimary, ReactResize] = await Promise.all([import('https://cdn.jsdelivr.net/npm/seqviz@3.10.24/+esm'), import('https://cdn.jsdelivr.net/npm/react@19.2.7/+esm'), import('https://cdn.jsdelivr.net/npm/react@19.2.3/+esm')]);\nconst primary = ReactPrimary.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, resizeInternals = ReactResize.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE; Object.defineProperty(resizeInternals, 'H', { configurable: true, get: () => primary.H, set: value => { primary.H = value; } });\nholder.textContent = ''; Viewer(holder, { seq: data.seq, name: data.name, annotations: data.annotations ?? [], translations: data.translations ?? [], highlights: data.highlights ?? [], viewer: data.viewer ?? 'both', seqType: data.seqType, enzymes: data.enzymes ?? [], disableExternalFonts: true, style: { height: `${spec.height ?? 400}px`, width: '100%' } }).render();",
+    "codex": "const el = document.getElementById('seq'); el.style.height = `${spec.height ?? 400}px`; const holder = document.createElement('div'); holder.style.height = `${spec.height ?? 400}px`; holder.textContent = 'Loading sequence…'; el.appendChild(holder);\nconst [{ Viewer }, ReactPrimary, ReactResize] = await Promise.all([import('https://cdn.jsdelivr.net/npm/seqviz@3.10.24/+esm'), import('https://cdn.jsdelivr.net/npm/react@19.2.7/+esm'), import('https://cdn.jsdelivr.net/npm/react@19.2.3/+esm')]);\nconst primary = ReactPrimary.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, resizeInternals = ReactResize.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE; Object.defineProperty(resizeInternals, 'H', { configurable: true, get: () => primary.H, set: value => { primary.H = value; } });\nholder.textContent = ''; Viewer(holder, { seq: data.seq, name: data.name, annotations: data.annotations ?? [], translations: data.translations ?? [], highlights: data.highlights ?? [], viewer: data.viewer ?? 'both', seqType: data.seqType, enzymes: data.enzymes ?? [], disableExternalFonts: true, style: { height: `${spec.height ?? 400}px`, width: '100%' } }).render();"
+  },
+  "example": {
+    "_why": "annotation 用 start/end/direction(非 from/to),minimal 钉死本库字段;viewer 决定线性/环形。",
+    "minimal": {
+      "seq": "TTGACGGCTAGCTCAGTCCTAGGTACAGTGCTAGC",
+      "name": "J23100",
+      "annotations": [
+        {
+          "name": "promoter",
+          "start": 0,
+          "end": 34,
+          "direction": 1,
+          "color": "#1f77b4"
+        }
+      ],
+      "viewer": "both",
+      "disableExternalFonts": true
+    }
+  },
+  "uplink": "display/local-interact 默认不上行;选择/点击若需外传,消费 AI 直接接 onSelection(selection)=>void 回调并按载体处理。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:Viewer 接受 HTMLElement 落 shadow;disableExternalFonts:true 免 head 字体;copy 助手仅在复制事件时瞬时触碰 body",
+    "codex": "supported:ESM 自解析 react@19.2.7 + react-dom@19.2.7/client"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "conditional",
+    "globalDomMutation": "yes",
+    "globalEvents": "no",
+    "evidence": "+esm named exports Viewer (nt) + SeqViz (React) + default (M). dist/index.browser.d.ts: Viewer(element:(string|HTMLElement)|undefined, options:SeqVizProps)=>{render():ReactElement, setState()} — element accepts a real HTMLElement, so it mounts into a shadow div. SeqVizProps (dist/SeqViz.d.ts): seq?, name?, annotations?:AnnotationProp[]{name,start,end,direction,color}, viewer?:'linear'|'circular'|'both'|'both_flip', seqType?:'dna'|'rna'|'aa', enzymes?, translations?, highlights?, disableExternalFonts?, style?:Record — schema matches exactly. +esm self-resolves react@19.2.7, react-dom@19.2.7/client, @lattice-automation/react-resize-detector@12.3.0, so vanilla Viewer needs no manual React. globalStyleInjection=conditional: bundle references webfontloader to load 'Roboto Mono' from Google Fonts (injects a font link into head) UNLESS disableExternalFonts:true — boot always sets it. globalDomMutation=yes but transient: a `document.body.appendChild(o); o.select()` copy/measure helper (grep: document.body x2) fires on copy, not on mount. globalEvents=no at document level (react-dom 19 createRoot attaches listeners to the provided root container). shadowCompatible=conditional: renders into the provided shadow element; set disableExternalFonts:true.",
+    "confidence": "high"
+  }
+}

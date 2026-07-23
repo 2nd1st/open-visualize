@@ -2,6 +2,36 @@
   "entry_version": "thin-1",
   "id": "world-atlas",
   "name": "world-atlas",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written coordinates when you need a tile-free choropleth of world country boundaries or a land outline, because native implementations inevitably fail at real border geometry, topologically shared boundaries, and multi-resolution simplification.",
+      "why_valuable": "AI cannot produce trustworthy world-border geometry by default: boundary coordinates cannot be invented, nor can shared-arc topology and 110m/50m resolution consistency be maintained by hand. This package provides stable basemap data ready for topojson-client, ECharts registerMap, or d3-geo.",
+      "data_in": {
+        "note": "Geospatial TopoJSON Topology; objects.countries in the main countries-110m.json file is a collection of country Polygon/MultiPolygon geometries whose ids are numeric ISO 3166-1 codes. For finer borders, change the same-version path to countries-50m.json; for land outline only, use land-110m.json or land-50m.json.",
+        "schema": {
+          "type": "'Topology'",
+          "objects": {
+            "countries": {
+              "type": "'GeometryCollection'",
+              "geometries": [
+                {
+                  "type": "'Polygon' | 'MultiPolygon'",
+                  "arcs": "number[][] | number[][][]",
+                  "id": "string"
+                }
+              ]
+            }
+          },
+          "arcs": "number[][][] -- TopoJSON delta-encoded shared arcs",
+          "transform": {
+            "scale": "[number, number]",
+            "translate": "[number, number]"
+          },
+          "bbox?": "[number, number, number, number]"
+        }
+      }
+    }
+  },
   "when_to_use": "需要无瓦片的世界国家边界 choropleth 或陆地轮廓时用它,而非手写坐标——原生手写在真实国界几何、拓扑共享边界与多分辨率简化上必然失败。",
   "why_valuable": "AI 默认做不到可信的世界国界几何:边界坐标不可编造,也无法徒手保持共享弧段拓扑与 110m/50m 分辨率的一致性;本包提供可直接喂给 topojson-client、ECharts registerMap 或 d3-geo 的稳定底图数据。",
   "supply_form": "data-asset",

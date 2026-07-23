@@ -1,0 +1,87 @@
+{
+  "entry_version": "thin-1",
+  "id": "monaco-editor",
+  "name": "Monaco Editor",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need VS Code-fidelity code viewing (minimap, code folding, syntax coloring) or a read-only comparison; however, it is extremely heavy (4MB+, injects 100+ styles into document.head, includes a web worker and 95 dynamic imports), so the only clean portable use is a single read-only editor in a full-page artifact. Use codemirror for lightweight embeddable/editable code, or codemirror-merge for plain side-by-side diffs--prefer those for widgets (shadow) and strict CSP.",
+      "why_valuable": "AI cannot draw a minimap or reproduce the VS Code look, but Monaco is the entire VS Code editing engine, not a component that lands painlessly from a CDN: it injects CSS into the host head, uses workers for diffs/language services, and dynamically imports language packs--directly conflicting with this project's \"zero-footprint Shadow DOM + strict CSP\" model. It is therefore cataloged as too heavy and requiring a fork/bundle for reliable embedding.",
+      "data_in": {
+        "note": "Read-only viewing uses a single editor (editor.create); side-by-side/inline diff uses editor.createDiffEditor. Diff calculation depends on the editor web worker and may fail under strict CSP or without a real worker. language is a Monaco language id; Monarch highlighting runs on the main thread without a worker.",
+        "schema": {
+          "value": "string -- full code text (the modified side in diff mode)",
+          "language?": "string -- Monaco language id (such as 'javascript'/'python'/'json'), default 'plaintext'",
+          "readOnly?": "boolean -- boot default true (positioned as a viewer)",
+          "minimap?": "boolean -- Monaco's signature minimap, default true",
+          "diff?": "{ original: string } -- when provided, uses createDiffEditor with value as the modified side; diff calculation requires a web worker",
+          "theme?": "string -- 'vs' | 'vs-dark' | 'hc-black', default 'vs'"
+        }
+      },
+      "spec": {
+        "note": "Monaco reads the container size, so it needs an explicit pixel height (default 480px); automaticLayout:true is recommended to follow size changes. Rule 3 prohibits vh/percentage height."
+      }
+    }
+  },
+  "when_to_use": "需要 VS Code 保真度的代码查看(minimap、代码折叠、语法着色)或只读对比时用它;但它极重(4MB+、向 document.head 注入 100+ 样式、含 web worker 与 95 处动态 import),干净可移植的用法仅限「整页 artifact 里的只读单编辑器」。要轻量可嵌入/可编辑用 codemirror;纯并排代码 diff 用 codemirror-merge——widget(shadow)与严格 CSP 优先选它们。",
+  "why_valuable": "AI 画不出 minimap 与 VS Code 级观感,但 Monaco 是整台 VS Code 编辑引擎、不是可无痛 CDN 落地的组件:它把 CSS 注入宿主 head、用 worker 算 diff/语言服务、按需动态 import 语言包——与本项目「Shadow DOM 零足迹 + 严格 CSP」硬冲突,故按「过重、需 fork/打包才能可靠嵌入」收录。",
+  "supply_form": "app-needs-fork",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "monaco-editor",
+    "version": "0.56.0",
+    "github": "microsoft/monaco-editor"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "code-text",
+    "note": "只读查看走单编辑器(editor.create);并排/行内 diff 走 editor.createDiffEditor——注意 diff 计算依赖 editor web worker,严格 CSP/无真实 worker 时 diff 可能算不出。language 是 Monaco 语言 id;monarch 着色走主线程无需 worker。",
+    "schema": {
+      "value": "string —— 代码全文(diff 模式作为 modified 一侧)",
+      "language?": "string —— Monaco 语言 id(如 'javascript'/'python'/'json'),默认 'plaintext'",
+      "readOnly?": "boolean —— boot 默认 true(定位为查看器)",
+      "minimap?": "boolean —— Monaco 招牌 minimap,默认 true",
+      "diff?": "{ original: string } —— 提供则用 createDiffEditor,value 作为 modified 一侧;diff 计算需 web worker",
+      "theme?": "string —— 'vs' | 'vs-dark' | 'hc-black',默认 'vs'"
+    }
+  },
+  "spec": {
+    "height": 480,
+    "note": "Monaco 读容器尺寸,须显式像素高度(默认 480px)并建议 automaticLayout:true 跟随尺寸;禁 vh/百分比高(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested + 重度警告:Monaco 向 document.head 注入 100+ 样式且用 95 处动态 import 按需加载语言包;仅整页 artifact 的只读查看较可行,widget/严格 CSP 不适用。\n// no-op worker stub:只读 monarch 着色可在主线程工作;但 diff 计算依赖真实 worker,stub 后 diff 可能不显示 —— 需要 diff 时应让 MonacoEnvironment.getWorker 返回自 host 的真实 worker。\nself.MonacoEnvironment = { getWorker: () => ({ postMessage(){}, addEventListener(){}, removeEventListener(){}, terminate(){} }) };\nimport { editor } from 'https://cdn.jsdelivr.net/npm/monaco-editor@0.56.0/+esm';\nconst el = document.getElementById('monaco'); el.style.height = '480px';\nif (data.diff) {\n  const de = editor.createDiffEditor(el, { readOnly: data.readOnly ?? true, automaticLayout: true, theme: data.theme ?? 'vs', renderSideBySide: true });\n  de.setModel({ original: editor.createModel(data.diff.original, data.language), modified: editor.createModel(data.value, data.language) });\n} else {\n  editor.create(el, { value: data.value, language: data.language ?? 'plaintext', readOnly: data.readOnly ?? true, minimap: { enabled: data.minimap ?? true }, automaticLayout: true, theme: data.theme ?? 'vs', scrollBeyondLastLine: false });\n}",
+    "widget": "// 不推荐:Monaco 把样式注入 document.head(实测 102 处 head 引用),无法留在 shadowRoot,违反铁律 2;且依赖 worker 与动态 import。如必须用需 fork/打包:改写其 CSS 加载器进 shadow、self-host worker、预打包语言包。\n// 参考只读挂载(样式仍会逃逸到 host head):\nself.MonacoEnvironment = { getWorker: () => ({ postMessage(){}, addEventListener(){}, removeEventListener(){}, terminate(){} }) };\nimport { editor } from 'https://cdn.jsdelivr.net/npm/monaco-editor@0.56.0/+esm';\nconst el = document.createElement('div'); el.style.height = '480px'; shadowRoot.appendChild(el);\neditor.create(el, { value: data.value, language: data.language ?? 'plaintext', readOnly: true, minimap: { enabled: data.minimap ?? true }, automaticLayout: true });",
+    "codex": "// sandbox iframe:同 artifact 只读查看;iframe 内 head 注入自包含,但 diff/语言服务需 MonacoEnvironment.getWorker 返回真实 worker。\nself.MonacoEnvironment = { getWorker: () => ({ postMessage(){}, addEventListener(){}, removeEventListener(){}, terminate(){} }) };\nimport { editor } from 'https://cdn.jsdelivr.net/npm/monaco-editor@0.56.0/+esm';\nconst el = document.getElementById('monaco'); el.style.height = '480px';\neditor.create(el, { value: data.value, language: data.language ?? 'plaintext', readOnly: data.readOnly ?? true, minimap: { enabled: data.minimap ?? true }, automaticLayout: true });"
+  },
+  "example": {
+    "_why": "常被误当轻量组件;minimal 钉死「只读单编辑器 + minimap」这一最可行用法,diff 需 worker 另说。",
+    "minimal": {
+      "value": "const answer = 42;\n",
+      "language": "javascript",
+      "readOnly": true,
+      "minimap": true
+    },
+    "empty": {
+      "value": ""
+    }
+  },
+  "uplink": {
+    "artifact": "artifact 无上行;只读查看无需回传,如需取内容读 editor 实例的 getValue()。",
+    "widget": "不推荐在 widget 用;若用,消费 AI 自行读 editor.getValue() 再拼 sendPrompt。",
+    "codex": "消费 AI 读 editor.getValue() 后自行调用 sendFollowUpMessage。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:仅整页只读查看较可行;样式注入本页 head 尚可接受,但 95 处动态 import 语言包与 worker 在严格 CSP 下可能失败",
+    "widget": "unsupported:向 document.head 注入 100+ 样式无法留在 shadow(违反铁律 2),且依赖 worker 与动态 import;需 fork/打包才能勉强适配",
+    "codex": "conditional:sandbox iframe 内 head 注入自包含,只读查看可行;diff/语言服务需 MonacoEnvironment.getWorker 返回真实 worker"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "monaco-editor@0.56.0 +esm (4.18 MB) exports named `editor`(Hu), `languages`(me), `Uri`, `Range`, `Position`, `KeyCode`, `KeyMod` etc — import {editor} correct (no default). editor.api.d.ts: create(domElement, options?:IStandaloneEditorConstructionOptions):IStandaloneCodeEditor (L950); createDiffEditor(domElement, options?):IStandaloneDiffEditor (L980); createModel(value, language?, uri?) (L1032); createWebWorker (L1101). globalStyleInjection=YES: bundle has 102 `document.head` + 98 `getElementsByTagName(\"head\")` references — Monaco injects its editor CSS into the host document head and cannot redirect it to a shadowRoot without forking its CSS loader, violating repo iron-law #2. globalDomMutation=YES: 511 appendChild incl. overlay/measure/context-menu widgets attached to document.body. globalEvents=YES: window + document-level resize/focus/key/pointer listeners. Worker: getWorker/getWorkerUrl/MonacoEnvironment/new Worker present — the editor web worker backs diff computation and language services; without a real MonacoEnvironment.getWorker those degrade/fail (a no-op stub lets a read-only single editor render but disables diff). 95 dynamic import() calls lazy-load language/feature chunks — under strict artifact/widget CSP these chunk fetches may be blocked. Net: not a clean Shadow-DOM/CSP drop-in → app-needs-fork; only a full-page read-only viewer is plausibly usable (inferred-not-tested).",
+    "confidence": "high"
+  }
+}

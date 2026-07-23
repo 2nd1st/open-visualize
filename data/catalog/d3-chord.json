@@ -1,0 +1,72 @@
+{
+  "entry_version": "thin-1",
+  "id": "d3-chord",
+  "name": "d3-chord",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you have a square matrix (N x N flow/co-occurrence/migration matrix) and want to compare pairwise strength with ribbons around a circle instead of calculating angles and Beziers by hand. Use sunburst/d3-hierarchy for hierarchy, d3-sankey for one-way flow, and a graph library for sparse networks. Augmentation boundary: it only computes angular layout and generates ribbon paths; pair it with d3-shape arc() for outer group arcs, and let the consuming AI render the SVG.",
+      "why_valuable": "AI defaults cannot produce a stable chord layout: mapping matrix values to [0,2pi], assigning group/subgroup arcs, and generating cubic Bezier ribbons will almost always yield wrong angles or twisted ribbons when done by hand. d3-chord fixes angular allocation with chord() and ribbon geometry with ribbon().",
+      "data_in": {
+        "note": "matrix is a square number[][] where matrix[i][j] is the non-negative weight from i to j. padAngle controls gaps between groups, and radius is passed to ribbon() as the ribbons' inner radius.",
+        "schema": {
+          "_defaults": {
+            "padAngle": "0",
+            "radius": "determined by layout size"
+          },
+          "matrix": "number[][] -- N x N square matrix, matrix[i][j] = i->j weight, non-negative",
+          "padAngle?": "number -- gap between groups in radians; default 0 (commonly 0.03-0.05)",
+          "radius?": "number -- ribbon inner radius in px, passed to ribbon().radius()"
+        }
+      }
+    }
+  },
+  "when_to_use": "有一个方阵(N×N 流量/共现/迁移矩阵)想在圆环上用弧带看两两强度时用它,而非手算角度贝塞尔;层级关系用 sunburst/d3-hierarchy,单向流量用 d3-sankey,稀疏网络用图谱库。augment 边界:只算角度布局 + 生成弦带 path,外圈 group 弧要配 d3-shape 的 arc(),渲染由消费 AI 落 SVG。",
+  "why_valuable": "AI 默认做不到稳定的弦布局:把矩阵值映射到 [0,2π]、分配 group/subgroup 弧段、再生成弦带的三次贝塞尔缎带,手算基本必错角度或缎带扭曲。d3-chord 用 chord() 固定角度分配、ribbon() 固定缎带几何。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "d3-chord",
+    "version": "3.0.1",
+    "github": "d3/d3-chord"
+  },
+  "license": "ISC",
+  "data_in": {
+    "shape": "matrix",
+    "note": "matrix 是方阵 number[][],matrix[i][j] = 从 i 到 j 的权重,非负。padAngle 控 group 间留白,radius 传给 ribbon() 定弦带内圈半径。",
+    "schema": {
+      "_defaults": {
+        "padAngle": "0",
+        "radius": "由布局尺寸决定"
+      },
+      "matrix": "number[][] —— N×N 方阵,matrix[i][j] = i→j 权重,非负",
+      "padAngle?": "number —— group 间留白弧度,默认 0(常用 0.03~0.05)",
+      "radius?": "number —— 弦带内圈半径 px,传给 ribbon().radius()"
+    }
+  },
+  "provides": {
+    "shape": "chord-layout",
+    "_note": "headless-primitive:只算布局 + 生成弦带 path,不渲染、无 L 级、无 carriers 矩阵;消费 AI 用 SVG 画。",
+    "outputs": "chord(matrix) → chords[](带 .groups)。每 group {index,startAngle,endAngle,value};每 chord {source,target:{index,startAngle,endAngle,value}}。ribbon().radius(r)(d) → 弦带 SVG path 'd' 字符串。",
+    "api_surface": {
+      "layout": "chord().padAngle(a).sortGroups(fn).sortSubgroups(fn); chordDirected(); chordTranspose()",
+      "ribbon": "ribbon().radius(r)(chordDatum) → path d;ribbonArrow() 带箭头",
+      "note": "外圈 group 弧本包不含,需 d3-shape 的 arc().innerRadius().outerRadius()"
+    }
+  },
+  "peer": {
+    "id": "d3-shape",
+    "note": "弦带 ribbon 本包已含;外圈 group 甜甜圈弧用 d3-shape 的 arc()(读 group.startAngle/endAngle)。整图落 SVG <g transform=translate(cx,cy)>。"
+  },
+  "boot": {
+    "shared": "import { chord, ribbon } from 'https://cdn.jsdelivr.net/npm/d3-chord@3.0.1/+esm';\nimport { arc } from 'https://cdn.jsdelivr.net/npm/d3-shape@3/+esm'; // 外圈 group 弧(d3-chord 不含)\nconst layout = chord().padAngle(data.padAngle ?? 0.05);\nconst chords = layout(data.matrix); // chords[](带 .groups)\nconst R = data.radius ?? 240;\nconst ribbonPath = ribbon().radius(R);\nconst arcGen = arc().innerRadius(R).outerRadius(R + 18);\n// SVG:<g transform=`translate(${cx},${cy})`> 内,chords.groups 逐个 arcGen(g) 画外圈弧;chords 逐个 ribbonPath(d) 画弦带",
+    "note": "chord() 只算角度布局、ribbon() 只出弦带 path;渲染由消费 AI 落 SVG,库无 DOM/style/event/window 足迹。外圈 group 弧需 d3-shape 的 arc()。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm named exports chord, chordDirected, chordTranspose, ribbon, ribbonArrow(B/J/H/Y/Z)已核。纯 layout/shape-generator:src/chord.js 确认 chord(matrix:number[][]) 返回 chords[] 带 .groups(每 group {index,startAngle,endAngle,value};每 chord {source,target:{index,startAngle,endAngle,value}});src/ribbon.js 确认 ribbon() 默认读 d.source/d.target/d.radius/d.startAngle/d.endAngle,ribbon().radius(r)(d) 产 SVG path 字符串(或经 .context() 画 canvas)。源码零 document.*/window.*,零 DOM/style/event/window 足迹。外圈 group 弧本包不提供——README:'groups are typically passed to d3.arc' → 需 d3-shape 的 arc() 配合。dep:d3-path。headless-primitive:消费 AI 渲染到 SVG/canvas。",
+    "confidence": "high"
+  }
+}

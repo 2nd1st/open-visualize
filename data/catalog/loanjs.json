@@ -4,6 +4,21 @@
   "name": "LoanJS",
   "when_to_use": "需要生成等额本息、期初等额本息或等额本金的完整贷款分期表时用它而非手写,因为原生在数百期滚动余额、逐期舍入和最后一期归零上会失败。",
   "why_valuable": "AI 默认做不到无累计误差地生成 360 期本金、利息、剩余本金和累计利息,并常出现期数 off-by-one 或末期余额不为零。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need a complete amortization schedule for an ordinary annuity, annuity due, or equal-principal loan instead of hand-writing it. Native implementations fail on rolling balances across hundreds of periods, per-period rounding, and zeroing the final balance.",
+      "why_valuable": "AI cannot generate principal, interest, remaining principal, and cumulative interest across 360 periods without accumulated error by default, and often produces an off-by-one period count or a nonzero final balance.",
+      "data_in": {
+        "note": "data_in maps exactly to Loan(amount, installments_number, annual_interest_percent, kind). Pass the annual rate as a percentage such as 3.5, not 0.035, and pass the total number of periods directly.",
+        "schema": {
+          "amount": "number - loan principal, must be > 0",
+          "installments_number": "integer - total number of installments, must be > 0",
+          "annual_interest_percent": "number - annual interest rate as a percentage, must be > 0; 3.5 means 3.5%",
+          "kind?": "'annuity' | 'annuityDue' | 'diminishing' - default 'annuity'"
+        }
+      }
+    }
+  },
   "supply_form": "headless-primitive",
   "mode": "direct-import",
   "upstream": {
@@ -53,7 +68,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Headless pure-math primitive. entry LoanJS.js re-exports dist/loan + dist/loanToHtmlTable; types.d.ts shows only pure functions returning plain objects/strings. No DOM, window, document, style, or event references anywhere on the computation path (boot uses only Loan). Fully shadow-safe because it never touches the DOM.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

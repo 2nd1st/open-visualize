@@ -2,6 +2,19 @@
   "entry_version": "thin-1",
   "id": "alenaksu-json-viewer",
   "name": "json-viewer (@alenaksu)",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to expand and collapse deeply nested JSON or filter and search it by path or regex, rather than hand-writing a <pre> or recursive tree, because native implementations fail at node state, path matching, and locating and highlighting search results.",
+      "why_valuable": "AI can reliably produce only a static <pre> by default; it cannot reliably hand-write an arbitrarily deep collapsible JSON tree with path or regex filtering, per-result navigation, and highlighting in one pass, leaving deeply nested API payloads impossible to explore.",
+      "data_in": {
+        "note": "Assign the primary input directly to the component's data property; it may recursively contain objects, arrays, and JSON primitives. After mounting, the native API accepts RegExp or glob-style path strings for expand/collapse/filter/search, with no need for a separate configuration protocol.",
+        "schema": {
+          "data": "JSONValue",
+          "JSONValue": "null | boolean | number | string | JSONValue[] | { [key: string]: JSONValue }"
+        }
+      }
+    }
+  },
   "when_to_use": "需要折叠展开、按路径或正则过滤搜索深嵌套 JSON 时用它而非手写 <pre>/递归树,因为原生手写在节点状态、路径匹配与搜索定位高亮上失败。",
   "why_valuable": "AI 默认只能稳定输出静态 <pre>;任意深度 JSON 的可折叠树、路径/正则过滤、逐项搜索定位与高亮无法一次稳定手写,深嵌套 API payload 因而不可探索。",
   "supply_form": "component",
@@ -31,5 +44,42 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:需以 JS createElement 挂进 shadow 容器;Lit 组件样式封闭在自身 shadow DOM,无 document.head 注入",
     "codex": "supported:ESM CDN + custom element,无 worker/wasm/外部图片或 uplink 需求"
+  },
+  "example": {
+    "minimal": {
+      "data": {
+        "id": 42,
+        "name": "Ada Lovelace",
+        "active": true,
+        "roles": [
+          "admin",
+          "editor"
+        ],
+        "profile": {
+          "email": "ada@example.com",
+          "age": 36,
+          "verified": false,
+          "address": {
+            "city": "London",
+            "zip": "SW1A 1AA",
+            "geo": {
+              "lat": 51.5074,
+              "lng": -0.1278
+            }
+          }
+        },
+        "lastLogin": null,
+        "tags": [
+          {
+            "id": 1,
+            "label": "vip"
+          },
+          {
+            "id": 2,
+            "label": "beta"
+          }
+        ]
+      }
+    }
   }
 }

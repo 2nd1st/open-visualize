@@ -4,6 +4,37 @@
   "name": "CountUp.js",
   "when_to_use": "需要让 KPI、里程碑或最终结果以精确终值的数字滚动揭晓时用它而非手写 CSS/requestAnimationFrame，因为原生在小数进位、千位分组、重复改值与 easing 终点精度上失败。",
   "why_valuable": "AI 默认只能写一次性的整数递增循环，做不到负数/小数格式、分组符、超大跨度 smart easing、暂停恢复与无漂移终值；CountUp.js 用一个标量和浅 options 稳定覆盖。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when a KPI, milestone, or final result should be revealed with a rolling number that lands on an exact final value instead of hand-writing CSS/requestAnimationFrame. Native implementations fail on decimal carry, thousands grouping, repeated value changes, and easing endpoint precision.",
+      "why_valuable": "AI can only write a one-off integer increment loop by default. It cannot handle negative or decimal formatting, grouping separators, smart easing across very large ranges, pause/resume, or a drift-free final value. CountUp.js covers these reliably with one scalar and shallow options.",
+      "data_in": {
+        "note": "value is passed directly as the CountUp constructor's endVal. The schema keeps only data-only options; consumers should connect function callbacks, formattingFn, and plugin through the native API themselves.",
+        "schema": {
+          "value": "finite number - animation end value",
+          "options?": {
+            "_default": "{} - start at 0, run for 2 seconds, use integers and easeOutExpo, and enable three-digit grouping",
+            "startVal?": "finite number - default 0",
+            "decimalPlaces?": "non-negative integer - default 0",
+            "duration?": "non-negative number seconds - default 2",
+            "useEasing?": "boolean - default true",
+            "useGrouping?": "boolean - default true",
+            "useIndianSeparators?": "boolean - default false",
+            "smartEasingThreshold?": "non-negative number - default 999",
+            "smartEasingAmount?": "non-negative number - default 333",
+            "separator?": "string - default ','",
+            "decimal?": "string - default '.'",
+            "prefix?": "string - default empty string",
+            "suffix?": "string - default empty string",
+            "numerals?": "string[] containing exactly 10 items - default [], meaning Western numerals",
+            "autoAnimate?": "boolean - default false",
+            "autoAnimateDelay?": "non-negative integer milliseconds - default 200",
+            "autoAnimateOnce?": "boolean - default false"
+          }
+        }
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -48,6 +79,16 @@
     "_why_no_minimal": "输入是单标量加浅 options，字段默认值已钉死，无需 minimal config。",
     "empty": {
       "value": 0
+    },
+    "minimal": {
+      "value": 1234567.89,
+      "options": {
+        "decimalPlaces": 2,
+        "duration": 2.5,
+        "prefix": "$",
+        "separator": ",",
+        "decimal": "."
+      }
     }
   },
   "uplink": "纯显示动效，默认无需上行；后续改值可由消费 AI 直接调用 counter.update(newValue)，完成回调不封装成平台事件。",
@@ -62,7 +103,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "countup.js@2.10.1 +esm exports 'v as CountUp' — import{CountUp} correct. dist/countUp.d.ts: constructor(target:string|HTMLElement|HTMLInputElement, endVal?:number|null, options?:CountUpOptions) — boot's new CountUp(el,value,options) correct; .error:string, .start(callback?), .update(newEndVal) all real (uplink counter.update(newValue) valid). All 16 schema option keys AND their defaults match CountUpOptions exactly (startVal 0, decimalPlaces 0, duration 2, useEasing true, useGrouping true, useIndianSeparators false, smartEasingThreshold 999, smartEasingAmount 333, separator ',', decimal '.', autoAnimate false, autoAnimateDelay 200, autoAnimateOnce false, numerals []). Isolation: writes only to the target element's text/innerHTML (printValue/formatNumber) — no style injection, no body append. Default autoAnimate=false means no IntersectionObserver; when enabled it is disconnected via unobserve()/onDestroy(). Widget boot creates the span inside shadowRoot, so all writes are shadow-scoped.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

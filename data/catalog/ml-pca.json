@@ -1,0 +1,67 @@
+{
+  "entry_version": "thin-1",
+  "id": "ml-pca",
+  "name": "ml-pca",
+  "when_to_use": "有高维数据(>3 维)想降到 2D/3D 画散点看聚集/离群,或看各主成分解释方差时用它;mathjs 只有裸 eigs()、不打包 中心化→协方差→投影→explainedVariance 全流程。要扁平聚类用 skmeans,要底层裸矩阵运算用 ml-matrix。",
+  "why_valuable": "PCA 是中心化→协方差→特征分解→投影→解释方差比的一整条流水线,AI 徒手算高维协方差的特征向量必错。ml-pca 一步给出投影得分、各轴解释方差与累积方差,让把高维数据降到 2D 看结构成为可复算操作(底层依赖 ml-matrix)。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "ml-pca",
+    "version": "4.1.1",
+    "github": "mljs/pca"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "matrix",
+    "note": "dataset 是 样本(行)×特征(列)的 number[][];列即维度。量纲差异大的特征应 scale:true 标准化。至少需多行样本与多列特征才有降维意义。",
+    "schema": {
+      "dataset": "number[][] —— 样本×特征 的二维数组(行=样本,列=特征)",
+      "method?": "'SVD'|'NIPALS'|'covarianceMatrix' —— 计算方法,默认 'SVD'",
+      "center?": "boolean —— 是否中心化(减均值),默认 true",
+      "scale?": "boolean —— 是否标准化(除标准差),默认 false"
+    }
+  },
+  "provides": {
+    "shape": "projection",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;纯 JS 数值层。predict 返回 ml-matrix Matrix,取数组须 .to2DArray()。",
+    "outputs": "PCA 模型:predict(dataset)→投影得分 Matrix,以及 getExplainedVariance/getCumulativeVariance/getEigenvalues/getEigenvectors/getLoadings/getStandardDeviations。",
+    "api_surface": {
+      "construct": "new PCA(dataset, { method?:'SVD'|'NIPALS'|'covarianceMatrix', center?=true, scale?=false }) —— 命名导出 PCA,无 default",
+      "project": "pca.predict(dataset, { nComponents? }) → Matrix(须 .to2DArray()) · pca.invert(scores) → Matrix",
+      "variance": "pca.getExplainedVariance() → number[] · getCumulativeVariance() → number[] · getEigenvalues() → number[]",
+      "vectors": "pca.getEigenvectors() → Matrix · pca.getLoadings() → Matrix · getStandardDeviations() → number[]"
+    }
+  },
+  "peer": {
+    "id": "echarts",
+    "note": "本条只产投影得分与方差比:取 scores 每行前两列作 (x,y) 交给图表画 2D 降维散点,用 getExplainedVariance() 标注各轴解释力。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS,无 DOM/uplink/shadow 足迹\nimport { PCA } from 'https://cdn.jsdelivr.net/npm/ml-pca@4/+esm';          // 命名导出,无 default\nconst pca = new PCA(data.dataset, { method: data.method ?? 'SVD', center: data.center ?? true, scale: data.scale ?? false });\nconst scores = pca.predict(data.dataset).to2DArray();  // predict 返回 ml-matrix Matrix,须 .to2DArray()\nconst explained = pca.getExplainedVariance();          // 各主成分解释方差比 number[]\nconst cumulative = pca.getCumulativeVariance();\n// 2D 散点:scores 每行取前两列作 (x,y);用 explained[0]/explained[1] 标注两轴解释力",
+    "note": "dataset 为 样本×特征 的 number[][]。predict 返回 Matrix,必须 .to2DArray() 才能拿数组。center 默认 true、scale 默认 false;特征量纲差异大时应设 scale:true。底层依赖 ml-matrix。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr ml-pca@4.1.1 +esm: named export `{PCA}` only (`export{c as PCA}`), no default. pca.d.ts: constructor(dataset?:MaybeMatrix, options?:{ isCovarianceMatrix?, method?:'SVD'|'NIPALS'|'covarianceMatrix', center?=true, scale?=false, nCompNIPALS?, ignoreZeroVariance? }); predict(dataset, {nComponents?})→Matrix (boot therefore calls .to2DArray()); getExplainedVariance()/getCumulativeVariance()/getEigenvalues()/getStandardDeviations()→number[]; getEigenvectors()/getLoadings()→Matrix; invert(Matrix)→Matrix; MaybeMatrix=AbstractMatrix|number[][]. Depends on ml-matrix. grep of +esm for document.*/window.*/globalThis.*/appendChild/createElement/addEventListener/localStorage = 0 hits — pure numeric, shadow-safe.",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you have high-dimensional data (>3 dimensions) and want to reduce it to 2D/3D for a scatter plot of clusters/outliers, or inspect variance explained by each principal component. mathjs only provides bare eigs(), not the complete centering -> covariance -> projection -> explainedVariance pipeline. For flat clustering use skmeans; for low-level matrix operations use ml-matrix.",
+      "why_valuable": "PCA is a full pipeline of centering -> covariance -> eigendecomposition -> projection -> explained-variance ratio. AI hand calculations of eigenvectors for high-dimensional covariance are inevitably wrong. ml-pca directly provides projected scores, variance explained by each axis, and cumulative variance, making 2D views of high-dimensional structure reproducible (using ml-matrix underneath).",
+      "data_in": {
+        "note": "dataset is a number[][] of samples (rows) x features (columns); columns are dimensions. Features with very different scales should use scale:true for standardization. Dimensionality reduction is meaningful only with multiple samples and multiple features.",
+        "schema": {
+          "dataset": "number[][] -- 2D sample x feature array (rows=samples, columns=features)",
+          "method?": "'SVD'|'NIPALS'|'covarianceMatrix' -- Calculation method; default 'SVD'",
+          "center?": "boolean -- Whether to center (subtract mean); default true",
+          "scale?": "boolean -- Whether to standardize (divide by standard deviation); default false"
+        }
+      }
+    }
+  }
+}

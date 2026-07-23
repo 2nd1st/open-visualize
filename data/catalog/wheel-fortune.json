@@ -73,7 +73,34 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Default import correct (+esm export{o as WheelFortune,o as default}). dist/index.d.ts WheelFortuneOptions = {rootSelector,wheelSelector,triggerSelector,rotationCount?,duration?,overshootDeg?,returnDuration?,swayOptions?{amplitude,period},spinStates?[]} and SpinState={targetAngle:number,callback?} — the entry schema matches this type field-for-field exactly; constructor(options) + init()/destroy()/reset() present. globalStyleInjection=no / globalDomMutation=no: the library injects no <style> and appends nothing to body — it only reads pre-existing elements. globalEvents=no: init() does this.triggerElement.addEventListener('click',this.onClick) on the wheel's own trigger button (not document/window) and destroy() removes it. shadowCompatible=no: init() runs document.querySelector(this.options.rootSelector) (verified in source) which cannot see elements inside a widget shadow root — exactly the entry's honest widget=unsupported. (The artifact/codex boot's own document.head <style> injection is a declared boot choice, not library behavior.)",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you already have wheel DOM/an image and only need lightweight Web Animations API rotation, backswing, and sequential stopping angles instead of hand-writing multiple animate stages, which easily jump frames around accumulated angle, overshoot rebound, and continuous state. It is not a wheel renderer and does not turn items into sectors.",
+      "why_valuable": "AI defaults can write one rotate but cannot preserve the final angle across spins, back up before settling through overshoot, and clean up animation correctly; wheel-fortune fills this layer with an approximately 2kB native WAAPI state machine.",
+      "data_in": {
+        "note": "The component actually consumes spinStates row records, not prize items. Each trigger click consumes one targetAngle in order. callback is a function and is not strict JSON, so consuming AI attaches it separately.",
+        "schema": {
+          "spinStates": [
+            {
+              "targetAngle": "number(deg) -- Final rotation angle of the wheel element"
+            }
+          ],
+          "rotationCount?": "number -- Default 6",
+          "duration?": "number(ms) -- Default 5000",
+          "overshootDeg?": "number(deg) -- Default 15",
+          "returnDuration?": "number(ms) -- Default 1350",
+          "swayOptions?": {
+            "_default": "Default {amplitude:6,period:1500}",
+            "amplitude?": "number(deg) -- Default 6",
+            "period?": "number(ms) -- Default 1500"
+          }
+        }
+      },
+      "spec": {
+        "note": "Upstream only rotates an existing wheel element; the host owns geometry and CSS. boot gives the demo wheel an explicit 400x400px size. vh and percentage heights are forbidden by rule 3; replace the wheel DOM/background for production."
+      }
+    }
   }
 }

@@ -41,7 +41,26 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "graphviz.layout() 返回 SVG 字符串,纯函数,不触碰 document.head/body、不挂全局监听;boot 把 SVG 以 innerHTML 落 shadow 容器。唯一条件是宿主须允许 WebAssembly(Graphviz.load 编译 wasm)——能力约束非 DOM 隔离风险。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "dot": "digraph G {\n  rankdir=LR;\n  bgcolor=\"transparent\";\n  node [shape=box, style=\"rounded,filled\", fillcolor=\"#e8f0fe\", color=\"#4285f4\", fontname=\"Helvetica\", fontsize=12];\n  edge [color=\"#5f6368\", fontname=\"Helvetica\", fontsize=10];\n  Source -> Parse;\n  Parse -> Layout;\n  Layout -> Render;\n  Render -> SVG;\n  Parse -> Invalid [label=\"syntax error\"];\n  Invalid [fillcolor=\"#fce8e6\", color=\"#ea4335\"];\n}"
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to render DOT as a high-quality hierarchical graph in the browser instead of writing SVG layout by hand, which fails at ranks, subgraphs, edge routing, and crossing minimization. Not for a freely draggable canvas, a real map, or real-time collaborative editing.",
+      "why_valuable": "AI can almost always write correct DOT by default but cannot execute Graphviz layout in the browser; handwritten SVG also produces poor hierarchical geometry. This library deterministically compiles DOT to SVG with WASM.",
+      "data_in": {
+        "schema": {
+          "dot": "string -- Complete Graphviz DOT source, meaning a graph/digraph declaration rather than a node array",
+          "engine?": "'dot'|'neato'|'fdp'|'sfdp'|'circo'|'twopi'|'osage'|'patchwork' -- Default 'dot'"
+        }
+      },
+      "spec": {
+        "note": "The geometry container defaults to an explicit height of 400px with scrolling; vh and percentage heights are forbidden (rule 3). The returned SVG keeps its intrinsic viewBox, with only max-width set to 100%."
+      }
+    }
   }
 }

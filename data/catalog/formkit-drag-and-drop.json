@@ -39,6 +39,30 @@
     "_why_no_minimal": "sequence 是 AI 原生浅结构,getValues/setValues 的精确契约已由 schema 与 boot 钉死,不需要额外 minimal。",
     "empty": {
       "items": []
+    },
+    "minimal": {
+      "items": [
+        {
+          "id": "t1",
+          "label": "Draft the project proposal"
+        },
+        {
+          "id": "t2",
+          "label": "Review with the design team"
+        },
+        {
+          "id": "t3",
+          "label": "Incorporate feedback"
+        },
+        {
+          "id": "t4",
+          "label": "Send final draft to client"
+        },
+        {
+          "id": "t5",
+          "label": "Schedule the follow-up call"
+        }
+      ]
     }
   },
   "uplink": {
@@ -58,7 +82,27 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "Base dragAndDrop injects no CSS (no createElement('style')/insertRule; document.head is only *queried* by the opt-in animations plugin, unused by the boot). Global footprint is transient and drag-scoped: synthetic/touch drag builds a popover='manual' div of cloned rows (top layer) that is .remove()d on drop; window 'resize' + scroll-parent 'scroll' listeners are added on dragStart and torn down via an AbortController (Pe.abort() on dragEnded). At rest there is zero footprint, so mouse-drag sorting works cleanly inside shadow.",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to make one or more lists support data-first drag sorting and cross-list transfer instead of implementing Pointer Events by hand, which fails at drop-target detection, touch dragging, animation, and array-order synchronization. Not for simple ordering with only move-up/move-down buttons.",
+      "why_valuable": "AI can draw a static list by default but cannot provide smooth dragging, unified mouse/touch hit testing, multi-list transfer, and permanent agreement between DOM order and source arrays; this library stores the final order directly as an array.",
+      "data_in": {
+        "note": "data.items is the state source; boot creates one same-order DOM child for each value, then passes getValues/setValues to the upstream native dragAndDrop. The entry does not invent a separate drag-event protocol.",
+        "schema": {
+          "items": [
+            {
+              "id": "string -- Stable and unique",
+              "label": "string -- Child display text",
+              "disabled?": "boolean -- Whether the consuming AI should configure this as a non-draggable child; default false"
+            }
+          ]
+        }
+      },
+      "spec": {
+        "note": "Drop-target calculation needs a stable scrolling area; the list defaults to height 320px with internal scrolling. AI may use another explicit pixel value; vh and percentage heights are forbidden (rule 3)."
+      }
+    }
   }
 }

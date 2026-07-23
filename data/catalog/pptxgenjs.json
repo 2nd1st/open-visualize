@@ -4,6 +4,61 @@
   "name": "PptxGenJS",
   "when_to_use": "需要在浏览器按幻灯片坐标生成公司可继续编辑的 .pptx Blob 时用它而非手写 PowerPoint OOXML，因为原生在母版关系、媒体引用、EMU 坐标与 ZIP 打包上失败；非做在线播放界面、协作编辑器或自动审美排版器。",
   "why_valuable": "AI 默认做不到能被 PowerPoint 稳定打开并继续编辑的 slide XML、rels、theme 与媒体包，也无法可靠换算版面单位；PptxGenJS 把交付收敛为 slide.addText/addShape/addImage 和一次 Blob 输出。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to generate a company-editable .pptx Blob in the browser from slide coordinates instead of hand-writing PowerPoint OOXML. Native implementations fail on master relationships, media references, EMU coordinates, and ZIP packaging. It is not an online playback UI, collaborative editor, or automatic aesthetic layout engine.",
+      "why_valuable": "AI cannot reliably produce slide XML, rels, themes, and media packages that PowerPoint opens and keeps editable, nor can it consistently convert layout units. PptxGenJS reduces delivery to slide.addText/addShape/addImage and one Blob output.",
+      "data_in": {
+        "note": "presentation is trimmed geometry that boot maps to a native PptxGenJS instance. x/y/w/h are in inches, and colors are six-digit RGB without #.",
+        "schema": {
+          "presentation": {
+            "layout?": "'LAYOUT_WIDE' | 'LAYOUT_4X3' | 'LAYOUT_16X10' - this entry defaults to LAYOUT_WIDE",
+            "author?": "string - default 'PptxGenJS'",
+            "company?": "string - default 'PptxGenJS'",
+            "subject?": "string - default 'PptxGenJS Presentation'",
+            "title?": "string - default 'PptxGenJS Presentation'",
+            "slides": [
+              {
+                "background?": "{color:six-digit RGB string} - default theme background, usually white",
+                "elements": [
+                  {
+                    "kind": "'text'",
+                    "text": "string | {text:string,options?:object}[]",
+                    "options": {
+                      "x": "number inches",
+                      "y": "number inches",
+                      "w": "positive number inches",
+                      "h": "positive number inches",
+                      "fontFace?": "string - default Arial",
+                      "fontSize?": "positive number points - default 18",
+                      "color?": "six-digit RGB string - default 000000",
+                      "bold?": "boolean - default false",
+                      "align?": "'left' | 'center' | 'right' | 'justify' - default left",
+                      "margin?": "number | [top,right,bottom,left] points - default 3"
+                    }
+                  },
+                  {
+                    "kind": "'shape'",
+                    "shape": "'rect' | 'ellipse' | 'line' | 'roundRect' | 'chevron'",
+                    "options": "{x:number,y:number,w:number,h:number,fill?:{color?:string,transparency?:number},line?:{color?:string,width?:number}} - x/y/w/h are all inches and line h may be 0; fill defaults to transparent and line to the theme line"
+                  },
+                  {
+                    "kind": "'image'",
+                    "source": "{path:string} | {data:string} - exactly one; data is a data URI/base64 image",
+                    "options": "{x:number,y:number,w:number,h:number} - all four are required geometry in inches"
+                  }
+                ]
+              }
+            ]
+          },
+          "filename?": "string ending in .pptx - default presentation.pptx; used only for consumer-side naming"
+        }
+      },
+      "spec": {
+        "note": "Headless generation does not render directly. If the consumer also creates a 16:9 slide preview, give its container an explicit default height of 405px and do not use vh or percentage heights. The PPTX dimensions themselves come from presentation.layout and inch-based geometry."
+      }
+    }
+  },
   "supply_form": "headless-primitive",
   "mode": "direct-import",
   "upstream": {
@@ -144,7 +199,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "headless-primitive,不渲染。boot 走 write({outputType:'blob'}) —— 内存内(JSZip)构建 PPTX 二进制,不碰 DOM/head。唯一会追加下载 <a> 的是 writeFile(),boot 未用。无 CSS 注入、无 window/document 监听。产物为 Blob,零 DOM 足迹,shadow 内安全。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

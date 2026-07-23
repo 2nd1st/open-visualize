@@ -4,6 +4,44 @@
   "name": "jsonresume-component",
   "when_to_use": "需要在浏览器中把 resume.json 原生挂成带 microdata 与 Shadow DOM 隔离的只读简历时用它而非手写,因为原生在结构化数据标注、完整章节覆盖和样式封装上失败;非做 PDF 版式器或简历编辑器。",
   "why_valuable": "AI 默认会漏 Schema.org microdata、章节边界与可访问标注,也无法稳定维护一套隔离的简历样式;该 custom element 直接消费 resume.json 并把语义与视觉同时封装。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to mount resume.json natively in the browser as a read-only resume with microdata and Shadow DOM isolation instead of hand-writing it. Native implementations fail on structured-data annotations, complete section coverage, and style encapsulation. It is not a PDF layout engine or resume editor.",
+      "why_valuable": "AI omits Schema.org microdata, section boundaries, and accessibility annotations by default, and cannot reliably maintain an isolated resume style system. This custom element consumes resume.json directly and packages semantics and visuals together.",
+      "data_in": {
+        "note": "The native resumejson property takes an object, not a JSON string. basics.name is a hard component requirement. boot does not use gist_id/json_url, avoiding an additional GitHub API/CORS footprint.",
+        "schema": {
+          "resume": {
+            "basics": {
+              "name": "string - required; the component displays an error when missing",
+              "label?": "string - job title hidden by default",
+              "summary?": "string - summary hidden by default",
+              "email?": "string - email hidden by default",
+              "phone?": "string - phone hidden by default",
+              "location?": "JSON Resume location object - location hidden by default",
+              "profiles?": "JSON Resume profile[] - default []"
+            },
+            "work?": "JSON Resume work[] - default []",
+            "volunteer?": "JSON Resume volunteer[] - default []",
+            "education?": "JSON Resume education[] - default []",
+            "awards?": "JSON Resume award[] - default []",
+            "certificates?": "JSON Resume certificate[] - default []",
+            "publications?": "JSON Resume publication[] - default []",
+            "skills?": "JSON Resume skill[] - default []",
+            "languages?": "JSON Resume language[] - default []",
+            "interests?": "JSON Resume interest[] - default []",
+            "references?": "JSON Resume reference[] - default []",
+            "projects?": "JSON Resume project[] - default []"
+          },
+          "preordered?": "boolean - whether to order sections by the resume object's key order, default false",
+          "label?": "string - outer aria-label, default `${basics.name}'s resume`"
+        }
+      },
+      "spec": {
+        "note": "The conservative boot predeclares an import map in an iframe, with an explicit default height of 900px and scrolling. AI may provide another pixel value; vh and percentage heights are prohibited."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -49,9 +87,9 @@
     "note": "保守 boot 用 iframe 预声明 import map,默认显式高 900px 并滚动;AI 可给其他像素值,禁止 vh 或百分比高。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:包根 +esm 当前失败,按上游 browser dist + import map 保守加载\nconst frame = document.createElement('iframe'); frame.style.cssText = `width:100%;height:${spec.height ?? 900}px;border:0`;\nframe.srcdoc = `<script type=\"importmap\">{\"imports\":{\"lit\":\"https://cdn.jsdelivr.net/npm/lit@3/+esm\",\"@lit/task\":\"https://cdn.jsdelivr.net/npm/@lit/task@1/+esm\",\"lit/directives/choose.js\":\"https://cdn.jsdelivr.net/npm/lit@3/directives/choose.js/+esm\",\"lit/directives/unsafe-html.js\":\"https://cdn.jsdelivr.net/npm/lit@3/directives/unsafe-html.js/+esm\"}}</script><script type=\"module\">import 'https://cdn.jsdelivr.net/npm/jsonresume-component@0/dist/json-resume.js';const el=document.createElement('json-resume');document.body.appendChild(el);globalThis.resumeEl=el;<\\/script>`;\ndocument.getElementById('resume').appendChild(frame);\nawait new Promise(ok => frame.addEventListener('load', ok, { once: true }));\nframe.contentWindow.resumeEl.resumejson = data.resume; frame.contentWindow.resumeEl.preordered = data.preordered ?? false; if (data.label) frame.contentWindow.resumeEl.label = data.label;",
-    "widget": "// custom element 必须由 iframe 内 JS createElement 创建(铁律 4);iframe 落 shadowRoot\nconst frame = document.createElement('iframe'); frame.style.cssText = `width:100%;height:${spec.height ?? 900}px;border:0`;\nframe.srcdoc = `<script type=\"importmap\">{\"imports\":{\"lit\":\"https://cdn.jsdelivr.net/npm/lit@3/+esm\",\"@lit/task\":\"https://cdn.jsdelivr.net/npm/@lit/task@1/+esm\",\"lit/directives/choose.js\":\"https://cdn.jsdelivr.net/npm/lit@3/directives/choose.js/+esm\",\"lit/directives/unsafe-html.js\":\"https://cdn.jsdelivr.net/npm/lit@3/directives/unsafe-html.js/+esm\"}}</script><script type=\"module\">import 'https://cdn.jsdelivr.net/npm/jsonresume-component@0/dist/json-resume.js';const el=document.createElement('json-resume');document.body.appendChild(el);globalThis.resumeEl=el;<\\/script>`;\nshadowRoot.appendChild(frame);\nawait new Promise(ok => frame.addEventListener('load', ok, { once: true }));\nframe.contentWindow.resumeEl.resumejson = data.resume; frame.contentWindow.resumeEl.preordered = data.preordered ?? false; if (data.label) frame.contentWindow.resumeEl.label = data.label;",
-    "codex": "// sandbox iframe:同 artifact 的 import map + browser dist 路径\nconst frame = document.createElement('iframe'); frame.style.cssText = `width:100%;height:${spec.height ?? 900}px;border:0`;\nframe.srcdoc = `<script type=\"importmap\">{\"imports\":{\"lit\":\"https://cdn.jsdelivr.net/npm/lit@3/+esm\",\"@lit/task\":\"https://cdn.jsdelivr.net/npm/@lit/task@1/+esm\",\"lit/directives/choose.js\":\"https://cdn.jsdelivr.net/npm/lit@3/directives/choose.js/+esm\",\"lit/directives/unsafe-html.js\":\"https://cdn.jsdelivr.net/npm/lit@3/directives/unsafe-html.js/+esm\"}}</script><script type=\"module\">import 'https://cdn.jsdelivr.net/npm/jsonresume-component@0/dist/json-resume.js';const el=document.createElement('json-resume');document.body.appendChild(el);globalThis.resumeEl=el;<\\/script>`;\ndocument.getElementById('resume').appendChild(frame);\nawait new Promise(ok => frame.addEventListener('load', ok, { once: true }));\nframe.contentWindow.resumeEl.resumejson = data.resume;"
+    "artifact": "// 包根 +esm 当前失败；在子 iframe 预声明 import map，并转义两个 script 结束标签以免截断外层 harness module\nconst frame = document.createElement('iframe'); frame.style.cssText = `width:100%;height:${spec.height ?? 900}px;border:0`;\nconst ready = new Promise(ok => frame.addEventListener('load', ok, { once: true }));\nframe.srcdoc = `<script type=\"importmap\">{\"imports\":{\"lit\":\"https://cdn.jsdelivr.net/npm/lit@3/+esm\",\"@lit/task\":\"https://cdn.jsdelivr.net/npm/@lit/task@1/+esm\",\"lit/directives/choose.js\":\"https://cdn.jsdelivr.net/npm/lit@3/directives/choose.js/+esm\",\"lit/directives/unsafe-html.js\":\"https://cdn.jsdelivr.net/npm/lit@3/directives/unsafe-html.js/+esm\"}}<\\/script><script type=\"module\">import 'https://cdn.jsdelivr.net/npm/jsonresume-component@0.3.1/dist/json-resume.js';const el=document.createElement('json-resume');document.body.appendChild(el);globalThis.resumeEl=el;<\\/script>`;\ndocument.getElementById('resume').appendChild(frame); await ready;\nconst resumeEl = frame.contentWindow.resumeEl; if (!resumeEl) throw new Error('json-resume element failed to initialize'); resumeEl.resumejson = data.resume; resumeEl.preordered = data.preordered ?? false; if (data.label) resumeEl.label = data.label;",
+    "widget": "// custom element 必须由 iframe 内 JS createElement 创建(铁律 4);iframe 落 shadowRoot；script 结束标签须对外层 module 转义\nconst frame = document.createElement('iframe'); frame.style.cssText = `width:100%;height:${spec.height ?? 900}px;border:0`;\nconst ready = new Promise(ok => frame.addEventListener('load', ok, { once: true }));\nframe.srcdoc = `<script type=\"importmap\">{\"imports\":{\"lit\":\"https://cdn.jsdelivr.net/npm/lit@3/+esm\",\"@lit/task\":\"https://cdn.jsdelivr.net/npm/@lit/task@1/+esm\",\"lit/directives/choose.js\":\"https://cdn.jsdelivr.net/npm/lit@3/directives/choose.js/+esm\",\"lit/directives/unsafe-html.js\":\"https://cdn.jsdelivr.net/npm/lit@3/directives/unsafe-html.js/+esm\"}}<\\/script><script type=\"module\">import 'https://cdn.jsdelivr.net/npm/jsonresume-component@0.3.1/dist/json-resume.js';const el=document.createElement('json-resume');document.body.appendChild(el);globalThis.resumeEl=el;<\\/script>`;\nshadowRoot.appendChild(frame); await ready;\nconst resumeEl = frame.contentWindow.resumeEl; if (!resumeEl) throw new Error('json-resume element failed to initialize'); resumeEl.resumejson = data.resume; resumeEl.preordered = data.preordered ?? false; if (data.label) resumeEl.label = data.label;",
+    "codex": "// sandbox iframe:同 artifact 的 import map + browser dist 路径；两个 script 结束标签都对外层 module 转义\nconst frame = document.createElement('iframe'); frame.style.cssText = `width:100%;height:${spec.height ?? 900}px;border:0`;\nconst ready = new Promise(ok => frame.addEventListener('load', ok, { once: true }));\nframe.srcdoc = `<script type=\"importmap\">{\"imports\":{\"lit\":\"https://cdn.jsdelivr.net/npm/lit@3/+esm\",\"@lit/task\":\"https://cdn.jsdelivr.net/npm/@lit/task@1/+esm\",\"lit/directives/choose.js\":\"https://cdn.jsdelivr.net/npm/lit@3/directives/choose.js/+esm\",\"lit/directives/unsafe-html.js\":\"https://cdn.jsdelivr.net/npm/lit@3/directives/unsafe-html.js/+esm\"}}<\\/script><script type=\"module\">import 'https://cdn.jsdelivr.net/npm/jsonresume-component@0.3.1/dist/json-resume.js';const el=document.createElement('json-resume');document.body.appendChild(el);globalThis.resumeEl=el;<\\/script>`;\ndocument.getElementById('resume').appendChild(frame); await ready;\nconst resumeEl = frame.contentWindow.resumeEl; if (!resumeEl) throw new Error('json-resume element failed to initialize'); resumeEl.resumejson = data.resume; resumeEl.preordered = data.preordered ?? false; if (data.label) resumeEl.label = data.label;"
   },
   "carriers": {
     "artifact": "inferred-not-tested",
@@ -64,7 +102,94 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "LitElement web component with its own shadow root; the boot loads it inside an iframe + import map because bare `/+esm` fails, so from the host every style/DOM/event is iframe-scoped. dist imports `lit`/`@lit/task`/lit directives (matched by boot import map). gist_id/json_url would hit the GitHub gist API (dist: fetch(api.github.com/gists/...)), but the boot sets `resumejson` directly, avoiding that fetch; no global host listeners added. Shadow-compatible only via the iframe+importmap wrapper (import maps are document-level, can't be injected into an existing shadow root).",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
+  },
+  "example": {
+    "minimal": {
+      "resume": {
+        "basics": {
+          "name": "Ada Lovelace",
+          "label": "Software Engineer",
+          "email": "ada@example.com",
+          "phone": "212-555-0142",
+          "url": "https://ada.example.com",
+          "summary": "Front-end engineer focused on accessible, semantic web components.",
+          "location": {
+            "city": "London",
+            "region": "England"
+          },
+          "profiles": [
+            {
+              "network": "GitHub",
+              "username": "ada",
+              "url": "https://github.com/ada"
+            }
+          ]
+        },
+        "work": [
+          {
+            "name": "Analytical Engines Ltd",
+            "position": "Lead Engineer",
+            "location": "London, UK",
+            "website": "https://engines.example.com",
+            "startDate": "2021-03",
+            "endDate": "2024-06",
+            "summary": "Built a design system of accessible web components used across five product teams.",
+            "highlights": [
+              "Shipped 40+ components",
+              "Cut bundle size by 30%"
+            ]
+          }
+        ],
+        "education": [
+          {
+            "institution": "University of London",
+            "area": "Computer Science",
+            "studyType": "Bachelor",
+            "startDate": "2013-09",
+            "endDate": "2017-06",
+            "gpa": "3.9",
+            "courses": [
+              "Algorithms",
+              "Human-Computer Interaction"
+            ]
+          }
+        ],
+        "skills": [
+          {
+            "name": "Front-End",
+            "level": "Advanced",
+            "keywords": [
+              "JavaScript",
+              "Lit",
+              "Web Components",
+              "Accessibility"
+            ]
+          }
+        ],
+        "projects": [
+          {
+            "name": "resume-microdata",
+            "startDate": "2024-01",
+            "description": "A flat JSON Resume theme with schema.org microdata.",
+            "keywords": [
+              "jsonresume",
+              "microdata"
+            ],
+            "url": "https://github.com/ada/resume-microdata",
+            "roles": [
+              "Architect",
+              "Developer"
+            ]
+          }
+        ],
+        "languages": [
+          {
+            "language": "English",
+            "fluency": "Native"
+          }
+        ]
+      }
+    }
   }
 }

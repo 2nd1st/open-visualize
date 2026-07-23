@@ -1,0 +1,66 @@
+{
+  "entry_version": "thin-1",
+  "id": "regression",
+  "name": "regression",
+  "when_to_use": "有一组散点想拟合并画趋势线、标 R² 时用它;覆盖 linear/polynomial/exponential/logarithmic/power 多族(含非线性)拟合。目录里的 simple-statistics 只有单变量一次 linearRegression,本库是它的非线性超集——只算描述统计或纯一次线性用 simple-statistics 即可。",
+  "why_valuable": "曲线拟合要解最小二乘(多项式还要解范德蒙系统),AI 徒手估系数只能猜,拟合优度 R² 更是编的。regression 输入 [x,y][] 直接吐方程系数、可读方程串、R² 和 predict(x),让 AI 画拟合曲线并标可信度成为可复算操作。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "regression",
+    "version": "2.0.1",
+    "github": "tom-alexander/regression-js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "严格吃 [x,y][] 点对数组,不是对象行;先按列投影成点对并剔除非有限值。order 只对 polynomial 有意义,precision 控制系数四舍五入位数。",
+    "schema": {
+      "points": "[number, number][] —— [x,y] 观测点对;点内含 null 会被忽略,x 有序更稳",
+      "kind?": "'linear'|'polynomial'|'exponential'|'logarithmic'|'power' —— 拟合族,默认 'linear'",
+      "order?": "number —— 仅 polynomial:多项式阶数,默认 2",
+      "precision?": "number —— 输出系数四舍五入的有效位数,默认 2"
+    }
+  },
+  "provides": {
+    "shape": "regression-model",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;纯 JS 数值层。",
+    "outputs": "拟合模型 {equation 系数数组, string 可读方程串, points 拟合点[x,y][], r2 拟合优度, predict(x)→[x,y]}。",
+    "api_surface": {
+      "fit": "regression.linear/polynomial/exponential/logarithmic/power(points, { order?, precision? })",
+      "model": "result.equation(系数) · result.string(方程串) · result.r2(R²) · result.points(拟合点[x,y][])",
+      "predict": "result.predict(x) → [x, y](返回点对,非标量 y)"
+    }
+  },
+  "peer": {
+    "id": "echarts",
+    "note": "本条只产模型与采样点:对更密的 x 调 result.predict 生成 [x,y][],再叠到散点上画拟合曲线并把 result.r2 标为可信度。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS,无 DOM/uplink/shadow 足迹\nimport regression from 'https://cdn.jsdelivr.net/npm/regression@2/+esm';   // default 导出方法对象\nconst kind = data.kind ?? 'linear';\nconst result = regression[kind](data.points, { order: data.order ?? 2, precision: data.precision ?? 2 });\n// result.equation 系数 · result.string 方程串 · result.r2 拟合优度 · result.points 拟合点[x,y][]\nconst curve = result.points;                        // 或对更密 x 采样:xs.map(x => result.predict(x)) —— predict(x) 返回 [x,y] 数对",
+    "note": "predict(x) 返回的是 [x, y] 点对而非标量 y,画平滑曲线时直接把结果推进序列即可。order 仅对 polynomial 生效;点内 null 会被忽略。R² 由库计算,勿自估。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr regression@2.0.1 +esm: single default export (`export{W as default}`), no named exports — `import regression from '…'` then regression.linear/polynomial/exponential/logarithmic/power(points, {order,precision}). README confirms returned model has {equation, string, points, r2, predict}; source (dist/regression.js) defines `const predict = x => ([x, resolveY])` so predict(x) returns an [x,y] pair (not scalar y) and points = data.map(p => predict(p[0])) is [x,y][] — schema/boot pin this. Zero-dependency (package.json dependencies {}). grep of +esm for document.*/window.*/globalThis.*/appendChild/createElement/addEventListener/localStorage = 0 hits — pure JS, shadow-safe.",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you have scatter points to fit with a trend line and label with R-squared. It covers linear/polynomial/exponential/logarithmic/power fitting families, including nonlinear fits. The catalog's simple-statistics only has univariate first-order linearRegression, while this library is its nonlinear superset; for descriptive statistics or only simple linear fitting, use simple-statistics.",
+      "why_valuable": "Curve fitting requires least squares (and polynomial fitting solves a Vandermonde system). AI can only guess coefficients by hand and invents goodness-of-fit R-squared. regression accepts [x,y][] and directly returns equation coefficients, a readable equation string, R-squared, and predict(x), making fitted curves and confidence labels reproducible.",
+      "data_in": {
+        "note": "Input is strictly an array of [x,y][] point pairs, not object rows. Project columns into point pairs first and remove non-finite values. order matters only for polynomial; precision controls coefficient rounding.",
+        "schema": {
+          "points": "[number, number][] -- Observed [x,y] pairs; points containing null are ignored, and ordered x is more stable",
+          "kind?": "'linear'|'polynomial'|'exponential'|'logarithmic'|'power' -- Fitting family; default 'linear'",
+          "order?": "number -- polynomial only: polynomial degree; default 2",
+          "precision?": "number -- Significant digits used to round output coefficients; default 2"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,141 @@
+{
+  "entry_version": "thin-1",
+  "id": "product-cards",
+  "name": "Product cards",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when a small set of products, plans, or content items should become a scannable media-card grid showing image, title, price, tags, and rating, such as recommendation lists, catalog summaries, and comparison browsing. If the core task is rigorous side-by-side comparison against the same specifications, use comparison-table; if there are many records requiring filtering and sorting, use a data grid.",
+      "why_valuable": "Ad hoc AI product cards often have inconsistent image ratios, misaligned prices and ratings, and tags that break the card; this template fixes the media ratio and information hierarchy, lays out responsively, and limits external images to data:image URIs or local graphic text to maintain zero network requests.",
+      "data_in": {
+        "note": "data.products is an array of card records. image accepts emoji/short graphic text or an embedded image URI beginning with data:image/; external http(s) images are not loaded. Numeric price is formatted for the current locale using currency, while string price is displayed verbatim. Only the first 4 tags are shown; rating is clamped to 0-5, and ratingCount is an optional review count.",
+        "schema": {
+          "title?": "string -- card-group title; displays \"Featured products\" when omitted",
+          "subtitle?": "string -- collection description or recommendation",
+          "currency?": "string -- ISO 4217 currency code for numeric price; default USD",
+          "products": "{image:string,imageAlt?:string,title:string,price:number|string,tags?:string[],rating?:number,ratingCount?:number,caption?:string}[] -- product record array",
+          "products[].image": "string -- emoji/short graphic text or a data:image/ embedded image URI; other URLs are not loaded",
+          "products[].imageAlt?": "string -- alternative text for an embedded image",
+          "products[].title": "string -- product name",
+          "products[].price": "number|string -- numbers are formatted with currency; strings are displayed verbatim",
+          "products[].tags?": "string[] -- tag chips; only the first 4 are shown",
+          "products[].rating?": "number -- 0-5 rating, shown as stars and one decimal place",
+          "products[].ratingCount?": "number -- review count",
+          "products[].caption?": "string -- one short selling point or specification"
+        }
+      },
+      "spec": {
+        "note": "Uses an auto-fit grid with cards at least about 210px wide; automatically forms 1-4 columns from carrier width and fixes to one column below 520px. Height is determined by card count, with no external-media measurement."
+      }
+    }
+  },
+  "when_to_use": "需要把少量商品、套餐或内容条目做成可扫读的媒体卡片网格，并同时展示图片、标题、价格、标签和评分时用它，适合推荐清单、目录摘要和对比浏览。若核心任务是按同一组规格严谨横比，应改用 comparison-table；若记录很多且要筛选排序，应改用数据网格。",
+  "why_valuable": "AI 临时拼的商品卡常出现图片比例不一、价格和评分对不齐、标签撑破卡片等问题；本模板固定媒体比例和信息层级，自动响应式排版，并把外部图片限制为 data:image URI 或本地图形文本，保持零网络请求。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "inline-template",
+  "upstream": {
+    "npm": null,
+    "version": null,
+    "github": null
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "records",
+    "note": "data.products 是卡片记录数组。image 接受 emoji/短图形文本，或 data:image/ 开头的内嵌图片 URI；不加载 http(s) 外部图片。数值 price 会用 currency 按当前 locale 格式化，字符串 price 原样显示。tags 最多显示前 4 个；rating 会夹到 0–5，ratingCount 是可选评价数。",
+    "schema": {
+      "title?": "string —— 卡片组标题；省略时显示 “Featured products”",
+      "subtitle?": "string —— 集合说明或推荐语",
+      "currency?": "string —— ISO 4217 货币代码，用于数值 price；默认 USD",
+      "products": "{image:string,imageAlt?:string,title:string,price:number|string,tags?:string[],rating?:number,ratingCount?:number,caption?:string}[] —— 商品记录数组",
+      "products[].image": "string —— emoji/短图形文本，或 data:image/ 内嵌图片 URI；其他 URL 不会发起加载",
+      "products[].imageAlt?": "string —— 内嵌图片的替代文本",
+      "products[].title": "string —— 商品名称",
+      "products[].price": "number|string —— 数字按 currency 格式化；字符串原样展示",
+      "products[].tags?": "string[] —— 标签 chips；最多显示前 4 个",
+      "products[].rating?": "number —— 0–5 评分，显示为星标与一位小数",
+      "products[].ratingCount?": "number —— 评价数量",
+      "products[].caption?": "string —— 一句简短卖点或规格"
+    }
+  },
+  "spec": {
+    "height": "auto",
+    "note": "使用 auto-fit 网格，单卡最小约 210px；随载体宽度自动形成 1–4 列，520px 以下固定单列。高度由卡片数决定，无外部媒体测量。"
+  },
+  "boot": {
+    "artifact": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.subtitle{margin:7px 0 0;color:var(--_muted);font-size:13px;line-height:1.45}\n.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;padding:18px}\n.card{min-width:0;overflow:hidden;border:1px solid var(--_line);border-radius:15px;background:var(--_raised);box-shadow:0 5px 16px rgba(15,23,42,.045);transition:transform .18s ease,box-shadow .18s ease}\n.card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(15,23,42,.09)}\n.media{position:relative;display:grid;min-height:154px;place-items:center;overflow:hidden;background:linear-gradient(145deg,color-mix(in srgb,var(--_accent) 13%,var(--_soft)),color-mix(in srgb,var(--_ok) 9%,var(--_bg)))}\n.media::after{content:\"\";position:absolute;width:110px;height:110px;border:1px solid color-mix(in srgb,var(--_accent) 22%,transparent);border-radius:32px;transform:rotate(22deg)}\n.media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}\n.glyph{position:relative;z-index:1;filter:drop-shadow(0 10px 15px rgba(15,23,42,.14));font-size:64px;line-height:1}\n.content{padding:16px}\n.tags{display:flex;min-height:22px;flex-wrap:wrap;gap:6px;margin-bottom:10px}\n.tag{padding:4px 8px;border-radius:999px;background:color-mix(in srgb,var(--_accent) 10%,var(--_bg));color:var(--_accent);font-size:9px;font-weight:820;letter-spacing:.04em;text-transform:uppercase}\n.title{color:var(--_text);font-size:15px;font-weight:760;letter-spacing:-.01em;line-height:1.3}\n.caption{min-height:36px;margin-top:5px;color:var(--_muted);font-size:12px;line-height:1.45}\n.footer{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-top:14px}\n.price{color:var(--_text);font-size:20px;font-weight:820;letter-spacing:-.025em;font-variant-numeric:tabular-nums}\n.rating{color:#f59e0b;font-size:12px;font-weight:800;text-align:right;white-space:nowrap}.rating span{color:var(--_muted);font-size:10px;font-weight:650}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:520px){.heading{padding:18px}.grid{grid-template-columns:1fr;padding:14px}.media{min-height:170px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}.card{box-shadow:0 7px 18px rgba(0,0,0,.18)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make=(tag,className,text)=>{const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;};\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Featured products';\nconst products=Array.isArray(data.products)?data.products:[];\nconst currency=typeof data.currency==='string'&&data.currency?data.currency:'USD';\nconst formatPrice=(value)=>typeof value==='number'&&Number.isFinite(value)?new Intl.NumberFormat(undefined,{style:'currency',currency,maximumFractionDigits:value%1===0?0:2}).format(value):String(value??'—');\nconst frame=make('section','frame');frame.setAttribute('aria-label',title);\nconst heading=make('header','heading');heading.appendChild(make('div','eyebrow','Curated collection'));heading.appendChild(make('h2','',title));if(data.subtitle)heading.appendChild(make('p','subtitle',String(data.subtitle)));frame.appendChild(heading);\nif(!products.length){frame.appendChild(make('div','empty','Add product records to build the card grid.'));}\nelse{\n  const grid=make('div','grid');\n  products.forEach(product=>{\n    const card=make('article','card');const media=make('div','media');\n    const image=product&&product.image!=null?String(product.image):'◻';\n    if(image.startsWith('data:image/')){const img=make('img');img.src=image;img.alt=product.imageAlt?String(product.imageAlt):'';media.appendChild(img);}else{media.appendChild(make('span','glyph',image));}\n    card.appendChild(media);const content=make('div','content');const tags=make('div','tags');(Array.isArray(product.tags)?product.tags:[]).slice(0,4).forEach(tag=>tags.appendChild(make('span','tag',String(tag))));content.appendChild(tags);\n    content.appendChild(make('div','title',product.title!=null?String(product.title):'Untitled product'));if(product.caption)content.appendChild(make('div','caption',String(product.caption)));else content.appendChild(make('div','caption',''));\n    const footer=make('div','footer');footer.appendChild(make('div','price',formatPrice(product.price)));\n    if(typeof product.rating==='number'&&Number.isFinite(product.rating)){const score=Math.max(0,Math.min(5,product.rating));const count=typeof product.ratingCount==='number'?' ('+product.ratingCount.toLocaleString()+')':'';const rating=make('div','rating','★ '+score.toFixed(1));rating.appendChild(make('span','',count));rating.setAttribute('aria-label',score+' out of 5'+count);footer.appendChild(rating);}\n    content.appendChild(footer);card.appendChild(content);grid.appendChild(card);\n  });\n  frame.appendChild(grid);\n}\nroot.appendChild(frame);\nparent.appendChild(host);",
+    "widget": "const parent = shadowRoot;\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.subtitle{margin:7px 0 0;color:var(--_muted);font-size:13px;line-height:1.45}\n.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;padding:18px}\n.card{min-width:0;overflow:hidden;border:1px solid var(--_line);border-radius:15px;background:var(--_raised);box-shadow:0 5px 16px rgba(15,23,42,.045);transition:transform .18s ease,box-shadow .18s ease}\n.card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(15,23,42,.09)}\n.media{position:relative;display:grid;min-height:154px;place-items:center;overflow:hidden;background:linear-gradient(145deg,color-mix(in srgb,var(--_accent) 13%,var(--_soft)),color-mix(in srgb,var(--_ok) 9%,var(--_bg)))}\n.media::after{content:\"\";position:absolute;width:110px;height:110px;border:1px solid color-mix(in srgb,var(--_accent) 22%,transparent);border-radius:32px;transform:rotate(22deg)}\n.media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}\n.glyph{position:relative;z-index:1;filter:drop-shadow(0 10px 15px rgba(15,23,42,.14));font-size:64px;line-height:1}\n.content{padding:16px}\n.tags{display:flex;min-height:22px;flex-wrap:wrap;gap:6px;margin-bottom:10px}\n.tag{padding:4px 8px;border-radius:999px;background:color-mix(in srgb,var(--_accent) 10%,var(--_bg));color:var(--_accent);font-size:9px;font-weight:820;letter-spacing:.04em;text-transform:uppercase}\n.title{color:var(--_text);font-size:15px;font-weight:760;letter-spacing:-.01em;line-height:1.3}\n.caption{min-height:36px;margin-top:5px;color:var(--_muted);font-size:12px;line-height:1.45}\n.footer{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-top:14px}\n.price{color:var(--_text);font-size:20px;font-weight:820;letter-spacing:-.025em;font-variant-numeric:tabular-nums}\n.rating{color:#f59e0b;font-size:12px;font-weight:800;text-align:right;white-space:nowrap}.rating span{color:var(--_muted);font-size:10px;font-weight:650}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:520px){.heading{padding:18px}.grid{grid-template-columns:1fr;padding:14px}.media{min-height:170px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}.card{box-shadow:0 7px 18px rgba(0,0,0,.18)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make=(tag,className,text)=>{const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;};\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Featured products';\nconst products=Array.isArray(data.products)?data.products:[];\nconst currency=typeof data.currency==='string'&&data.currency?data.currency:'USD';\nconst formatPrice=(value)=>typeof value==='number'&&Number.isFinite(value)?new Intl.NumberFormat(undefined,{style:'currency',currency,maximumFractionDigits:value%1===0?0:2}).format(value):String(value??'—');\nconst frame=make('section','frame');frame.setAttribute('aria-label',title);\nconst heading=make('header','heading');heading.appendChild(make('div','eyebrow','Curated collection'));heading.appendChild(make('h2','',title));if(data.subtitle)heading.appendChild(make('p','subtitle',String(data.subtitle)));frame.appendChild(heading);\nif(!products.length){frame.appendChild(make('div','empty','Add product records to build the card grid.'));}\nelse{\n  const grid=make('div','grid');\n  products.forEach(product=>{\n    const card=make('article','card');const media=make('div','media');\n    const image=product&&product.image!=null?String(product.image):'◻';\n    if(image.startsWith('data:image/')){const img=make('img');img.src=image;img.alt=product.imageAlt?String(product.imageAlt):'';media.appendChild(img);}else{media.appendChild(make('span','glyph',image));}\n    card.appendChild(media);const content=make('div','content');const tags=make('div','tags');(Array.isArray(product.tags)?product.tags:[]).slice(0,4).forEach(tag=>tags.appendChild(make('span','tag',String(tag))));content.appendChild(tags);\n    content.appendChild(make('div','title',product.title!=null?String(product.title):'Untitled product'));if(product.caption)content.appendChild(make('div','caption',String(product.caption)));else content.appendChild(make('div','caption',''));\n    const footer=make('div','footer');footer.appendChild(make('div','price',formatPrice(product.price)));\n    if(typeof product.rating==='number'&&Number.isFinite(product.rating)){const score=Math.max(0,Math.min(5,product.rating));const count=typeof product.ratingCount==='number'?' ('+product.ratingCount.toLocaleString()+')':'';const rating=make('div','rating','★ '+score.toFixed(1));rating.appendChild(make('span','',count));rating.setAttribute('aria-label',score+' out of 5'+count);footer.appendChild(rating);}\n    content.appendChild(footer);card.appendChild(content);grid.appendChild(card);\n  });\n  frame.appendChild(grid);\n}\nroot.appendChild(frame);\nparent.appendChild(host);",
+    "codex": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.subtitle{margin:7px 0 0;color:var(--_muted);font-size:13px;line-height:1.45}\n.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;padding:18px}\n.card{min-width:0;overflow:hidden;border:1px solid var(--_line);border-radius:15px;background:var(--_raised);box-shadow:0 5px 16px rgba(15,23,42,.045);transition:transform .18s ease,box-shadow .18s ease}\n.card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(15,23,42,.09)}\n.media{position:relative;display:grid;min-height:154px;place-items:center;overflow:hidden;background:linear-gradient(145deg,color-mix(in srgb,var(--_accent) 13%,var(--_soft)),color-mix(in srgb,var(--_ok) 9%,var(--_bg)))}\n.media::after{content:\"\";position:absolute;width:110px;height:110px;border:1px solid color-mix(in srgb,var(--_accent) 22%,transparent);border-radius:32px;transform:rotate(22deg)}\n.media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}\n.glyph{position:relative;z-index:1;filter:drop-shadow(0 10px 15px rgba(15,23,42,.14));font-size:64px;line-height:1}\n.content{padding:16px}\n.tags{display:flex;min-height:22px;flex-wrap:wrap;gap:6px;margin-bottom:10px}\n.tag{padding:4px 8px;border-radius:999px;background:color-mix(in srgb,var(--_accent) 10%,var(--_bg));color:var(--_accent);font-size:9px;font-weight:820;letter-spacing:.04em;text-transform:uppercase}\n.title{color:var(--_text);font-size:15px;font-weight:760;letter-spacing:-.01em;line-height:1.3}\n.caption{min-height:36px;margin-top:5px;color:var(--_muted);font-size:12px;line-height:1.45}\n.footer{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-top:14px}\n.price{color:var(--_text);font-size:20px;font-weight:820;letter-spacing:-.025em;font-variant-numeric:tabular-nums}\n.rating{color:#f59e0b;font-size:12px;font-weight:800;text-align:right;white-space:nowrap}.rating span{color:var(--_muted);font-size:10px;font-weight:650}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:520px){.heading{padding:18px}.grid{grid-template-columns:1fr;padding:14px}.media{min-height:170px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}.card{box-shadow:0 7px 18px rgba(0,0,0,.18)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make=(tag,className,text)=>{const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;};\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Featured products';\nconst products=Array.isArray(data.products)?data.products:[];\nconst currency=typeof data.currency==='string'&&data.currency?data.currency:'USD';\nconst formatPrice=(value)=>typeof value==='number'&&Number.isFinite(value)?new Intl.NumberFormat(undefined,{style:'currency',currency,maximumFractionDigits:value%1===0?0:2}).format(value):String(value??'—');\nconst frame=make('section','frame');frame.setAttribute('aria-label',title);\nconst heading=make('header','heading');heading.appendChild(make('div','eyebrow','Curated collection'));heading.appendChild(make('h2','',title));if(data.subtitle)heading.appendChild(make('p','subtitle',String(data.subtitle)));frame.appendChild(heading);\nif(!products.length){frame.appendChild(make('div','empty','Add product records to build the card grid.'));}\nelse{\n  const grid=make('div','grid');\n  products.forEach(product=>{\n    const card=make('article','card');const media=make('div','media');\n    const image=product&&product.image!=null?String(product.image):'◻';\n    if(image.startsWith('data:image/')){const img=make('img');img.src=image;img.alt=product.imageAlt?String(product.imageAlt):'';media.appendChild(img);}else{media.appendChild(make('span','glyph',image));}\n    card.appendChild(media);const content=make('div','content');const tags=make('div','tags');(Array.isArray(product.tags)?product.tags:[]).slice(0,4).forEach(tag=>tags.appendChild(make('span','tag',String(tag))));content.appendChild(tags);\n    content.appendChild(make('div','title',product.title!=null?String(product.title):'Untitled product'));if(product.caption)content.appendChild(make('div','caption',String(product.caption)));else content.appendChild(make('div','caption',''));\n    const footer=make('div','footer');footer.appendChild(make('div','price',formatPrice(product.price)));\n    if(typeof product.rating==='number'&&Number.isFinite(product.rating)){const score=Math.max(0,Math.min(5,product.rating));const count=typeof product.ratingCount==='number'?' ('+product.ratingCount.toLocaleString()+')':'';const rating=make('div','rating','★ '+score.toFixed(1));rating.appendChild(make('span','',count));rating.setAttribute('aria-label',score+' out of 5'+count);footer.appendChild(rating);}\n    content.appendChild(footer);card.appendChild(content);grid.appendChild(card);\n  });\n  frame.appendChild(grid);\n}\nroot.appendChild(frame);\nparent.appendChild(host);"
+  },
+  "example": {
+    "_why": "四件风格统一的桌面用品用 emoji 作为零请求封面，覆盖多标签、整数/小数价格、评分和评价数，能形成完整而真实的商品目录。",
+    "minimal": {
+      "title": "Desk essentials",
+      "subtitle": "Quiet, durable tools for a focused workspace",
+      "currency": "USD",
+      "products": [
+        {
+          "image": "⌨️",
+          "title": "K2 Low-Profile Keyboard",
+          "price": 119,
+          "tags": [
+            "Wireless",
+            "Mechanical"
+          ],
+          "rating": 4.8,
+          "ratingCount": 342,
+          "caption": "Tactile switches in a compact aluminum frame."
+        },
+        {
+          "image": "🎧",
+          "title": "Studio ANC Headphones",
+          "price": 189.5,
+          "tags": [
+            "Audio",
+            "Focus"
+          ],
+          "rating": 4.6,
+          "ratingCount": 1280,
+          "caption": "Balanced sound with all-day comfort."
+        },
+        {
+          "image": "💡",
+          "title": "Arc Task Light",
+          "price": 84,
+          "tags": [
+            "Lighting",
+            "USB-C"
+          ],
+          "rating": 4.9,
+          "ratingCount": 206,
+          "caption": "Flicker-free light with a warm evening mode."
+        },
+        {
+          "image": "📓",
+          "title": "Field Notes Set",
+          "price": 24,
+          "tags": [
+            "Paper",
+            "Recycled"
+          ],
+          "rating": 4.7,
+          "ratingCount": 91,
+          "caption": "Three lay-flat notebooks with dot-grid pages."
+        }
+      ]
+    }
+  },
+  "uplink": "纯 display-only 组件，无 uplink；渲染结果只在当前 shadow root 中展示，不向 AI 或宿主回传状态。",
+  "carriers": {
+    "artifact": "supported:boot.artifact 已在 sandboxed iframe 中以 example.minimal 原样渲染验证；CSS 与 DOM 全部位于自有 shadow root",
+    "widget": "supported:与 artifact 同一零依赖模板，仅 parent 改为 shadowRoot；可在载体 shadow 内再挂自有 shadow",
+    "codex": "supported:与已验证的 artifact boot 相同，document.getElementById('viz') 为唯一载体挂载点"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "self-authored inline-template, owns its shadow, zero global footprint; rendered-verified",
+    "confidence": "high"
+  }
+}

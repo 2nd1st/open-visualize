@@ -2,6 +2,19 @@
   "entry_version": "thin-1",
   "id": "latex-css",
   "name": "LaTeX.css",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when semantic HTML must reliably resemble a LaTeX paper with an abstract, author block, theorems, and references instead of hand-written CSS, which fails to keep Libertinus font metrics, theorem environments, and printed-paper feel consistent. Do not use it for general application UI or actual TeX compilation.",
+      "why_valuable": "AI can mimic about 70% of an academic page but cannot reliably reproduce the font stack, heading hierarchy, theorem counters, citation styles, and print breaks. Classless rules let AI provide only semantic HTML.",
+      "data_in": {
+        "note": "Input is a trusted semantic HTML string. The library is classless document CSS; it does not parse Markdown or LaTeX.",
+        "schema": {
+          "html": "string -- semantic HTML such as article/section/h1..h6/p/blockquote/table",
+          "theme?": "'light' | 'dark' -- root-document theme; defaults to light"
+        }
+      }
+    }
+  },
   "when_to_use": "需要把语义 HTML 稳定排成 LaTeX 论文式摘要、作者块、定理和参考文献时用它而非手写 CSS，因为原生在 Libertinus 字体度量、定理环境和打印纸感的一致性上失败；非做通用应用 UI 或真正的 TeX 编译。",
   "why_valuable": "AI 默认能模仿约 70% 的学术纸面，但做不到稳定复现字体栈、标题层级、定理计数器、引用样式和打印断点；classless 规则让 AI 只需给语义 HTML。",
   "supply_form": "component",
@@ -37,7 +50,12 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "纯 CSS 无 JS;boot 追加 <link>(artifact→document.head,可改指 shadowRoot)。style.css 基础规则用全局元素选择器 body(L154/188)/html(L171)/:root 变量(L103),shadow 内不匹配 → 需 body/html/:root→:host 重写才成立;字体经相对路径 ./fonts/*.woff2 从同包加载,需 font-cdn 放行。无 body 追加、无事件监听。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "theme": "light",
+      "html": "<h1>On the Convergence of Gradient Descent</h1>\n<p class=\"author\">Ada Lovelace<br>Analytical Engine Laboratory, Cambridge</p>\n<div class=\"abstract\">\n  <h2>Abstract</h2>\n  <p>We give a short, self-contained proof that gradient descent converges linearly on smooth, strongly convex objectives. The argument uses only elementary inequalities and makes the role of the condition number explicit.</p>\n</div>\n<h2>1. Introduction</h2>\n<p>Gradient descent is the workhorse of continuous optimization. Given a differentiable objective <em>f</em>, the iterates are defined by <em>x</em><sub>k+1</sub> = <em>x</em><sub>k</sub> &minus; &eta;&nabla;<em>f</em>(<em>x</em><sub>k</sub>), where &eta; &gt; 0 is a fixed step size.</p>\n<div class=\"theorem\">\n  Let <em>f</em> be &mu;-strongly convex and L-smooth. With step size &eta; = 1/L, the iterates satisfy &Vert;<em>x</em><sub>k</sub> &minus; <em>x</em><sup>&lowast;</sup>&Vert;&sup2; &le; (1 &minus; &mu;/L)<sup>k</sup> &Vert;<em>x</em><sub>0</sub> &minus; <em>x</em><sup>&lowast;</sup>&Vert;&sup2;.\n</div>\n<div class=\"proof\">\n  Expanding the squared distance and combining strong convexity with smoothness yields a contraction factor of (1 &minus; &mu;/L) at each step. Iterating this bound over k steps gives the claim.\n</div>\n<h2>References</h2>\n<ol>\n  <li>Cauchy, A. (1847). M&eacute;thode g&eacute;n&eacute;rale pour la r&eacute;solution des syst&egrave;mes d&rsquo;&eacute;quations simultan&eacute;es.</li>\n  <li>Nesterov, Y. (2004). <em>Introductory Lectures on Convex Optimization</em>. Springer.</li>\n</ol>"
+    }
   }
 }

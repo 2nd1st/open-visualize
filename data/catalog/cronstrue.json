@@ -45,7 +45,21 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "cronstrue@3.24.0/i18n/+esm exports a default (dist/cronstrue-i18n.d.ts: 'export default ExpressionDescriptor'), and ExpressionDescriptor has static toString(expression, {throwExceptionOnParseError,verbose,dayOfWeekStartIndexZero,monthStartIndexZero,use24HourTimeFormat,trimHoursLeadingZero,locale,logicalAndDayFields}) (expressionDescriptor.d.ts L14) — so 'import cronstrue from .../i18n/+esm; cronstrue.toString(expr,opts)' is correct. All schema option keys (locale, use24HourTimeFormat, verbose, throwExceptionOnParseError) are real Options fields. i18n subpath bundles all locales; zh_CN locale exists (dist/i18n/locales/zh_CN.d.ts) so the schema's 'simplified Chinese uses zh_CN' note is accurate. Headless-primitive: returns a plain string, touches no DOM/style/events — trivially shadow-safe.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to turn a cron expression into a readable description, instead of writing a parser by hand, because native implementations fail on L/W/#, seconds/year fields, and multilingual word order.",
+      "why_valuable": "AI can reliably explain only common five-field cron expressions by default. With Quartz special characters, ambiguous field counts, and locales, it invents meanings; this library produces deterministic text.",
+      "data_in": {
+        "schema": {
+          "expression": "string -- 5/6/7-field cron, Quartz cron, or a nickname such as @yearly",
+          "locale?": "string -- i18n locale id; default 'en'; use 'zh_CN' for Simplified Chinese",
+          "use24HourTimeFormat?": "boolean -- Determined by locale by default",
+          "verbose?": "boolean -- Default false",
+          "throwExceptionOnParseError?": "boolean -- Default true"
+        }
+      }
+    }
   }
 }

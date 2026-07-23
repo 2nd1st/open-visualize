@@ -2,12 +2,46 @@
   "entry_version": "thin-1",
   "id": "antv-s2",
   "name": "AntV S2",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need hierarchical row and column dimension trees, cross-tabulation, frozen headers, and virtual scrolling across huge numbers of cells instead of a hand-written canvas/table, which fails at pivot coordinates, merged headers, and synchronized scrolling. Do not use it for a small ordinary detail table or an editable spreadsheet.",
+      "why_valuable": "AI can usually assemble only a simple static cross-table; it cannot reliably produce multi-level row and column facets, merged headers, frozen regions, and canvas virtual scrolling. A hand-written multidimensional pivot table has a 0-20% success rate.",
+      "data_in": {
+        "note": "data_in is the PivotSheet dataCfg. Every field name in fields must exist on the data row objects, and values must reference numeric measures.",
+        "schema": {
+          "_defaults": {
+            "meta": "[]",
+            "meta[*].name": "uses field"
+          },
+          "data": "Record<string, string | number | null>[]",
+          "fields": {
+            "rows": "string[] -- row-dimension fields; pass [] when there are no row dimensions",
+            "columns": "string[] -- column-dimension fields; pass [] when there are no column dimensions",
+            "values": "string[] -- measure fields"
+          },
+          "meta?": [
+            {
+              "field": "string",
+              "name?": "string -- display name; defaults to field"
+            }
+          ]
+        }
+      },
+      "spec": {
+        "note": "The S2 canvas must receive numeric width/height values. The default height is 400px; do not use vh or percentage heights. boot reads the container clientWidth; if its width is 0 at mount time, render after the container becomes visible."
+      }
+    }
+  },
   "when_to_use": "需要多层行列维度树、交叉汇总、冻结表头与海量单元格虚拟滚动时用它,而非手写 canvas/table——原生在透视坐标、合并表头和滚动同步上失败;非做普通明细小表或可编辑电子表格。",
   "why_valuable": "AI 默认只能静态拼简单交叉表,做不到多级行列 facet、稳定的合并表头、冻结区域与 canvas 虚拟滚动;多维透视表手写成功率为 0-20%。",
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
-  "upstream": { "npm": "@antv/s2", "version": "2.7.2", "github": "antvis/S2" },
+  "upstream": {
+    "npm": "@antv/s2",
+    "version": "2.7.2",
+    "github": "antvis/S2"
+  },
   "license": "MIT",
   "data_in": {
     "shape": "tabular",
@@ -36,35 +70,68 @@
     "note": "S2 canvas 必须收到数值 width/height;默认 height 400px,禁用 vh/百分比高。boot 读取容器 clientWidth,若挂载时宽度为 0 应在容器可见后再 render。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:外部 CSS 按铁律 2 放 document.head\nimport { PivotSheet } from 'https://cdn.jsdelivr.net/npm/@antv/s2@2/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@antv/s2@2.7.2/dist/s2.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('s2'); el.style.height = '400px';\nconst sheet = new PivotSheet(el, data, { width: el.clientWidth, height: 400 });\nsheet.render();",
-    "widget": "// CSS 与 canvas 落 shadow;tooltip.getContainer 必钉到 el,否则上游默认 document.body\nimport { PivotSheet } from 'https://cdn.jsdelivr.net/npm/@antv/s2@2/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@antv/s2@2.7.2/dist/s2.min.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); el.style.height = '400px'; shadowRoot.appendChild(el);\nconst sheet = new PivotSheet(el, data, { width: el.clientWidth, height: 400, tooltip: { getContainer: () => el } });\nsheet.render();",
-    "codex": "import { PivotSheet } from 'https://cdn.jsdelivr.net/npm/@antv/s2@2/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@antv/s2@2.7.2/dist/s2.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('s2'); el.style.height = '400px';\nconst sheet = new PivotSheet(el, data, { width: el.clientWidth, height: 400 });\nsheet.render();"
+    "artifact": "// +esm 当前会误解析到 default-only lodash@4.18.1；改用包内自包含 browser bundle\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@antv/s2@2.7.2/dist/s2.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('s2'); el.style.height = '400px'; el.textContent = 'Loading table…';\nconst script = document.createElement('script'); script.src = 'https://cdn.jsdelivr.net/npm/@antv/s2@2.7.2/dist/s2.min.js';\nawait new Promise((ok, fail) => { script.onload = ok; script.onerror = fail; document.head.appendChild(script); });\nconst { PivotSheet } = globalThis.S2; delete globalThis.S2; script.remove(); el.textContent = '';\nconst sheet = new PivotSheet(el, data, { width: el.clientWidth || 640, height: 400 });\nawait sheet.render();",
+    "widget": "// CSS 与 canvas 落 shadow;tooltip.getContainer 必钉到 el,否则上游默认 document.body\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@antv/s2@2.7.2/dist/s2.min.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); el.style.height = '400px'; el.textContent = 'Loading table…'; shadowRoot.appendChild(el);\nconst script = document.createElement('script'); script.src = 'https://cdn.jsdelivr.net/npm/@antv/s2@2.7.2/dist/s2.min.js';\nawait new Promise((ok, fail) => { script.onload = ok; script.onerror = fail; document.head.appendChild(script); });\nconst { PivotSheet } = globalThis.S2; delete globalThis.S2; script.remove(); el.textContent = '';\nconst sheet = new PivotSheet(el, data, { width: el.clientWidth || 640, height: 400, tooltip: { getContainer: () => el } });\nawait sheet.render();",
+    "codex": "const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@antv/s2@2.7.2/dist/s2.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('s2'); el.style.height = '400px'; el.textContent = 'Loading table…';\nconst script = document.createElement('script'); script.src = 'https://cdn.jsdelivr.net/npm/@antv/s2@2.7.2/dist/s2.min.js';\nawait new Promise((ok, fail) => { script.onload = ok; script.onerror = fail; document.head.appendChild(script); });\nconst { PivotSheet } = globalThis.S2; delete globalThis.S2; script.remove(); el.textContent = '';\nconst sheet = new PivotSheet(el, data, { width: el.clientWidth || 640, height: 400 });\nawait sheet.render();"
   },
   "example": {
     "_why": "透视表的 data/fields/meta 三处字段必须互相对齐,minimal 用一个 2×2 透视面固定形状。",
     "minimal": {
       "data": [
-        { "region": "East", "year": "2025", "sales": 120 },
-        { "region": "East", "year": "2026", "sales": 150 },
-        { "region": "West", "year": "2025", "sales": 90 }
+        {
+          "region": "East",
+          "year": "2025",
+          "sales": 120
+        },
+        {
+          "region": "East",
+          "year": "2026",
+          "sales": 150
+        },
+        {
+          "region": "West",
+          "year": "2025",
+          "sales": 90
+        }
       ],
       "fields": {
-        "rows": ["region"],
-        "columns": ["year"],
-        "values": ["sales"]
+        "rows": [
+          "region"
+        ],
+        "columns": [
+          "year"
+        ],
+        "values": [
+          "sales"
+        ]
       },
       "meta": [
-        { "field": "region", "name": "Region" },
-        { "field": "year", "name": "Year" },
-        { "field": "sales", "name": "Sales" }
+        {
+          "field": "region",
+          "name": "Region"
+        },
+        {
+          "field": "year",
+          "name": "Year"
+        },
+        {
+          "field": "sales",
+          "name": "Sales"
+        }
       ]
     },
     "empty": {
       "data": [],
       "fields": {
-        "rows": ["region"],
-        "columns": ["year"],
-        "values": ["sales"]
+        "rows": [
+          "region"
+        ],
+        "columns": [
+          "year"
+        ],
+        "values": [
+          "sales"
+        ]
       }
     }
   },
@@ -80,7 +147,6 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "+esm 实测:`document.createElement('style')` x3 且 `document.head.appendChild(t)`(注入 head);`document.body.appendChild` 其一带 .focus() 的复制 textarea,document.body 共 15 处(tooltip 默认容器);`window.addEventListener('visibilitychange')` 等 x3。widget boot 的 tooltip.getContainer:()=>el 仅挡 tooltip 外溢,head <style> 注入无法经 boot 消除。canvas 本体渲入 shadow 正常,故 conditional。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

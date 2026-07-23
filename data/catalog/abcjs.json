@@ -4,10 +4,35 @@
   "name": "abcjs",
   "when_to_use": "需要把 ABC 记谱文本渲成可缩放五线谱 SVG,并可选做音符定位、播放进度高亮或浏览器合成播放时用它,而非手写 SVG——AI 原生在谱面雕刻、符杠碰撞、跨小节排版与音画同步上是零能力区。",
   "why_valuable": "AI 默认做不到五线谱排版、符号避碰、连音/装饰音雕刻与 Web Audio 音画同步;它只需生成自己熟悉的 ABC notation-string,abcjs 即稳定产出 SVG 乐谱与可供合成器消费的 tune object。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to render ABC notation text as scalable staff-notation SVG, optionally with note positioning, playback-progress highlighting, or in-browser synthesized playback, instead of hand-writing SVG. Native AI has no capability for score engraving, beam collision handling, cross-measure layout, or audio-visual synchronization.",
+      "why_valuable": "AI cannot reliably handle staff layout, symbol collision avoidance, slur or ornament engraving, or Web Audio synchronization by default. It only needs to generate the ABC notation-string it already knows; abcjs then reliably produces an SVG score and a tune object for the synthesizer.",
+      "data_in": {
+        "note": "The primary input is an ABC notation string. Key signatures, time signatures, voices, lyrics, chords, ornaments, and other modifiers all remain inside that string rather than requiring a separate structure. render_options contains only high-frequency visual parameters.",
+        "schema": {
+          "abc": "string - ABC notation text; may be a single tune, a multi-tune tunebook, or a fragment. A complete score usually includes X:/T:/M:/L:/K: header fields",
+          "render_options?": {
+            "responsive?": "'resize' - scale the SVG with the container width",
+            "staffwidth?": "number - score width (px) when not responsive",
+            "scale?": "number - overall score scale factor",
+            "visualTranspose?": "integer - number of semitones for visual transposition only"
+          }
+        }
+      },
+      "spec": {
+        "note": "abcjs generates SVG; width can use responsive:'resize', while natural height varies with score length. The carrier viewport defaults to an explicit 360px with vertical scrolling, and long scores may override it with a larger pixel value. Do not use vh or percentage heights (hard rule 3)."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
-  "upstream": { "npm": "abcjs", "version": "6.6.4", "github": "paulrosen/abcjs" },
+  "upstream": {
+    "npm": "abcjs",
+    "version": "6.6.4",
+    "github": "paulrosen/abcjs"
+  },
   "license": "MIT",
   "data_in": {
     "shape": "notation-string",
@@ -39,7 +64,15 @@
     "widget": "conditional:静态 SVG 可落 shadow 容器且无 head 注入;合成播放另需真实用户手势、Web Audio 与 soundfont 外网访问",
     "codex": "conditional:静态 SVG supported;合成播放仅在具备用户手势、Web Audio 与 soundfont 网络访问的浏览器载体可用"
   },
-  "scenarios": ["notation", "teach-sim"],
+  "scenarios": [
+    "notation",
+    "teach-sim"
+  ],
   "owner": true,
-  "owner_note": "abcjs 在 picks 中合并 notation 与 teach-sim 两个场景;本条以 teach-sim 为 owner,notation 共用同一条,不重复建档。"
+  "owner_note": "abcjs 在 picks 中合并 notation 与 teach-sim 两个场景;本条以 teach-sim 为 owner,notation 共用同一条,不重复建档。",
+  "example": {
+    "minimal": {
+      "abc": "X:1\nT:Twinkle, Twinkle, Little Star\nM:4/4\nL:1/4\nK:C\nC C G G | A A G2 | F F E E | D D C2 |]"
+    }
+  }
 }

@@ -25,6 +25,21 @@
     "height": 480,
     "note": "OSMD 的 SVG 高度随谱面页数自然增长;boot 给容器 min-height 480px作为空载/首屏基线,实际不裁切。必须使用固定 px,禁 vh/百分比高;容器宽变化后可调用 osmd.render() 重排。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you already have complete MusicXML and need to paginate and engrave it automatically as readable SVG staff notation in the browser, instead of hand-writing each symbol with VexFlow/SVG. Native work fails at MusicXML parsing, cross-measure layout, and full-score reflow. It is not a score editor or audio player.",
+      "why_valuable": "Although AI can generate MusicXML, it cannot directly turn a large XML document into stable, professional, readable notation; handwritten rendering has a near-zero success rate. OSMD closes the loop across parsing, VexFlow engraving, and responsive reflow.",
+      "data_in": {
+        "schema": {
+          "musicxml": "string -- complete MusicXML 3.x/4.x XML document; root must be <score-partwise> or <score-timewise>; do not pass only a measure/part fragment",
+          "drawTitle?": "boolean -- whether to draw the MusicXML title; default true"
+        }
+      },
+      "spec": {
+        "note": "OSMD SVG height grows naturally with the number of score pages. boot gives the container a min-height of 480px as an empty/first-screen baseline and does not clip the result. Use fixed px, not vh or percentage heights. After container-width changes, call osmd.render() to reflow."
+      }
+    }
+  },
   "boot": {
     "artifact": "// +esm 的 default 导出即 OSMD 命名空间(named 导出 opensheetmusicdisplay 在 ESM 下为 undefined,已浏览器实测)\nimport OSMD from 'https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@2/+esm';\nconst el = document.getElementById('score'); el.style.minHeight = '480px';\nconst osmd = new OSMD.OpenSheetMusicDisplay(el, { backend: 'svg', autoResize: true, drawTitle: data.drawTitle ?? true });\nawait osmd.load(data.musicxml);\nosmd.render();",
     "widget": "import OSMD from 'https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@2/+esm';\nconst el = document.createElement('div'); el.style.minHeight = '480px';\nshadowRoot.appendChild(el);\nconst osmd = new OSMD.OpenSheetMusicDisplay(el, { backend: 'svg', autoResize: true, drawTitle: data.drawTitle ?? true });\nawait osmd.load(data.musicxml);\nosmd.render();",
@@ -41,7 +56,12 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "Renders VexFlow SVG into the passed HTMLElement (shadow-ok) and no document.head/createElement('style') found — no external CSS. BUT bundle contains 1 window.addEventListener (autoResize resize handler; this.autoResize referenced 5x, handleResize present) and 1 document.body.appendChild (single occurrence, consistent with a transient text-metrics probe, not a persistent portal). autoResize:true in boot keeps the window resize listener alive; boot never disposes. Shadow rendering itself works — hence conditional.",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
+  },
+  "example": {
+    "minimal": {
+      "drawTitle": true,
+      "musicxml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<score-partwise version=\"3.1\">\n  <work><work-title>C Major Scale</work-title></work>\n  <part-list>\n    <score-part id=\"P1\"><part-name>Piano</part-name></score-part>\n  </part-list>\n  <part id=\"P1\">\n    <measure number=\"1\">\n      <attributes>\n        <divisions>1</divisions>\n        <key><fifths>0</fifths></key>\n        <time><beats>4</beats><beat-type>4</beat-type></time>\n        <clef><sign>G</sign><line>2</line></clef>\n      </attributes>\n      <note><pitch><step>C</step><octave>4</octave></pitch><duration>1</duration><type>quarter</type></note>\n      <note><pitch><step>D</step><octave>4</octave></pitch><duration>1</duration><type>quarter</type></note>\n      <note><pitch><step>E</step><octave>4</octave></pitch><duration>1</duration><type>quarter</type></note>\n      <note><pitch><step>F</step><octave>4</octave></pitch><duration>1</duration><type>quarter</type></note>\n    </measure>\n    <measure number=\"2\">\n      <note><pitch><step>G</step><octave>4</octave></pitch><duration>1</duration><type>quarter</type></note>\n      <note><pitch><step>A</step><octave>4</octave></pitch><duration>1</duration><type>quarter</type></note>\n      <note><pitch><step>B</step><octave>4</octave></pitch><duration>1</duration><type>quarter</type></note>\n      <note><pitch><step>C</step><octave>5</octave></pitch><duration>1</duration><type>quarter</type></note>\n    </measure>\n  </part>\n</score-partwise>"
+    }
   }
 }

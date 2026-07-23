@@ -53,7 +53,47 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "组件结构/样式在自带内部 shadow(name=first/second slot 佐证);外部 dist/styles.css(防 FOUC 的 [slot] 规则)由 boot 加载,非库向 head 注入。globalEvents=yes:onMouseDown 时 window.addEventListener('mousemove'/'mouseup'),onWindowMouseUp 内 removeEventListener 全部清理,另有 disconnectedCallback → 瞬时自清理(非泄漏)但运行时确实触碰 window;拖拽时还瞬时置 document.body.style.userSelect='none' 并在 mouseup 还原(非节点追加,故 globalDomMutation=no)。自注册+内部 shadow,append 进外层 shadowRoot 正常(carriers.widget=supported)。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "before": {
+        "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iMzYwIiB2aWV3Qm94PSIwIDAgODAwIDM2MCI+PHJlY3Qgd2lkdGg9IjgwMCIgaGVpZ2h0PSIzNjAiIGZpbGw9IiNiOWI5YjkiLz48Y2lyY2xlIGN4PSI2NTAiIGN5PSI3OCIgcj0iNDIiIGZpbGw9IiNlNmU2ZTYiLz48cG9seWdvbiBwb2ludHM9IjAsMjI1IDIxMCw5NSA0MDAsMjI1IiBmaWxsPSIjNmY2ZjZmIi8+PHBvbHlnb24gcG9pbnRzPSIyNzAsMjI1IDQ4MCw1OCA3MjAsMjI1IiBmaWxsPSIjOGM4YzhjIi8+PHJlY3QgeT0iMjI1IiB3aWR0aD0iODAwIiBoZWlnaHQ9IjEzNSIgZmlsbD0iIzRkNGQ0ZCIvPjxyZWN0IHg9IjMzMCIgeT0iMTUwIiB3aWR0aD0iMTYiIGhlaWdodD0iNzUiIGZpbGw9IiMzYTNhM2EiLz48Y2lyY2xlIGN4PSIzMzgiIGN5PSIxNTAiIHI9IjMwIiBmaWxsPSIjNWM1YzVjIi8+PHRleHQgeD0iMjgiIHk9IjMzMCIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNDIiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjZmZmZmZmIj5CRUZPUkU8L3RleHQ+PC9zdmc+Cg==",
+        "alt": "Ungraded flat landscape"
+      },
+      "after": {
+        "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iMzYwIiB2aWV3Qm94PSIwIDAgODAwIDM2MCI+PHJlY3Qgd2lkdGg9IjgwMCIgaGVpZ2h0PSIzNjAiIGZpbGw9IiM4ZWNhZjAiLz48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjIyNSIgZmlsbD0iI2JmZTZmZiIvPjxjaXJjbGUgY3g9IjY1MCIgY3k9Ijc4IiByPSI0MiIgZmlsbD0iI2ZmZDQ0NyIvPjxwb2x5Z29uIHBvaW50cz0iMCwyMjUgMjEwLDk1IDQwMCwyMjUiIGZpbGw9IiM0ZjhmNTciLz48cG9seWdvbiBwb2ludHM9IjI3MCwyMjUgNDgwLDU4IDcyMCwyMjUiIGZpbGw9IiM2ZmIzNjciLz48cmVjdCB5PSIyMjUiIHdpZHRoPSI4MDAiIGhlaWdodD0iMTM1IiBmaWxsPSIjM2M2ZjNhIi8+PHJlY3QgeD0iMzMwIiB5PSIxNTAiIHdpZHRoPSIxNiIgaGVpZ2h0PSI3NSIgZmlsbD0iIzZiNGEyYiIvPjxjaXJjbGUgY3g9IjMzOCIgY3k9IjE1MCIgcj0iMzAiIGZpbGw9IiM0ZjlhNGEiLz48dGV4dCB4PSIyOCIgeT0iMzMwIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSI0MiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmZmZmZmYiPkFGVEVSPC90ZXh0Pjwvc3ZnPgo=",
+        "alt": "Color-graded landscape"
+      },
+      "position": 50,
+      "direction": "horizontal"
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need a touch-enabled, keyboard-accessible before/after image comparison slider that scales with its container, instead of hand-writing one, because native implementations fail at synchronized clipping, pointer coordinates, and mobile gestures.",
+      "why_valuable": "AI can only write a fragile range+clip-path demo by default; it cannot reliably handle resize, touch-direction detection, keyboard accessibility, and a synchronized split position. This component closes those state loops natively.",
+      "data_in": {
+        "note": "The two images enter the custom element through the first/second named slots. boot mounts them with JS createElement and does not write declarative custom-element tags.",
+        "schema": {
+          "before": {
+            "src": "string -- First image URL or data URL",
+            "alt?": "string -- Empty string by default"
+          },
+          "after": {
+            "src": "string -- Second image URL or data URL",
+            "alt?": "string -- Empty string by default"
+          },
+          "position?": "number,0..100 -- Split-line percentage; default 50",
+          "direction?": "'horizontal' | 'vertical' -- Default 'horizontal'",
+          "keyboard?": "'enabled' | 'disabled' -- Default 'enabled'",
+          "hover?": "boolean -- Follow pointer movement; default false",
+          "object_fit?": "'cover' | 'contain' | 'fill' -- boot default 'cover'"
+        }
+      },
+      "spec": {
+        "note": "Both images must share the same explicit pixel height to keep clipping geometry aligned. boot defaults to 360px with width following the container; AI may override it with another pixel value, and Rule 3 prohibits vh/percentage height."
+      }
+    }
   }
 }

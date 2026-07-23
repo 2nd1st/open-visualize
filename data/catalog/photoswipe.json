@@ -43,6 +43,28 @@
     "_why_no_minimal": "图片项只有 src/width/height 三个必填字段且直接对应上游 dataSource,裁剪 schema 足够一次拼对;只保留空态 fixture。",
     "empty": {
       "items": []
+    },
+    "minimal": {
+      "items": [
+        {
+          "src": "https://picsum.photos/id/1015/1200/800",
+          "width": 1200,
+          "height": 800,
+          "alt": "River winding through a forested mountain valley"
+        },
+        {
+          "src": "https://picsum.photos/id/1024/1200/800",
+          "width": 1200,
+          "height": 800,
+          "alt": "A brown bear resting on rocky ground in daylight"
+        },
+        {
+          "src": "https://picsum.photos/id/1039/1200/800",
+          "width": 1200,
+          "height": 800,
+          "alt": "Waterfall cascading down a green forested cliff"
+        }
+      ]
     }
   },
   "uplink": "display/local-interact 类默认无需上行;当前图片下标若需外传,由消费 AI 直接读取 pswp.currIndex 并按载体处理,不预设事件出口。",
@@ -57,7 +79,32 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "PhotoSwipe defaults to appending its scaffold to document.body, but the `appendToEl` option (boot sets it to the shadow host) redirects that single body-append into the shadow root — so no body mutation under the prescribed boot. No head/style injection (CSS external; widget boot loads photoswipe.css into shadowRoot). Binds 2 document + 4 window listeners via its tracked events helper (document keydown for keyboard nav; window resize/scroll) — all removed on close/destroy (events.removeAll), so no leak when lifecycle is honored.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to inspect technical screenshots or high-resolution images one by one with mobile pinch zoom, inertial panning, and fullscreen viewing instead of writing a lightbox by hand, which fails at multi-touch zoom geometry, drag boundaries, and competing transition gestures. Not for a static thumbnail gallery.",
+      "why_valuable": "AI defaults can only assemble an overlay with previous/next buttons and cannot provide stable pinch zoom, inertia, responsive srcset, or accessible focus management; PhotoSwipe reduces these capabilities to an exact image dataSource.",
+      "data_in": {
+        "note": "data_in.items is passed directly to PhotoSwipe core's dataSource; every image must provide intrinsic width/height in advance rather than guessing after load.",
+        "schema": {
+          "items": [
+            {
+              "src": "string -- Full image URL",
+              "width": "positive integer -- Intrinsic image width",
+              "height": "positive integer -- Intrinsic image height",
+              "srcset?": "string -- Native img srcset syntax; omitted by default",
+              "alt?": "string -- Default empty string",
+              "msrc?": "string -- Low-resolution placeholder URL; omitted by default",
+              "thumbCropped?": "boolean -- Default false"
+            }
+          ],
+          "index?": "non-negative integer -- Initial image index; default 0",
+          "loop?": "boolean -- Default true; upstream disables looping automatically with fewer than 3 images",
+          "bgOpacity?": "number,0..1 -- Default 0.8",
+          "showHideAnimationType?": "'zoom'|'fade'|'none' -- Default 'zoom'"
+        }
+      }
+    }
   }
 }

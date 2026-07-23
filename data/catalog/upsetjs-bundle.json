@@ -1,0 +1,173 @@
+{
+  "entry_version": "thin-1",
+  "id": "upsetjs-bundle",
+  "name": "@upsetjs/bundle",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for intersection analysis of four or more sets (feature/permission overlap, tag co-occurrence, multi-select surveys, gene-set overlap): an UpSet combination matrix aligned with intersection-size bars. Feed sets plus elements; @upsetjs/bundle is the vanilla (non-React) build. Use it instead of a Venn/Euler diagram when there are more than three sets.",
+      "why_valuable": "An UpSet plot is the standard notation for multi-set intersections--a combination matrix coordinated with intersection-size and set-size bars. Native AI cannot assemble it reliably (combination enumeration plus matrix/bar alignment), and it is a named notation rather than an ordinary bar chart.",
+      "data_in": {
+        "note": "Two input methods: (a) each element has sets:string[], and extractCombinations(elements) produces {sets, combinations}; (b) build ISet[]+ISetCombination[] yourself. width/height in render props are required px values. License is AGPL-3.0 or a commercial dual license (strong copyleft); take care in SaaS scenarios.",
+        "schema": {
+          "elements": [
+            {
+              "name?": "string -- element name",
+              "sets": "string[] -- names of sets containing this element (for extractCombinations)"
+            }
+          ],
+          "sets?": "ISet[] -- alternatively provide { name, elems[] }[] directly (choose this or elements)",
+          "combinations?": "ISetCombination[] -- provide when building manually; otherwise produced by extractCombinations",
+          "width": "number -- px, required by render",
+          "height": "number -- px, required by render",
+          "theme?": "string -- 'light' | 'dark' | 'vega'"
+        }
+      },
+      "spec": {
+        "note": "render width/height are props in px, not container height; SVG draws at the prop dimensions and the container is only a host. vh/percentage height is prohibited."
+      }
+    }
+  },
+  "when_to_use": "4 个以上集合的交集分析(feature/权限重叠、标签共现、多选问卷、gene-set 重叠):UpSet 组合点阵与 intersection-size 柱状对齐。喂 sets + elements;@upsetjs/bundle 是 vanilla(无 React)构建。集合超过 3 个时用它取代 Venn/Euler 图。",
+  "why_valuable": "UpSet plot 是多集合交集的标准 notation——组合点阵与 intersection-size、set-size 柱状协同——原生 AI 无法可靠手搭(组合枚举 + 点阵与柱图对齐),且它是有名字的 notation 而非普通柱状图。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@upsetjs/bundle",
+    "version": "1.11.0",
+    "github": "upsetjs/upsetjs"
+  },
+  "license": "(AGPL-3.0-only OR Commercial)",
+  "data_in": {
+    "shape": "set-membership",
+    "note": "两种喂法:(a) 每个 element 带 sets:string[] → extractCombinations(elements) 得 {sets, combinations};(b) 自建 ISet[]+ISetCombination[]。render props 的 width/height 是必填 px。⚠️ license 为 AGPL-3.0 或商业双授权(强 copyleft),SaaS 场景注意。",
+    "schema": {
+      "elements": [
+        {
+          "name?": "string —— 元素名",
+          "sets": "string[] —— 该元素所属集合名(供 extractCombinations)"
+        }
+      ],
+      "sets?": "ISet[] —— 也可直接给 { name, elems[] }[](与 elements 二选一)",
+      "combinations?": "ISetCombination[] —— 自建时给,否则由 extractCombinations 产出",
+      "width": "number —— px,render 必填",
+      "height": "number —— px,render 必填",
+      "theme?": "string —— 'light' | 'dark' | 'vega'"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "render 的 width/height 是 props(px)不是容器高;SVG 按 props 尺寸绘制,容器仅作宿主,禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:render 把 SVG 子树画进 node,内联样式,不注入 head\nimport * as UpSetJS from 'https://cdn.jsdelivr.net/npm/@upsetjs/bundle@1.11.0/+esm';\nconst { sets, combinations } = UpSetJS.extractCombinations(data.elements);\nconst el = document.getElementById('upset'); el.style.width = '100%';\nUpSetJS.render(el, { sets, combinations, width: data.width ?? 600, height: data.height ?? 400, theme: data.theme });",
+    "widget": "// render 画 SVG 子树进 node + 内联样式,天然 shadow-safe\nimport * as UpSetJS from 'https://cdn.jsdelivr.net/npm/@upsetjs/bundle@1.11.0/+esm';\nconst { sets, combinations } = UpSetJS.extractCombinations(data.elements);\nconst el = document.createElement('div'); el.style.width = '100%'; shadowRoot.appendChild(el);\nUpSetJS.render(el, { sets, combinations, width: data.width ?? 600, height: data.height ?? 400, theme: data.theme });",
+    "codex": "import * as UpSetJS from 'https://cdn.jsdelivr.net/npm/@upsetjs/bundle@1.11.0/+esm';\nconst { sets, combinations } = UpSetJS.extractCombinations(data.elements);\nconst el = document.getElementById('upset'); el.style.width = '100%';\nUpSetJS.render(el, { sets, combinations, width: data.width ?? 600, height: data.height ?? 400, theme: data.theme });"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:ESM namespace + render 画 SVG 进 node",
+    "widget": "supported:render 把 SVG 子树 + 内联样式画进传入的 node,无 document.head 注入",
+    "codex": "supported:ESM CDN,纯 SVG 渲染,无 worker/wasm/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr @upsetjs/bundle@1.11.0 +esm: named exports present (yc as render, vc as renderUpSet, So as extractCombinations, sr as extractSets, se as generateCombinations, Be as getDefaultTheme). dist/index.d.ts: `declare function render<T>(node: HTMLElement, props: UpSetProps<T>): void` (L1913); UpSetProps requires sets (UpSetBaseDataProps) + width/height:number (UpSetBaseLayoutProps L1064/1068); extractCombinations single-arg overload for elements with `sets:string[]` (L321). README: `import * as UpSetJS`, `const {sets,combinations}=UpSetJS.extractCombinations(elems)`, `UpSetJS.render(node,{sets,combinations,width,height})`. +esm DOM grep: appendChild only + createElementNS x1 (SVG), NO document.head / insertRule / adoptedStyleSheets / document.styleSheets → renders an SVG subtree into the passed node with inline styles → shadow-safe. License note: package.json 'SEE LICENSE IN LICENSE.md'; LICENSE.md = dual AGPL-3.0 (open-source) OR commercial. confidence high.",
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "width": 700,
+      "height": 400,
+      "theme": "light",
+      "elements": [
+        {
+          "name": "Alice",
+          "sets": [
+            "Python",
+            "JavaScript"
+          ]
+        },
+        {
+          "name": "Bob",
+          "sets": [
+            "Python",
+            "Rust"
+          ]
+        },
+        {
+          "name": "Carol",
+          "sets": [
+            "JavaScript",
+            "Go"
+          ]
+        },
+        {
+          "name": "Dave",
+          "sets": [
+            "Python",
+            "JavaScript",
+            "Rust"
+          ]
+        },
+        {
+          "name": "Eve",
+          "sets": [
+            "Python"
+          ]
+        },
+        {
+          "name": "Frank",
+          "sets": [
+            "JavaScript"
+          ]
+        },
+        {
+          "name": "Grace",
+          "sets": [
+            "Rust",
+            "Go"
+          ]
+        },
+        {
+          "name": "Heidi",
+          "sets": [
+            "Python",
+            "Go"
+          ]
+        },
+        {
+          "name": "Ivan",
+          "sets": [
+            "Python",
+            "JavaScript",
+            "Go"
+          ]
+        },
+        {
+          "name": "Judy",
+          "sets": [
+            "Rust"
+          ]
+        },
+        {
+          "name": "Mallory",
+          "sets": [
+            "Python",
+            "JavaScript",
+            "Rust",
+            "Go"
+          ]
+        },
+        {
+          "name": "Niaj",
+          "sets": [
+            "Go"
+          ]
+        }
+      ]
+    }
+  }
+}

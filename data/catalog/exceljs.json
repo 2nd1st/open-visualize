@@ -1,0 +1,72 @@
+{
+  "entry_version": "thin-1",
+  "id": "exceljs",
+  "name": "exceljs",
+  "when_to_use": "交付「打开即用的带样式 Excel 报表/财务表/带公式模板」时用——单元格格式/字体/填充/边框、公式、合并单元格、数字格式、冻结窗格、内嵌图片、多 sheet;只要逗号分隔纯数据用 papaparse,只在网页里显示表格用 ag-grid/tabulator,读现有 Office 表格用 xlsx(SheetJS)。",
+  "why_valuable": ".xlsx 是 zip 打包的 OOXML,AI 手写字节不可能;papaparse 只给纯 CSV(丢全部格式)。exceljs 全量在 npm 且支持完整样式,独占「产出真正的带样式 .xlsx 二进制」。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "exceljs",
+    "version": "4.4.0",
+    "github": "exceljs/exceljs"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "workbook",
+    "note": "以 sheet 为单位:columns 定义表头/键/宽,addRow 用对象(按 column.key 对齐)或数组(按列序)喂行;样式挂在 cell/row/column 的 .style。产出经 await wb.xlsx.writeBuffer() → Buffer,包 Blob 下载。",
+    "schema": {
+      "sheets": [
+        {
+          "name": "string —— worksheet 名,默认 'Sheet1'",
+          "columns?": "Array<{ header:string, key:string, width?:number, style?:object }> —— header 表头文字、key 供 addRow 对象对齐、width 列宽(字符数近似)、style 可含 numFmt/font/alignment",
+          "rows": "Array<Record<string,any> | any[]> —— 对象按 column.key 对齐 / 数组按列序;数值/日期建议配 column.style.numFmt",
+          "merges?": "string[] —— 合并范围,如 ['A1:B1']"
+        }
+      ]
+    }
+  },
+  "provides": {
+    "shape": "xlsx-bytes",
+    "_note": "headless-primitive:产出 xlsx 二进制,不渲染,无 carriers 矩阵。",
+    "outputs": "await wb.xlsx.writeBuffer() → Buffer;new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}) 下载。",
+    "api_surface": {
+      "workbook": "new ExcelJS.Workbook()(default 导入)",
+      "sheet": "wb.addWorksheet(name) → ws;ws.columns=[{header,key,width,style}]",
+      "rows": "ws.addRow(objOrArray) → row;cell.style={font,fill,border,alignment,numFmt}",
+      "merge": "ws.mergeCells('A1:B2');图片 wb.addImage()+ws.addImage(id,range)",
+      "save": "await wb.xlsx.writeBuffer() → Buffer"
+    }
+  },
+  "boot": {
+    "shared": "// 三载体一致:产 xlsx 字节,零 style 足迹\nimport ExcelJS from 'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/+esm';\nconst wb = new ExcelJS.Workbook();\nfor (const s of data.sheets) {\n  const ws = wb.addWorksheet(s.name ?? 'Sheet1');\n  if (s.columns) ws.columns = s.columns;\n  for (const r of (s.rows ?? [])) ws.addRow(r);\n  for (const m of (s.merges ?? [])) ws.mergeCells(m);\n}\nconst buf = await wb.xlsx.writeBuffer();\nconst blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });",
+    "note": "exceljs 是 default 导出(import ExcelJS)。面向 Node,+esm 约 940KB(含 jszip/stream/archiver shim),浏览器端首载较重。writeBuffer 返回的是 polyfill 的 Buffer(Uint8Array 子类),可直接进 Blob。产字节无渲染,无 shadow/head 足迹。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "conditional",
+    "globalEvents": "conditional",
+    "evidence": "Verified vs jsDelivr exceljs@4.4.0 +esm (938KB): export{Ve as default} — boot uses default import ExcelJS. index.d.ts: class Workbook{ readonly xlsx:Xlsx; addWorksheet(name?,options?):Worksheet; addImage(img):number }; Xlsx.writeBuffer(options?):Promise<Buffer>; Worksheet.columns:Array<Partial<Column>>, addRow(data,style?):Row, mergeCells(...), addImage(id,range); Column{header,key,width,style,hidden} — all match schema/boot. Global-footprint grep: document.head 0, <style/insertRule/adoptedStyleSheets 0 (NO style injection). document.createElement 2 / addEventListener 2 / append 3 — inspected each: ALL inside the bundled core-js task-scheduler polyfill (setImmediate: t.addEventListener('message',p,!1) postMessage path + guarded onreadystatechange iframe/script technique, e.g. (w=l('iframe')).style.display='none',e.appendChild(w) and _.appendChild(p) with removeChild cleanup), NOT ExcelJS's own logic; transient microtask plumbing. ExcelJS produces a Buffer and renders nothing to the DOM, so shadow isolation is unaffected. globalDomMutation/globalEvents = conditional to honestly disclose the bundled-polyfill scheduler; no style injection and no persistent visible DOM.",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to deliver ready-to-open styled Excel reports, financial sheets, or formula templates with cell formatting, fonts, fills, borders, formulas, merged cells, number formats, frozen panes, embedded images, and multiple sheets. For comma-separated plain data use papaparse; to display a table only in a web page use ag-grid/tabulator; to read existing Office spreadsheets use xlsx (SheetJS).",
+      "why_valuable": ".xlsx is OOXML packaged as ZIP, so AI cannot handwrite the bytes; papaparse only produces plain CSV and loses all formatting. exceljs is fully available on npm, supports complete styling, and uniquely produces a real styled .xlsx binary.",
+      "data_in": {
+        "note": "Work sheet by sheet: columns defines headers, keys, and widths; addRow accepts objects aligned by column.key or arrays aligned by column order. Styles live on cell/row/column .style. Produce the file with await wb.xlsx.writeBuffer() -> Buffer, wrap it in a Blob, and download it.",
+        "schema": {
+          "sheets": [
+            {
+              "name": "string -- Worksheet name; default 'Sheet1'",
+              "columns?": "Array<{ header:string, key:string, width?:number, style?:object }> -- header is display text, key aligns addRow objects, width is approximate character count, and style may contain numFmt/font/alignment",
+              "rows": "Array<Record<string,any> | any[]> -- Objects align by column.key and arrays by column order; pair numeric/date values with column.style.numFmt",
+              "merges?": "string[] -- Merge ranges, such as ['A1:B1']"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

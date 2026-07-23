@@ -44,7 +44,18 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "纯函数乐理计算库,README 与导出确认全部为数据 API(输入记法字符串→输出音符数组/属性对象),无任何 DOM/document/window 触及。headless-primitive 无渲染面,shadow 内外行为一致→shadowCompatible=yes,三副作用轴均 no。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to convert chord, scale, interval, or note-name notation into reliable note sets and music-theory properties, instead of relying on AI mental calculation, because native reasoning fails on complex modes, inversions, and enharmonic equivalence.",
+      "why_valuable": "AI is reasonably reliable only for common triads by default; complex scales, interval spelling, transposition, and enharmonic results fail intermittently. Tonal uses pure functions to provide deterministic data for downstream fretboards, keyboards, and notation.",
+      "data_in": {
+        "schema": {
+          "notation": "string -- Native Tonal name matching kind, such as chord Cmaj7, scale D dorian, interval 3M, or note F#4",
+          "kind?": "'chord' | 'scale' | 'interval' | 'note' -- Default 'chord'"
+        }
+      }
+    }
   }
 }

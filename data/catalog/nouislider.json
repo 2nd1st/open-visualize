@@ -4,10 +4,35 @@
   "name": "noUiSlider",
   "when_to_use": "需要多柄范围、柄间 margin/limit/padding 约束或非线性刻度时用它,而非叠两个原生 range——原生在多柄碰撞、键盘可达与约束同步上失败。",
   "why_valuable": "AI 默认只能正确写单柄 range;多柄最小距离、上限距离、边界 padding、触控和非线性区间会漂移,noUiSlider 用一个确定配置同时闭合这些约束。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need multiple range handles, margin/limit/padding constraints between handles, or a nonlinear scale instead of stacking two native range inputs. Native implementations fail on multi-handle collisions, keyboard accessibility, and synchronized constraints.",
+      "why_valuable": "AI can only implement a single-handle range correctly by default. Minimum and maximum handle distances, boundary padding, touch, and nonlinear intervals drift; noUiSlider satisfies these constraints together with one deterministic configuration.",
+      "data_in": {
+        "note": "The entire data object is passed directly to noUiSlider.create(target,data). The number of scalars in start determines the handle count; get() returns either one value or an array of the same length.",
+        "schema": {
+          "start": "number | number[] - one initial value per handle",
+          "range": "{min:number,max:number} | Record<string,number|[number,number]> - required value domain or nonlinear scale",
+          "step?": "number - continuous by default",
+          "connect?": "'lower'|'upper'|boolean|boolean[] - default false",
+          "margin?": "number - default 0",
+          "limit?": "number - maximum distance between handles is unrestricted by default",
+          "padding?": "number | [number,number] - default 0",
+          "orientation?": "'horizontal'|'vertical' - default 'horizontal'",
+          "direction?": "'ltr'|'rtl' - default 'ltr'",
+          "tooltips?": "boolean - default false"
+        }
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
-  "upstream": { "npm": "nouislider", "version": "15.8.1", "github": "leongersen/noUiSlider" },
+  "upstream": {
+    "npm": "nouislider",
+    "version": "15.8.1",
+    "github": "leongersen/noUiSlider"
+  },
   "license": "MIT",
   "data_in": {
     "shape": "scalar",
@@ -46,7 +71,22 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "+esm scan: 0 `document.head` and no style injection -> CSS is a separate file (nouislider.min.css) that the boot loads into shadowRoot; lib never injects styles. 0 `document.body` -> DOM built inside the target el, tooltips render inside the slider element (no body portals). globalEvents=yes: during drag it attaches pointer/mouse/touch listeners to element.ownerDocument (uses ownerDocument, not hardcoded document) and removes them on release/destroy (removeEventListener present) — transient and cleaned, not leaked. shadowCompatible=conditional: works in shadow DOM (drag tracking via ownerDocument resolves to the host document, events still fire) provided the separate CSS is loaded into the shadow root as the boot does.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "start": [
+        20,
+        80
+      ],
+      "connect": true,
+      "range": {
+        "min": 0,
+        "max": 100
+      },
+      "step": 1,
+      "margin": 10,
+      "tooltips": true
+    }
   }
 }

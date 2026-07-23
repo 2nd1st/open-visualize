@@ -64,6 +64,61 @@
     "height": 600,
     "note": "月/周/日视图的滚动区和事件碰撞布局依赖明确像素高;boot 默认容器 600px,初始化后尺寸变化调用 calendar.render(),铁律 3 禁 vh/百分比高。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need visually complete month/week/day schedules, overlapping-time layout, and local calendar interaction instead of a hand-written CSS grid, which tends to fail at multi-day ranges, overlapping columns, scrolling time axes, and view switching.",
+      "why_valuable": "AI defaults to a static monthly calendar table and cannot provide overlapping-event columns in week view, separate all-day/timed layers, multi-day ranges, and stable timezone-aware date arithmetic. Toast UI Calendar supplies these capabilities directly from an events array.",
+      "data_in": {
+        "note": "events is passed unchanged to calendar.createEvents. start/end accept Date|string|number; JSON input should prefer timezone-qualified ISO-8601 strings. calendarId references options.calendars[].id.",
+        "schema": {
+          "events": [
+            {
+              "id?": "string -- optional by default; provide explicitly when later native API calls must locate the event",
+              "calendarId?": "string -- default empty string; when provided, must match options.calendars[].id",
+              "title?": "string -- default empty string",
+              "start": "ISO-8601 date/time string | epoch-milliseconds",
+              "end": "ISO-8601 date/time string | epoch-milliseconds",
+              "category?": "'milestone' | 'task' | 'allday' | 'time' -- default 'time'",
+              "isAllday?": "boolean -- default false",
+              "location?": "string -- default empty string",
+              "attendees?": "string[] -- default []",
+              "state?": "'Busy' | 'Free' -- default 'Busy'",
+              "isReadOnly?": "boolean -- default false",
+              "color?": "CSS color string -- defaults to the calendar text color",
+              "backgroundColor?": "CSS color string -- defaults to the calendar background color",
+              "borderColor?": "CSS color string -- defaults to the calendar border color",
+              "raw?": "JSON value -- default null"
+            }
+          ],
+          "options?": {
+            "_default": "{defaultView:'week',usageStatistics:false}",
+            "defaultView?": "'month' | 'week' | 'day' -- default 'week'",
+            "isReadOnly?": "boolean -- default false",
+            "useFormPopup?": "boolean -- default false",
+            "useDetailPopup?": "boolean -- default false",
+            "gridSelection?": "boolean | {enableClick?:boolean,enableDblClick?:boolean} -- default false",
+            "calendars?": [
+              {
+                "id": "string",
+                "name": "string",
+                "color?": "CSS color string -- defaults to the theme text color",
+                "backgroundColor?": "CSS color string -- defaults to the theme background color",
+                "borderColor?": "CSS color string -- defaults to the theme border color"
+              }
+            ],
+            "week?": "native Toast UI WeekOptions -- defaults to upstream week-view settings",
+            "month?": "native Toast UI MonthOptions -- defaults to upstream month-view settings",
+            "theme?": "native Toast UI theme object -- defaults to the built-in theme",
+            "usageStatistics?": "boolean -- boot forces false to avoid the analytics script"
+          },
+          "initialDate?": "ISO-8601 date/time string -- defaults to today"
+        }
+      },
+      "spec": {
+        "note": "The scrolling area and event-collision layout in month/week/day views depend on an explicit pixel height. boot defaults the container to 600px; call calendar.render() after size changes. Rule 3 forbids vh or percentage heights."
+      }
+    }
+  },
   "boot": {
     "artifact": "// inferred-not-tested:artifact CSS 进入 document.head;显式关闭 usage statistics\nimport Calendar from 'https://cdn.jsdelivr.net/npm/@toast-ui/calendar@2/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@toast-ui/calendar@2/dist/toastui-calendar.min.css' }); document.head.appendChild(css);\nconst el = document.getElementById('calendar'); el.style.height = `${spec.height ?? 600}px`;\nconst calendar = new Calendar(el, { ...(data.options ?? {}), usageStatistics: false });\nif (data.initialDate) calendar.setDate(data.initialDate); calendar.createEvents(data.events);",
     "widget": "// 样式与 Preact 渲染树都落 shadowRoot;关闭上游统计脚本\nimport Calendar from 'https://cdn.jsdelivr.net/npm/@toast-ui/calendar@2/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@toast-ui/calendar@2/dist/toastui-calendar.min.css' });\nconst el = document.createElement('div'); el.style.height = `${spec.height ?? 600}px`; shadowRoot.append(css, el);\nconst calendar = new Calendar(el, { ...(data.options ?? {}), usageStatistics: false });\nif (data.initialDate) calendar.setDate(data.initialDate); calendar.createEvents(data.events);",
@@ -126,7 +181,6 @@
     "globalEvents": "yes",
     "shadowCompatible": "conditional",
     "evidence": "唯一 body append 是 usageStatistics GA 元素(boot 以 usageStatistics:false 禁);日历 UI/弹层渲入传入容器;一个 window resize 监听(calendar.destroy 清理);CSS+挂载点须同落 shadow",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

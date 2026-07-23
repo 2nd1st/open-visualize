@@ -4,6 +4,18 @@
   "name": "MathJax",
   "when_to_use": "需要把复杂 LaTeX 排成自包含 SVG、避开 webfont/CSP 问题或覆盖 KaTeX 不支持的命令时用它,而非手写 SVG 字形——原生手写在宏展开、伸缩结构和字体度量上失败。只求最快常用公式时优先 KaTeX。",
   "why_valuable": "AI 默认做不到 TeX 宏解析、数学字体度量、伸缩定界符与可访问结构同步,也无法徒手生成可复用的本地 SVG glyph cache；MathJax 的 TeX→SVG 管线补齐这一整段。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing SVG glyphs when you need to typeset complex LaTeX as self-contained SVG, avoid webfont/CSP problems, or support commands KaTeX does not, because native implementations fail at macro expansion, stretchy structures, and font metrics. Prefer KaTeX when you only need the fastest rendering for common formulas.",
+      "why_valuable": "AI cannot normally parse TeX macros, measure mathematical fonts, synchronize stretchy delimiters with accessible structure, or hand-generate a reusable local SVG glyph cache; MathJax's TeX-to-SVG pipeline fills this entire gap.",
+      "data_in": {
+        "schema": {
+          "tex": "string -- one TeX formula without outer $ or $$",
+          "display?": "boolean -- true for display math, false for inline math; default false"
+        }
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -37,7 +49,12 @@
     "globalDomMutation": "no",
     "globalEvents": "unknown",
     "evidence": "MathJax SVG output appends `<style id=\"MJX-SVG-styles\">` to document.head — id confirmed in the es5/tex-svg.js bundle, and the widget boot explicitly clones `#MJX-SVG-styles` from head into shadowRoot (acknowledging the injection). With `startup.typeset:false` the glyph node is RETURNED by tex2svgPromise and placed by the boot (no auto-append to body); it does set a JS singleton `globalThis.MathJax`. No persistent global DOM listeners expected for one-shot tex2svg but not verified (unknown). shadowCompatible=conditional: the head stylesheet must be copied into the shadow root and only one global MathJax config may exist per page.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "tex": "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}",
+      "display": true
+    }
   }
 }

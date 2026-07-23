@@ -2,6 +2,34 @@
   "entry_version": "thin-1",
   "id": "speedscope",
   "name": "speedscope",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of building a viewer by hand when you need to zoom, search, and inspect a performance profile across time-order, left-heavy, and sandwich views, because native implementations fail on multi-format parsing and interactive flamegraphs.",
+      "why_valuable": "AI defaults can at most draw a small static flamegraph; they cannot parse Chrome, Firefox, collapsed stacks, and other profiles or provide search, zoom, left-heavy/sandwich aggregation, and interaction with large call stacks.",
+      "data_in": {
+        "note": "The core input for a future fork should accept the official speedscope file-format-schema directly rather than inventing flamegraph nodes; frame indexes must resolve in shared.frames. The current npm package publishes only full-site assets and a CLI, with no embeddable mount API.",
+        "schema": {
+          "profile_file": {
+            "$schema": "literal 'https://www.speedscope.app/file-format-schema.json'",
+            "shared": {
+              "frames": [
+                {
+                  "name": "string",
+                  "file?": "string -- unknown/hidden by default",
+                  "line?": "number -- unknown/hidden by default",
+                  "col?": "number -- unknown/hidden by default"
+                }
+              ]
+            },
+            "profiles": "({type:'evented',name:string,unit:'bytes'|'microseconds'|'milliseconds'|'nanoseconds'|'none'|'seconds',startValue:number,endValue:number,events:{type:'O'|'C',at:number,frame:number}[]} | {type:'sampled',name:string,unit:same as above,startValue:number,endValue:number,samples:number[][],weights:number[]})[] -- every profile field is required by the official format",
+            "activeProfileIndex?": "number -- default 0",
+            "exporter?": "string -- unannotated by default",
+            "name?": "string -- file name unannotated by default"
+          }
+        }
+      }
+    }
+  },
   "when_to_use": "需要缩放、搜索并在 time-order、left-heavy 与 sandwich 视图间检查性能 profile 时用它而非手写,因为原生在多格式解析和交互 flamegraph 上失败。",
   "why_valuable": "AI 默认最多画小型静态 flamegraph,做不到解析 Chrome、Firefox、collapsed stacks 等 profile,也做不到搜索、缩放、left-heavy/sandwich 聚合和大调用栈交互。",
   "supply_form": "app-needs-fork",

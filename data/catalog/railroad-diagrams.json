@@ -2,6 +2,29 @@
   "entry_version": "thin-1",
   "id": "railroad-diagrams",
   "name": "railroad-diagrams",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when a DSL, protocol, or configuration grammar needs a JSON.org-style railroad SVG instead of hand-written rendering, which fails at Choice loops, repetition branches, and endpoint alignment.",
+      "why_valuable": "AI can write BNF text but cannot reliably calculate branch widths/heights, arc radii, and SVG connections for arbitrary nested grammars. The library deterministically converts a structure tree into a readable syntax diagram.",
+      "data_in": {
+        "note": "grammar is the discriminated union tree below, with each node mapping one-to-one to the same-named upstream constructor. It is not a BNF/EBNF string; the library does not parse grammar text.",
+        "schema": {
+          "grammar": {
+            "type": "'terminal'|'nonterminal'|'sequence'|'choice'|'optional'|'oneOrMore'|'zeroOrMore'|'comment'|'skip'",
+            "text?": "string -- required for terminal, nonterminal, and comment; absent by default for other nodes",
+            "items?": "grammar[] -- required for sequence and choice; defaults to [] for other nodes",
+            "normal?": "integer -- index of the main path in choice; defaults to 0 and must be within items",
+            "item?": "grammar -- required for optional, oneOrMore, and zeroOrMore",
+            "repeat?": "grammar -- return-path label for oneOrMore/zeroOrMore; defaults to Skip",
+            "skip?": "boolean -- whether optional/zeroOrMore uses the bypass as its main path; defaults to false"
+          }
+        }
+      },
+      "spec": {
+        "note": "Upstream generates an SVG with natural width and height. The outer container defaults to an explicit height of 360px with two-axis scrolling; AI may provide another pixel height. Do not use vh or percentage heights."
+      }
+    }
+  },
   "when_to_use": "需要把 DSL、协议或配置文法渲成 JSON.org 风格 railroad SVG 时用它而非手写,因为原生在 Choice 回路、重复分支和端点对齐上失败。",
   "why_valuable": "AI 默认能写 BNF 文本,但做不到对任意嵌套文法稳定计算分支宽高、弧线半径和 SVG 连线;库把结构树确定地变成可读语法图。",
   "supply_form": "component",
@@ -91,7 +114,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "+esm 实测完全干净:无 document.head、无 createElement(\"style\")、无 document.body、无 addEventListener(grep 全空)。渲染需外置 railroad-diagrams.css,由 boot 手动供给(artifact/codex 进 head,widget 进 shadowRoot)。Diagram(...).toSVG() 返回游离 <svg>,boot 追加到目标容器(库虽有 .addTo() 默认落 document.body,但 boot 刻意改用 .toSVG())。纯 DOM/SVG,零全局副作用,shadow 内完全安全。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

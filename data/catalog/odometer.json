@@ -1,0 +1,93 @@
+{
+  "entry_version": "thin-1",
+  "id": "odometer",
+  "name": "odometer",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for an old-style odometer/slot-machine digit transition where each digit column scrolls independently: after new Odometer({el}), call od.update(newValue). It suits counters, statistics, prices, or live metrics that need mechanical rolling digits; for a smooth numeric tween without rolling digits, use countup-js. You must link the matching theme CSS (its transition drives the 100% scroll), place that theme CSS inside shadow for a widget, and mount explicitly in JS (auto-init scans only light DOM and cannot reach shadow).",
+      "why_valuable": "The mechanical feel of independently scrolling digit columns depends on coordinated .odometer-ribbon-inner transform transitions, ribbon stacks, DOM, and CSS; hand-written AI only tweens one number and loses the rolling mechanism. odometer's ready-made theme CSS fixes this behavior.",
+      "data_in": {
+        "note": "The real constructor input is { el, value?, format?, theme?, duration? }; this schema lifts value to the top level and groups the rest under options. Rolling depends on linking themes/odometer-theme-<theme>.css (without it, the number changes but does not roll). The theme name must match the loaded CSS.",
+        "schema": {
+          "_defaults": {
+            "options": "{}"
+          },
+          "value": "number -- target number; od.update(value) rolls to this value",
+          "options?": {
+            "format?": "string -- grouping/decimal format; default '(,ddd)' (thousands separators). Syntax uses ( ) , . and d",
+            "theme?": "string -- theme name, which must match the loaded theme CSS: 'default'|'car'|'minimal'|'digital'|'plaza'|'slot-machine'|'train-station'",
+            "duration?": "number -- rolling duration in ms; default 2000",
+            "animation?": "string -- 'count' forces step-by-step counting (default behavior selects automatically by difference)"
+          }
+        }
+      },
+      "spec": {
+        "note": "The digits' font-size determines dimensions (theme CSS controls font size/line height), not canvas. The container uses display:inline-block; do not use vh or percentage heights."
+      }
+    }
+  },
+  "when_to_use": "需要老式里程表/老虎机式逐位滚动的数字过渡(每个数位列独立滚动)时用它:new Odometer({el}) 后 od.update(newValue)。用于要机械滚位观感的计数器/统计/价格/实时指标;只要平滑数字 tween 不要滚位用 countup-js。必须外链对应 theme CSS(滚动 100% 由该 CSS 的 transition 驱动),widget 内把 theme CSS 放进 shadow 并显式 JS mount(auto-init 只扫 light DOM、够不到 shadow)。",
+  "why_valuable": "每个数位列独立滚动的机械感靠成排 .odometer-ribbon-inner 的 transform transition + ribbon 堆叠,是很琐碎的 DOM/transform + CSS 协同;AI 徒手只会 tween 一个数字、丢掉滚位机制。odometer 用现成 theme CSS 固定了这套滚动口径。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "odometer",
+    "version": "0.4.8",
+    "github": "HubSpot/odometer"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "number",
+    "note": "构造真实入参是 { el, value?, format?, theme?, duration? };本 schema 把 value 提到顶层、其余归 options。滚动效果依赖外链 themes/odometer-theme-<theme>.css(不加载则只换数字不滚)。theme 名须与所加载 CSS 一致。",
+    "schema": {
+      "_defaults": {
+        "options": "{}"
+      },
+      "value": "number —— 目标数字;od.update(value) 滚到该值",
+      "options?": {
+        "format?": "string —— 分组/小数格式,默认 '(,ddd)'(千分位);记号用 ( ) , . 与 d",
+        "theme?": "string —— 主题名,须与所加载 theme CSS 对应:'default'|'car'|'minimal'|'digital'|'plaza'|'slot-machine'|'train-station'",
+        "duration?": "number —— 滚动时长 ms,默认 2000",
+        "animation?": "string —— 'count' 强制逐格计数(默认按差值自动选择)"
+      }
+    }
+  },
+  "spec": {
+    "height": "content",
+    "note": "尺寸由数字的 font-size 撑开(theme CSS 决定字号/行高),非 canvas;容器 display:inline-block,禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested。default import;滚动 100% 靠外链 theme CSS,按铁律 2 例外把 peer CSS 放 head\nimport Odometer from 'https://cdn.jsdelivr.net/npm/odometer@0.4.8/+esm';\nconst link = document.createElement('link'); link.rel = 'stylesheet';\nlink.href = 'https://cdn.jsdelivr.net/npm/odometer@0.4.8/themes/odometer-theme-default.css'; document.head.appendChild(link);\nconst el = document.getElementById('odo'); el.textContent = '0';\nconst od = new Odometer({ el, value: 0, ...(data.options ?? {}) });\nod.update(data.value); // 滚到目标数",
+    "widget": "// default import;theme CSS 落 shadow(选择器全是 .odometer-*,非 :root,可直接 adopt);显式 JS mount(auto-init 扫不到 shadow)\nimport Odometer from 'https://cdn.jsdelivr.net/npm/odometer@0.4.8/+esm';\nconst link = document.createElement('link'); link.rel = 'stylesheet';\nlink.href = 'https://cdn.jsdelivr.net/npm/odometer@0.4.8/themes/odometer-theme-default.css'; shadowRoot.appendChild(link);\nconst el = document.createElement('div'); el.textContent = '0'; shadowRoot.appendChild(el);\nconst od = new Odometer({ el, value: 0, ...(data.options ?? {}) });\nod.update(data.value);",
+    "codex": "import Odometer from 'https://cdn.jsdelivr.net/npm/odometer@0.4.8/+esm';\nconst link = document.createElement('link'); link.rel = 'stylesheet';\nlink.href = 'https://cdn.jsdelivr.net/npm/odometer@0.4.8/themes/odometer-theme-default.css'; document.head.appendChild(link);\nconst el = document.getElementById('odo'); el.textContent = '0';\nconst od = new Odometer({ el, value: 0, ...(data.options ?? {}) }); od.update(data.value);"
+  },
+  "example": {
+    "_why": "钉死 value 顶层 + options.format/theme;theme 必须与 boot 里加载的 theme CSS 一致。",
+    "minimal": {
+      "value": 1234567,
+      "options": {
+        "format": "(,ddd)",
+        "theme": "default",
+        "duration": 2000
+      }
+    },
+    "empty": {
+      "value": 0
+    }
+  },
+  "uplink": "display-only;od.update(newValue) 由消费 AI 调用推进,滚动结束的 'odometerdone' 事件如需外传由其直接接原生。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:必须把 theme CSS 放进 shadow 且显式 new Odometer({el}) 挂载(auto-init 只扫 document light DOM)",
+    "codex": "supported:ESM + 外链 theme CSS,无 worker/wasm"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "conditional",
+    "globalEvents": "yes",
+    "evidence": "+esm 仅 default 导出(mt=Odometer 类)。odometer.js:this.el=options.el(必填),读 options.value/format/theme/duration;数位标记用 .odometer-digit/.odometer-ribbon-inner,滚动 transform 只定义在 theme CSS 里。themes/odometer-theme-default.css(及 car/minimal)HTTP 200;odometer.css 单独 404(基础样式内联在各 theme 文件中)。全局足迹:+esm 顶层含无条件 document.addEventListener('DOMContentLoaded', ()=>Odometer.init());Odometer.init()=document.querySelectorAll(Odometer.options.selector||'.odometer') 只会自动包裹 light-DOM 命中,够不到 shadow(所以显式 JS mount 才安全)。UMD 尾部 `...==null?exports=c:window.Odometer=c`:window.Odometer 仅在无模块环境分支赋值,jsDelivr +esm 的 module shim 不走该分支,故 +esm import 下不设 window.Odometer。实例对自身 el 挂 MutationObserver 跟踪 innerText 变化。",
+    "confidence": "high"
+  }
+}

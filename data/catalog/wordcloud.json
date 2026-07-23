@@ -2,6 +2,43 @@
   "entry_version": "thin-1",
   "id": "wordcloud",
   "name": "wordcloud2.js",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when keyword weights must form a word cloud with Chinese text support, rotation, and non-rectangular outlines instead of hand-written canvas, which fails at text measurement, collision search, weight scaling, and dense layout.",
+      "why_valuable": "AI can normally only absolutely position words at random. It cannot handle pixel-level collision detection, font-width measurement, weight-to-font-size mapping, rotated occupancy, or a reproducible compact layout. wordcloud2.js closes those steps around a [word,weight] list.",
+      "data_in": {
+        "note": "list uses the exact upstream tuple shape: [word,weight,...optional extra values]. weight must be finite. boot assigns this list to WordCloud options.list; frequency-map objects are not accepted.",
+        "schema": {
+          "list": [
+            "[string, finite number, ...unknown[]] -- first item is the word and second is its weight"
+          ],
+          "options?": {
+            "_default": "{}; boot only adds list",
+            "fontFamily?": "CSS font-family string -- defaults include Trebuchet MS, Heiti TC, 微软雅黑, and generic sans-serif",
+            "fontWeight?": "CSS font-weight -- defaults to 'normal'",
+            "color?": "CSS color string | 'random-dark' | 'random-light' -- defaults to 'random-dark'",
+            "backgroundColor?": "CSS color string -- defaults to '#fff'",
+            "weightFactor?": "positive number -- defaults to 1 and multiplies weights into px font sizes",
+            "minSize?": "non-negative number -- defaults to 0, meaning no limit",
+            "gridSize?": "positive integer(px) -- defaults to 8",
+            "shape?": "'circle' | 'cardioid' | 'diamond' | 'square' | 'triangle-forward' | 'triangle' | 'pentagon' | 'star' -- defaults to 'circle'",
+            "ellipticity?": "positive number -- defaults to 0.65",
+            "minRotation?": "number radians -- defaults to -Math.PI/2",
+            "maxRotation?": "number radians -- defaults to Math.PI/2",
+            "rotationSteps?": "non-negative integer -- defaults to 0",
+            "rotateRatio?": "number 0..1 -- defaults to 0.1",
+            "shuffle?": "boolean -- defaults to true",
+            "drawOutOfBound?": "boolean -- defaults to false",
+            "shrinkToFit?": "boolean -- defaults to false",
+            "clearCanvas?": "boolean -- defaults to true"
+          }
+        }
+      },
+      "spec": {
+        "note": "The canvas CSS size and width/height backing store must be explicit pixel values before drawing. boot defaults to a height of 400px and measures container width. Clear and redraw after dimensions change; iron rule 3 forbids vh and percentage heights."
+      }
+    }
+  },
   "when_to_use": "需要把关键词权重排成支持中文、旋转与非矩形轮廓的词云时用它而非手写 canvas,因为原生在文字测量、碰撞搜索、权重缩放和密集布局上失败。",
   "why_valuable": "AI 默认只能随机绝对定位文字,做不到像素级碰撞检测、字体宽度测量、权重到字号映射、旋转后占位和可复现的紧凑布局;wordcloud2.js 用 [word,weight] 列表闭环这些步骤。",
   "supply_form": "component",
@@ -55,10 +92,22 @@
     "_why": "tuple 列表、权重到字号和弧度旋转容易被写成错误对象结构,minimal example 给出真实 WordCloud options。",
     "minimal": {
       "list": [
-        ["可视化", 42],
-        ["数据", 28],
-        ["交互", 20],
-        ["AI", 16]
+        [
+          "可视化",
+          42
+        ],
+        [
+          "数据",
+          28
+        ],
+        [
+          "交互",
+          20
+        ],
+        [
+          "AI",
+          16
+        ]
       ],
       "options": {
         "weightFactor": 2,
@@ -84,7 +133,6 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "Pure canvas — no head/style injection. `document.body.appendChild(fcanvas)` exists (src/wordcloud2.js:606) but is gated behind `if (debug)` (:604), off by default, so no body mutation in normal use. The one persistent window listener is `window.addEventListener('message', ...)` (:37) — a one-time module-load setImmediate/setZeroTimeout polyfill (singleton, harmless, doesn't cross the shadow boundary), hence globalEvents=yes-but-benign. Render-time hover/click listeners are attached to the CANVAS element and gated by settings.hover/settings.click (default off), auto-removed on 'wordcloudstart'. Catalog passes the canvas as an ELEMENT so the `document.getElementById` string-id branch (:185) is never hit — all drawing stays in-canvas within the shadow container.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

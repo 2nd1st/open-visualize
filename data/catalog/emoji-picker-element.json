@@ -1,0 +1,83 @@
+{
+  "entry_version": "thin-1",
+  "id": "emoji-picker-element",
+  "name": "emoji-picker-element",
+  "i18n": {
+    "en": {
+      "when_to_use": "Place it anywhere users need to choose emoji (reactions, chat, status, tags). It is a framework-independent custom element: instantiate it and listen for the emoji-click event, matching the catalog's JS-mount custom-element model. Note that runtime fetches the emoji dataset and caches it in IndexedDB.",
+      "why_valuable": "A real emoji picker packages the full Unicode emoji dataset, category labels, search/keyword indexes, skin-tone variants, recent usage, and virtual scrolling for roughly 1,800 glyphs; AI cannot hand-write this data-intensive pipeline in a conversation.",
+      "data_in": {
+        "note": "No dataset is required because the library includes the full emoji catalog; fields are mostly constructor options/properties. Import has a side effect: it automatically calls customElements.define('emoji-picker'). There is no default export (named Picker/Database). Selection is reported through the 'emoji-click' event -> e.detail.unicode (character) / e.detail.emoji (object). At runtime it fetches emoji data from jsDelivr by default and caches it in IndexedDB.",
+        "schema": {
+          "_defaults": {
+            "locale": "'en'",
+            "dataSource": "'https://cdn.jsdelivr.net/npm/emoji-picker-element-data@^1/en/emojibase/data.json'"
+          },
+          "locale?": "string -- default 'en'",
+          "dataSource?": "string -- emoji data URL; fetched from jsDelivr by default. A host that blocks connect-src must provide its own reachable URL",
+          "skinToneEmoji?": "string -- emoji used by the skin-tone picker",
+          "customEmoji?": "{ name, shortcodes, url }[] -- custom emoji; none by default",
+          "emojiVersion?": "number -- for example 14.0; fixes the maximum supported version"
+        }
+      },
+      "spec": {
+        "note": "Custom element; give the host an explicit pixel height (400px in the example) or control it with the element's CSS variables. Do not use vh."
+      }
+    }
+  },
+  "when_to_use": "凡是用户要挑 emoji 处(反应、聊天、状态、标签)直接放它;它是框架无关的自定义元素——实例化后监听 emoji-click 事件,契合目录 JS-mount 自定义元素模型。注意运行时会拉取 emoji 数据集并用 IndexedDB 缓存。",
+  "why_valuable": "真正的 emoji 选择器打包了全量 Unicode emoji 数据集、分类标签、搜索/关键词索引、肤色变体、最近使用、约 1800 个字形的虚拟滚动;这套数据密集的管线 AI 无法在对话内手写。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "emoji-picker-element",
+    "version": "1.29.1",
+    "github": "nolanlawson/emoji-picker-element"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "emoji-catalog",
+    "note": "无需传数据集,库内置全量 emoji;字段多为构造项/属性。import 有副作用:自动 customElements.define('emoji-picker')。无 default 导出(named Picker/Database)。选中经 'emoji-click' 事件 → e.detail.unicode(字符)/e.detail.emoji(对象)。运行时默认从 jsDelivr 拉 emoji 数据 + IndexedDB 缓存。",
+    "schema": {
+      "_defaults": {
+        "locale": "'en'",
+        "dataSource": "'https://cdn.jsdelivr.net/npm/emoji-picker-element-data@^1/en/emojibase/data.json'"
+      },
+      "locale?": "string —— 默认 'en'",
+      "dataSource?": "string —— emoji 数据 URL;默认从 jsDelivr 拉取,宿主禁 connect-src 时须自备可达 URL",
+      "skinToneEmoji?": "string —— 肤色选择器用的 emoji",
+      "customEmoji?": "{ name, shortcodes, url }[] —— 自定义 emoji,默认无",
+      "emojiVersion?": "number —— 如 14.0,固定最大支持版本"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "自定义元素;给 host 显式像素高(示例 400px)或用其 CSS 变量控制,禁 vh。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested\nimport 'https://cdn.jsdelivr.net/npm/emoji-picker-element@1.29.1/+esm'; // 副作用:注册 <emoji-picker>\nconst picker = document.createElement('emoji-picker');\nif (data.locale) picker.setAttribute('locale', data.locale);\nif (data.dataSource) picker.dataSource = data.dataSource;\ndocument.getElementById('slot').appendChild(picker);\npicker.addEventListener('emoji-click', e => { const emoji = e.detail.unicode; /* 消费 AI 接 */ });\n// 注意:默认从 jsDelivr 拉 emoji 数据 + IndexedDB 缓存;严格 CSP(connect-src)/sandbox(IndexedDB) 下须自备 dataSource 或本地数据",
+    "widget": "import 'https://cdn.jsdelivr.net/npm/emoji-picker-element@1.29.1/+esm'; // 副作用:注册 <emoji-picker>\nconst picker = document.createElement('emoji-picker');\nshadowRoot.appendChild(picker);\npicker.addEventListener('emoji-click', e => { const u = e.detail.unicode; });\n// 自带 shadow root,DOM 零全局足迹;但运行时 fetch emoji 数据 + IndexedDB 可能触宿主 CSP/sandbox 限制",
+    "codex": "import 'https://cdn.jsdelivr.net/npm/emoji-picker-element@1.29.1/+esm';\nconst picker = document.createElement('emoji-picker');\ndocument.getElementById('slot').appendChild(picker);\npicker.addEventListener('emoji-click', e => { const emoji = e.detail.unicode; });"
+  },
+  "uplink": "选中 emoji 由消费 AI 在 'emoji-click' 回调里取 e.detail.unicode/emoji 并按载体外传;不预设统一契约。",
+  "carriers": {
+    "artifact": "inferred-not-tested;并注意运行时 fetch 数据集 + IndexedDB 可能被宿主 CSP/sandbox 阻断",
+    "widget": "supported(DOM):自包含自定义元素、自带 shadow root、零全局足迹;但需宿主允许 connect-src 拉数据 + IndexedDB",
+    "codex": "supported:网络可达时直接注册并挂载"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm named exports {Picker, Database}(无 default),import 时自注册 customElements.define('emoji-picker', Picker);Picker extends HTMLElement 自带 shadow root。构造项/属性 {dataSource, locale, i18n, skinToneEmoji, customEmoji, emojiVersion} 与事件 'emoji-click'(detail {emoji, skinTone, unicode})已验证(picker.d.ts、shared.d.ts:68/87)。globalStyleInjection=no & globalDomMutation=no:document.head 写入 0;样式在自有 shadow root 内;唯一一次 document.body 触碰是 emoji 渲染能力探测的临时节点(用后移除)。globalEvents=no:0 window/document addEventListener(监听器绑在自有 shadow 内容)。shadowCompatible=yes:完全自包含自定义元素,零全局 DOM/样式足迹。CAVEAT(运行时,非 DOM):默认 dataSource 从 jsDelivr 拉 emoji 数据集并用 IndexedDB 缓存——严格宿主 CSP(connect-src)或沙箱 iframe(IndexedDB)可能阻断;宿主禁外部 fetch 时须提供可达 dataSource 或本地数据。",
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "locale": "en",
+      "dataSource": "https://cdn.jsdelivr.net/npm/emoji-picker-element-data@^1/en/emojibase/data.json"
+    }
+  }
+}

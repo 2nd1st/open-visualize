@@ -2,6 +2,56 @@
   "entry_version": "thin-1",
   "id": "drawflow",
   "name": "Drawflow",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written SVG when you need a lightweight, framework-free draggable node-flow editor that round-trips the canvas as compact JSON, because native implementations fail at anchor hit testing, Bezier connector routing, and reconnection serialization; not for automatic layout, workflow execution, or collaboration.",
+      "why_valuable": "AI can produce only static flow SVG by default, not reliable port hits, drag reconnection, and complete graph JSON round trips; Drawflow closes all three loops through its native start/import/export API.",
+      "data_in": {
+        "note": "data_in is the native object returned by editor.export(); its top level must be drawflow->module name->data. Upstream writes node HTML directly into the DOM, so the consuming AI must escape untrusted text first.",
+        "schema": {
+          "drawflow": {
+            "<moduleName>": {
+              "data": {
+                "<nodeId>": {
+                  "id": "number|string -- unique within the module",
+                  "name": "string",
+                  "data": "object",
+                  "class": "string",
+                  "html": "string -- trusted node HTML",
+                  "typenode": "false | true | 'vue'",
+                  "inputs": {
+                    "input_<n>": {
+                      "connections": [
+                        {
+                          "node": "string -- upstream node id",
+                          "input": "string -- upstream output_<n>"
+                        }
+                      ]
+                    }
+                  },
+                  "outputs": {
+                    "output_<n>": {
+                      "connections": [
+                        {
+                          "node": "string -- downstream node id",
+                          "output": "string -- downstream input_<n>"
+                        }
+                      ]
+                    }
+                  },
+                  "pos_x": "number",
+                  "pos_y": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "spec": {
+        "note": "Drawflow calculates dragging and connectors from container geometry and defaults to an explicit height of 420px; rule 3 prohibits vh/percentage height, while width may follow the container."
+      }
+    }
+  },
   "when_to_use": "需要轻量、无框架的可拖拽节点流编辑器并把画布往返为紧凑 JSON 时用它而非手写 SVG,因为原生在锚点命中、贝塞尔连线路由和重连序列化上失败;非做自动布局、流程执行或多人协作。",
   "why_valuable": "AI 默认只能产出静态流程 SVG,做不到稳定的端口命中、拖拽重连与完整图 JSON 往返;Drawflow 把这三项闭环压到 start/import/export 原生 API。",
   "supply_form": "component",
@@ -117,7 +167,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "min.js: ALL interaction listeners are bound to `this.container` — grep shows `this.container.addEventListener('mouseup'|'mousemove'|'touchend'|'touchmove'|'contextmenu'|'keydown')`. Zero `document.addEventListener` / `window.addEventListener` / `.body.` / `document.head`. CSS is a separate file (dist/drawflow.min.css); the library injects no styles — boot loads the <link> into shadowRoot. Nodes/SVG connections all render inside this.container. Genuinely fully shadow-safe.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

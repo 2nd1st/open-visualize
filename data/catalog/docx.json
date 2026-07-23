@@ -4,6 +4,47 @@
   "name": "docx",
   "when_to_use": "需要在浏览器把标题、段落、富文本层级和分节内容生成可继续编辑的 Word .docx Blob 时用它而非手写 OOXML/ZIP，因为原生在关系文件、样式引用、XML 转义与 OPC 打包上失败；非做所见即所得编辑器或像素级固定版式。",
   "why_valuable": "AI 默认做不到一组相互引用且能被 Word 稳定打开的 OOXML parts、rels 与 ZIP 包，只会拼出脆弱 XML 或伪装成 .docx 的文本；docx 用构造器树和 Packer 生成真实可编辑文件。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to generate an editable Word .docx Blob in the browser from headings, paragraphs, rich-text hierarchy, and sectioned content instead of hand-writing OOXML/ZIP. Native implementations fail on relationship files, style references, XML escaping, and OPC packaging. It is not a WYSIWYG editor or a pixel-fixed layout tool.",
+      "why_valuable": "AI cannot reliably produce a mutually referencing set of OOXML parts, rels, and a ZIP package that Word will open consistently; it only assembles fragile XML or text disguised as .docx. docx uses a constructor tree and Packer to generate a real editable file.",
+      "data_in": {
+        "note": "document is a JSON-serializable trimmed tree. boot maps it exactly as Document -> sections -> Paragraph -> TextRun; heading/alignment use enum keys exported by docx, and class instances are not placed in the input.",
+        "schema": {
+          "document": {
+            "sections": [
+              {
+                "properties?": "docx ISectionPropertiesOptions object - default {}; unlisted fields such as paper size and margins pass through to Document unchanged",
+                "children": [
+                  {
+                    "heading?": "'TITLE' | 'HEADING_1' | 'HEADING_2' | 'HEADING_3' | 'HEADING_4' | 'HEADING_5' | 'HEADING_6' - omitted by default, using the body style",
+                    "alignment?": "'LEFT' | 'CENTER' | 'RIGHT' | 'JUSTIFIED' - omitted by default, delegated to the body style (usually LEFT)",
+                    "spacing?": {
+                      "_default": "when omitted, use the current Word paragraph style",
+                      "before?": "non-negative integer twips - determined by the style by default",
+                      "after?": "non-negative integer twips - determined by the style by default",
+                      "line?": "positive integer twips - determined by the style by default"
+                    },
+                    "runs": [
+                      {
+                        "text": "string",
+                        "bold?": "boolean - default false",
+                        "italics?": "boolean - default false",
+                        "size?": "positive integer half-points - determined by the current character style by default",
+                        "color?": "six-digit hexadecimal RGB string without # - determined by the current character style by default",
+                        "break?": "non-negative integer - default 0"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "filename?": "string ending in .docx - default document.docx; used only as the consumer-side download name"
+        }
+      }
+    }
+  },
   "supply_form": "headless-primitive",
   "mode": "direct-import",
   "upstream": {
@@ -115,7 +156,6 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "Verified: +esm exports `vo as Document, No as Packer, He as Paragraph, Yt as TextRun, Ph as HeadingLevel, We as AlignmentType` — all six imports real. HeadingLevel keys TITLE/HEADING_1..HEADING_6 and AlignmentType keys LEFT/CENTER/RIGHT/JUSTIFIED('both') confirmed (boot's HeadingLevel[p.heading]/AlignmentType[p.alignment] correct). index.d.ts: IRunOptions has text/bold/italics/size/color/break; ParagraphOptions has heading/alignment/spacing/children; `Packer.toBlob(file): Promise<Blob>`. Schema→boot mapping accurate. globalStyleInjection/globalDomMutation=no: +esm has 0 document.head/body, 0 createElement/appendChild/insertRule (produces a Blob, renders nothing). globalEvents=YES: bundle contains a setImmediate/postMessage polyfill IIFE that registers `window.addEventListener('message', ...)` keyed to a unique random token ('setImmediate$'+Math.random()) — benign background scheduling plumbing, not cleaned up, but only fires on its own token and never touches DOM/styles, so it does not affect shadow rendering (shadowCompatible=yes).",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

@@ -2,6 +2,24 @@
   "entry_version": "thin-1",
   "id": "papaparse",
   "name": "PapaParse",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written split when you need to reliably turn user-pasted CSV containing quotes, newlines, automatic delimiters, and malformed rows into records, because native implementations fail on escaped quotes, newlines within fields, and locating column-count errors.",
+      "why_valuable": "AI defaults use split(',') and corrupt quoted commas and multiline fields, while also failing to report TooFewFields/TooManyFields reliably; PapaParse returns normalized data, errors, and delimiter/fields metadata together.",
+      "data_in": {
+        "note": "This entry's primary path only parses CSV text and synchronously returns ParseResult; header defaults to true to produce record objects directly. It does not enable the download/worker/step/chunk callback branches.",
+        "schema": {
+          "csv": "string -- complete CSV/TSV text",
+          "header?": "boolean -- boot default true; when false, data is a two-dimensional array",
+          "dynamicTyping?": "boolean|Record<string,boolean> -- default false",
+          "delimiter?": "string -- default empty string, letting PapaParse detect it automatically",
+          "skipEmptyLines?": "boolean|'greedy' -- default false",
+          "comments?": "false|string -- default false",
+          "preview?": "non-negative integer -- default 0, meaning parse all rows"
+        }
+      }
+    }
+  },
   "when_to_use": "需要把用户粘贴的带引号、换行、自动分隔符与坏行的 CSV 稳定变成记录表时用它而非手写 split,因为原生在转义引号、字段内换行和列数错误定位上失败。",
   "why_valuable": "AI 默认会用 split(',') 破坏带引号逗号与多行字段,也无法稳定报告 TooFewFields/TooManyFields;PapaParse 同时产出规范 data、errors 与 delimiter/fields 元数据。",
   "supply_form": "headless-primitive",
@@ -50,7 +68,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "headless-primitive. Boot uses only the synchronous string path (no worker/download/step/chunk enabled), which is pure computation returning ParseResult — no DOM, no document.head/body, no listeners. Trivially shadow-compatible (nothing to render).",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

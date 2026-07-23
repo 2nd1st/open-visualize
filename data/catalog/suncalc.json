@@ -1,0 +1,66 @@
+{
+  "entry_version": "thin-1",
+  "id": "suncalc",
+  "name": "suncalc",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to calculate and visualize sunrise/sunset, dawn/dusk, golden hour, solar azimuth/altitude, moonrise/moonset, moon phase, and illuminated fraction for a place and date (sunlight analysis, solar paths, photography golden hour, moon-phase dials): a date plus latitude/longitude returns the full set of times and angles. d3-celestial in the catalog renders star maps/celestial projections but does not calculate specific times or bearings, so the two complement each other; not for high-precision professional ephemerides, which need a specialist astronomy library.",
+      "why_valuable": "Sunrise/sunset, golden hour, solar azimuth/altitude, and moon phase depend on astronomical algorithms (Julian dates, ecliptic->equatorial->horizontal coordinate transforms, and atmospheric-refraction correction). AI-reported values are often off by tens of minutes or even use the wrong date or polar-day/night state; suncalc maps date plus latitude/longitude directly to solar/lunar times and position angles with compact, widely validated formulas.",
+      "data_in": {
+        "note": "Input is always (date: Date, lat: number, lng: number): latitude is positive north/negative south and longitude positive east/negative west, in degrees. The date is treated as a UTC instant without local time-zone conversion; getTimes uses only its date part to determine the \"solar day\" (hours/minutes/seconds do not affect results). Important: v2.0.1 is the breaking v2 API--angles are in degrees, and azimuth is clockwise from north (0=N,90=E,180=S,270=W). This is the exact opposite of the v1 \"radians + measured from south\" behavior many people remember; do not interpret output using the old behavior (verified in actual source index.js lines 42/97: degrees, north-based). At polar latitudes some times are null with alwaysUp/alwaysDown flags. license: the npm license field is empty, but the repository LICENSE is BSD-2-Clause.",
+        "schema": {
+          "date": "Date -- UTC instant; getTimes uses only its date part to determine the solar day",
+          "lat": "number -- latitude in degrees, positive north and negative south",
+          "lng": "number -- longitude in degrees, positive east and negative west",
+          "height?": "number -- observer elevation in meters, used only by getTimes, default 0"
+        }
+      }
+    }
+  },
+  "when_to_use": "要算\"某地某天\"的日出/日落/黎明黄昏/黄金时刻、太阳方位角高度角、月出月落/月相月照率并可视化(日照分析、太阳轨迹、拍摄黄金时刻、月相盘)时用它:输入日期+经纬度直接吐全套时刻与角度。目录里的 d3-celestial 是渲染星空/天球投影图,不算具体时刻/方位,二者互补;非需要高精度专业星历(那需专业天文库)。",
+  "why_valuable": "日出日落/黄金时刻/太阳方位高度/月相靠天文算法(儒略日、黄道→赤道→地平坐标变换、大气折射修正),AI 徒手报这些时刻常差几十分钟甚至弄错日期或极昼极夜;suncalc 用一套紧凑、被广泛验证的公式把日期+经纬度直接映射成太阳月亮的时刻与位置角。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "suncalc",
+    "version": "2.0.1",
+    "github": "mourner/suncalc"
+  },
+  "license": "BSD-2-Clause",
+  "data_in": {
+    "shape": "temporal",
+    "note": "输入永远是 (date: Date, lat: number, lng: number):纬度北正南负、经度东正西负,单位度。日期按 UTC 瞬时处理、不做本地时区换算,getTimes 只看日期部分定\"太阳日\"(时分秒不影响结果)。关键:v2.0.1 是 v2 破坏性 API——角度单位为『度』、azimuth 为『北基顺时针』(0=N,90=E,180=S,270=W);这跟很多人记忆里 v1 的『弧度 + 从南起算』完全相反,别按旧记忆解读输出(已核对真实源码 index.js line 42/97,确为度、北基)。极纬度下部分时刻为 null 并置 alwaysUp/alwaysDown 标志。license:npm license 字段为空,但仓库 LICENSE 实为 BSD-2-Clause。",
+    "schema": {
+      "date": "Date —— UTC 瞬时;getTimes 只取其日期部分定太阳日",
+      "lat": "number —— 纬度,北正南负,单位度",
+      "lng": "number —— 经度,东正西负,单位度",
+      "height?": "number —— 观测者海拔(米),仅 getTimes 用,默认 0"
+    }
+  },
+  "provides": {
+    "shape": "sun-moon-ephemeris",
+    "_note": "headless-primitive:纯天文计算,不渲染、无 L 级、无 carriers 矩阵;消费 AI 拿到时刻/角度后自行画轨迹/时刻轴/月相盘。",
+    "outputs": "getTimes → {sunrise,sunset,dawn,dusk,goldenHour,goldenHourEnd,solarNoon,nadir,…}(值为 Date|null;solarNoon/nadir 恒为 Date);getPosition → {azimuth,altitude}(度、北基);getMoonIllumination → {fraction(0..1),phase(0..1),angle,waxing};getMoonPosition → {azimuth,altitude,distance(km),parallacticAngle};getMoonTimes → {rise?,set?}。",
+    "api_surface": {
+      "sun-times": "getTimes(date, lat, lng, height?) → SunTimes;可 addTime(angleDeg, riseName, setName) 追加自定义时刻",
+      "sun-position": "getPosition(date, lat, lng) → {azimuth(度,北基顺时针), altitude(度)}",
+      "moon": "getMoonIllumination(date?) → {fraction,phase,angle,waxing};getMoonPosition(date,lat,lng);getMoonTimes(date,lat,lng)"
+    }
+  },
+  "peer": {
+    "id": "d3-celestial",
+    "note": "suncalc 出『某时某地』的具体时刻与方位/高度角,d3-celestial 画星空/天球图;想在星图上标太阳月亮位置或做日照分析,由本条供数、d3-celestial 供图。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS 天文计算,零 DOM/CSS/uplink/shadow 足迹;v2 为命名导出(无 default)\nimport { getTimes, getPosition, getMoonIllumination, getMoonPosition, getMoonTimes } from 'https://cdn.jsdelivr.net/npm/suncalc@2/+esm';\nconst date = new Date(data.date), { lat, lng } = data;\nconst times = getTimes(date, lat, lng, data.height ?? 0); // {sunrise, sunset, goldenHour, …} Date|null\nconst sun = getPosition(date, lat, lng);                  // {azimuth, altitude} 单位:度、北基顺时针\nconst moon = getMoonIllumination(date);                   // {fraction, phase, angle, waxing}",
+    "note": "v2.0.1 是命名导出、无 default(import { getTimes, … })。角度是『度』、azimuth『北基顺时针』——务必按 v2 语义解读,别套 v1 弧度/南基旧记忆。极纬度下时刻可能为 null(alwaysUp/alwaysDown),渲染前判空。经纬度单位是度不是弧度。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr suncalc@2.0.1: +esm has NAMED exports only, no default — grep 'export{… as getPosition, … as getTimes, … as getMoonIllumination, … as getMoonPosition, … as getMoonTimes, … as addTime, … as times}'. Signatures from index.d.ts match boot: getPosition(date,lat,lng)→{azimuth,altitude}; getTimes(date,lat,lng,height?)→SunTimes; getMoonIllumination(date?)→{fraction,phase,angle,waxing}; getMoonPosition/getMoonTimes(date,lat,lng). UNITS CONFIRMED AGAINST REAL SOURCE (index.js), not just the .d.ts: line 42 comment 'north-based clockwise azimuth in degrees (0=N,90=E,180=S,270=W)' and lines 44/97 divide the result by rad(=PI/180) → outputs are DEGREES, north-based — this is the v2 breaking change vs v1's radians/south-based, so the schema note pins the correct v2 semantics. License: npm 'license' field empty, but gh LICENSE is verbatim BSD-2-Clause (2 numbered conditions, no endorsement clause). Pure numeric, no DOM/event/style footprint → trivially shadow-safe (headless-primitive, no carriers matrix by design).",
+    "confidence": "high"
+  }
+}

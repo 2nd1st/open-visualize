@@ -45,7 +45,32 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "reveal.js@6.0.1 +esm: createElement('style') x1 -> document.head x1 (slide scaling style); document.body x5 and document.documentElement x6 with classList add/remove ~100x (print/overview/fullscreen state toggles on body/html); addEventListener keydown x2, resize x1, scroll x1, hashchange x1 (window/document-level). Boot also appends reveal.css/theme.css (link -> head in artifact, -> shadowRoot in widget). Embedded:true contains layout in the container, but reveal's own scaling <style> targets document.head and will not reach a shadow-rooted .reveal; keyboardCondition:'focused' scopes keys but resize/hashchange/fullscreen stay document-level -> conditional in shadow.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "markdown": "## Reveal.js Embedded Deck\n\nA Markdown-driven presentation.\n\n- Fixed-ratio scaling\n- Keyboard navigation\n\n---\n\n## Vertical Nesting\n\nPress the down arrow to go deeper.\n\n--\n\n### Fragments\n\nPoints appear one at a time:\n\n- First <!-- .element: class=\"fragment\" -->\n- Second <!-- .element: class=\"fragment\" -->\n\n---\n\n## Thanks\n\nBuilt with **reveal.js**.",
+      "ratio": "16:9",
+      "transition": "slide"
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to generate a presentation deck from Markdown with horizontal/vertical grouping, fragment reveals, keyboard navigation, and print layout instead of handwritten paginated HTML, which fails at fit-to-screen scaling, presentation state, and PDF pagination. Not for an ordinary scrolling document or one-page poster.",
+      "why_valuable": "AI defaults can only write scrolling pseudo-slides and cannot provide stable fixed-ratio scaling, nested slide navigation, fragment state, speaker view, or print-pdf layout; reveal.js closes the loop with one Markdown source and a mature deck engine.",
+      "data_in": {
+        "note": "boot uses the official Markdown plugin: text/template inside one data-markdown section is the actual entry point. boot explicitly fixes the horizontal and vertical separator regexes.",
+        "schema": {
+          "markdown": "string -- Reveal Markdown; a line containing only --- separates horizontal slides, and a line containing only -- separates vertical slides",
+          "ratio?": "'16:9' | '4:3' -- Catalog default '16:9'",
+          "transition?": "'none' | 'fade' | 'slide' | 'convex' | 'concave' | 'zoom' -- Default 'slide'",
+          "controls?": "boolean -- Default true",
+          "progress?": "boolean -- Default true"
+        }
+      },
+      "spec": {
+        "note": "An embedded deck needs an explicitly sized container; boot defaults to 540px high with width determined by the host. vh and percentage heights are forbidden. For PDF printing, use reveal's print styles inside a separate artifact/codex iframe."
+      }
+    }
   }
 }

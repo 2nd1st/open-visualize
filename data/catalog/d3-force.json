@@ -1,0 +1,90 @@
+{
+  "entry_version": "thin-1",
+  "id": "d3-force",
+  "name": "d3-force",
+  "when_to_use": "要自定义力学布局(粒子/弹簧-质点/聚类/蜂群/圆填充,乃至非图的力模拟)时用这个底层求解器,每帧读 node.x/node.y 自己画。只想画现成节点-连线关系图用 force-graph 更省事——它不负责渲染。",
+  "why_valuable": "velocity-Verlet 积分 + Barnes–Hut n-body 多体力求解器,可叠加自定义力(引力/斥力/碰撞/向心/link 弹簧);AI 徒手写 n-body 会 O(n²) 卡死或数值发散,稳定收敛的力求解原生做不好。",
+  "supply_form": "headless-primitive",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use this low-level solver when you need a custom force layout (particles, spring-mass systems, clustering, swarms, circle packing, or even non-graph force simulation), reading node.x/node.y each frame and drawing it yourself. If you only want a ready-made node-link graph, force-graph is easier; this package does not render.",
+      "why_valuable": "A velocity-Verlet integrator plus a Barnes-Hut n-body solver lets you combine custom forces (attraction, repulsion, collision, centering, and link springs); AI-written n-body code either stalls at O(n^2) or diverges numerically, so native implementations do not converge stably.",
+      "data_in": {
+        "note": "Hard rule: links use source/target (opposite vis-network's from/to); node objects are mutated in place with x/y/vx/vy; forceLink().id(d=>d.id) must match your node id field, otherwise source/target are resolved as array indexes.",
+        "schema": {
+          "nodes": [
+            {
+              "id?": "string | number -- matched by forceLink().id()",
+              "x?": "number -- initial position; internally positioned when omitted",
+              "y?": "number",
+              "fx?": "number | null -- fixed x (dragging/anchoring); set to null to unlock",
+              "fy?": "number | null -- fixed y"
+            }
+          ],
+          "links": [
+            {
+              "source": "string | number | node -- references node.id (with .id()) or an array index",
+              "target": "string | number | node -- same as above",
+              "value?": "number -- optional weight"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "d3-force",
+    "version": "3.0.0",
+    "github": "d3/d3-force"
+  },
+  "license": "ISC",
+  "data_in": {
+    "shape": "nodes-links",
+    "note": "铁律:links 用 source/target(与 vis-network 的 from/to 相反);节点对象被原地 mutate 加上 x/y/vx/vy;forceLink().id(d=>d.id) 要对上你的 node id 字段,否则 source/target 按数组索引解析。",
+    "schema": {
+      "nodes": [
+        {
+          "id?": "string | number —— 供 forceLink().id() 匹配",
+          "x?": "number —— 初始位置,省略则内部自动布点",
+          "y?": "number",
+          "fx?": "number | null —— 固定 x(拖拽/锚定),置 null 解锁",
+          "fy?": "number | null —— 固定 y"
+        }
+      ],
+      "links": [
+        {
+          "source": "string | number | node —— 引用 node.id(配 .id())或数组索引",
+          "target": "string | number | node —— 同上",
+          "value?": "number —— 可选权重"
+        }
+      ]
+    }
+  },
+  "provides": {
+    "shape": "layout-positions",
+    "_note": "headless-primitive:纯 JS 求解器,无渲染;每 tick 读节点坐标自绘。",
+    "outputs": "原地 mutate 每个 node 的 x/y/vx/vy;可组合 charge(斥力)/link(弹簧)/center/collide(碰撞)/x/y/radial 力;tick 事件驱动交互式渲染。",
+    "api_surface": {
+      "sim": "forceSimulation(nodes) 自动启动内部计时器;.on('tick', cb);.stop();.tick(iters) 手动推进;.alpha()/.alphaTarget()/.restart()",
+      "forces": "forceManyBody().strength(k) / forceLink(links).id(fn).distance(d) / forceCenter(x,y) / forceCollide(r) / forceX / forceY / forceRadial",
+      "fix": "在 node 上设 fx/fy 固定,置 null 解锁"
+    }
+  },
+  "peer": {
+    "id": "force-graph",
+    "note": "只想要现成关系图渲染用 force-graph;d3-force 是它底层同族的物理求解器,适合自定义/非图的力学布局,自绘每帧。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS 力求解器,无 DOM;每 tick 读 node.x/node.y 自绘;命名导出\nimport { forceSimulation, forceManyBody, forceLink, forceCenter } from 'https://cdn.jsdelivr.net/npm/d3-force@3.0.0/+esm';\nconst sim = forceSimulation(data.nodes)\n  .force('charge', forceManyBody().strength(-30))\n  .force('link', forceLink(data.links).id(d => d.id).distance(30))\n  .force('center', forceCenter(width / 2, height / 2))\n  .on('tick', () => { /* 读 node.x, node.y → 重绘 canvas/SVG */ });",
+    "note": "求解器,非渲染器:每 tick 读 node.x/node.y 画进自建 canvas/SVG(定高 px 禁 vh)。links 用 source/target(非 from/to)。内部用 d3-timer(rAF)驱动,冷却(alpha→alphaMin)后自停;需提前停调 sim.stop()。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "API correct: +esm exports named forceSimulation, forceManyBody, forceLink, forceCenter, forceCollide, forceX, forceY, forceRadial (export{P as forceCenter, b as forceCollide, H as forceLink, k as forceManyBody, q as forceRadial, Z as forceSimulation, _ as forceX, nn as forceY}) — verified. README@3: forceSimulation([nodes]) auto-starts; simulation.on('tick', …) render pattern; nodes gain x/y/vx/vy; node.fx/fy pin; forceLink applies to source and target of each link (source/target semantics, .id() to map). No DOM output, no stylesheet, no window event listeners — the only global is an internal requestAnimationFrame timer (d3-timer) that self-stops on cooldown or via .stop(). Shadow-safe: consumer renders into its own surface.",
+    "confidence": "high"
+  }
+}

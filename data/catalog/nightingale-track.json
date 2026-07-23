@@ -1,0 +1,138 @@
+{
+  "entry_version": "thin-1",
+  "id": "nightingale-track",
+  "name": "@nightingale-elements/nightingale-track",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for protein annotation diagrams (UniProt/ProtVista-style domain diagrams) and feature tracks over sequence coordinates. Compose this framework-independent custom element, set length (the protein residue count used for scale) and the display-start/display-end viewport, then assign Feature[] to el.data. Use it instead of hand-drawn boxes when you need coordinate-accurate, zoomable feature tracks. It is a self-contained Lit web component (its own shadow plus adoptedStyleSheets), naturally fitting this platform's Shadow DOM/JS-mount model.",
+      "why_valuable": "Protein/gene feature tracks in ProtVista/UniProt notation draw domains, motifs, PTMs, and variants as differently shaped/colored segments along a residue axis, with a coordinate scale and zoom/navigation. Proportional placement of coordinate-accurate segments plus interactive zoom across thousands of residues is tedious and fragile in hand-written SVG.",
+      "data_in": {
+        "note": "This is a custom element, but the package does not self-register--the consumer must call customElements.define('nightingale-track', NightingaleTrack), preferably behind a duplicate-definition guard. Provide length (protein length) as an attribute for scale; display-start/end define the viewport; assign the feature array to el.data as a property, not an attribute. Use either start/end or locations (locations supports discontinuous segments).",
+        "schema": {
+          "length": "number -- protein length (residue count), an attribute required for scale",
+          "displayStart?": "number -- display-start attribute, default 1",
+          "displayEnd?": "number -- display-end attribute, default = length",
+          "height?": "number -- height attribute in pixels",
+          "layout?": "'non-overlapping' | 'default' -- default default (one row, overlaps are not separated)",
+          "features": [
+            {
+              "accession": "string -- required id",
+              "start?": "number",
+              "end?": "number",
+              "color?": "string -- border/stroke color",
+              "fill?": "string -- fill color",
+              "shape?": "'rectangle'|'roundRectangle'|'bridge'|'diamond'|'chevron'|'triangle'|'circle'|'arrow'|'helix'|'strand'|'catFace'|'wave'|'hexagon'|'pentagon' -- default rectangle",
+              "tooltipContent?": "string",
+              "locations?": [
+                {
+                  "fragments": [
+                    {
+                      "start": "number",
+                      "end": "number"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "spec": {
+        "note": "Provide height as an attribute (default about 100px); width fills the container. vh is prohibited."
+      }
+    }
+  },
+  "when_to_use": "蛋白注释图(UniProt/ProtVista 风格 domain 图)、序列坐标上的特征图。组合这个框架无关的 custom element,设 length(定标,蛋白残基数)与 display-start/display-end 可视窗口,把 Feature[] 赋给 el.data。要坐标精确、可缩放的特征轨道时替代手绘方块。自包含 Lit web component(自建 shadow + adoptedStyleSheets),天然贴合本平台 Shadow DOM/JS-mount 模型。",
+  "why_valuable": "蛋白/基因特征轨道(ProtVista/UniProt 记号):domain、motif、PTM、variant 沿残基坐标轴画成不同形状/颜色的分段,带坐标标尺与缩放/导航。坐标精确的按比例分段摆放 + 数千残基上的交互缩放,手写 SVG 既繁琐又易碎。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@nightingale-elements/nightingale-track",
+    "version": "5.6.0",
+    "github": "ebi-webcomponents/nightingale"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "feature-track",
+    "note": "custom element,包不自注册——消费方 customElements.define('nightingale-track', NightingaleTrack)(建议 guard 防重复定义)。length(蛋白长度)以属性给,用于定标;display-start/end 是可视窗口;特征数组赋给 el.data(property,非属性)。start/end 与 locations 二选一(locations 支持不连续片段)。",
+    "schema": {
+      "length": "number —— 蛋白长度(残基数),属性,定标必填",
+      "displayStart?": "number —— 属性 display-start,默认 1",
+      "displayEnd?": "number —— 属性 display-end,默认 = length",
+      "height?": "number —— 属性,像素高",
+      "layout?": "'non-overlapping' | 'default' —— 属性,默认 default(单行,重叠不可分)",
+      "features": [
+        {
+          "accession": "string —— 必填 id",
+          "start?": "number",
+          "end?": "number",
+          "color?": "string —— 边框/描边色",
+          "fill?": "string —— 填充色",
+          "shape?": "'rectangle'|'roundRectangle'|'bridge'|'diamond'|'chevron'|'triangle'|'circle'|'arrow'|'helix'|'strand'|'catFace'|'wave'|'hexagon'|'pentagon' —— 默认 rectangle",
+          "tooltipContent?": "string",
+          "locations?": [
+            {
+              "fragments": [
+                {
+                  "start": "number",
+                  "end": "number"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "spec": {
+    "height": 100,
+    "note": "height 以属性给(默认约 100px);宽度填满容器。禁 vh。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:default export = NightingaleTrack 类;需消费方注册 custom element\nimport NightingaleTrack from 'https://cdn.jsdelivr.net/npm/@nightingale-elements/nightingale-track@5.6.0/+esm';\nif (!customElements.get('nightingale-track')) customElements.define('nightingale-track', NightingaleTrack);\nconst track = document.createElement('nightingale-track');\ntrack.setAttribute('length', String(data.length));\ntrack.setAttribute('display-start', String(data.displayStart ?? 1));\ntrack.setAttribute('display-end', String(data.displayEnd ?? data.length));\ntrack.setAttribute('height', String(data.height ?? 100));\nif (data.layout) track.setAttribute('layout', data.layout);\ndocument.getElementById('track').appendChild(track);\ncustomElements.whenDefined('nightingale-track').then(() => { track.data = data.features; });",
+    "widget": "// 自包含 Lit 组件:自建 shadow + adoptedStyleSheets,零 head/body 足迹,直接落宿主 shadowRoot\nimport NightingaleTrack from 'https://cdn.jsdelivr.net/npm/@nightingale-elements/nightingale-track@5.6.0/+esm';\nif (!customElements.get('nightingale-track')) customElements.define('nightingale-track', NightingaleTrack);\nconst track = document.createElement('nightingale-track');\ntrack.setAttribute('length', String(data.length));\ntrack.setAttribute('display-start', String(data.displayStart ?? 1));\ntrack.setAttribute('display-end', String(data.displayEnd ?? data.length));\ntrack.setAttribute('height', String(data.height ?? 100));\nif (data.layout) track.setAttribute('layout', data.layout);\nshadowRoot.appendChild(track);\ncustomElements.whenDefined('nightingale-track').then(() => { track.data = data.features; });",
+    "codex": "import NightingaleTrack from 'https://cdn.jsdelivr.net/npm/@nightingale-elements/nightingale-track@5.6.0/+esm';\nif (!customElements.get('nightingale-track')) customElements.define('nightingale-track', NightingaleTrack);\nconst track = document.createElement('nightingale-track');\ntrack.setAttribute('length', String(data.length));\ntrack.setAttribute('display-start', String(data.displayStart ?? 1));\ntrack.setAttribute('display-end', String(data.displayEnd ?? data.length));\ntrack.setAttribute('height', String(data.height ?? 100));\ndocument.getElementById('track').appendChild(track);\ncustomElements.whenDefined('nightingale-track').then(() => { track.data = data.features; });"
+  },
+  "example": {
+    "_why": "length 定标必填;feature 需 accession + start/end,minimal 钉死属性/属性名。",
+    "minimal": {
+      "length": 223,
+      "displayStart": 1,
+      "displayEnd": 223,
+      "height": 60,
+      "layout": "non-overlapping",
+      "features": [
+        {
+          "accession": "dom1",
+          "start": 20,
+          "end": 80,
+          "color": "#1f77b4",
+          "fill": "#aec7e8",
+          "shape": "rectangle"
+        },
+        {
+          "accession": "site1",
+          "start": 120,
+          "end": 120,
+          "color": "#d62728",
+          "shape": "circle"
+        }
+      ]
+    }
+  },
+  "uplink": "display/local-interact 默认不上行;feature 点击/hover 与 highlight 事件由消费 AI 接组件原生事件(change/feature 事件)处理。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:自包含 Lit web component,样式走自身 shadow 的 adoptedStyleSheets,零 head/body 足迹",
+    "codex": "supported:ESM CDN + custom element;guard customElements.define"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm exports default (NightingaleTrack class) + DefaultLayout + NonOverlappingLayout + getColorByType. README: register via customElements.define('nightingale-track', NightingaleTrack) — package does NOT self-register (grep +esm found no literal customElements.define(\"...\"))); set attributes length(req, protein length for scale), display-start, display-end, height, layout('non-overlapping'|'default'), color, shape; then el.data = Feature[]. Feature (README): {accession(req), start?, end?, color?, fill?, shape?('rectangle'|'roundRectangle'|'bridge'|'diamond'|'chevron'|'triangle'|'circle'|'arrow'|'helix'|'strand'|...default rectangle), tooltipContent?, locations?:[{fragments:[{start,end}]}]} — schema pins these. Self-contained Lit element: grep +esm attachShadow x1, adoptedStyleSheets x2, createElement(\"style\") x1 — all into its OWN shadow root; zero document.head, zero document.body, no document-level listeners. globalStyleInjection=no, globalDomMutation=no, globalEvents=no. shadowCompatible=yes (nests inside a host shadow root). Only cross-cutting side effect is the shared customElements registry → boot guards with `if(!customElements.get('nightingale-track'))`. Deps @nightingale-elements/nightingale-new-core, d3, lodash-es (bundled via +esm).",
+    "confidence": "high"
+  }
+}

@@ -4,6 +4,24 @@
   "name": "p5.js",
   "when_to_use": "需要教学 sketch、生成艺术或逐帧交互画布时用它,而非手写 canvas 生命周期——原生实现常在坐标变换、输入状态、draw loop 和实例清理上失败；非做刚体碰撞或统计图,前者用物理引擎、后者用图表组件。",
   "why_valuable": "AI 默认能写局部 canvas 绘制,但做不到稳定复用的 setup/draw 生命周期、输入归一化与实例隔离,容易生成泄漏的 requestAnimationFrame 样板；p5 把这些高频失败面收进 AI 熟悉的统一 API。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need a teaching sketch, generative art, or an interactive frame-by-frame canvas instead of hand-writing the canvas lifecycle. Native implementations often fail on coordinate transforms, input state, the draw loop, and instance cleanup. It is not for rigid-body collisions or statistical charts; use a physics engine for the former and a chart component for the latter.",
+      "why_valuable": "AI can write isolated canvas drawing code by default, but cannot provide a reliably reusable setup/draw lifecycle, normalized input, and instance isolation, and often generates leaking requestAnimationFrame boilerplate. p5 brings these common failure points into one API familiar to AI.",
+      "data_in": {
+        "note": "Input uses a p5 instance-mode sketch callback, not global-mode variables. boot creates the canvas from spec first, then passes the same p instance to the callbacks, avoiding window pollution.",
+        "schema": {
+          "sketch": {
+            "setup?": "(p: p5) => void - runs once after the canvas is created, default no-op",
+            "draw?": "(p: p5) => void - runs every frame, default no-op"
+          }
+        }
+      },
+      "spec": {
+        "note": "The canvas defaults to 400px high and the container's clientWidth, falling back to 640px. vh and percentage heights are prohibited. For responsive changes, consuming AI should call p.resizeCanvas(newWidth, 400)."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -43,7 +61,11 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "No document.head / createElement('style') / adoptedStyleSheets / insertRule in +esm (0 hits). Input listeners bind to `.elt` (canvas element, 261 refs), not window — shadow-safe. Only window-level listeners are lifecycle/error: load(x4), blur(x2), focus(x1), error(x2), unhandledrejection(x1) — global but benign; 9 removeEventListener calls clean up on instance.remove(). With node arg supplied (boot passes shadow `el`), the canvas mounts into the shadow container, not document.body. Conditional = requires instance mode + node arg, exactly as catalog states.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "sketch": {}
+    }
   }
 }

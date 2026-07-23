@@ -1,0 +1,99 @@
+{
+  "entry_version": "thin-1",
+  "id": "trianglify",
+  "name": "trianglify",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need a colorful low-poly (Delaunay-triangulated gradient mesh) background, cover, or placeholder: width/height/cellSize/xColors/seed produces canvas or SVG, and the same seed produces the same reproducible image. Use it for static low-poly generative art; use granim for dynamic fluid gradients. Note that its license is GPL-3.0 (copyleft): loading a built artifact at runtime from a CDN is fine, but bundling it into your distribution triggers GPL obligations, so evaluate before redistribution.",
+      "why_valuable": "Delaunay triangulation plus per-cell centroid coloring plus a deterministic PRNG is real computational geometry, and native AI cannot hand-draw a credible low-poly mesh; trianglify includes chroma color-scale interpolation and a mulberry32 seed, producing appendable canvas/SVG nodes with no global side effects.",
+      "data_in": {
+        "note": "trianglify(opts) -> Pattern; pattern.toCanvas(destCanvas?) returns a canvas (creating one when omitted), while pattern.toSVG(destSVG?) returns an SVG DOM node in the browser. Unknown keys in opts produce console.warn. Verified defaults: width 600, height 400, cellSize 75, xColors 'random', yColors 'match'.",
+        "schema": {
+          "_defaults": {
+            "options": "{}"
+          },
+          "width?": "number -- default 600",
+          "height?": "number -- default 400",
+          "cellSize?": "number -- default 75; smaller values produce denser triangles",
+          "variance?": "number -- 0..1 random vertex jitter (0 = regular grid)",
+          "seed?": "string | number | null -- deterministic seed; the same seed produces the same image; default null (random)",
+          "xColors?": "string | string[] -- colorbrewer name (such as 'YlGnBu'/'Spectral') or color-value array; default 'random'",
+          "yColors?": "string | string[] | 'match' -- default 'match' (reuse xColors vertically)",
+          "colorSpace?": "string -- chroma interpolation space (such as 'lab'/'rgb'/'hsl')",
+          "colorFunction?": "function -- advanced: custom per-cell color callback"
+        }
+      },
+      "spec": {
+        "note": "canvas/SVG dimensions are opts.width*opts.height (default 600x400); in a widget, add style.maxWidth:100% and height:auto to canvas for responsive display. vh/percentage height is prohibited."
+      }
+    }
+  },
+  "when_to_use": "需要一张彩色低多边形(Delaunay 三角化渐变网格)背景/封面/占位图时用它:给 width/height/cellSize/xColors/seed 就出 canvas 或 SVG,同 seed 出同图(可复现)。用于静态低多边形生成艺术;要动态流体渐变用 granim。注意 license 是 GPL-3.0(copyleft):CDN 运行期加载已构建产物没问题,但把它 bundle 进你的分发物会传染 GPL,再分发前须评估。",
+  "why_valuable": "Delaunay 三角化 + 逐格质心取色 + 决定性 PRNG 是真正的计算几何,原生 AI 徒手画不出可信的低多边形网格;trianglify 内置 chroma 色标插值与 mulberry32 种子,零全局副作用地产出可直接 append 的 canvas/SVG 节点。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "trianglify",
+    "version": "4.1.1",
+    "github": "qrohlf/trianglify"
+  },
+  "license": "GPL-3.0",
+  "data_in": {
+    "shape": "generative-config",
+    "note": "trianglify(opts) → Pattern;pattern.toCanvas(destCanvas?) 返回 canvas(不传则新建),pattern.toSVG(destSVG?) 在浏览器返回 SVG DOM 节点。opts 里出现未知 key 会 console.warn。已验证默认:width 600、height 400、cellSize 75、xColors 'random'、yColors 'match'。",
+    "schema": {
+      "_defaults": {
+        "options": "{}"
+      },
+      "width?": "number —— 默认 600",
+      "height?": "number —— 默认 400",
+      "cellSize?": "number —— 默认 75,越小三角越密",
+      "variance?": "number —— 0..1 顶点随机抖动量(0=规则网格)",
+      "seed?": "string | number | null —— 决定性种子,同种子同图;默认 null(随机)",
+      "xColors?": "string | string[] —— colorbrewer 名(如 'YlGnBu'/'Spectral')或色值数组;默认 'random'",
+      "yColors?": "string | string[] | 'match' —— 默认 'match'(纵向沿用 xColors)",
+      "colorSpace?": "string —— chroma 插值空间(如 'lab'/'rgb'/'hsl')",
+      "colorFunction?": "function —— 高级:自定义逐格取色回调"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "canvas/SVG 尺寸即 opts.width×opts.height(默认 600×400);widget 内建议给 canvas 加 style.maxWidth:100%、height:auto 自适应,禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested。default import;纯几何,产出游离 canvas/SVG 节点,零 CSS\nimport trianglify from 'https://cdn.jsdelivr.net/npm/trianglify@4.1.1/+esm';\nconst pattern = trianglify({ width: 600, height: 400, ...(data.options ?? {}) });\ndocument.getElementById('bg').appendChild(pattern.toCanvas()); // 不传 destCanvas 则新建",
+    "widget": "// default import;toCanvas()/toSVG() 都是游离节点,直接落 shadow,无样式外泄\nimport trianglify from 'https://cdn.jsdelivr.net/npm/trianglify@4.1.1/+esm';\nconst pattern = trianglify({ width: 600, height: 400, ...(data.options ?? {}) });\nconst canvas = pattern.toCanvas(); canvas.style.maxWidth = '100%'; canvas.style.height = 'auto';\nshadowRoot.appendChild(canvas);",
+    "codex": "import trianglify from 'https://cdn.jsdelivr.net/npm/trianglify@4.1.1/+esm';\nconst pattern = trianglify({ width: 600, height: 400, ...(data.options ?? {}) });\ndocument.getElementById('bg').appendChild(pattern.toCanvas());"
+  },
+  "example": {
+    "_why": "钉死 opts 直接是顶层字段(不含 data 包裹),xColors 接受 colorbrewer 名,seed 决定性。",
+    "minimal": {
+      "options": {
+        "width": 600,
+        "height": 400,
+        "cellSize": 55,
+        "variance": 0.9,
+        "xColors": "YlGnBu",
+        "seed": "open-visualize"
+      }
+    },
+    "empty": {
+      "options": {}
+    }
+  },
+  "uplink": "纯生成、无交互,不上行。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:产出游离 canvas/SVG 节点直接 append 进 shadow,无 CSS/全局副作用",
+    "codex": "supported:ESM CDN,纯 CPU 几何,无 worker/wasm"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm 导出 default trianglify(opts) 及 named {Pattern, colorFunctions, defaultOptions, utils}。src/trianglify.js:trianglify(opts) 校验 width/height(<=0 抛 TypeError),返回 new Pattern(points, polys, opts),defaultOptions 含 width:600/height:400/cellSize:75/xColors:'random'。src/pattern.js:toCanvas(destCanvas?, opts?) 用 destCanvas||createCanvas(w,h) 画 2D;toSVG(destSVG?, opts?) 浏览器分支(sDOM)返回 SVG DOM 节点,toSVGTree() 返回可序列化节点。+esm 隔离扫描:document.head/body=0、createElement('style')=0、insertRule=0、监听=0 —— 零全局足迹(chroma 内联打包)。LICENSE:package.json license='GPL-3.0'(copyleft)—— 运行期加载 CDN 产物 OK,但 bundle 进再分发物会传染 GPL,须提前评估。",
+    "confidence": "high"
+  }
+}

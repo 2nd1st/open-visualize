@@ -71,9 +71,9 @@
     "note": "Celestial 由 projectionRatio 从显式像素宽推导 canvas 高;boot 用默认 420px 反推最大宽 840px并给容器明确像素高。最终高可能因投影比例略有不同,不得使用 vh/百分比高(铁律 3)。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:需允许从 pinned jsDelivr data/ 读取多份 JSON;CSS 进入 iframe head\nimport { Celestial } from 'https://cdn.jsdelivr.net/npm/d3-celestial@0/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/d3-celestial@0/celestial.css' }); document.head.appendChild(css);\nconst el = document.getElementById('celestial-map'); el.style.height = `${spec.height ?? 420}px`;\nconst width = Math.min(el.clientWidth || 840, (spec.height ?? 420) * 2);\nCelestial.display({ ...data.config, width, container: 'celestial-map', datapath: 'https://cdn.jsdelivr.net/npm/d3-celestial@0.7.35/data/', form: false, controls: false, location: false });",
+    "artifact": "// d3-celestial 的 +esm 在严格模块中以 undefined this 初始化内置 d3；在隔离 iframe 内加载上游经典依赖链\nconst el = document.getElementById('celestial-map'); el.style.height = `${spec.height ?? 420}px`; el.textContent = 'Loading star map…';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/d3-celestial@0.7.35/celestial.css' }); document.head.appendChild(css);\nconst loadScript = src => new Promise((resolve, reject) => { const script = Object.assign(document.createElement('script'), { src, crossOrigin:'anonymous' }); script.onload = resolve; script.onerror = reject; document.head.appendChild(script); });\nawait loadScript('https://cdn.jsdelivr.net/npm/d3-celestial@0.7.35/lib/d3.min.js');\nawait Promise.all([loadScript('https://cdn.jsdelivr.net/npm/d3-celestial@0.7.35/lib/d3.geo.projection.min.js'), loadScript('https://cdn.jsdelivr.net/npm/d3-celestial@0.7.35/lib/d3.geo.zoom.js')]);\nawait loadScript('https://cdn.jsdelivr.net/npm/d3-celestial@0.7.35/celestial.min.js');\nel.replaceChildren();\nconst width = Math.min(el.clientWidth || 840, (spec.height ?? 420) * 2);\nglobalThis.Celestial.display({ ...data.config, width, container: 'celestial-map', datapath: 'https://cdn.jsdelivr.net/npm/d3-celestial@0.7.35/data/', form: false, controls: false, location: false });",
     "widget": "unsupported: d3-celestial@0.7.35 依赖 document.getElementById、文档级 id、window resize 和 body 辅助节点,且 CSS/选择器不具 shadow 隔离能力;违反铁律 2。",
-    "codex": "// sandbox iframe 隔离其文档级 id、body 辅助节点和 window 监听\nimport { Celestial } from 'https://cdn.jsdelivr.net/npm/d3-celestial@0/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/d3-celestial@0/celestial.css' }); document.head.appendChild(css);\nconst el = document.getElementById('celestial-map'); el.style.height = `${spec.height ?? 420}px`;\nconst width = Math.min(el.clientWidth || 840, (spec.height ?? 420) * 2);\nCelestial.display({ ...data.config, width, container: 'celestial-map', datapath: 'https://cdn.jsdelivr.net/npm/d3-celestial@0.7.35/data/', form: false, controls: false, location: false });"
+    "codex": "// sandbox iframe 隔离经典构建的 document 级 id、body 辅助节点、全局 d3/Celestial 和 window 监听\nconst el = document.getElementById('celestial-map'); el.style.height = `${spec.height ?? 420}px`; el.textContent = 'Loading star map…';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/d3-celestial@0.7.35/celestial.css' }); document.head.appendChild(css);\nconst loadScript = src => new Promise((resolve, reject) => { const script = Object.assign(document.createElement('script'), { src, crossOrigin:'anonymous' }); script.onload = resolve; script.onerror = reject; document.head.appendChild(script); });\nawait loadScript('https://cdn.jsdelivr.net/npm/d3-celestial@0.7.35/lib/d3.min.js');\nawait Promise.all([loadScript('https://cdn.jsdelivr.net/npm/d3-celestial@0.7.35/lib/d3.geo.projection.min.js'), loadScript('https://cdn.jsdelivr.net/npm/d3-celestial@0.7.35/lib/d3.geo.zoom.js')]);\nawait loadScript('https://cdn.jsdelivr.net/npm/d3-celestial@0.7.35/celestial.min.js');\nel.replaceChildren();\nconst width = Math.min(el.clientWidth || 840, (spec.height ?? 420) * 2);\nglobalThis.Celestial.display({ ...data.config, width, container: 'celestial-map', datapath: 'https://cdn.jsdelivr.net/npm/d3-celestial@0.7.35/data/', form: false, controls: false, location: false });"
   },
   "example": {
     "_why": "投影、坐标系和多层天文数据配置深嵌套,minimal example 固定一条真实全天星图路径,避免 AI 编造星表或错放图层字段。",
@@ -81,7 +81,11 @@
       "config": {
         "projection": "aitoff",
         "transform": "equatorial",
-        "center": [0, 0, 0],
+        "center": [
+          0,
+          0,
+          0
+        ],
         "interactive": true,
         "stars": {
           "show": true,
@@ -143,7 +147,67 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "celestial.js: library appends a hidden <div id='d3-celestial-svg'> to body (L4565 d3.select('body').append('div')) and resolves it via document-level id selectors; window resize listener via d3.select(window).on('resize',resize) (L99); boot additionally injects celestial.css <link> into document.head for artifact/codex. Document-level ids + body node + window resize are all incompatible with shadow encapsulation — corroborates the entry's widget=unsupported verdict.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need a zoomable, rotatable all-sky map, constellation lines, the Milky Way, deep-sky objects, or a sky projection for a specified time and place, instead of hand-writing canvas, because native implementations fail at spherical projection, star catalogs, coordinate transforms, and astronomical calculations.",
+      "why_valuable": "AI can only draw decorative stars by default; it cannot provide equatorial/ecliptic/galactic coordinate conversion, dozens of spherical projections, real magnitudes and star catalogs, constellation boundaries, or planet positions. d3-celestial delivers astronomical data together with canvas projection.",
+      "data_in": {
+        "note": "config passes through to Celestial.display, but boot conservatively overrides container/datapath/width and switches that would create global forms. Star, constellation, Milky Way, and planet data is read from the pinned datapath rather than invented by AI.",
+        "schema": {
+          "config": {
+            "projection?": "Celestial projection name -- Default 'aitoff'",
+            "projectionRatio?": "positive number | null -- Default null; inferred from projection",
+            "transform?": "'equatorial' | 'ecliptic' | 'galactic' | 'supergalactic' -- Default 'equatorial'",
+            "center?": "[longitude:number,latitude:number,orientation?:number] | null -- Default [0,0,0]",
+            "geopos?": "[latitude:number,longitude:number] | null -- Default null",
+            "follow?": "'zenith' | 'center' -- Default 'zenith'",
+            "zoomlevel?": "number | null -- Default null",
+            "zoomextend?": "positive number -- Default 10",
+            "interactive?": "boolean -- Default true",
+            "lang?": "supported language code string -- Default empty string, showing IAU/designations",
+            "culture?": "'' | 'iau' | 'cn' -- Default empty string",
+            "stars?": {
+              "_default": "Upstream defaults show stars down to magnitude 6, colored by spectrum",
+              "show?": "boolean -- Default true",
+              "limit?": "number -- Default 6",
+              "colors?": "boolean -- Default true",
+              "names?": "boolean -- Maps to stars.designation (Bayer/Flamsteed labels, default true); proper names use stars.propername (default false)",
+              "size?": "positive number(px) -- Default 7",
+              "data?": "package data filename -- Default 'stars.6.json'"
+            },
+            "dsos?": {
+              "_default": "Upstream defaults show bright deep-sky objects",
+              "show?": "boolean -- Default true",
+              "limit?": "number -- Default 6",
+              "names?": "boolean -- Default true",
+              "data?": "package data filename -- Default 'dsos.bright.json'"
+            },
+            "constellations?": {
+              "_default": "Upstream defaults show names and lines, but not boundaries",
+              "names?": "boolean -- Default true",
+              "lines?": "boolean -- Default true",
+              "bounds?": "boolean -- Default false"
+            },
+            "mw?": {
+              "show?": "boolean -- Default true",
+              "style?": "{fill?:CSS color string,opacity?:number 0..1} -- Default white at 0.15"
+            },
+            "planets?": {
+              "show?": "boolean -- Default false",
+              "which?": "('sol'|'mer'|'ven'|'ter'|'lun'|'mar'|'jup'|'sat'|'ura'|'nep')[] -- Upstream defaults to all ten bodies"
+            },
+            "lines?": "Celestial native graticule/equatorial/ecliptic/galactic configuration object -- Default upstream styles",
+            "background?": "{fill?:CSS color string,opacity?:number 0..1,stroke?:CSS color string,width?:number} -- Default black",
+            "horizon?": "Celestial native horizon configuration object -- Hidden by default",
+            "daylight?": "{show?:boolean} -- Default false"
+          }
+        }
+      },
+      "spec": {
+        "note": "Celestial derives canvas height from explicit pixel width through projectionRatio. boot uses the default 420px height to derive a maximum width of 840px and gives the container an explicit pixel height. Final height may vary slightly with projection ratio; vh/percentage height must not be used (Rule 3)."
+      }
+    }
   }
 }

@@ -1,0 +1,70 @@
+{
+  "entry_version": "thin-1",
+  "id": "black-scholes",
+  "name": "black-scholes",
+  "when_to_use": "要画期权价随标的价·波动率·到期时间变化的曲线或盈亏图时用它(欧式 Black-Scholes-Merton);目录内所有金融库(financejs/financial/loanjs/tvm-financejs)都不含期权定价。需要 delta/gamma/theta/vega/rho 敏感度另配同作者 greeks 包。",
+  "why_valuable": "期权定价依赖累积正态分布 N(d) 的数值近似,AI 徒手实现 d1/d2 与 erf 近似常有系统性误差,定出的价随参数漂移不可信。black-scholes 给出稳定的欧式期权理论价(blackScholes(s,k,t,v,r,callPut)→ 标量),让期权敏感度曲线建立在正确数值上。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "black-scholes",
+    "version": "1.1.0",
+    "github": "MattL922/black-scholes"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "scalar",
+    "note": "全部是标量参数;t 以年为单位(3 个月=0.25),v 与 r 都用小数(20%=0.2)。callPut 只接受字符串 'call' 或 'put'。",
+    "schema": {
+      "s": "number —— 标的现价",
+      "k": "number —— 行权价",
+      "t": "number —— 到期时间,单位年(如 0.25 = 三个月)",
+      "v": "number —— 波动率,小数(如 0.2 = 20%)",
+      "r": "number —— 年化无风险利率,小数",
+      "callPut": "'call' | 'put' —— 期权类型"
+    }
+  },
+  "provides": {
+    "shape": "scalar",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;纯 JS 数值层。输出单标量价格。",
+    "outputs": "欧式期权理论价(标量);配套 stdNormCDF/getW 辅助函数。希腊字母需另配同作者 greeks 包。",
+    "api_surface": {
+      "price": "blackScholes(s, k, t, v, r, callPut) → number(期权价)",
+      "params": "s 标的价 · k 行权价 · t 到期年数 · v 波动率(小数) · r 无风险利率(小数) · callPut 'call'|'put'",
+      "aux": "stdNormCDF(x) 标准正态 CDF · getW(...) 内部 omega;delta/gamma/theta/vega/rho 用同作者 greeks 包(npm:greeks)"
+    }
+  },
+  "peer": {
+    "id": "echarts",
+    "note": "本条只产单个价格标量:固定其余参数、扫某一维(标的价/波动率/到期日)反复调用得一串价,再交给图表组件画敏感度曲线或盈亏图。"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to plot option value or profit/loss as the underlying price, volatility, or time to expiry changes (European Black-Scholes-Merton). None of the other finance libraries in the catalog (financejs/financial/loanjs/tvm-financejs) include option pricing. For delta/gamma/theta/vega/rho sensitivities, also use the companion greeks package by the same author.",
+      "why_valuable": "Option pricing depends on a numerical approximation of the cumulative normal distribution N(d). Handwritten AI implementations of d1/d2 and erf approximations often contain systematic errors, making prices drift unreliably with parameters. black-scholes supplies a stable European theoretical price (blackScholes(s,k,t,v,r,callPut) -> scalar), so sensitivity curves rest on correct numbers.",
+      "data_in": {
+        "note": "All inputs are scalar parameters. t is measured in years (3 months = 0.25), while v and r are decimals (20% = 0.2). callPut accepts only the string 'call' or 'put'.",
+        "schema": {
+          "s": "number -- current underlying price",
+          "k": "number -- strike price",
+          "t": "number -- time to expiry in years (for example, 0.25 = three months)",
+          "v": "number -- volatility as a decimal (for example, 0.2 = 20%)",
+          "r": "number -- annualized risk-free rate as a decimal",
+          "callPut": "'call' | 'put' -- option type"
+        }
+      }
+    }
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS,无 DOM/uplink/shadow 足迹\nimport { blackScholes } from 'https://cdn.jsdelivr.net/npm/black-scholes@1/+esm';  // 命名导出(default 为整模块对象)\nconst price = blackScholes(data.s, data.k, data.t, data.v, data.r, data.callPut);\n// price = 欧式期权理论价(标量)\n// 敏感度曲线:固定其余参数、扫一维(如标的价 spot)\n// spots.map(s => blackScholes(s, data.k, data.t, data.v, data.r, data.callPut))",
+    "note": "参数顺序 blackScholes(s,k,t,v,r,callPut):s 标的价、k 行权价、t 到期年数、v 波动率小数、r 无风险利率小数、callPut 'call'|'put'。本包只出价格;delta/gamma/theta/vega/rho 需另引同作者 greeks 包(npm:greeks)。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr black-scholes@1.1.0 +esm + README + source: named export blackScholes (plus default = whole module object, stdNormCDF, getW) — `export{b as blackScholes,c as default,w as getW,S as stdNormCDF}`. Signature blackScholes(s, k, t, v, r, callPut)→Number (README + source line 72): s=underlying price, k=strike, t=years to expiry, v=volatility decimal, r=risk-free decimal, callPut='call'|'put' (source branches on callPut==='call' else put). Zero-dependency. Greeks (delta/gamma/theta/vega/rho) are a separate companion package (greeks / MattL922/greeks), not in this bundle. grep of +esm for document.*/window.*/globalThis.*/appendChild/createElement/addEventListener/localStorage = 0 hits — pure numeric, shadow-safe.",
+    "confidence": "high"
+  }
+}

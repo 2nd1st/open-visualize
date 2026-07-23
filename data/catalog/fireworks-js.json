@@ -80,7 +80,90 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "createCanvas() in the +esm: when a non-canvas element (the boot's div) is passed it does this.canvas=document.createElement('canvas') INSIDE the container; document.body.append fires only if the passed element is itself an *unconnected* HTMLCanvasElement (not the boot's case). No head/CSS injection; autoresize uses ResizeObserver on the container and mouse listeners bind to the canvas — no window/document.addEventListener found.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "options": {
+        "hue": {
+          "min": 0,
+          "max": 345
+        },
+        "rocketsPoint": {
+          "min": 0,
+          "max": 100
+        },
+        "delay": {
+          "min": 10,
+          "max": 22
+        },
+        "intensity": 40,
+        "particles": 80,
+        "explosion": 6,
+        "brightness": {
+          "min": 55,
+          "max": 90
+        },
+        "flickering": 40,
+        "traceLength": 3,
+        "opacity": 0.45,
+        "friction": 0.96,
+        "gravity": 1.5
+      }
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for festive fireworks with rocket launches, aerial bursts, trails, and continuous shows instead of handwritten canvas code, which fails at two-phase physics, particle decay, and a stable frame loop.",
+      "why_valuable": "AI defaults can only draw flat radial lines or one-stage particles and cannot coordinate a rocket trajectory into a burst, afterglow trails, brightness flicker, and the rhythm of multiple launches; this library encapsulates those 0% areas in one container constructor.",
+      "data_in": {
+        "note": "data_in.options is passed exactly to new Fireworks(container, options); sound is disabled by default, and this entry is not a replacement for a general particle background.",
+        "schema": {
+          "options?": {
+            "_default": "{} -- Uses all upstream defaults",
+            "hue?": {
+              "_default": "{min:0,max:360}",
+              "min?": "number -- Lower hue bound; default 0",
+              "max?": "number -- Upper hue bound; default 360"
+            },
+            "rocketsPoint?": {
+              "_default": "{min:50,max:50}",
+              "min?": "number -- Lower horizontal launch percentage; default 50",
+              "max?": "number -- Upper horizontal launch percentage; default 50"
+            },
+            "opacity?": "number -- Trail fade-overlay strength; default 0.5",
+            "acceleration?": "number -- Rocket acceleration; default 1.05",
+            "friction?": "number -- Burst-particle friction coefficient; default 0.95",
+            "gravity?": "number -- Burst-particle gravity; default 1.5",
+            "particles?": "integer -- Particles per burst; default 50",
+            "explosion?": "integer -- Burst trail length; default 5",
+            "delay?": {
+              "_default": "{min:30,max:60}",
+              "min?": "number -- Lower interval between continuous launches; default 30",
+              "max?": "number -- Upper interval between continuous launches; default 60"
+            },
+            "brightness?": {
+              "_default": "{min:50,max:80}",
+              "min?": "number -- Lower brightness bound; default 50",
+              "max?": "number -- Upper brightness bound; default 80"
+            },
+            "flickering?": "number -- Flicker probability percentage; default 50",
+            "intensity?": "number -- Continuous-launch intensity; default 30",
+            "traceLength?": "number -- Rocket trail length; default 3",
+            "traceSpeed?": "number -- Rocket trajectory speed; default 10",
+            "autoresize?": "boolean -- Whether to observe container size; default true",
+            "sound?": {
+              "_default": "{enabled:false,files:['explosion0.mp3','explosion1.mp3','explosion2.mp3'],volume:{min:4,max:8}}",
+              "enabled?": "boolean -- Whether sound is enabled; default false",
+              "files?": "string[] -- Audio URLs; default ['explosion0.mp3','explosion1.mp3','explosion2.mp3']. When enabled, replace them with accessible absolute URLs",
+              "volume?": "{min:number,max:number} -- Volume percentage range; default {min:4,max:8}"
+            }
+          }
+        }
+      },
+      "spec": {
+        "note": "Fireworks creates its canvas from container.clientWidth/clientHeight, so the container needs an explicit pixel height; default 400px. vh and percentage heights are forbidden."
+      }
+    }
   }
 }

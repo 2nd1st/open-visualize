@@ -1,0 +1,104 @@
+{
+  "entry_version": "thin-1",
+  "id": "status-pills",
+  "name": "Status pills",
+  "when_to_use": "需要把一小组状态、分类或筛选结果以紧凑的只读标签快速扫读时用它，适合数据摘要、方案对比和交付状态行；若标签需要点击回传筛选条件应使用交互式 filter chips，若每项还要显示长说明或进度则用卡片或 progress-dashboard。",
+  "why_valuable": "AI 常用颜色随意的 badges，导致“成功、失败、风险、信息、中性”语义不一致；本模板固定 ✓绿色、✗红色、!琥珀色、强调色与中性色，并用可选 count 保持类别规模清晰。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "inline-template",
+  "upstream": {
+    "npm": null,
+    "version": null,
+    "github": null
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tag-list",
+    "note": "data.items 按原顺序渲染并自动换行。tone 只接受 'success'、'danger'、'warning'、'info'、'neutral'，未知值按 neutral；count 可为数字或已经格式化的短字符串。detail 只作为原生只读 tooltip，不注册事件。",
+    "schema": {
+      "title?": "string —— 可选分组标题；设置 title 或 subtitle 时才显示头部",
+      "subtitle?": "string —— 可选上下文说明",
+      "items": "{label:string,tone?:'success'|'danger'|'warning'|'info'|'neutral',count?:number|string,detail?:string}[] —— 只读 pills；label 为标签，tone 决定颜色/图标，count 显示右侧数量，detail 提供悬停说明"
+    }
+  },
+  "spec": {
+    "height": "auto",
+    "note": "按 pills 换行自动增高；无固定宽度、vh 或百分比高度，520px 以下仅收紧内边距。"
+  },
+  "boot": {
+    "artifact": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_accent-soft:#eef2ff;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:20px 22px 17px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;font-size:clamp(18px,3vw,24px);font-weight:750;letter-spacing:-.02em;line-height:1.2}\n.subtitle{margin-top:6px;color:var(--_muted);font-size:12px;line-height:1.45}\n.list{display:flex;flex-wrap:wrap;gap:10px;padding:18px 20px 20px}\n.pill{display:inline-flex;min-height:34px;align-items:center;gap:7px;padding:7px 11px;border:1px solid transparent;border-radius:999px;font-size:12px;font-weight:720;line-height:1}\n.icon{display:inline-grid;width:17px;height:17px;place-items:center;border-radius:999px;font-size:10px;font-weight:900}\n.pill.success{border-color:color-mix(in srgb,var(--_ok) 24%,var(--_line));background:color-mix(in srgb,var(--_ok) 11%,var(--_bg));color:var(--_ok)}\n.pill.success .icon{background:var(--_ok);color:#fff}\n.pill.danger{border-color:color-mix(in srgb,var(--_no) 23%,var(--_line));background:color-mix(in srgb,var(--_no) 10%,var(--_bg));color:var(--_no)}\n.pill.danger .icon{background:var(--_no);color:#fff}\n.pill.warning{border-color:color-mix(in srgb,var(--_partial) 26%,var(--_line));background:color-mix(in srgb,var(--_partial) 12%,var(--_bg));color:var(--_partial)}\n.pill.warning .icon{background:var(--_partial);color:#fff}\n.pill.info{border-color:color-mix(in srgb,var(--_accent) 24%,var(--_line));background:var(--_accent-soft);color:var(--_accent)}\n.pill.info .icon{background:var(--_accent);color:#fff}\n.pill.neutral{border-color:var(--_line);background:var(--_soft);color:var(--_muted)}\n.pill.neutral .icon{background:var(--_line);color:var(--_muted)}\n.count{display:inline-flex;min-width:20px;height:20px;align-items:center;justify-content:center;margin-left:2px;padding:0 6px;border-radius:999px;background:color-mix(in srgb,currentColor 12%,var(--_bg));font-size:10px;font-weight:850}\n.empty{padding:36px 22px;color:var(--_muted);font-size:13px;text-align:center}\n@media (max-width:520px){.heading{padding:18px}.list{padding:16px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_accent-soft:#1b2145}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}}\n\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\n\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst items=Array.isArray(data.items)?data.items:[]; const title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Status';\nconst icons={success:'✓',danger:'✗',warning:'!',info:'•',neutral:'–'}; const frame=make('section','frame'); frame.setAttribute('aria-label',title);\nif(data.title||data.subtitle){ const heading=make('header','heading'); heading.appendChild(make('div','eyebrow','At a glance')); heading.appendChild(make('h2','',title)); if(data.subtitle) heading.appendChild(make('div','subtitle',String(data.subtitle))); frame.appendChild(heading); }\nif(!items.length){ frame.appendChild(make('div','empty','Add status or category tags to show pills.')); }\nelse{\n  const list=make('div','list'); list.setAttribute('role','list');\n  items.forEach((item) => { const tone=item&&icons[item.tone]?item.tone:'neutral'; const pill=make('span','pill '+tone); pill.setAttribute('role','listitem'); if(item&&item.detail) pill.title=String(item.detail); pill.appendChild(make('span','icon',icons[tone])); pill.appendChild(make('span','label',item&&item.label!=null?String(item.label):'Untitled')); if(item&&item.count!=null) pill.appendChild(make('span','count',String(item.count))); list.appendChild(pill); });\n  frame.appendChild(list);\n}\nroot.appendChild(frame);\n\nparent.appendChild(host);",
+    "widget": "const parent = shadowRoot;\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_accent-soft:#eef2ff;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:20px 22px 17px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;font-size:clamp(18px,3vw,24px);font-weight:750;letter-spacing:-.02em;line-height:1.2}\n.subtitle{margin-top:6px;color:var(--_muted);font-size:12px;line-height:1.45}\n.list{display:flex;flex-wrap:wrap;gap:10px;padding:18px 20px 20px}\n.pill{display:inline-flex;min-height:34px;align-items:center;gap:7px;padding:7px 11px;border:1px solid transparent;border-radius:999px;font-size:12px;font-weight:720;line-height:1}\n.icon{display:inline-grid;width:17px;height:17px;place-items:center;border-radius:999px;font-size:10px;font-weight:900}\n.pill.success{border-color:color-mix(in srgb,var(--_ok) 24%,var(--_line));background:color-mix(in srgb,var(--_ok) 11%,var(--_bg));color:var(--_ok)}\n.pill.success .icon{background:var(--_ok);color:#fff}\n.pill.danger{border-color:color-mix(in srgb,var(--_no) 23%,var(--_line));background:color-mix(in srgb,var(--_no) 10%,var(--_bg));color:var(--_no)}\n.pill.danger .icon{background:var(--_no);color:#fff}\n.pill.warning{border-color:color-mix(in srgb,var(--_partial) 26%,var(--_line));background:color-mix(in srgb,var(--_partial) 12%,var(--_bg));color:var(--_partial)}\n.pill.warning .icon{background:var(--_partial);color:#fff}\n.pill.info{border-color:color-mix(in srgb,var(--_accent) 24%,var(--_line));background:var(--_accent-soft);color:var(--_accent)}\n.pill.info .icon{background:var(--_accent);color:#fff}\n.pill.neutral{border-color:var(--_line);background:var(--_soft);color:var(--_muted)}\n.pill.neutral .icon{background:var(--_line);color:var(--_muted)}\n.count{display:inline-flex;min-width:20px;height:20px;align-items:center;justify-content:center;margin-left:2px;padding:0 6px;border-radius:999px;background:color-mix(in srgb,currentColor 12%,var(--_bg));font-size:10px;font-weight:850}\n.empty{padding:36px 22px;color:var(--_muted);font-size:13px;text-align:center}\n@media (max-width:520px){.heading{padding:18px}.list{padding:16px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_accent-soft:#1b2145}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}}\n\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\n\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst items=Array.isArray(data.items)?data.items:[]; const title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Status';\nconst icons={success:'✓',danger:'✗',warning:'!',info:'•',neutral:'–'}; const frame=make('section','frame'); frame.setAttribute('aria-label',title);\nif(data.title||data.subtitle){ const heading=make('header','heading'); heading.appendChild(make('div','eyebrow','At a glance')); heading.appendChild(make('h2','',title)); if(data.subtitle) heading.appendChild(make('div','subtitle',String(data.subtitle))); frame.appendChild(heading); }\nif(!items.length){ frame.appendChild(make('div','empty','Add status or category tags to show pills.')); }\nelse{\n  const list=make('div','list'); list.setAttribute('role','list');\n  items.forEach((item) => { const tone=item&&icons[item.tone]?item.tone:'neutral'; const pill=make('span','pill '+tone); pill.setAttribute('role','listitem'); if(item&&item.detail) pill.title=String(item.detail); pill.appendChild(make('span','icon',icons[tone])); pill.appendChild(make('span','label',item&&item.label!=null?String(item.label):'Untitled')); if(item&&item.count!=null) pill.appendChild(make('span','count',String(item.count))); list.appendChild(pill); });\n  frame.appendChild(list);\n}\nroot.appendChild(frame);\n\nparent.appendChild(host);",
+    "codex": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_accent-soft:#eef2ff;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:20px 22px 17px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;font-size:clamp(18px,3vw,24px);font-weight:750;letter-spacing:-.02em;line-height:1.2}\n.subtitle{margin-top:6px;color:var(--_muted);font-size:12px;line-height:1.45}\n.list{display:flex;flex-wrap:wrap;gap:10px;padding:18px 20px 20px}\n.pill{display:inline-flex;min-height:34px;align-items:center;gap:7px;padding:7px 11px;border:1px solid transparent;border-radius:999px;font-size:12px;font-weight:720;line-height:1}\n.icon{display:inline-grid;width:17px;height:17px;place-items:center;border-radius:999px;font-size:10px;font-weight:900}\n.pill.success{border-color:color-mix(in srgb,var(--_ok) 24%,var(--_line));background:color-mix(in srgb,var(--_ok) 11%,var(--_bg));color:var(--_ok)}\n.pill.success .icon{background:var(--_ok);color:#fff}\n.pill.danger{border-color:color-mix(in srgb,var(--_no) 23%,var(--_line));background:color-mix(in srgb,var(--_no) 10%,var(--_bg));color:var(--_no)}\n.pill.danger .icon{background:var(--_no);color:#fff}\n.pill.warning{border-color:color-mix(in srgb,var(--_partial) 26%,var(--_line));background:color-mix(in srgb,var(--_partial) 12%,var(--_bg));color:var(--_partial)}\n.pill.warning .icon{background:var(--_partial);color:#fff}\n.pill.info{border-color:color-mix(in srgb,var(--_accent) 24%,var(--_line));background:var(--_accent-soft);color:var(--_accent)}\n.pill.info .icon{background:var(--_accent);color:#fff}\n.pill.neutral{border-color:var(--_line);background:var(--_soft);color:var(--_muted)}\n.pill.neutral .icon{background:var(--_line);color:var(--_muted)}\n.count{display:inline-flex;min-width:20px;height:20px;align-items:center;justify-content:center;margin-left:2px;padding:0 6px;border-radius:999px;background:color-mix(in srgb,currentColor 12%,var(--_bg));font-size:10px;font-weight:850}\n.empty{padding:36px 22px;color:var(--_muted);font-size:13px;text-align:center}\n@media (max-width:520px){.heading{padding:18px}.list{padding:16px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_accent-soft:#1b2145}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}}\n\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\n\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst items=Array.isArray(data.items)?data.items:[]; const title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Status';\nconst icons={success:'✓',danger:'✗',warning:'!',info:'•',neutral:'–'}; const frame=make('section','frame'); frame.setAttribute('aria-label',title);\nif(data.title||data.subtitle){ const heading=make('header','heading'); heading.appendChild(make('div','eyebrow','At a glance')); heading.appendChild(make('h2','',title)); if(data.subtitle) heading.appendChild(make('div','subtitle',String(data.subtitle))); frame.appendChild(heading); }\nif(!items.length){ frame.appendChild(make('div','empty','Add status or category tags to show pills.')); }\nelse{\n  const list=make('div','list'); list.setAttribute('role','list');\n  items.forEach((item) => { const tone=item&&icons[item.tone]?item.tone:'neutral'; const pill=make('span','pill '+tone); pill.setAttribute('role','listitem'); if(item&&item.detail) pill.title=String(item.detail); pill.appendChild(make('span','icon',icons[tone])); pill.appendChild(make('span','label',item&&item.label!=null?String(item.label):'Untitled')); if(item&&item.count!=null) pill.appendChild(make('span','count',String(item.count))); list.appendChild(pill); });\n  frame.appendChild(list);\n}\nroot.appendChild(frame);\n\nparent.appendChild(host);"
+  },
+  "example": {
+    "_why": "一行发布队列同时覆盖五种色彩语义、可选数量和 tooltip 详情，能验证只读标签的扫描效率与换行。",
+    "minimal": {
+      "title": "Issue triage",
+      "subtitle": "Current release queue · 42 items",
+      "items": [
+        {
+          "label": "Ready",
+          "tone": "success",
+          "count": 18,
+          "detail": "Approved and ready to ship"
+        },
+        {
+          "label": "In review",
+          "tone": "info",
+          "count": 9,
+          "detail": "Awaiting maintainer review"
+        },
+        {
+          "label": "Needs attention",
+          "tone": "warning",
+          "count": 6,
+          "detail": "Owner action requested"
+        },
+        {
+          "label": "Blocked",
+          "tone": "danger",
+          "count": 3,
+          "detail": "Cannot progress without a dependency"
+        },
+        {
+          "label": "Backlog",
+          "tone": "neutral",
+          "count": 6,
+          "detail": "Not scheduled for this release"
+        }
+      ]
+    }
+  },
+  "uplink": "纯 display 组件，无 uplink；所有状态均由 data 决定，不向 AI 或宿主回传选择。",
+  "carriers": {
+    "artifact": "supported:boot.artifact 已在 sandboxed iframe 中以 example.minimal 原样渲染验证；CSS 与 DOM 全部位于自有 shadow root",
+    "widget": "supported:与 artifact 同一零依赖模板，仅 parent 改为 shadowRoot；可在载体 shadow 内再挂自有 shadow",
+    "codex": "supported:与已验证的 artifact boot 相同，document.getElementById('viz') 为唯一载体挂载点"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "self-authored inline-template, owns its shadow, zero global footprint; rendered-verified",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to scan a small set of statuses, categories, or filter results as compact read-only labels, suitable for data summaries, proposal comparisons, and delivery-status rows. If labels must be clicked to send filter conditions back, use interactive filter chips; if each item needs a long description or progress, use cards or progress-dashboard.",
+      "why_valuable": "AI often uses arbitrary badge colors, making success, failure, risk, information, and neutral semantics inconsistent. This template fixes green success, red danger, amber warning, accent info, and neutral styling, with an optional count that keeps category size clear.",
+      "data_in": {
+        "note": "data.items renders in original order and wraps automatically. tone accepts only 'success', 'danger', 'warning', 'info', or 'neutral'; unknown values become neutral. count may be a number or a preformatted short string. detail is only a native read-only tooltip and registers no events.",
+        "schema": {
+          "title?": "string -- Optional group title; the header appears only when title or subtitle is set",
+          "subtitle?": "string -- Optional context",
+          "items": "{label:string,tone?:'success'|'danger'|'warning'|'info'|'neutral',count?:number|string,detail?:string}[] -- Read-only pills; label is the text, tone selects color/icon, count appears on the right, and detail provides hover help"
+        }
+      },
+      "spec": {
+        "note": "Grows automatically as pills wrap; no fixed width, vh, or percentage height, with only tighter padding below 520px."
+      }
+    }
+  }
+}

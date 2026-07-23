@@ -36,6 +36,33 @@
     "height": 480,
     "note": "导图 SVG/HTML 混合布局必须在初始化前拿到非零容器尺寸;默认 height 480px,AI 可覆盖为其他明确像素值,禁用 vh/百分比高(铁律 3)。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when users need to edit, drag-reorder, and export a mind map as JSON instead of hand-writing SVG/Mermaid, which tends to fail at node editing, branch reordering, automatic layout, and reversible history. For a small read-only static tree, continue to use Mermaid.",
+      "why_valuable": "AI defaults to a static Mermaid mindmap and cannot provide in-canvas node editing, branch dragging, left/right layout, zoom/pan, and reading the structure back as JSON while keeping tree data synchronized with the view.",
+      "data_in": {
+        "note": "data.map uses MindElixirData directly: the root must be under nodeData, not a bare children array. id and topic are required on every node. parent is a runtime field and should not be supplied in input.",
+        "schema": {
+          "map": {
+            "nodeData": {
+              "id": "string -- unique across the entire map",
+              "topic": "string",
+              "children?": "Node[] -- recursively the same structure; default []",
+              "expanded?": "boolean -- whether the branch is expanded; default true",
+              "direction?": "0 | 1 -- left/right branch; assigned by the root layout by default",
+              "tags?": "(string | {text:string})[] -- default []"
+            },
+            "direction?": "0 | 1 | 2 -- LEFT/RIGHT/SIDE; default 2 (SIDE)",
+            "meta?": "Record<string, JSONValue> -- omitted by default"
+          },
+          "editable?": "boolean -- whether editing is enabled; default true"
+        }
+      },
+      "spec": {
+        "note": "The mixed SVG/HTML layout must receive nonzero container dimensions before initialization. Default height is 480px; AI may use another explicit pixel value, but rule 3 forbids vh or percentage heights."
+      }
+    }
+  },
   "boot": {
     "artifact": "// inferred-not-tested:官方 CSS 进 document.head\nimport MindElixir from 'https://cdn.jsdelivr.net/npm/mind-elixir@5/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/mind-elixir@5/dist/MindElixir.css' });\ndocument.head.appendChild(css);\nconst el = document.getElementById('mindmap'); el.style.height = `${spec.height ?? 480}px`;\nconst mind = new MindElixir({ el, direction: data.map.direction ?? MindElixir.SIDE, editable: data.editable ?? true, contextMenu: true, toolBar: true, keypress: true });\nmind.init(data.map);",
     "widget": "// CSS 与导图挂载点都落 shadowRoot\nimport MindElixir from 'https://cdn.jsdelivr.net/npm/mind-elixir@5/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/mind-elixir@5/dist/MindElixir.css' });\nconst el = document.createElement('div'); el.style.height = `${spec.height ?? 480}px`; shadowRoot.append(css, el);\nconst mind = new MindElixir({ el, direction: data.map.direction ?? MindElixir.SIDE, editable: data.editable ?? true, contextMenu: true, toolBar: true, keypress: true });\nmind.init(data.map);",
@@ -90,7 +117,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "mind-elixir +esm greps: `document.head` count 0 (CSS is a separate file the boot links into shadow); no `document.body` reference; all 15 `addEventListener` calls bind to the container or local element nodes — confirmed `e.container.addEventListener(\"keydown\",…)`, and NO `(document|window).addEventListener` match, so keypress/contextmenu/wheel are container-scoped. Node DOM, toolbar and context menu are built under `e.container`. Result: no global style/DOM/event side effects — fully shadow-safe once the boot places CSS + the sized container in shadowRoot (entry labels this 'conditional' but the evidence supports 'yes').",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

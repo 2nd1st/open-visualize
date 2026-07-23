@@ -2,12 +2,39 @@
   "entry_version": "thin-1",
   "id": "tweakpane",
   "name": "Tweakpane",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a hand-written row of inputs when you need a dense parameter panel for numbers, colors, booleans, 2D points, and intervals, because native implementations fail on compound-value controls, collapsible organization, and a consistent fine-tuning experience.",
+      "why_valuable": "AI defaults can only write loose range/checkbox controls, not compact and consistent point2d, color, interval, folder, and state snapshots; Tweakpane keeps bound values in the same parameter object.",
+      "data_in": {
+        "note": "params is the object bound in place; bindings only declares which keys to expose and their numeric constraints. Do not put callbacks into data.",
+        "schema": {
+          "params": "Record<string, number|string|boolean|{x:number,y:number}>",
+          "bindings": [
+            {
+              "key": "string -- must exist in params",
+              "label?": "string -- defaults to key",
+              "min?": "number -- no lower bound by default",
+              "max?": "number -- no upper bound by default",
+              "step?": "number -- selected automatically upstream from the value range by default"
+            }
+          ],
+          "title?": "string -- no title by default",
+          "expanded?": "boolean -- default true"
+        }
+      }
+    }
+  },
   "when_to_use": "需要高密度参数面板处理数值、颜色、布尔、二维点与区间时用它,而非手写一排 input——原生在复合值控件、折叠组织和一致的微调体验上失败。",
   "why_valuable": "AI 默认只能写松散的 range/checkbox,做不到紧凑且一致的 point2d、color、interval、folder 与状态快照;Tweakpane 将绑定值持续留在同一个参数对象中。",
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
-  "upstream": { "npm": "tweakpane", "version": "4.0.5", "github": "cocopon/tweakpane" },
+  "upstream": {
+    "npm": "tweakpane",
+    "version": "4.0.5",
+    "github": "cocopon/tweakpane"
+  },
   "license": "MIT",
   "data_in": {
     "shape": "key-value",
@@ -48,7 +75,50 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "+esm contains `data-tp-style`; Tweakpane's embedStyle appends a `<style data-tp-style>` to document.head unconditionally at Pane construction — head rules do not cross into shadow, so this disqualifies the zero-footprint widget (exactly the entry's claim). 12x `ownerDocument` + mousedown/mousemove/mouseup/mouseleave are transient slider-drag listeners (added on press, removed on release). `body.appendChild` exists only on the default-wrapper branch, NOT taken because boot passes `container: el`.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "title": "Scene Parameters",
+      "expanded": true,
+      "params": {
+        "speed": 50,
+        "scale": 1.5,
+        "color": "#ff0055",
+        "offset": {
+          "x": 20,
+          "y": -10
+        },
+        "wireframe": true
+      },
+      "bindings": [
+        {
+          "key": "speed",
+          "label": "Speed",
+          "min": 0,
+          "max": 100,
+          "step": 1
+        },
+        {
+          "key": "scale",
+          "label": "Scale",
+          "min": 0.1,
+          "max": 5,
+          "step": 0.1
+        },
+        {
+          "key": "color",
+          "label": "Color"
+        },
+        {
+          "key": "offset",
+          "label": "Offset"
+        },
+        {
+          "key": "wireframe",
+          "label": "Wireframe"
+        }
+      ]
+    }
   }
 }

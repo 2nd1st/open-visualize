@@ -47,7 +47,20 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "all.min.js/+esm scan: 0 `document.head`, 0 `document.body`, 0 createElement('style'), 0 createElement('canvas'), 0 document/window addEventListener. Fully headless pure-JS symbolic math with no DOM interaction at all — trivially shadow-safe (it renders nothing; consumer handles any display).",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need reproducible algebraic simplification, expansion, factorization, symbolic calculus, or equation solving, instead of doing it by hand, because native AI calculation fails at symbolic equivalence and consistency for long expressions.",
+      "why_valuable": "AI intermittently drops terms, changes signs, and cannot guarantee identical results across derivations. Nerdamer provides executable symbolic results so simplification, calculus, and equation solving can be verified item by item.",
+      "data_in": {
+        "note": "Input is fixed to a Nerdamer expression string and an optional variable-substitution map. Symbolic operations use the returned Symbol API or native functions exposed by all.min.",
+        "schema": {
+          "expression": "string -- Nerdamer-syntax expression or equation",
+          "variables?": "Record<string, string | number> -- Variable substitutions; default {}",
+          "variable?": "string -- Variable name for calculus or single-variable solving; default 'x'"
+        }
+      }
+    }
   }
 }

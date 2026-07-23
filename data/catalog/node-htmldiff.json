@@ -34,6 +34,22 @@
   "peer": {
     "note": "消费者是能显示受信 HTML 的 DOM/富文本视图;若 before/after 来自用户输入,先净化再写入 innerHTML,本库不是 sanitizer。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to compare two rendered HTML fragments while preserving tag hierarchy and marking wording or contract-clause changes with ins/del, instead of a handwritten string diff that breaks tags and loses rich-text semantics.",
+      "why_valuable": "AI can only guess a one-off ins/del result; it cannot reliably tokenize arbitrary HTML at runtime, align tag hierarchy, and recompute semantic differences. This library deterministically returns renderable diff HTML.",
+      "data_in": {
+        "note": "The entry accepts two complete HTML fragment strings, not DOM nodes or a code patch. Output reuses input HTML, so sanitize untrusted input for the consuming context first.",
+        "schema": {
+          "before": "string -- original HTML fragment; empty string is valid",
+          "after": "string -- changed HTML fragment; empty string is valid",
+          "class_name?": "string | null -- class added to each ins/del; default null (no class)",
+          "data_prefix?": "string | null -- operation-index data-attribute prefix; default null, producing data-operation-index",
+          "atomic_tags?": "string | null -- comma-separated tags treated as indivisible nodes; default null; 0.9.4 source defaults to iframe,object,math,svg,script,video,head,style,a"
+        }
+      }
+    }
+  },
   "boot": {
     "shared": "import diff from 'https://cdn.jsdelivr.net/npm/node-htmldiff@0/+esm';\nconst html = diff(\n  data.before, data.after, data.class_name ?? null,\n  data.data_prefix ?? null, data.atomic_tags ?? null\n);\n// html 交给消费端的受信 HTML 视图",
     "note": "保守使用包的单一默认函数;不在本条内渲染或绑定回调。jsDelivr +esm 已把 0.9.4 的 CommonJS 入口转换为 default export。"
@@ -44,7 +60,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "+esm scan: 0 `document.head`, 0 `document.body`, 0 createElement('style'), 0 addEventListener. Headless string-in/string-out HTML diff; touches no DOM. Consumer mounts the returned trusted HTML wherever it wants (including a shadow root).",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

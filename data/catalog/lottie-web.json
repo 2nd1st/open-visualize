@@ -2,6 +2,36 @@
   "entry_version": "thin-1",
   "id": "lottie-web",
   "name": "lottie-web",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you already have a Bodymovin/Lottie JSON asset and need to play a designer-quality loading, celebration, or expression animation faithfully, instead of asking AI to redraw it in SVG/CSS -- native reconstruction badly distorts keyframes, masks, and path tweening. It is not an animation authoring tool, Lottie editor, or arbitrary JSON visualizer.",
+      "why_valuable": "AI defaults cannot reconstruct After Effects keyframes, masks, and shape tweening from a screenshot or guarantee design quality across frames; lottie-web consumes the design asset directly and provides a stable SVG/canvas playback lifecycle.",
+      "data_in": {
+        "note": "data_in.animationData is passed verbatim to lottie.loadAnimation. If the asset references external images/fonts, it may still trigger corresponding CDN requests; for a zero-fetch scenario, use an export with embedded image data.",
+        "schema": {
+          "animationData": {
+            "v": "string -- Bodymovin/Lottie version",
+            "fr": "number -- frame rate",
+            "ip": "number -- in-point frame",
+            "op": "number -- out-point frame",
+            "w": "number -- composition width",
+            "h": "number -- composition height",
+            "layers": "Lottie layer object[]",
+            "assets?": "Lottie asset object[] -- default []",
+            "fonts?": "Lottie font list object -- not provided by default",
+            "chars?": "Lottie glyph object[] -- not provided by default"
+          },
+          "renderer?": "'svg' | 'canvas' | 'html' -- catalog default 'svg'",
+          "loop?": "boolean | number -- catalog default true",
+          "autoplay?": "boolean -- catalog default true",
+          "rendererSettings?": "object -- catalog default {}"
+        }
+      },
+      "spec": {
+        "note": "The player lays out to the container size; boot defaults to an explicit height of 320px and width 100%. Do not use vh or percentage heights (iron rule 3). SVG preserves the asset aspect ratio by default, and unmount calls animation.destroy()."
+      }
+    }
+  },
   "when_to_use": "已有 Bodymovin/Lottie JSON 资产,需要原样播放设计师级加载、庆祝或表情动画时用它,而非让 AI 重画 SVG/CSS——原生重建关键帧、遮罩、路径补间会彻底失真。非做动画创作器、Lottie 编辑器或任意 JSON 可视化。",
   "why_valuable": "AI 默认做不到从截图重建 After Effects 关键帧、遮罩和形状补间,也无法保证跨帧设计质量;lottie-web 直接消费设计资产并提供稳定的 SVG/canvas 播放生命周期。",
   "supply_form": "component",
@@ -57,7 +87,179 @@
     "globalEvents": "no",
     "shadowCompatible": "conditional",
     "evidence": "SVG/canvas 渲入传入容器,但向 document.body 追加瞬态测量节点(append+remove)+ 持久节点(声明 fonts 的字体<link>/luma matte 的 filter<svg>)逃逸 shadow;0 window DOM 监听;仅纯内联 asset SVG 动画完全 shadow-safe",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "animationData": {
+        "v": "5.7.4",
+        "fr": 30,
+        "ip": 0,
+        "op": 60,
+        "w": 200,
+        "h": 200,
+        "nm": "Spinning Square",
+        "ddd": 0,
+        "assets": [],
+        "layers": [
+          {
+            "ddd": 0,
+            "ind": 1,
+            "ty": 4,
+            "nm": "Square",
+            "sr": 1,
+            "ks": {
+              "o": {
+                "a": 0,
+                "k": 100
+              },
+              "r": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": {
+                      "x": [
+                        0.833
+                      ],
+                      "y": [
+                        0.833
+                      ]
+                    },
+                    "o": {
+                      "x": [
+                        0.167
+                      ],
+                      "y": [
+                        0.167
+                      ]
+                    },
+                    "t": 0,
+                    "s": [
+                      0
+                    ]
+                  },
+                  {
+                    "t": 60,
+                    "s": [
+                      360
+                    ]
+                  }
+                ]
+              },
+              "p": {
+                "a": 0,
+                "k": [
+                  100,
+                  100,
+                  0
+                ]
+              },
+              "a": {
+                "a": 0,
+                "k": [
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "s": {
+                "a": 0,
+                "k": [
+                  100,
+                  100,
+                  100
+                ]
+              }
+            },
+            "ao": 0,
+            "shapes": [
+              {
+                "ty": "gr",
+                "nm": "Group",
+                "it": [
+                  {
+                    "ty": "rt",
+                    "d": 1,
+                    "s": {
+                      "a": 0,
+                      "k": [
+                        96,
+                        96
+                      ]
+                    },
+                    "p": {
+                      "a": 0,
+                      "k": [
+                        0,
+                        0
+                      ]
+                    },
+                    "r": {
+                      "a": 0,
+                      "k": 20
+                    }
+                  },
+                  {
+                    "ty": "fl",
+                    "c": {
+                      "a": 0,
+                      "k": [
+                        0.145,
+                        0.514,
+                        0.922,
+                        1
+                      ]
+                    },
+                    "o": {
+                      "a": 0,
+                      "k": 100
+                    },
+                    "r": 1,
+                    "bm": 0,
+                    "nm": "Fill"
+                  },
+                  {
+                    "ty": "tr",
+                    "p": {
+                      "a": 0,
+                      "k": [
+                        0,
+                        0
+                      ]
+                    },
+                    "a": {
+                      "a": 0,
+                      "k": [
+                        0,
+                        0
+                      ]
+                    },
+                    "s": {
+                      "a": 0,
+                      "k": [
+                        100,
+                        100
+                      ]
+                    },
+                    "r": {
+                      "a": 0,
+                      "k": 0
+                    },
+                    "o": {
+                      "a": 0,
+                      "k": 100
+                    }
+                  }
+                ]
+              }
+            ],
+            "ip": 0,
+            "op": 60,
+            "st": 0,
+            "bm": 0
+          }
+        ]
+      }
+    }
   }
 }

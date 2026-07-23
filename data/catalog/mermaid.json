@@ -2,6 +2,26 @@
   "entry_version": "thin-1",
   "id": "mermaid",
   "name": "Mermaid",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written nodes and links when you need to reliably turn flowchart, sequence, state, ER, mindmap, gantt, or gitGraph text DSL into SVG, because native implementations fail on automatic layout, edge routing, and parsing multiple diagram syntaxes. It is not for pixel-precise free layout or real maps.",
+      "why_valuable": "AI defaults can write Mermaid DSL, but without native host rendering they can only echo the code; by default they cannot parse, automatically lay out, route, and safely emit interactive SVG for multiple DSL types.",
+      "data_in": {
+        "note": "definition is complete Mermaid DSL text; initialize configuration is page-level global state, so multiple instances on one page should share a consistent config.",
+        "schema": {
+          "definition": "string -- complete Mermaid DSL with the diagram type declared on the first line",
+          "config?": {
+            "_default": "when omitted, use {theme:'default',securityLevel:'strict'}",
+            "theme?": "'default'|'neutral'|'dark'|'forest'|'base' -- default default",
+            "securityLevel?": "'strict'|'loose'|'antiscript'|'sandbox' -- boot default strict"
+          }
+        }
+      },
+      "spec": {
+        "note": "Complex diagram SVG geometry grows with text; boot gives the scrolling container a default 400px height, and AI may pass another explicit pixel value. Percentage and viewport-unit heights are forbidden."
+      }
+    }
+  },
   "when_to_use": "需要把 flowchart、sequence、state、ER、mindmap、gantt 或 gitGraph 文本 DSL 稳定转成 SVG 时用它而非手写节点连线,因为原生手写在自动布局、边路由和多图语法解析上失败;非做像素级自由排版或真地图。",
   "why_valuable": "AI 默认会写 Mermaid DSL,但在没有宿主原生渲染时只能回显代码;默认做不到把多类 DSL 解析、自动布局、路由并安全产出可交互 SVG。",
   "supply_form": "component",
@@ -46,7 +66,11 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "mermaid +esm grep `document.head`: 0 — v11 embeds styles as an inline `<style>` inside the produced SVG rather than injecting to head. No `document.body.appendChild` temp-inject found; the boot passes the shadow container as render's 3rd arg so measurement/temp DOM stays in-container (entry note: '传第三个容器参数,避免临时 SVG 落到 document.body'). One-shot render registers no persistent global listeners. Conditional: the container must be passed AND attached+visible for text getBBox measurement, and ESM lazy-loads diagram/layout deps from jsDelivr (CDN reachability).",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
+  },
+  "example": {
+    "minimal": {
+      "definition": "flowchart TD\n  A([Start]) --> B{Is it working?}\n  B -->|Yes| C[Ship it]\n  B -->|No| D[Debug]\n  D --> B\n  C --> E([Done])"
+    }
   }
 }

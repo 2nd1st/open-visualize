@@ -1,0 +1,71 @@
+{
+  "entry_version": "thin-1",
+  "id": "pixelmatch",
+  "name": "pixelmatch",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you already have RGBA ImageData for two same-size images from canvas (two renders/screenshots) and need an extremely fast pixel-level comparison with a highlighted diff buffer. If you want to pass image files/URLs directly and receive analysis metadata such as difference percentage and bounding boxes, use the more turnkey resemblejs.",
+      "why_valuable": "Pixel-by-pixel image diff with anti-alias detection is the core primitive of visual regression; native AI cannot compare pixel differences between two images, count mismatches, or generate a highlighted difference image.",
+      "data_in": {
+        "note": "img1/img2 must have the same width x height and be RGBA arrays of length width*height*4 (canvas: ctx.getImageData(0,0,w,h).data). This is not JSON and is obtained from canvas by the consuming AI; pass an equal-length output buffer to receive the diff image.",
+        "schema": {
+          "img1": "Uint8Array | Uint8ClampedArray -- RGBA pixels for image A",
+          "img2": "Uint8Array | Uint8ClampedArray -- RGBA pixels for image B (must have the same dimensions)",
+          "width": "number -- pixel width",
+          "height": "number -- pixel height",
+          "threshold?": "number -- matching threshold 0..1; smaller is more sensitive; default 0.1",
+          "includeAA?": "boolean -- disable anti-alias detection (count AA as differences); default false",
+          "diffMask?": "boolean -- use a transparent background (mask) for the diff image; default false"
+        }
+      }
+    }
+  },
+  "when_to_use": "已从 canvas 拿到两张同尺寸图的 RGBA ImageData(两次渲染/截图),要极快算像素级差异并输出高亮 diff 缓冲时用它。若想直接喂图片文件/URL 并拿差异百分比、包围盒等分析元数据,用更 turnkey 的 resemblejs。",
+  "why_valuable": "逐像素图像 diff(带抗锯齿识别)是 visual-regression 的核心原语;原生 AI 无法比较两张图的像素差异、算 mismatch 计数、生成高亮差异图。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "pixelmatch",
+    "version": "7.2.0",
+    "github": "mapbox/pixelmatch"
+  },
+  "license": "ISC",
+  "data_in": {
+    "shape": "pixel-buffer",
+    "note": "img1/img2 必须同 width×height,长度 = width*height*4 的 RGBA 数组(canvas: ctx.getImageData(0,0,w,h).data)。非 JSON,由消费 AI 从 canvas 取;output 传一个等长缓冲以接收 diff 图。",
+    "schema": {
+      "img1": "Uint8Array | Uint8ClampedArray —— 图 A 的 RGBA 像素",
+      "img2": "Uint8Array | Uint8ClampedArray —— 图 B 的 RGBA 像素(须同尺寸)",
+      "width": "number —— 像素宽",
+      "height": "number —— 像素高",
+      "threshold?": "number —— 匹配阈值 0..1,越小越敏感,默认 0.1",
+      "includeAA?": "boolean —— 关闭抗锯齿识别(把 AA 也算差异),默认 false",
+      "diffMask?": "boolean —— 差异图用透明底(mask),默认 false"
+    }
+  },
+  "provides": {
+    "shape": "diff-count",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;纯 JS 计算层。",
+    "outputs": "同步返回不匹配像素数(number);若传入 output 缓冲,则写入可 putImageData 回 canvas 的差异高亮图。",
+    "api_surface": {
+      "compare": "pixelmatch(img1, img2, output, width, height, options?) => number",
+      "options": "threshold(0.1)/includeAA(false)/alpha(0.1)/aaColor([255,255,0])/diffColor([255,0,0])/diffColorAlt/diffMask(false)/checkerboard(true)"
+    }
+  },
+  "peer": {
+    "id": "resemblejs",
+    "note": "本条吃底层 RGBA 缓冲、要自己从 canvas 取 ImageData;要 turnkey 直接喂图片文件/URL 并拿 misMatchPercentage/包围盒用 resemblejs。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯计算,无 DOM/shadow 足迹\nimport pixelmatch from 'https://cdn.jsdelivr.net/npm/pixelmatch@7/+esm';\n// data.img1 / data.img2:同尺寸 RGBA(canvas: ctx.getImageData(0,0,w,h).data)\nconst { width, height } = data;\nconst diff = new Uint8ClampedArray(width * height * 4);\nconst mismatch = pixelmatch(data.img1, data.img2, diff, width, height, { threshold: data.threshold ?? 0.1, includeAA: data.includeAA ?? false, diffMask: data.diffMask ?? false });\n// mismatch = 不匹配像素数;diff 可 outCtx.putImageData(new ImageData(diff, width, height), 0, 0) 渲染",
+    "note": "img1/img2 长度必须都等于 width*height*4 且同尺寸,否则抛错;函数同步返回。v7 为原生 ESM;node 侧 'pngjs' 依赖仅 CLI 用,浏览器导出函数不需要。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm default export 为函数(grep: 'N as default');签名 pixelmatch(img1: Uint8Array|Uint8ClampedArray, img2, output: Uint8Array|Uint8ClampedArray|void, width: number, height: number, options?) => number 逐字取自 index.d.ts,options threshold(0.1)/includeAA/alpha/aaColor/diffColor/diffColorAlt/diffMask/checkerboard(true) 均真实。纯数值原语:无 DOM、无样式、无事件、无 shadow 议题(headless-primitive)。v7 原生 ESM(package type:module);node-only 'pngjs' 依赖由 CLI 使用,非导出函数依赖。img1/img2 须同为 width*height*4 长度。",
+    "confidence": "high"
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "entry_version": "thin-1",
+  "id": "bento-grid",
+  "name": "Bento grid",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to combine heterogeneous metrics, highlights, and explanations from one theme into a strong visual summary, such as a project delivery, quarterly review, product overview, or portfolio. If every record has the same structure, use a regular card grid; if you need precise comparison of the same metric, use a table or chart.",
+      "why_valuable": "A Bento layout establishes hierarchy, but hand-written grids easily develop gaps, out-of-range spans, and broken narrow-screen layouts; this template provides a reusable six-column CSS Grid with dense packing and constrained row and column spans, then safely degrades to two columns and one column.",
+      "data_in": {
+        "note": "data.tiles are placed in order into a dense six-column CSS Grid. cols is clamped to 1-6 and rows to 1-3, defaulting to 2x1; below 720px the grid becomes two columns with spans limited to 2, and below 440px every tile becomes one column by one row. accent changes only theme emphasis, not layout.",
+        "schema": {
+          "title?": "string -- Bento title; displays \"Highlights\" when omitted",
+          "subtitle?": "string -- scope description in the title area",
+          "tiles": "{eyebrow?:string,title:string,value?:string|number,description?:string,icon?:string,cols?:number,rows?:number,accent?:boolean}[] -- content tiles and CSS Grid spans"
+        }
+      },
+      "spec": {
+        "note": "The six-column grid uses a minimum 116px automatic row height and grows with tiles; it becomes two columns on medium screens and one column on small screens, with no JavaScript measurement, vh, or percentage heights."
+      }
+    }
+  },
+  "when_to_use": "需要把一组异质但同属一个主题的指标、亮点和说明组合成强视觉摘要时用它，适合项目交付、季度回顾、产品概览和作品集。若每条记录结构完全相同，用普通卡片网格；若需要精确比较同一指标，用表格或图表。",
+  "why_valuable": "Bento 布局能建立主次，但手写网格容易出现空洞、跨度越界和窄屏破版；本模板用固定六列 CSS Grid、dense 填充与受限行列跨度构成可复用版式，再在两列和单列断点安全降级。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "inline-template",
+  "upstream": {
+    "npm": null,
+    "version": null,
+    "github": null
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "records",
+    "note": "data.tiles 按顺序放入六列 dense CSS Grid。cols 夹到 1–6，rows 夹到 1–3，缺省为 2×1；720px 以下折为两列并把跨度限制到 2，440px 以下全部单列单行。accent 只改变主题强调，不影响布局。",
+    "schema": {
+      "title?": "string —— Bento 标题；省略时显示 “Highlights”",
+      "subtitle?": "string —— 标题区的范围说明",
+      "tiles": "{eyebrow?:string,title:string,value?:string|number,description?:string,icon?:string,cols?:number,rows?:number,accent?:boolean}[] —— 内容瓦片与 CSS Grid 跨度"
+    }
+  },
+  "spec": {
+    "height": "auto",
+    "note": "六列网格使用最小 116px 自动行高并随 tiles 增高；中屏两列、小屏单列，无 JavaScript 测量、vh 或百分比高度。"
+  },
+  "boot": {
+    "artifact": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.meta{margin-top:7px;color:var(--_muted);font-size:13px;line-height:1.45}\n.grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:minmax(116px,auto);grid-auto-flow:dense;gap:12px;padding:14px}\n.tile{position:relative;display:flex;min-width:0;overflow:hidden;flex-direction:column;justify-content:space-between;grid-column:span var(--cols);grid-row:span var(--rows);padding:18px;border:1px solid var(--_line);border-radius:15px;background:var(--_raised)}\n.tile::after{content:'';position:absolute;right:-28px;bottom:-34px;width:105px;height:105px;border-radius:50%;background:color-mix(in srgb,var(--tone) 9%,transparent);pointer-events:none}\n.tile.accent{border-color:color-mix(in srgb,var(--tone) 35%,var(--_line));background:color-mix(in srgb,var(--tone) 8%,var(--_bg))}\n.tile:hover{border-color:color-mix(in srgb,var(--tone) 42%,var(--_line))}\n.top{position:relative;z-index:1;display:flex;gap:12px;align-items:flex-start;justify-content:space-between}\n.tile-eyebrow{color:var(--tone);font-size:10px;font-weight:850;letter-spacing:.1em;text-transform:uppercase}\n.icon{display:flex;flex:0 0 auto;width:34px;height:34px;align-items:center;justify-content:center;border-radius:10px;background:color-mix(in srgb,var(--tone) 12%,var(--_bg));color:var(--tone);font-size:18px}\n.content{position:relative;z-index:1;margin-top:14px}\n.value{color:var(--_text);font-size:clamp(25px,4vw,38px);font-weight:800;letter-spacing:-.045em;line-height:1;font-variant-numeric:tabular-nums}\n.title{margin-top:7px;color:var(--_text);font-size:15px;font-weight:760;line-height:1.3}\n.description{margin-top:7px;max-width:520px;color:var(--_muted);font-size:12px;line-height:1.5}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:720px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tile{grid-column:span min(var(--cols),2);grid-row:span min(var(--rows),2)}}\n@media (max-width:440px){.heading{padding:18px}.grid{grid-template-columns:1fr;padding:12px}.tile{grid-column:span 1;grid-row:span 1;min-height:120px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Highlights'; const tiles=Array.isArray(data.tiles)?data.tiles:[];\nconst tones=['var(--_accent)','var(--_ok)','var(--_partial)','var(--_no)'];\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title); const heading=make('header','heading');\nheading.appendChild(make('div','eyebrow','Bento overview')); heading.appendChild(make('h2','',title));\nheading.appendChild(make('div','meta',tiles.length+' highlight'+(tiles.length===1?'':'s')+(data.subtitle?' · '+String(data.subtitle):''))); frame.appendChild(heading);\nif(!tiles.length){ frame.appendChild(make('div','empty','Add tiles with content and grid spans.')); }\nelse{\n  const grid=make('div','grid');\n  tiles.forEach((tile,index)=>{\n    const cols=Math.max(1,Math.min(6,Math.round(Number(tile&&tile.cols)||2))); const rows=Math.max(1,Math.min(3,Math.round(Number(tile&&tile.rows)||1)));\n    const card=make('article','tile'+(tile&&tile.accent===true?' accent':'')); card.style.setProperty('--cols',String(cols)); card.style.setProperty('--rows',String(rows)); card.style.setProperty('--tone',tones[index%tones.length]);\n    const top=make('div','top'); top.appendChild(make('div','tile-eyebrow',tile&&tile.eyebrow!=null?String(tile.eyebrow):'Highlight')); if(tile&&tile.icon) top.appendChild(make('div','icon',String(tile.icon))); card.appendChild(top);\n    const content=make('div','content'); if(tile&&tile.value!==undefined) content.appendChild(make('div','value',String(tile.value))); content.appendChild(make('div','title',tile&&tile.title!=null?String(tile.title):'Untitled'));\n    if(tile&&tile.description) content.appendChild(make('div','description',String(tile.description))); card.appendChild(content); grid.appendChild(card);\n  });\n  frame.appendChild(grid);\n}\nroot.appendChild(frame);\nparent.appendChild(host);",
+    "widget": "const parent = shadowRoot;\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.meta{margin-top:7px;color:var(--_muted);font-size:13px;line-height:1.45}\n.grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:minmax(116px,auto);grid-auto-flow:dense;gap:12px;padding:14px}\n.tile{position:relative;display:flex;min-width:0;overflow:hidden;flex-direction:column;justify-content:space-between;grid-column:span var(--cols);grid-row:span var(--rows);padding:18px;border:1px solid var(--_line);border-radius:15px;background:var(--_raised)}\n.tile::after{content:'';position:absolute;right:-28px;bottom:-34px;width:105px;height:105px;border-radius:50%;background:color-mix(in srgb,var(--tone) 9%,transparent);pointer-events:none}\n.tile.accent{border-color:color-mix(in srgb,var(--tone) 35%,var(--_line));background:color-mix(in srgb,var(--tone) 8%,var(--_bg))}\n.tile:hover{border-color:color-mix(in srgb,var(--tone) 42%,var(--_line))}\n.top{position:relative;z-index:1;display:flex;gap:12px;align-items:flex-start;justify-content:space-between}\n.tile-eyebrow{color:var(--tone);font-size:10px;font-weight:850;letter-spacing:.1em;text-transform:uppercase}\n.icon{display:flex;flex:0 0 auto;width:34px;height:34px;align-items:center;justify-content:center;border-radius:10px;background:color-mix(in srgb,var(--tone) 12%,var(--_bg));color:var(--tone);font-size:18px}\n.content{position:relative;z-index:1;margin-top:14px}\n.value{color:var(--_text);font-size:clamp(25px,4vw,38px);font-weight:800;letter-spacing:-.045em;line-height:1;font-variant-numeric:tabular-nums}\n.title{margin-top:7px;color:var(--_text);font-size:15px;font-weight:760;line-height:1.3}\n.description{margin-top:7px;max-width:520px;color:var(--_muted);font-size:12px;line-height:1.5}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:720px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tile{grid-column:span min(var(--cols),2);grid-row:span min(var(--rows),2)}}\n@media (max-width:440px){.heading{padding:18px}.grid{grid-template-columns:1fr;padding:12px}.tile{grid-column:span 1;grid-row:span 1;min-height:120px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Highlights'; const tiles=Array.isArray(data.tiles)?data.tiles:[];\nconst tones=['var(--_accent)','var(--_ok)','var(--_partial)','var(--_no)'];\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title); const heading=make('header','heading');\nheading.appendChild(make('div','eyebrow','Bento overview')); heading.appendChild(make('h2','',title));\nheading.appendChild(make('div','meta',tiles.length+' highlight'+(tiles.length===1?'':'s')+(data.subtitle?' · '+String(data.subtitle):''))); frame.appendChild(heading);\nif(!tiles.length){ frame.appendChild(make('div','empty','Add tiles with content and grid spans.')); }\nelse{\n  const grid=make('div','grid');\n  tiles.forEach((tile,index)=>{\n    const cols=Math.max(1,Math.min(6,Math.round(Number(tile&&tile.cols)||2))); const rows=Math.max(1,Math.min(3,Math.round(Number(tile&&tile.rows)||1)));\n    const card=make('article','tile'+(tile&&tile.accent===true?' accent':'')); card.style.setProperty('--cols',String(cols)); card.style.setProperty('--rows',String(rows)); card.style.setProperty('--tone',tones[index%tones.length]);\n    const top=make('div','top'); top.appendChild(make('div','tile-eyebrow',tile&&tile.eyebrow!=null?String(tile.eyebrow):'Highlight')); if(tile&&tile.icon) top.appendChild(make('div','icon',String(tile.icon))); card.appendChild(top);\n    const content=make('div','content'); if(tile&&tile.value!==undefined) content.appendChild(make('div','value',String(tile.value))); content.appendChild(make('div','title',tile&&tile.title!=null?String(tile.title):'Untitled'));\n    if(tile&&tile.description) content.appendChild(make('div','description',String(tile.description))); card.appendChild(content); grid.appendChild(card);\n  });\n  frame.appendChild(grid);\n}\nroot.appendChild(frame);\nparent.appendChild(host);",
+    "codex": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.meta{margin-top:7px;color:var(--_muted);font-size:13px;line-height:1.45}\n.grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:minmax(116px,auto);grid-auto-flow:dense;gap:12px;padding:14px}\n.tile{position:relative;display:flex;min-width:0;overflow:hidden;flex-direction:column;justify-content:space-between;grid-column:span var(--cols);grid-row:span var(--rows);padding:18px;border:1px solid var(--_line);border-radius:15px;background:var(--_raised)}\n.tile::after{content:'';position:absolute;right:-28px;bottom:-34px;width:105px;height:105px;border-radius:50%;background:color-mix(in srgb,var(--tone) 9%,transparent);pointer-events:none}\n.tile.accent{border-color:color-mix(in srgb,var(--tone) 35%,var(--_line));background:color-mix(in srgb,var(--tone) 8%,var(--_bg))}\n.tile:hover{border-color:color-mix(in srgb,var(--tone) 42%,var(--_line))}\n.top{position:relative;z-index:1;display:flex;gap:12px;align-items:flex-start;justify-content:space-between}\n.tile-eyebrow{color:var(--tone);font-size:10px;font-weight:850;letter-spacing:.1em;text-transform:uppercase}\n.icon{display:flex;flex:0 0 auto;width:34px;height:34px;align-items:center;justify-content:center;border-radius:10px;background:color-mix(in srgb,var(--tone) 12%,var(--_bg));color:var(--tone);font-size:18px}\n.content{position:relative;z-index:1;margin-top:14px}\n.value{color:var(--_text);font-size:clamp(25px,4vw,38px);font-weight:800;letter-spacing:-.045em;line-height:1;font-variant-numeric:tabular-nums}\n.title{margin-top:7px;color:var(--_text);font-size:15px;font-weight:760;line-height:1.3}\n.description{margin-top:7px;max-width:520px;color:var(--_muted);font-size:12px;line-height:1.5}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:720px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tile{grid-column:span min(var(--cols),2);grid-row:span min(var(--rows),2)}}\n@media (max-width:440px){.heading{padding:18px}.grid{grid-template-columns:1fr;padding:12px}.tile{grid-column:span 1;grid-row:span 1;min-height:120px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Highlights'; const tiles=Array.isArray(data.tiles)?data.tiles:[];\nconst tones=['var(--_accent)','var(--_ok)','var(--_partial)','var(--_no)'];\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title); const heading=make('header','heading');\nheading.appendChild(make('div','eyebrow','Bento overview')); heading.appendChild(make('h2','',title));\nheading.appendChild(make('div','meta',tiles.length+' highlight'+(tiles.length===1?'':'s')+(data.subtitle?' · '+String(data.subtitle):''))); frame.appendChild(heading);\nif(!tiles.length){ frame.appendChild(make('div','empty','Add tiles with content and grid spans.')); }\nelse{\n  const grid=make('div','grid');\n  tiles.forEach((tile,index)=>{\n    const cols=Math.max(1,Math.min(6,Math.round(Number(tile&&tile.cols)||2))); const rows=Math.max(1,Math.min(3,Math.round(Number(tile&&tile.rows)||1)));\n    const card=make('article','tile'+(tile&&tile.accent===true?' accent':'')); card.style.setProperty('--cols',String(cols)); card.style.setProperty('--rows',String(rows)); card.style.setProperty('--tone',tones[index%tones.length]);\n    const top=make('div','top'); top.appendChild(make('div','tile-eyebrow',tile&&tile.eyebrow!=null?String(tile.eyebrow):'Highlight')); if(tile&&tile.icon) top.appendChild(make('div','icon',String(tile.icon))); card.appendChild(top);\n    const content=make('div','content'); if(tile&&tile.value!==undefined) content.appendChild(make('div','value',String(tile.value))); content.appendChild(make('div','title',tile&&tile.title!=null?String(tile.title):'Untitled'));\n    if(tile&&tile.description) content.appendChild(make('div','description',String(tile.description))); card.appendChild(content); grid.appendChild(card);\n  });\n  frame.appendChild(grid);\n}\nroot.appendChild(frame);\nparent.appendChild(host);"
+  },
+  "example": {
+    "_why": "一组真实的季度产品成果包含主 KPI、可靠性、交付速度、研究洞察和发布摘要，多种 1–4 列与 1–2 行跨度能验证 dense 布局及响应式降级。",
+    "minimal": {
+      "title": "Atlas — quarter in review",
+      "subtitle": "Product, reliability, and customer outcomes",
+      "tiles": [
+        {
+          "eyebrow": "Adoption",
+          "title": "Weekly active teams",
+          "value": "24.8k",
+          "description": "Up 18% quarter over quarter after the shared inbox launch.",
+          "icon": "↗",
+          "cols": 4,
+          "rows": 2,
+          "accent": true
+        },
+        {
+          "eyebrow": "Reliability",
+          "title": "Platform uptime",
+          "value": "99.99%",
+          "icon": "✓",
+          "cols": 2,
+          "rows": 1
+        },
+        {
+          "eyebrow": "Velocity",
+          "title": "Median cycle time",
+          "value": "3.2d",
+          "description": "From first commit to production.",
+          "icon": "⚡",
+          "cols": 2,
+          "rows": 1
+        },
+        {
+          "eyebrow": "Customers",
+          "title": "Research conversations",
+          "value": 86,
+          "description": "Across seven industries and four regions.",
+          "icon": "◎",
+          "cols": 2,
+          "rows": 1
+        },
+        {
+          "eyebrow": "Launches",
+          "title": "Five meaningful releases",
+          "description": "Offline mode, team analytics, shared inbox, audit exports, and a faster search experience.",
+          "icon": "✦",
+          "cols": 4,
+          "rows": 1
+        },
+        {
+          "eyebrow": "Focus",
+          "title": "Next: onboarding clarity",
+          "description": "Reduce time-to-first-value for new workspace owners.",
+          "icon": "→",
+          "cols": 6,
+          "rows": 1,
+          "accent": true
+        }
+      ]
+    }
+  },
+  "uplink": "none: 纯展示组件；所有悬停、滚动、原生链接或其他局部交互都只发生在自有 shadow 内，不向 AI 或宿主回传数据。",
+  "carriers": {
+    "artifact": "supported:boot.artifact 已在 sandboxed iframe 中以 example.minimal 原样渲染验证；CSS 与 DOM 全部位于自有 shadow root",
+    "widget": "supported:与 artifact 同一零依赖模板，仅 parent 改为 shadowRoot；可在载体 shadow 内再挂自有 shadow",
+    "codex": "supported:与已验证的 artifact boot 相同，document.getElementById('viz') 为唯一载体挂载点"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "self-authored inline-template, owns its shadow, zero global footprint; rendered-verified",
+    "confidence": "high"
+  }
+}

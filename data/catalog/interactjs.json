@@ -1,0 +1,103 @@
+{
+  "entry_version": "thin-1",
+  "id": "interactjs",
+  "name": "interactjs",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a hand-written pointer state machine when arbitrary elements need free dragging, resizing from any edge, rotation, multi-touch pinch, grid snapping, boundary constraints, and inertia -- native implementations inevitably drift on edge deltas, touch, and snapping. It is not for list reordering (use sortablejs). The library does not move elements itself; the consuming AI applies transforms and sizes in move/end callbacks.",
+      "why_valuable": "Free 2D movement plus resizing from any edge, rotation, multi-touch gestures, snapping/grid/boundary constraints, and inertia form a large and error-prone pointer state machine (pointer capture, delta calculation, constraint solving); an AI rewrite will drift at edges, ignore touch, and lose snapping.",
+      "data_in": {
+        "note": "Here, \"data\" is interaction configuration rather than a dataset: a selector plus action options. interact does not move elements -- the consuming AI must read event.dx/dy (drag) or event.rect (resize) in listeners.move and apply transforms/sizes itself. For targets inside shadow, pass { context: shadowRoot }.",
+        "schema": {
+          "_defaults": {
+            "draggable": "true",
+            "resizable": "false"
+          },
+          "targetSelector": "string | Element -- target for interact(); a CSS selector or element reference",
+          "context?": "Node -- element-resolution root; targets inside shadow must set this to shadowRoot; default document",
+          "draggable?": {
+            "inertia?": "boolean -- release inertia; default false",
+            "modifiers?": "array -- for example interact.modifiers.restrictRect / snap / restrictSize; none by default"
+          },
+          "resizable?": {
+            "edges": "{ top?, left?, bottom?, right?: boolean | string selector | Element } -- edges that may be resized"
+          },
+          "listeners": "{ move, end } -- native callbacks wired by the consuming AI: apply transforms/sizes in move; the library does not do it"
+        }
+      },
+      "spec": {
+        "note": "The library has no built-in height; give the draggable/resizable stage container an explicit pixel height (no vh), with elements moving freely inside it."
+      }
+    }
+  },
+  "when_to_use": "需要让任意元素自由拖拽/从任意边缩放/旋转/多指捏合并带网格吸附、边界限制与惯性时用它,而非手写指针状态机——原生在边缘增量、触摸与吸附上必然漂移;非做列表重排(用 sortablejs)。库本身不移动元素,move/end 回调里由消费 AI 自己应用 transform 与尺寸。",
+  "why_valuable": "自由二维移动 + 任意边 resize + 旋转 + 多指手势 + 吸附/网格/边界约束 + 惯性是一台庞大且易错的指针状态机(pointer capture、delta 计算、约束求解);AI 重写会在边缘漂移、忽略触摸、丢失吸附。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "interactjs",
+    "version": "1.10.27",
+    "github": "taye/interact.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "dom-interaction",
+    "note": "这里的\"data\"是交互配置而非数据集:选择器 + action 选项。interact 不会移动元素——消费 AI 必须在 listeners.move 里读 event.dx/dy(拖拽)或 event.rect(缩放)自行应用 transform/尺寸。shadow 内目标须传 { context: shadowRoot }。",
+    "schema": {
+      "_defaults": {
+        "draggable": "true",
+        "resizable": "false"
+      },
+      "targetSelector": "string | Element —— interact() 的目标;CSS 选择器或元素引用",
+      "context?": "Node —— 元素解析根;shadow 内目标须设为 shadowRoot,默认 document",
+      "draggable?": {
+        "inertia?": "boolean —— 松手惯性,默认 false",
+        "modifiers?": "array —— 如 interact.modifiers.restrictRect / snap / restrictSize,默认无"
+      },
+      "resizable?": {
+        "edges": "{ top?, left?, bottom?, right?: boolean | string选择器 | Element } —— 哪些边可拉伸"
+      },
+      "listeners": "{ move, end } —— 由消费 AI 接原生回调:move 里应用 transform/尺寸;库不代劳"
+    }
+  },
+  "spec": {
+    "height": 360,
+    "note": "库无内建高度;draggable/resizable 的舞台容器须给显式像素高(禁 vh),元素在其中自由移动。"
+  },
+  "boot": {
+    "artifact": "// interact 只绑定行为,不会创建 UI;先渲染一个可拖拽/缩放目标\nconst stage = document.getElementById('stage'); stage.style.cssText = 'height:360px;position:relative;overflow:hidden;border:1px solid #cbd5e1;border-radius:12px;background:#f8fafc';\nconst target = document.createElement('div'); target.className = 'draggable'; target.textContent = 'Drag or resize me'; target.style.cssText = 'touch-action:none;user-select:none;box-sizing:border-box;width:180px;height:96px;padding:34px 12px;text-align:center;color:white;background:#4f46e5;border-radius:10px;box-shadow:0 10px 24px #312e8150'; stage.appendChild(target);\nconst { default: interact } = await import('https://cdn.jsdelivr.net/npm/interactjs@1.10.27/+esm');\ninteract(target)\n  .draggable({ ...(data.draggable ?? {}), listeners: { move(e){ const t=e.target, x=(parseFloat(t.dataset.x)||0)+e.dx, y=(parseFloat(t.dataset.y)||0)+e.dy; t.style.transform=`translate(${x}px,${y}px)`; t.dataset.x=x; t.dataset.y=y; } } })\n  .resizable({ ...(data.resizable ?? {}), edges:data.resizable?.edges ?? {left:true,right:true,top:true,bottom:true}, listeners: { move(e){ Object.assign(e.target.style, { width:e.rect.width+'px', height:e.rect.height+'px' }); } } });",
+    "widget": "const stage = document.createElement('div'); stage.style.cssText = 'height:360px;position:relative;overflow:hidden;border:1px solid #cbd5e1;border-radius:12px;background:#f8fafc';\nconst target = document.createElement('div'); target.className = 'draggable'; target.textContent = 'Drag or resize me'; target.style.cssText = 'touch-action:none;user-select:none;box-sizing:border-box;width:180px;height:96px;padding:34px 12px;text-align:center;color:white;background:#4f46e5;border-radius:10px'; stage.appendChild(target); shadowRoot.appendChild(stage);\nconst { default: interact } = await import('https://cdn.jsdelivr.net/npm/interactjs@1.10.27/+esm');\ninteract(target)\n  .draggable({ ...(data.draggable ?? {}), listeners: { move(e){ const t=e.target, x=(parseFloat(t.dataset.x)||0)+e.dx, y=(parseFloat(t.dataset.y)||0)+e.dy; t.style.transform=`translate(${x}px,${y}px)`; t.dataset.x=x; t.dataset.y=y; } } })\n  .resizable({ ...(data.resizable ?? {}), edges:data.resizable?.edges ?? {left:true,right:true,top:true,bottom:true}, listeners: { move(e){ Object.assign(e.target.style, { width:e.rect.width+'px', height:e.rect.height+'px' }); } } });",
+    "codex": "const stage = document.getElementById('stage'); stage.style.cssText = 'height:360px;position:relative;overflow:hidden;border:1px solid #cbd5e1;background:#f8fafc';\nconst target = document.createElement('div'); target.className = 'draggable'; target.textContent = 'Drag or resize me'; target.style.cssText = 'touch-action:none;box-sizing:border-box;width:180px;height:96px;padding:34px 12px;text-align:center;color:white;background:#4f46e5;border-radius:10px'; stage.appendChild(target);\nconst { default: interact } = await import('https://cdn.jsdelivr.net/npm/interactjs@1.10.27/+esm');\ninteract(target).draggable({ ...(data.draggable ?? {}), listeners: { move(e){ const t=e.target, x=(parseFloat(t.dataset.x)||0)+e.dx, y=(parseFloat(t.dataset.y)||0)+e.dy; t.style.transform=`translate(${x}px,${y}px)`; t.dataset.x=x; t.dataset.y=y; } } });"
+  },
+  "uplink": "local-interact 默认不上行;拖拽/缩放结果若需外传,由消费 AI 在 end 回调里按载体处理,不预设统一事件契约。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:传 { context: shadowRoot } 使 document 级指针委托解析 shadow 内目标;无 CSS 需注入",
+    "codex": "supported:ESM CDN,document 级指针事件,无 worker/wasm/uplink 硬依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "+esm default export interact(export{Fr as default});signature (target:Target, options?:Options):Interactable,Options.context?:Node 已在 @interactjs/core/options.d.ts:12 验证,Interactable defaultContext:Document|Element 且运行时用 ownerDocument(grep 8×)。globalEvents=yes:interact 在 document 级委托指针事件,故 shadow 内元素只有传 { context: shadowRoot } 才可拖拽(否则 retarget 的指针事件解析到 host 而非内部目标)。globalStyleInjection=no:不带 CSS,+esm 对 document.head 零写入。globalDomMutation=no:只改调用方自己的目标元素(transform/尺寸),无 body/head append。resizable.edges{top,left,bottom,right}(bool|选择器|Element)与 interact.modifiers.restrictRect/restrictEdges/restrictSize/snap + inertia 均已验证。shadowCompatible=conditional 仅取决于 context 选项。",
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "targetSelector": ".draggable",
+      "draggable": {
+        "inertia": true
+      },
+      "resizable": {
+        "edges": {
+          "left": true,
+          "right": true,
+          "top": true,
+          "bottom": true
+        }
+      }
+    }
+  }
+}

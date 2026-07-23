@@ -2,6 +2,24 @@
   "entry_version": "thin-1",
   "id": "hanzi-writer",
   "name": "Hanzi Writer",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written SVG when you need correct Hanzi stroke-order animation, per-stroke highlighting, or tracing assessment, because native implementations cannot reliably generate each character's stroke paths, order, animation timing, and tolerant scoring.",
+      "why_valuable": "AI cannot produce even one Hanzi character's correct stroke-order paths by default, much less centerline data and tracing hit detection for thousands of simplified and traditional characters; Hanzi Writer turns glyph data, animation, and quiz assessment into a repeatable local interaction.",
+      "data_in": {
+        "note": "character is one Hanzi character. By default, Hanzi Writer 3.7.3 loads {strokes,medians,radStrokes?} from the fixed URL https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/<character>.json, so AI does not need to assemble stroke geometry.",
+        "schema": {
+          "character": "string -- exactly one Hanzi character covered by hanzi-writer-data",
+          "action?": "'animate' | 'quiz' | 'static' -- default animate",
+          "showOutline?": "boolean -- whether to show the gray outline, default true",
+          "strokeAnimationSpeed?": "positive number -- stroke-animation speed multiplier, default 1"
+        }
+      },
+      "spec": {
+        "note": "The default is a 300x300px square SVG/canvas, and boot also passes width/height=300; vh/percentage height is prohibited. If the size changes, update both the container's pixel dimensions and the HanziWriter options."
+      }
+    }
+  },
   "when_to_use": "需要正确汉字笔顺动画、逐画高亮或描红判定时用它,而非手写 SVG——原生实现无法可靠生成每个字的笔画路径、顺序、动画时序和容错评分。",
   "why_valuable": "AI 默认连单个汉字的正确笔顺路径都做不到,更不能为数千简繁字生成中线数据与描红命中判定；Hanzi Writer 把字形数据、动画和 quiz 判定做成可重复的本地交互。",
   "supply_form": "component",
@@ -43,7 +61,12 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "create() 接受 HTMLElement,渲染 SVG 仅进入传入的 element;指针监听绑在 RenderTargetBase 目标节点(_getMousePoint/_getTouchPoint)而非 document/window;无 CSS/head 注入。唯一外需是默认 charDataLoader 向 cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1 fetch 字形 JSON(connect-src),不构成 DOM 全局副作用。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "character": "永",
+      "action": "animate"
+    }
   }
 }

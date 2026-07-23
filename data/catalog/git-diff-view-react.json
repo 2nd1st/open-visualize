@@ -4,6 +4,34 @@
   "name": "git-diff-view",
   "when_to_use": "需要在 React 中查看带文件名、语言、完整 unified patch 与长文件高亮的 GitHub 风格 diff 时用它而非手写虚拟表格,因为原生在 patch 解析、长 diff 行模型和语法高亮叠加上失败;非做任意两字符串自动求差、可编辑 merge 或代码执行。",
   "why_valuable": "AI 默认做不到把完整 unified patch、两侧文件内容、语法 token 与长 diff 行模型稳定合成同一视图;手写表格在大文件和多 hunk 下会失去对齐。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when React needs to display a GitHub-style diff with filenames, languages, a complete unified patch, and highlighting for long files instead of hand-writing a virtual table. Native implementations fail on patch parsing, long-diff line models, and layered syntax highlighting. It is not for automatically diffing arbitrary strings, editable merges, or code execution.",
+      "why_valuable": "AI cannot reliably combine a complete unified patch, both file contents, syntax tokens, and a long-diff line model into one view. Hand-written tables lose alignment on large files and multiple hunks.",
+      "data_in": {
+        "note": "The name hunks is easy to misread: each item is not a separate array of lines, but a complete unified diff string producible by git diff, including ---/+++ file headers and @@ hunk headers. oldFile/newFile default to empty objects when omitted.",
+        "schema": {
+          "oldFile?": {
+            "fileName?": "string|null - default empty string",
+            "fileLang?": "string|null - inferred from the filename by default, falling back to txt",
+            "content?": "string|null - complete old-file content, default empty string"
+          },
+          "newFile?": {
+            "fileName?": "string|null - default empty string",
+            "fileLang?": "string|null - inferred from the filename by default, falling back to txt",
+            "content?": "string|null - complete new-file content, default empty string"
+          },
+          "hunks": "string[] - each item is one complete unified diff text; [] when there are no differences",
+          "diffViewMode?": "'Split'|'Unified' - default Split",
+          "diffViewTheme?": "'light'|'dark' - default light",
+          "diffViewHighlight?": "boolean - whether to syntax-highlight, default false"
+        }
+      },
+      "spec": {
+        "note": "The diff table wrapper uses an explicit height of 400px and overflow:auto so a long patch does not break the carrier. AI may change the pixel value, but vh and percentage heights are prohibited (hard rule 3)."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -38,8 +66,8 @@
     "note": "diff 表格外层显式 height 400px 并 overflow:auto,避免长 patch 撑穿载体;AI 可改像素值但禁 vh/百分比高(铁律 3)。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:纯 CSS 按铁律 2 进入 head\nconst link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'https://cdn.jsdelivr.net/npm/@git-diff-view/react@0/styles/diff-view-pure.css'; document.head.appendChild(link);\nimport React from 'https://cdn.jsdelivr.net/npm/react@19/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19/client/+esm';\nimport { DiffView, DiffModeEnum } from 'https://cdn.jsdelivr.net/npm/@git-diff-view/react@0/+esm';\nconst holder = document.getElementById('diff'); holder.style.cssText = 'height:400px;overflow:auto';\nconst input = { oldFile:data.oldFile, newFile:data.newFile, hunks:data.hunks };\ncreateRoot(holder).render(React.createElement(DiffView,{data:input,diffViewMode:DiffModeEnum[data.diffViewMode ?? 'Split'],diffViewTheme:data.diffViewTheme ?? 'light',diffViewHighlight:data.diffViewHighlight ?? false}));",
-    "widget": "// CSS fetch 后只放进 shadow(铁律 2)\nconst style = document.createElement('style'); style.textContent = await fetch('https://cdn.jsdelivr.net/npm/@git-diff-view/react@0/styles/diff-view-pure.css').then(r => r.text()); shadowRoot.appendChild(style);\nimport React from 'https://cdn.jsdelivr.net/npm/react@19/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19/client/+esm'; import { DiffView,DiffModeEnum } from 'https://cdn.jsdelivr.net/npm/@git-diff-view/react@0/+esm';\nconst holder = shadowRoot.appendChild(document.createElement('div')); holder.style.cssText = 'height:400px;overflow:auto';\nconst input = { oldFile:data.oldFile, newFile:data.newFile, hunks:data.hunks };\ncreateRoot(holder).render(React.createElement(DiffView,{data:input,diffViewMode:DiffModeEnum[data.diffViewMode ?? 'Split'],diffViewTheme:data.diffViewTheme ?? 'light',diffViewHighlight:data.diffViewHighlight ?? false}));",
+    "artifact": "// jsDelivr 的包图混入 React 19.2.0/19.2.4/19.2.7；子 iframe 的 import map 将 hooks 统一到一个实例\nconst holder = document.getElementById('diff'); holder.style.cssText = 'height:400px;overflow:hidden';\nconst frame = document.createElement('iframe'); frame.title = 'Diff view'; frame.style.cssText = 'width:100%;height:400px;border:0;display:block'; frame.name = JSON.stringify(data); holder.appendChild(frame);\nconst cdn = 'https://cdn.jsdelivr.net/npm/';\nconst imports = { [cdn + 'react@19.2.0/+esm']: cdn + 'react@19.2.7/+esm', [cdn + 'react@19.2.4/+esm']: cdn + 'react@19.2.7/+esm' };\nconst closeScript = '<' + '/script>';\nconst moduleCode = `import React from '${cdn}react@19.2.7/+esm'; import { createRoot } from '${cdn}react-dom@19.2.7/client/+esm'; import { DiffView, DiffModeEnum } from '${cdn}@git-diff-view/react@0.1.7/+esm'; const data=JSON.parse(window.name); window.name=''; const input={oldFile:data.oldFile,newFile:data.newFile,hunks:data.hunks}; createRoot(document.getElementById('root')).render(React.createElement(DiffView,{data:input,diffViewMode:DiffModeEnum[data.diffViewMode??'Split'],diffViewTheme:data.diffViewTheme??'light',diffViewHighlight:data.diffViewHighlight??false}));`;\nframe.srcdoc = `<!doctype html><meta charset=\"utf-8\"><link rel=\"stylesheet\" href=\"${cdn}@git-diff-view/react@0.1.7/styles/diff-view-pure.css\"><style>html,body,#root{margin:0;min-height:100%;font-family:system-ui}</style><div id=\"root\">Loading diff…</div>` + '<script type=\"importmap\">' + JSON.stringify({ imports }) + closeScript + '<script type=\"module\">' + moduleCode + closeScript;",
+    "widget": "// import map 放在隔离子 iframe 内；iframe 自身是 shadowRoot 的直接子节点\nconst holder = shadowRoot.appendChild(document.createElement('div')); holder.style.cssText = 'height:400px;overflow:hidden';\nconst frame = document.createElement('iframe'); frame.title = 'Diff view'; frame.style.cssText = 'width:100%;height:400px;border:0;display:block'; frame.name = JSON.stringify(data); holder.appendChild(frame);\nconst cdn = 'https://cdn.jsdelivr.net/npm/'; const imports = { [cdn + 'react@19.2.0/+esm']: cdn + 'react@19.2.7/+esm', [cdn + 'react@19.2.4/+esm']: cdn + 'react@19.2.7/+esm' }; const closeScript = '<' + '/script>';\nconst moduleCode = `import React from '${cdn}react@19.2.7/+esm'; import { createRoot } from '${cdn}react-dom@19.2.7/client/+esm'; import { DiffView, DiffModeEnum } from '${cdn}@git-diff-view/react@0.1.7/+esm'; const data=JSON.parse(window.name); window.name=''; const input={oldFile:data.oldFile,newFile:data.newFile,hunks:data.hunks}; createRoot(document.getElementById('root')).render(React.createElement(DiffView,{data:input,diffViewMode:DiffModeEnum[data.diffViewMode??'Split'],diffViewTheme:data.diffViewTheme??'light',diffViewHighlight:data.diffViewHighlight??false}));`;\nframe.srcdoc = `<!doctype html><meta charset=\"utf-8\"><link rel=\"stylesheet\" href=\"${cdn}@git-diff-view/react@0.1.7/styles/diff-view-pure.css\"><style>html,body,#root{margin:0;min-height:100%;font-family:system-ui}</style><div id=\"root\">Loading diff…</div>` + '<script type=\"importmap\">' + JSON.stringify({ imports }) + closeScript + '<script type=\"module\">' + moduleCode + closeScript;",
     "codex": "同 artifact(sandbox iframe):加载 pure CSS 后用 React createRoot 渲染 DiffView;data.hunks 必须是完整 unified diff 字符串数组。"
   },
   "example": {
@@ -84,7 +112,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "@git-diff-view/react@0.1.7 +esm(67KB,document.* 未被别名化,负计数可信)grep:0 document.head、0 document.body、0 createElement(style/link)、0 insertRule、0 document/window.addEventListener、0 Worker。样式为独立静态文件 diff-view-pure.css,widget boot 将其落入 shadowRoot;React 19 事件挂在传入 root(shadow 内)。add-widget/portal 特性 opt-in 且默认关闭。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

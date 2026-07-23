@@ -21,6 +21,19 @@
       "theme?": "string(Shiki bundled theme id,如 'github-dark'|'github-light'|'nord'|'monokai') —— 默认 'github-dark'"
     }
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need TextMate grammar and VS Code theme-level highlighting accuracy instead of hand-written token spans, which tend to fail at nested grammars, semantic scopes, and theme mapping. It is not an editable code editor or code runner; for ordinary highlighting, prefer the lighter Prism.",
+      "why_valuable": "AI cannot reproduce TextMate-scope tokenization and VS Code theme mapping. Shiki prerenders high-fidelity output as static HTML with inline styles, so the consumer does not need to keep a highlighter running.",
+      "data_in": {
+        "schema": {
+          "code": "string -- raw source-code text",
+          "lang?": "string (Shiki bundled language id, such as 'typescript'|'python'|'json'|'text') -- default 'text'",
+          "theme?": "string (Shiki bundled theme id, such as 'github-dark'|'github-light'|'nord'|'monokai') -- default 'github-dark'"
+        }
+      }
+    }
+  },
   "boot": {
     "artifact": "// inferred-not-tested:默认 bundle 会初始化 Oniguruma wasm;输出自身带 inline style,无需 CSS\nimport { codeToHtml } from 'https://cdn.jsdelivr.net/npm/shiki@4/+esm';\nconst html = await codeToHtml(data.code, { lang: data.lang ?? 'text', theme: data.theme ?? 'github-dark' });\nconst el = document.getElementById('code');\nel.innerHTML = html; // 只写 Shiki 生成且已转义源码的 HTML",
     "widget": "// 落到 shadow 容器;无 document.head/CSS 足迹,但宿主必须允许 wasm\nimport { codeToHtml } from 'https://cdn.jsdelivr.net/npm/shiki@4/+esm';\nconst html = await codeToHtml(data.code, { lang: data.lang ?? 'text', theme: data.theme ?? 'github-dark' });\nconst el = document.createElement('div'); el.innerHTML = html;\nshadowRoot.appendChild(el);",
@@ -30,6 +43,11 @@
     "empty": {
       "code": "",
       "lang": "text",
+      "theme": "github-dark"
+    },
+    "minimal": {
+      "code": "// Fibonacci sequence\nfunction fib(n: number): number {\n  if (n < 2) return n;\n  return fib(n - 1) + fib(n - 2);\n}\n\nconst result = fib(10);\nconsole.log(`fib(10) = ${result}`);",
+      "lang": "typescript",
       "theme": "github-dark"
     }
   },
@@ -44,7 +62,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Verified vs jsDelivr @4.3.1: named export `u as codeToHtml` (import { codeToHtml } correct); signature `codeToHtml(code: string, options: CodeToHastOptions<BundledLanguage,BundledTheme>) => Promise<string>` per dist/bundle-full.d.mts:22, with lang+theme as the real option keys (codeToTokensBase RequireKeys 'theme'|'lang'). Schema fields code/lang/theme map 1:1 to the API. Isolation: +esm shows 0 document.head, 0 createElement('style'), 0 document/window addEventListener, 0 adoptedStyleSheets — output HTML carries inline styles, no head injection, fully shadow-safe DOM-wise. shadowCompatible=conditional only because default bundle initializes Oniguruma WebAssembly, so host CSP/capabilities must permit WASM (honestly disclosed in entry).",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

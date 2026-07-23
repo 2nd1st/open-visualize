@@ -1,0 +1,86 @@
+{
+  "entry_version": "thin-1",
+  "id": "toast-ui-editor",
+  "name": "@toast-ui/editor",
+  "when_to_use": "当真源是 Markdown 但用户要 WYSIWYG 体验并能切回原文(文档/README/笔记)时用它;要产物为 Markdown 而非 HTML/Delta 时优于 quill,要实时格式化预览时优于纯 codemirror。",
+  "why_valuable": "双模 Markdown 编辑器(所见即所得与原始 Markdown 源实时同步)加 GFM 表格、任务列表、语法高亮代码块、滚动同步,是大量 parser + 编辑器接线,AI 无法在对话内可靠复刻。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when Markdown is the source of truth but users need a WYSIWYG experience with the option to switch back to source (documents, READMEs, or notes); prefer it to quill when the output must be Markdown rather than HTML/Delta, and to plain codemirror when you need a live formatted preview.",
+      "why_valuable": "A dual-mode Markdown editor that keeps WYSIWYG and raw Markdown synchronized and adds GFM tables, task lists, syntax-highlighted code blocks, and scroll synchronization requires extensive parser and editor wiring that AI cannot reliably reproduce in a conversation.",
+      "data_in": {
+        "note": "Use initialValue for initial content (a Markdown string); retrieve output with editor.getMarkdown() or editor.getHTML(). It is based on ProseMirror and depends on document.getSelection.",
+        "schema": {
+          "_defaults": {
+            "initialEditType": "'markdown'",
+            "previewStyle": "'tab'",
+            "height": "'400px'"
+          },
+          "el": "HTMLElement -- required mount point",
+          "initialValue?": "string -- initial Markdown source, empty by default",
+          "initialEditType?": "'markdown' | 'wysiwyg' -- default 'markdown'",
+          "previewStyle?": "'tab' | 'vertical' -- default 'tab'; 'vertical' is a side-by-side live preview",
+          "height?": "string -- for example '400px' or 'auto'; do not use vh",
+          "toolbarItems?": "(string | object)[][] -- toolbar groups, with the full built-in set by default"
+        }
+      },
+      "spec": {
+        "note": "Pass height as a string such as '400px' (or 'auto' to follow content); do not use vh or percentage heights."
+      }
+    }
+  },
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@toast-ui/editor",
+    "version": "3.2.2",
+    "github": "nhn/tui.editor"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "markdown-string",
+    "note": "初始内容用 initialValue(Markdown 字符串);产物用 editor.getMarkdown() 或 editor.getHTML()。基于 ProseMirror,依赖 document.getSelection。",
+    "schema": {
+      "_defaults": {
+        "initialEditType": "'markdown'",
+        "previewStyle": "'tab'",
+        "height": "'400px'"
+      },
+      "el": "HTMLElement —— 必填挂载点",
+      "initialValue?": "string —— 初始 Markdown 源,默认空",
+      "initialEditType?": "'markdown' | 'wysiwyg' —— 默认 'markdown'",
+      "previewStyle?": "'tab' | 'vertical' —— 默认 'tab';'vertical' 为并排实时预览",
+      "height?": "string —— 如 '400px' 或 'auto',禁 vh",
+      "toolbarItems?": "(string | object)[][] —— 工具栏分组,默认内置全套"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "height 传字符串如 '400px'(或 'auto' 随内容);禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested\nimport Editor from 'https://cdn.jsdelivr.net/npm/@toast-ui/editor@3.2.2/+esm';\nconst css = document.createElement('link'); css.rel='stylesheet'; css.href='https://cdn.jsdelivr.net/npm/@toast-ui/editor@3.2.2/dist/toastui-editor.css'; document.head.appendChild(css);\nconst el = document.getElementById('editor');\nconst editor = new Editor({ el, height:'400px', initialEditType: data.initialEditType ?? 'markdown', previewStyle: data.previewStyle ?? 'vertical', initialValue: data.initialValue ?? '' });\n// 取产物: editor.getMarkdown(); editor.getHTML();",
+    "widget": "import Editor from 'https://cdn.jsdelivr.net/npm/@toast-ui/editor@3.2.2/+esm';\nconst css = document.createElement('link'); css.rel='stylesheet'; css.href='https://cdn.jsdelivr.net/npm/@toast-ui/editor@3.2.2/dist/toastui-editor.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); shadowRoot.appendChild(el);\nconst editor = new Editor({ el, height:'400px', initialEditType:'markdown', previewStyle:'vertical', initialValue: data.initialValue ?? '' });\n// 注意:ProseMirror 依赖 document.getSelection,shadow 边界外选区在部分浏览器异常;弹窗默认落 body(conditional)",
+    "codex": "import Editor from 'https://cdn.jsdelivr.net/npm/@toast-ui/editor@3.2.2/+esm';\nconst css = document.createElement('link'); css.rel='stylesheet'; css.href='https://cdn.jsdelivr.net/npm/@toast-ui/editor@3.2.2/dist/toastui-editor.css'; document.head.appendChild(css);\nconst el = document.getElementById('editor');\nconst editor = new Editor({ el, height:'400px', initialEditType:'markdown', previewStyle:'vertical', initialValue: data.initialValue ?? '' });\n// 取产物: editor.getMarkdown(); editor.getHTML();"
+  },
+  "uplink": "Markdown/HTML 产物由消费 AI 调 getMarkdown()/getHTML() 取回;change 回调由其接原生,不预设统一契约。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:CSS 落 shadow;ProseMirror 选区跨 shadow 在部分浏览器失效,弹窗默认逃到 body",
+    "codex": "supported:ESM CDN,无 worker/wasm/uplink 硬依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "no",
+    "evidence": "+esm exports {default=Editor, Editor, EditorCore};new Editor(options:EditorOptions) 已验证(types/editor.d.ts:162/199/292);EditorOptions.el(必填)/height/initialValue/previewStyle('tab'|'vertical')/initialEditType('markdown'|'wysiwyg')/toolbarItems 均真;getMarkdown()/getHTML() 已验证(233/235)。globalStyleInjection=no:主题 CSS 为外链 dist/toastui-editor.css(200),document.head 写入计数 0。globalEvents=no:0 document.addEventListener / 0 window.addEventListener(22 个监听器均绑在编辑器自有节点)。globalDomMutation=yes:弹窗 append 到 document.body(×2)。shadowCompatible=conditional:基于 ProseMirror,依赖 document.getSelection(×9)——与 contenteditable 同样的跨 shadow 选区隐患;弹窗亦逃到 body。",
+    "confidence": "medium"
+  },
+  "example": {
+    "minimal": {
+      "initialValue": "# 🍞 Toast UI Editor\n\nA **Markdown** editor with live **preview** and WYSIWYG.\n\n## Task list\n\n- [x] Write the docs\n- [x] Add GFM tables\n- [ ] Ship it 🚀\n\n## Comparison\n\n| Editor   | Output   | Live preview |\n| -------- | -------- | ------------ |\n| Toast UI | Markdown | yes          |\n| Quill    | Delta    | no           |\n\n```js\nconst greet = (name) => `Hello, ${name}!`;\nconsole.log(greet('world'));\n```\n\n> Tip: toggle between Markdown and WYSIWYG anytime."
+    }
+  }
+}

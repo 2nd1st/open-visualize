@@ -1,0 +1,75 @@
+{
+  "entry_version": "thin-1",
+  "id": "openseadragon",
+  "name": "openseadragon",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to browse huge/ultra-high-resolution images pixel-deep in a small viewport with progressive levels (scanned rare books, maps, pathology/astronomy imagery, art) when the source is a DZI/IIIF tile pyramid or one large image. Use photoswipe from the catalog for an ordinary gallery/lightbox, or @panzoom/panzoom for lightweight pan/zoom on one element. Inside shadow, always pass element rather than id.",
+      "why_valuable": "A gigapixel tiled pyramid with progressive loading, multiple LODs, and inertial panning down to pixel level is far beyond the fixed <img> AI can produce natively; hand-writing tile scheduling is nearly impossible.",
+      "data_in": {
+        "note": "OpenSeadragon(options) is a factory function (default export). Inside shadow, pass element (the node), not id (a string that calls document.getElementById and fails). boot points prefixUrl to the CDN icons; it is not consumer input.",
+        "schema": {
+          "tileSources": "string | object | Array -- DZI (.dzi URL) | IIIF info.json | { type:'image', url } single ordinary image | array (with sequenceMode for paging)",
+          "showNavigator?": "boolean -- thumbnail navigator in the upper right, default true in this entry",
+          "sequenceMode?": "boolean -- multi-image paging mode, default false",
+          "crossOriginPolicy?": "'Anonymous' | 'use-credentials' | false -- cross-origin image policy, default 'Anonymous'"
+        }
+      },
+      "spec": {
+        "note": "The deep-zoom viewer draws from the container size and needs a fixed pixel height; boot sets el.style.height and :host expands to it. vh/percentage height is prohibited."
+      }
+    }
+  },
+  "when_to_use": "要在小视口里对超大/超高清图逐级像素级深缩浏览(扫描古籍、地图、病理/天文影像、艺术品),图源是 DZI/IIIF tile pyramid 或单张大图时用它。普通图集/lightbox 用目录里的 photoswipe;只要轻量 pan/zoom 单元素用 @panzoom/panzoom。shadow 内务必传 element 而非 id。",
+  "why_valuable": "gigapixel 分块金字塔(tiled pyramid)渐进加载 + 多级 LOD + 惯性平移缩到像素级,原生 AI 只能 <img> 塞一张固定图;手写 tile 调度几乎不可能。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "openseadragon",
+    "version": "6.0.2",
+    "github": "openseadragon/openseadragon"
+  },
+  "license": "BSD-3-Clause",
+  "data_in": {
+    "shape": "raster-image",
+    "note": "OpenSeadragon(options) 是工厂函数(default export)。shadow 内必须传 element(节点)而非 id(字符串,会走 document.getElementById 失败);prefixUrl 由 boot 指向 CDN 图标,非消费者输入。",
+    "schema": {
+      "tileSources": "string | object | Array —— DZI(.dzi URL)| IIIF info.json | { type:'image', url } 单张普通图 | 数组(配 sequenceMode 翻页)",
+      "showNavigator?": "boolean —— 右上角缩略导航图,本条默认 true",
+      "sequenceMode?": "boolean —— 多图翻页模式,默认 false",
+      "crossOriginPolicy?": "'Anonymous' | 'use-credentials' | false —— 跨域取图策略,默认 'Anonymous'"
+    }
+  },
+  "spec": {
+    "height": 500,
+    "note": "深缩 viewer 读容器尺寸绘制,需固定像素高;boot 内 el.style.height 已设,:host 撑高、禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:深缩 viewer 需固定像素高\nimport OpenSeadragon from 'https://cdn.jsdelivr.net/npm/openseadragon@6/+esm';\nconst el = document.getElementById('viewer'); el.style.height = (data.height ?? 500) + 'px';\nconst viewer = OpenSeadragon({ element: el, prefixUrl: 'https://cdn.jsdelivr.net/npm/openseadragon@6.0.2/build/openseadragon/images/', tileSources: data.tileSources, showNavigator: data.showNavigator ?? true, sequenceMode: data.sequenceMode ?? false, crossOriginPolicy: data.crossOriginPolicy ?? 'Anonymous' });",
+    "widget": "// shadow 内必须用 element(节点),不能用 id 字符串;按钮图标走 prefixUrl\nimport OpenSeadragon from 'https://cdn.jsdelivr.net/npm/openseadragon@6/+esm';\nconst el = document.createElement('div'); el.style.height = (data.height ?? 500) + 'px'; shadowRoot.appendChild(el);\nconst viewer = OpenSeadragon({ element: el, prefixUrl: 'https://cdn.jsdelivr.net/npm/openseadragon@6.0.2/build/openseadragon/images/', tileSources: data.tileSources, showNavigator: data.showNavigator ?? true, crossOriginPolicy: data.crossOriginPolicy ?? 'Anonymous' });",
+    "codex": "import OpenSeadragon from 'https://cdn.jsdelivr.net/npm/openseadragon@6/+esm';\nconst el = document.getElementById('viewer'); el.style.height = (data.height ?? 500) + 'px';\nconst viewer = OpenSeadragon({ element: el, prefixUrl: 'https://cdn.jsdelivr.net/npm/openseadragon@6.0.2/build/openseadragon/images/', tileSources: data.tileSources, showNavigator: data.showNavigator ?? true, crossOriginPolicy: data.crossOriginPolicy ?? 'Anonymous' });"
+  },
+  "uplink": "视口/缩放/翻页状态若需外传,由消费 AI 接 viewer.addHandler('zoom'|'pan'|'page') 原生事件并按载体处理,本条不预设事件契约。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:传 element 而非 id、prefixUrl 指向 CDN 图标;核心 viewer 在容器内,唯 fullscreen 会逃出 shadow",
+    "codex": "supported:ESM CDN + canvas + prefixUrl 图标,无 worker 硬依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "+esm default export 为 OpenSeadragon 工厂(grep: 'Fe as default');OpenSeadragon({element|id, prefixUrl, tileSources, showNavigator, sequenceMode, crossOriginPolicy}) 见 types/index.d.ts 的 interface Options。viewer + navigator + 控制按钮渲染在传入 element 内;按钮 sprite 从 prefixUrl 加载(build/openseadragon/images/*.png 已确认存在)。globalDomMutation=yes:+esm grep document.body=20、document.head=2——fullscreen/measurement 路径向 body 追加(fullscreen 逃逸 shadow,核心 viewer 不逃)。globalEvents=yes:MouseTracker 拖拽期加 document 级 move/up 监听(结束移除)。SHADOW GOTCHA:getElement() 对 id 字符串走 document.getElementById,在 shadow root 内取不到,故必须传 element(节点)而非 id。shadowCompatible=conditional:核心 pan/zoom viewer 经 element+prefixUrl 在 shadow 内可用,仅可选 fullscreen 覆盖层离开 shadow 树。",
+    "confidence": "medium"
+  },
+  "example": {
+    "minimal": {
+      "tileSources": "https://openseadragon.github.io/example-images/highsmith/highsmith.dzi",
+      "height": 500,
+      "showNavigator": true,
+      "crossOriginPolicy": "Anonymous"
+    }
+  }
+}

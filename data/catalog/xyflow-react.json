@@ -2,6 +2,54 @@
   "entry_version": "thin-1",
   "id": "xyflow-react",
   "name": "React Flow",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when React needs a production-grade node graph with controlled or uncontrolled state, pan/zoom, and custom nodes that can embed arbitrary UI instead of hand-written SVG, which fails at node measurement, edge routing, and graph-state synchronization. Do not use it for automatic layout, workflow execution, or backend persistence.",
+      "why_valuable": "AI can draw a static relationship graph but cannot handle node measurement, stable edge routing, viewport transforms, and synchronized React graph state. React Flow packages these capabilities in the ReactFlow component and the native instance toObject API.",
+      "data_in": {
+        "note": "data_in uses the native React Flow Node[]/Edge[] shape. boot uses uncontrolled defaultNodes/defaultEdges so the catalog entry does not hard-wire controlled callbacks for the consuming AI.",
+        "schema": {
+          "nodes": [
+            {
+              "id": "string -- unique across the graph",
+              "position": {
+                "x": "number",
+                "y": "number"
+              },
+              "data": {
+                "label": "ReactNode; use string in catalog JSON"
+              },
+              "type?": "'default'|'input'|'output'|'group'|custom type -- defaults to 'default'",
+              "sourcePosition?": "'left'|'right'|'top'|'bottom' -- port position for built-in node types by default",
+              "targetPosition?": "'left'|'right'|'top'|'bottom' -- port position for built-in node types by default",
+              "style?": "object -- defaults to {}",
+              "hidden?": "boolean -- defaults to false",
+              "draggable?": "boolean -- inherits the global true by default",
+              "connectable?": "boolean -- inherits the global true by default"
+            }
+          ],
+          "edges": [
+            {
+              "id": "string -- unique across the graph",
+              "source": "string -- source node id",
+              "target": "string -- target node id",
+              "type?": "'default'|'straight'|'step'|'smoothstep'|'simplebezier'|custom type -- defaults to 'default'",
+              "sourceHandle?": "string|null -- defaults to null",
+              "targetHandle?": "string|null -- defaults to null",
+              "label?": "ReactNode; use string in catalog JSON -- no label by default",
+              "animated?": "boolean -- defaults to false",
+              "hidden?": "boolean -- defaults to false"
+            }
+          ],
+          "viewport?": "{x:number,y:number,zoom:number} -- defaults to {x:0,y:0,zoom:1}",
+          "fitView?": "boolean -- this entry's boot defaults to true; when true, viewport is ignored"
+        }
+      },
+      "spec": {
+        "note": "The ReactFlow parent must have measurable width and height. This entry defaults to an explicit height of 420px; iron rule 3 forbids vh and percentage heights. The library measures node width/height; do not write them back into data."
+      }
+    }
+  },
   "when_to_use": "需要 React 内生产级节点图、受控或非受控状态、缩放平移和可嵌任意 UI 的自定义节点时用它而非手写 SVG,因为原生在节点测量、边路由和图状态同步上失败;非做自动布局、工作流执行或后端持久化。",
   "why_valuable": "AI 默认能画静态关系图,但做不到节点测量、稳定边路由、视口变换与 React 图状态同步;React Flow 把这些能力封在 ReactFlow 组件及 toObject 原生实例 API 中。",
   "supply_form": "component",
@@ -59,9 +107,9 @@
     "note": "ReactFlow 父容器必须有可测量宽高,本条默认显式 height 420px;铁律 3 禁 vh/百分比高,节点 width/height 由库测量,不要写回数据。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合\nimport React from 'https://cdn.jsdelivr.net/npm/react@19/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19/client/+esm';\nimport { ReactFlow } from 'https://cdn.jsdelivr.net/npm/@xyflow/react@12/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@xyflow/react@12/dist/style.css'; document.head.appendChild(css);\nconst el = document.getElementById('flow'); el.style.height = '420px';\ncreateRoot(el).render(React.createElement(ReactFlow, { defaultNodes: data.nodes, defaultEdges: data.edges, defaultViewport: data.viewport, fitView: data.fitView ?? true }));",
-    "widget": "import React from 'https://cdn.jsdelivr.net/npm/react@19/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19/client/+esm';\nimport { ReactFlow } from 'https://cdn.jsdelivr.net/npm/@xyflow/react@12/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@xyflow/react@12/dist/style.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); el.style.height = '420px'; shadowRoot.appendChild(el);\ncreateRoot(el).render(React.createElement(ReactFlow, { defaultNodes: data.nodes, defaultEdges: data.edges, defaultViewport: data.viewport, fitView: data.fitView ?? true }));",
-    "codex": "import React from 'https://cdn.jsdelivr.net/npm/react@19/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19/client/+esm';\nimport { ReactFlow } from 'https://cdn.jsdelivr.net/npm/@xyflow/react@12/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@xyflow/react@12/dist/style.css'; document.head.appendChild(css);\nconst el = document.getElementById('flow'); el.style.height = '420px';\ncreateRoot(el).render(React.createElement(ReactFlow, { defaultNodes: data.nodes, defaultEdges: data.edges, defaultViewport: data.viewport, fitView: data.fitView ?? true }));"
+    "artifact": "// @xyflow/react@12.7.1、zustand@4.5.7 与 react-dom@19.1.0 的 jsDelivr ESM 都引用同一 React 19.1.0 实例\nconst el = document.getElementById('flow'); el.style.height = '420px'; el.textContent = 'Loading flow…';\nconst [{ default: React }, { createRoot }, { ReactFlow }] = await Promise.all([import('https://cdn.jsdelivr.net/npm/react@19.1.0/+esm'), import('https://cdn.jsdelivr.net/npm/react-dom@19.1.0/client/+esm'), import('https://cdn.jsdelivr.net/npm/@xyflow/react@12.7.1/+esm')]);\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@xyflow/react@12.7.1/dist/style.css'; document.head.appendChild(css);\nel.textContent = ''; createRoot(el).render(React.createElement(ReactFlow, { defaultNodes: data.nodes, defaultEdges: data.edges, defaultViewport: data.viewport, fitView: data.fitView ?? true }));",
+    "widget": "const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@xyflow/react@12.7.1/dist/style.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); el.style.height = '420px'; el.textContent = 'Loading flow…'; shadowRoot.appendChild(el);\nconst [{ default: React }, { createRoot }, { ReactFlow }] = await Promise.all([import('https://cdn.jsdelivr.net/npm/react@19.1.0/+esm'), import('https://cdn.jsdelivr.net/npm/react-dom@19.1.0/client/+esm'), import('https://cdn.jsdelivr.net/npm/@xyflow/react@12.7.1/+esm')]);\nel.textContent = ''; createRoot(el).render(React.createElement(ReactFlow, { defaultNodes: data.nodes, defaultEdges: data.edges, defaultViewport: data.viewport, fitView: data.fitView ?? true }));",
+    "codex": "const el = document.getElementById('flow'); el.style.height = '420px'; el.textContent = 'Loading flow…';\nconst [{ default: React }, { createRoot }, { ReactFlow }] = await Promise.all([import('https://cdn.jsdelivr.net/npm/react@19.1.0/+esm'), import('https://cdn.jsdelivr.net/npm/react-dom@19.1.0/client/+esm'), import('https://cdn.jsdelivr.net/npm/@xyflow/react@12.7.1/+esm')]);\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@xyflow/react@12.7.1/dist/style.css'; document.head.appendChild(css);\nel.textContent = ''; createRoot(el).render(React.createElement(ReactFlow, { defaultNodes: data.nodes, defaultEdges: data.edges, defaultViewport: data.viewport, fitView: data.fitView ?? true }));"
   },
   "example": {
     "_why": "Node/Edge 字段同名多且坐标、端口与边类型高歧义,minimal 钉死内置节点与边的原生形状。",
@@ -128,7 +176,6 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "globalStyleInjection=no and globalDomMutation=no: the +esm has no createElement('style')/document.head and no document.body/portal usage (NodeToolbar/EdgeLabelRenderer render inside the flow's own DOM, not document.body); the official CSS is external and boot-placed (shadowRoot for widget). globalEvents=yes: attaches `window.addEventListener('blur', ...)` and `window.addEventListener('resize', ...)` plus keydown/keyup (useKeyPress) — all window-level, they do not cross the shadow boundary. shadowCompatible=conditional: no shadow-hostile document.querySelector/getElementById/body usage was found and it renders in the container with CSS in the shadowRoot, but it requires React 19 + ReactDOM 19 + @xyflow/react ESM all to load and React Flow has historically shadow-DOM-sensitive measurement (hence conditional, matching the catalog).",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

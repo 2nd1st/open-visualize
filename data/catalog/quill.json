@@ -1,0 +1,152 @@
+{
+  "entry_version": "thin-1",
+  "id": "quill",
+  "name": "quill",
+  "when_to_use": "需要经典行内富文本编辑(粗体/列表/链接/图片/@提及)并要结构化产物(Delta 或语义 HTML)时用它,而非手写 contenteditable——选区规范化、Delta 文档模型、粘贴消毒都是坑;要块状文档结构则用 editorjs/blocknote。",
+  "why_valuable": "可靠的 WYSIWYG 富文本意味着驯服 contenteditable:选区/range 规范化、可操作的 Delta 文档模型、粘贴消毒、格式与嵌入;手写 contenteditable 是出名的跨浏览器 bug 温床。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "quill",
+    "version": "2.0.3",
+    "github": "slab/quill"
+  },
+  "license": "BSD-3-Clause",
+  "data_in": {
+    "shape": "rich-text-delta",
+    "note": "构造后经 quill.setContents(delta) 灌初始内容,或 quill.clipboard.dangerouslyPasteHTML(html);产物用 quill.getContents()→Delta 或 quill.getSemanticHTML()。theme 须加载对应 CSS(snow/bubble)。",
+    "schema": {
+      "_defaults": {
+        "theme": "'snow'",
+        "readOnly": "false"
+      },
+      "container": "HTMLElement | string选择器 —— 必填挂载点(构造第一参)",
+      "theme?": "'snow' | 'bubble' —— 默认无主题;用 'snow' 须加载 quill.snow.css",
+      "placeholder?": "string —— 默认空",
+      "readOnly?": "boolean —— 默认 false",
+      "modules?": {
+        "toolbar?": "array | string选择器 —— 工具栏配置,默认无工具栏"
+      },
+      "formats?": "string[] —— 允许格式白名单,默认全部",
+      "initialContents?": "Delta | Op[] —— 经 quill.setContents() 灌入"
+    }
+  },
+  "spec": {
+    "height": 300,
+    "note": "编辑区随内容增高;给容器显式像素高或 min-height,禁 vh;工具栏另占约 42px。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested\nimport Quill from 'https://cdn.jsdelivr.net/npm/quill@2.0.3/+esm';\nconst css = document.createElement('link'); css.rel='stylesheet'; css.href='https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css'; document.head.appendChild(css);\nconst el = document.getElementById('editor'); el.style.height = '300px';\nconst quill = new Quill(el, { theme:'snow', placeholder: data.placeholder ?? '', readOnly: data.readOnly ?? false, modules: { toolbar: data.toolbar ?? [['bold','italic','underline'],['link','image'],[{list:'ordered'},{list:'bullet'}]] } });\nif (data.initialContents) quill.setContents(data.initialContents);\n// 取产物: quill.getContents() → Delta; quill.getSemanticHTML();",
+    "widget": "import Quill from 'https://cdn.jsdelivr.net/npm/quill@2.0.3/+esm';\nconst css = document.createElement('link'); css.rel='stylesheet'; css.href='https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); el.style.height = '300px'; shadowRoot.appendChild(el);\nconst quill = new Quill(el, { theme:'snow', modules: { toolbar: [['bold','italic'],['link']] } });\n// 注意:部分浏览器 document.getSelection() 不穿透 shadow,富文本选区/光标可能异常(conditional)",
+    "codex": "import Quill from 'https://cdn.jsdelivr.net/npm/quill@2.0.3/+esm';\nconst css = document.createElement('link'); css.rel='stylesheet'; css.href='https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css'; document.head.appendChild(css);\nconst el = document.getElementById('editor'); el.style.height = '300px';\nconst quill = new Quill(el, { theme:'snow', modules: { toolbar: [['bold','italic','underline'],['link','image']] } });\n// 取产物: quill.getContents() → Delta; quill.getSemanticHTML();"
+  },
+  "uplink": "编辑内容由消费 AI 在需要时调 getContents()/getSemanticHTML() 取回;text-change 回调由其接原生,不预设统一契约。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:snow CSS 落 shadow;但 document.getSelection 跨 shadow 边界在部分浏览器失效,选区/光标有风险",
+    "codex": "supported:ESM CDN,无 worker/wasm/uplink 硬依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "+esm exports {default=Quill, Delta, Range, Parchment, Op, OpIterator, AttributeMap, Module};new Quill(container:HTMLElement|string, options?:QuillOptions) 已验证(core/quill.d.ts:121);QuillOptions.theme/placeholder/readOnly/modules/formats/bounds 均真;getContents():Delta、getSemanticHTML()、setContents() 已验证(140/156/193)。globalStyleInjection=no:主题 CSS 为外链 dist/quill.snow.css(200),+esm 对 document.head 零写入(grep 0)。globalEvents=yes:一处 document.addEventListener('selectionchange')(Selection 模块),destroy 时移除。globalDomMutation=yes:clipboard/bounds 辅助容器 append 到 document.body(×6)。shadowCompatible=conditional:大量 document.getSelection()(×17)——选区/光标在 shadow 边界外在部分浏览器不可靠(document.getSelection 不穿透 shadow),浏览器支持 shadow 选区时可用。",
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "placeholder": "Compose an epic…",
+      "readOnly": false,
+      "initialContents": {
+        "ops": [
+          {
+            "insert": "Quill Rich Text Editor"
+          },
+          {
+            "insert": "\n",
+            "attributes": {
+              "header": 1
+            }
+          },
+          {
+            "insert": "A "
+          },
+          {
+            "insert": "WYSIWYG",
+            "attributes": {
+              "bold": true
+            }
+          },
+          {
+            "insert": " editor with "
+          },
+          {
+            "insert": "formatting",
+            "attributes": {
+              "italic": true
+            }
+          },
+          {
+            "insert": ", "
+          },
+          {
+            "insert": "links",
+            "attributes": {
+              "link": "https://quilljs.com"
+            }
+          },
+          {
+            "insert": ", and lists.\n"
+          },
+          {
+            "insert": "First point"
+          },
+          {
+            "insert": "\n",
+            "attributes": {
+              "list": "bullet"
+            }
+          },
+          {
+            "insert": "Second point"
+          },
+          {
+            "insert": "\n",
+            "attributes": {
+              "list": "bullet"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for classic inline rich-text editing, including bold, lists, links, images, and @mentions, when you need structured output as Delta or semantic HTML instead of handwritten contenteditable. Selection normalization, the Delta document model, and paste sanitization are all traps. For block-structured documents, use editorjs/blocknote.",
+      "why_valuable": "Reliable WYSIWYG rich text means taming contenteditable: normalizing selections/ranges, maintaining an operable Delta document model, sanitizing paste, and handling formatting and embeds. Handwritten contenteditable is a notorious source of cross-browser bugs.",
+      "data_in": {
+        "note": "After construction, load initial content with quill.setContents(delta) or quill.clipboard.dangerouslyPasteHTML(html). Read output with quill.getContents() -> Delta or quill.getSemanticHTML(). The corresponding theme CSS (snow/bubble) must be loaded.",
+        "schema": {
+          "_defaults": {
+            "theme": "'snow'",
+            "readOnly": "false"
+          },
+          "container": "HTMLElement | string selector -- Required mount point (first constructor argument)",
+          "theme?": "'snow' | 'bubble' -- No theme by default; 'snow' requires quill.snow.css",
+          "placeholder?": "string -- Empty by default",
+          "readOnly?": "boolean -- Default false",
+          "modules?": {
+            "toolbar?": "array | string selector -- Toolbar configuration; no toolbar by default"
+          },
+          "formats?": "string[] -- Allowlist of formats; all formats by default",
+          "initialContents?": "Delta | Op[] -- Loaded through quill.setContents()"
+        }
+      },
+      "spec": {
+        "note": "The editing area grows with content; give the container an explicit pixel height or min-height, not vh. The toolbar occupies about another 42px."
+      }
+    }
+  }
+}

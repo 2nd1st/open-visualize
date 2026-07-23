@@ -1,0 +1,70 @@
+{
+  "entry_version": "thin-1",
+  "id": "svg2pdf-js",
+  "name": "svg2pdf.js",
+  "when_to_use": "已有 SVG 成品(d3/echarts 导出的 SVG、图示、徽章、二维码)要放进矢量清晰、可打印的 PDF 时用它,经 jsPDF 输出——文本仍是文本、线条仍是矢量;只需 PNG 位图截图请用目录里的 html-to-image/snapdom,不必上它。",
+  "why_valuable": "原生 AI 要么用 html-to-image 出位图(放大糊/锯齿),要么根本无法把 SVG 塞进 PDF;把 SVG 的路径/文本/样式逐一映射成 PDF 矢量绘制指令(还要量文本 bbox)是 AI 手写做不到的。svg2pdf.js 在 jsPDF 之上补齐 SVG→矢量 PDF 这一环。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it with jsPDF when an existing finished SVG (exported from d3/echarts, a diagram, badge, or QR code) must go into a crisp, printable vector PDF, preserving text as text and lines as vectors. If you only need a PNG bitmap screenshot, use html-to-image/snapdom from the catalog instead.",
+      "why_valuable": "Native AI output either uses html-to-image and becomes a bitmap (blurry or jagged when enlarged) or cannot place SVG into a PDF at all; mapping SVG paths, text, and styles one by one into vector PDF drawing commands, including text bbox measurement, is not feasible for AI to hand-write. svg2pdf.js fills the SVG-to-vector-PDF link on top of jsPDF.",
+      "data_in": {
+        "note": "Hard dependency on jsPDF (first create and pass new jsPDF). Critical pitfall: the SVG to convert must already be an element in the rendered DOM because svg2pdf measures text with getBBox/getComputedStyle; detached elements cannot be measured. Parse a string first with DOMParser and temporarily attach it to the DOM (to shadowRoot inside a widget).",
+        "schema": {
+          "svgElement": "SVG DOM Element -- preferred; must already be in the rendered DOM (getBBox requires layout)",
+          "svgMarkup?": "string -- when only SVG text is available, parse it with new DOMParser().parseFromString(...,'image/svg+xml') and attach it",
+          "x?": "number -- horizontal offset within the PDF, default 0",
+          "y?": "number -- vertical offset within the PDF, default 0",
+          "width?": "number -- target render width (same semantics as <img> width)",
+          "height?": "number -- target render height"
+        }
+      }
+    }
+  },
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "svg2pdf.js",
+    "version": "2.7.0",
+    "github": "yWorks/svg2pdf.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "svg",
+    "note": "硬依赖 jsPDF(须先 new jsPDF 传入)。关键坑:待转 SVG 必须是已在渲染 DOM 中的元素(svg2pdf 靠 getBBox/getComputedStyle 量文本,离屏元素测不到);纯字符串要先 DOMParser 解析并临时挂进 DOM(widget 内挂 shadowRoot)。",
+    "schema": {
+      "svgElement": "SVG DOM Element —— 优先;必须已在渲染 DOM 中(getBBox 需布局)",
+      "svgMarkup?": "string —— 若只有 SVG 字符串,先 new DOMParser().parseFromString(...,'image/svg+xml') 解析并挂载",
+      "x?": "number —— PDF 内水平偏移,默认 0",
+      "y?": "number —— PDF 内垂直偏移,默认 0",
+      "width?": "number —— 目标渲染宽(语义同 <img> 的 width)",
+      "height?": "number —— 目标渲染高"
+    }
+  },
+  "provides": {
+    "shape": "pdf",
+    "_note": "headless-primitive:转换器,不挂视觉组件;产出 jsPDF 实例(可 .output('blob')/.save())。",
+    "outputs": "写入 jsPDF 文档的矢量 PDF 页(文本仍可选中/搜索、线条无限缩放不失真);经 pdf.output('blob'|'datauristring')/pdf.save(name) 落地。",
+    "api_surface": {
+      "convert": "svg2pdf(element, pdfDoc, options) → Promise<jsPDF>(具名导出;options:{x,y,width,height,loadExternalStyleSheets})",
+      "plugin": "等价形式:插件注册后 pdfDoc.svg(element, options) → Promise<jsPDF>",
+      "output": "pdf.output('blob') / pdf.output('datauristring') / pdf.save('out.pdf')(jsPDF 原生)"
+    }
+  },
+  "peer": {
+    "id": "jspdf",
+    "note": "硬依赖:必须 new jsPDF({unit:'pt',format:'a4'}) 并传入 svg2pdf(el, pdf, ...);jsPDF 已在目录(4.2.1,具名导出 jsPDF)。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:输出 PDF Blob;硬依赖 jsPDF\nimport { jsPDF } from 'https://cdn.jsdelivr.net/npm/jspdf@4/+esm';\nimport { svg2pdf } from 'https://cdn.jsdelivr.net/npm/svg2pdf.js@2/+esm';\n// 待转 SVG 必须在渲染 DOM 中(靠 getBBox 量文本);纯字符串先解析\nconst svgEl = data.svgElement ?? new DOMParser().parseFromString(data.svgMarkup, 'image/svg+xml').documentElement;\nif (!svgEl.isConnected) document.body.appendChild(svgEl); // widget 内改挂 shadowRoot\nconst pdf = new jsPDF({ unit: 'pt', format: 'a4' });\nawait svg2pdf(svgEl, pdf, { x: data.x ?? 0, y: data.y ?? 0, width: data.width, height: data.height });\nconst blob = pdf.output('blob'); // 或 pdf.save('out.pdf')",
+    "note": "svg2pdf 是具名导出({ svg2pdf }),返回 Promise<jsPDF>。SVG 必须挂进渲染 DOM 才能量取,转换中它还会向 body 临时 append 一个测量节点并 removeChild(净零);widget 内把 SVG 与测量都限制在 shadowRoot。外链样式表默认不加载(loadExternalStyleSheets:false),内联样式最稳。"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "no",
+    "evidence": "+esm 具名导出 {svg2pdf};types.d.ts 定义 svg2pdf(element:Element, pdf:jsPDF, options?:{x,y,width,height,loadExternalStyleSheets}) → Promise<jsPDF>,并给 jsPDF 原型加 .svg(element,options)。+esm grep:document.body.appendChild×1 + removeChild×1 成对(转换期文本测量节点,净零)、getBBox×1(需布局→输入 SVG 必须先在渲染 DOM,widget 内应挂 shadowRoot)、无 document.head/insertRule(不注全局样式)。故 globalDomMutation=yes(转换期短暂 body 写入,自清理)、样式/事件无足迹;shadowCompatible=conditional(把输入 SVG 与测量都收进 shadow 即可)。",
+    "confidence": "high"
+  }
+}

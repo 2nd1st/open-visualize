@@ -2,6 +2,21 @@
   "entry_version": "thin-1",
   "id": "dinero-js",
   "name": "Dinero.js",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written arithmetic when you need immutable money objects with an ISO currency and scale, or strict proportional allocation, because native implementations fail at minor units, currency compatibility, and conservation of allocation remainders.",
+      "why_valuable": "AI treats money as ordinary floating-point numbers by default and cannot enforce same-currency operations, explicit scale, and conservation of the total during allocation; Dinero.js encodes these constraints in immutable money objects.",
+      "data_in": {
+        "note": "amount must be an integer in minor units; currency corresponds to an ISO 4217 constant exported by the dinero.js root entry. Do not pass 12.34 directly as amount.",
+        "schema": {
+          "amount": "integer -- integer minor units",
+          "currency?": "string -- ISO 4217 code exported by dinero.js, default 'USD'",
+          "scale?": "integer >= 0 -- defaults to the selected currency.exponent",
+          "ratios?": "Array<number | {amount:integer,scale:integer}> -- each ratio is nonnegative and at least one is positive; omitted by default, so allocate is not called"
+        }
+      }
+    }
+  },
   "when_to_use": "需要带 ISO 币种与 scale 的不可变金额对象或严格比例分配时用它而非手写,因为原生在最小单位、币种相容性和分摊余数守恒上失败。",
   "why_valuable": "AI 默认把货币当普通浮点数,做不到强制同币种运算、显式 scale 和 allocation 总额守恒;Dinero.js 把这些约束固化在不可变 money object 中。",
   "supply_form": "headless-primitive",
@@ -46,7 +61,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Verified against the REAL package root (dist/esm/index.js, not a jsDelivr artifact): it `export {USD, EUR, JPY, ... , dinero, allocate, toDecimal, toSnapshot}` — re-exporting all ISO currencies from ./currencies/index.js. So `import * as D` then D.USD/D.dinero/D.allocate/D.toDecimal all resolve. currencies/index.js: USD={code:'USD',base:10,exponent:2} (boot's typeof currency.exponter==='number' guard valid). index.d.ts: DineroFactory({amount,currency,scale?}); allocate params [dineroObject, ratios: ReadonlyArray<DineroScaledAmount|TAmount>] where DineroScaledAmount={amount,scale} — matches schema ratios Array<number|{amount,scale}> exactly. +esm bundle: 0 DOM/style/event APIs — immutable money math.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

@@ -50,7 +50,19 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Headless CommonJS math engine (index.js: Finance.prototype.PV/FV/PMT/NPER/RATE + IPMT/PPMT/NPV/IRR, module.exports=Finance). Pure numeric computation, zero DOM/window/document access — trivially shadow-safe as it renders nothing.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to recompute time-value-of-money functions such as PV/FV/PMT/NPER/RATE with Excel parameter semantics, instead of writing them by hand, because native implementations fail at iterative RATE root finding, cash-flow signs, and beginning/end-of-period payment semantics.",
+      "why_valuable": "AI cannot reliably solve the implicit rate RATE by default and often passes an annual rate to monthly periods or reverses PV/PMT signs. This library executes Excel-style signatures and preserves unrounded results.",
+      "data_in": {
+        "note": "data_in maps exactly to five TVM methods on a Finance instance. rate must be the decimal rate per period; for example, pass a monthly 5.25% annual rate as 0.0525/12. pv is usually negative under Excel conventions.",
+        "schema": {
+          "formula": "'PV' | 'FV' | 'PMT' | 'NPER' | 'RATE'",
+          "args": "number[] -- Exact signatures: PV=[rate,nper,pmt,fv? (default 0),type? (default 0)], FV=[rate,nper,pmt,pv,type? (default 0)], PMT=[rate,nper,pv,fv? (default 0),type? (default 0)], NPER=[rate,pmt,pv,fv? (default 0),type? (default 0)], RATE=[nper,pmt,pv,fv? (default 0),type? (default 0),guess? (default 0.1)]; type=0 end of period, type=1 beginning of period"
+        }
+      }
+    }
   }
 }

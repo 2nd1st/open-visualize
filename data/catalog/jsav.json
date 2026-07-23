@@ -31,8 +31,8 @@
     "note": "容器显式 min-height 360px,不得用 vh/百分比高(铁律 3)；实际高度会随结构和说明增长。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested；picks 无发行版本,保守钉 repo tag v1.0.1；CSS 只进 head(铁律 2)\nconst load = src => new Promise((ok, bad) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = bad; document.head.appendChild(s); });\nconst base = 'https://cdn.jsdelivr.net/gh/vkaravir/JSAV@v1.0.1/';\nfor (const src of [base+'lib/jquery.min.js', base+'lib/jquery.transit.js', base+'lib/raphael.js']) await load(src);\nconst parts = ['core','translations','anim','utils','messages','effects','events','graphicals','datastructures','array','tree','list','graph','matrix','code','settings','questions','exercise'].map(x => 'gh/vkaravir/JSAV@v1.0.1/src/'+x+'.js').join(','); await load('https://cdn.jsdelivr.net/combine/'+parts);\nconst link = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: base+'css/JSAV.css' }); document.head.appendChild(link);\nconst el = document.getElementById('jsav'); el.style.minHeight = '360px'; if (data.controls ?? true) el.innerHTML = '<div class=\"jsavcontrols\"></div><p class=\"jsavoutput jsavline\"></p>';\nconst states = data.states.length ? data.states : [{ values: [], message: '' }], av = new JSAV(el), arr = av.ds.array(states[0].values, { layout: data.layout ?? 'array', indexed: data.indexed ?? true }); av.umsg(states[0].message ?? ''); av.displayInit();\nfor (const state of states.slice(1)) { state.values.forEach((v, i) => arr.value(i, v)); av.umsg(state.message ?? ''); av.step(); } av.recorded();",
-    "widget": "// legacy 全局脚本进 document.head；JSAV CSS 文本与可视 DOM 只落 shadow(铁律 2)\nconst load = src => new Promise((ok, bad) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = bad; document.head.appendChild(s); });\nconst base = 'https://cdn.jsdelivr.net/gh/vkaravir/JSAV@v1.0.1/';\nfor (const src of [base+'lib/jquery.min.js', base+'lib/jquery.transit.js', base+'lib/raphael.js']) await load(src);\nconst parts = ['core','translations','anim','utils','messages','effects','events','graphicals','datastructures','array','tree','list','graph','matrix','code','settings','questions','exercise'].map(x => 'gh/vkaravir/JSAV@v1.0.1/src/'+x+'.js').join(','); await load('https://cdn.jsdelivr.net/combine/'+parts);\nconst style = document.createElement('style'); style.textContent = await fetch(base+'css/JSAV.css').then(r => r.text()); const el = document.createElement('div'); el.style.minHeight = '360px'; shadowRoot.append(style, el); if (data.controls ?? true) el.innerHTML = '<div class=\"jsavcontrols\"></div><p class=\"jsavoutput jsavline\"></p>';\nconst states = data.states.length ? data.states : [{ values: [], message: '' }], av = new JSAV(el), arr = av.ds.array(states[0].values, { layout: data.layout ?? 'array', indexed: data.indexed ?? true }); av.umsg(states[0].message ?? ''); av.displayInit();\nfor (const state of states.slice(1)) { state.values.forEach((v, i) => arr.value(i, v)); av.umsg(state.message ?? ''); av.step(); } av.recorded();",
+    "artifact": "// JSAV 仓库不含 jquery.min.js，且 v1.0.1 仍调用 jQuery.fn.size()；载入兼容的 jQuery 1.12.4 后再串行载入插件与源码\nconst el = document.getElementById('jsav'); el.style.minHeight = '360px'; if (data.controls ?? true) el.innerHTML = '<div class=\"jsavcontrols\"></div><p class=\"jsavoutput jsavline\"></p>';\nconst { default: jQuery } = await import('https://cdn.jsdelivr.net/npm/jquery@1.12.4/+esm'); globalThis.jQuery = globalThis.$ = jQuery;\nconst load = src => new Promise((ok, bad) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => bad(new Error(`failed to load ${src}`)); document.head.appendChild(s); });\nconst base = 'https://cdn.jsdelivr.net/gh/vkaravir/JSAV@v1.0.1/';\nfor (const src of [base+'lib/jquery.transit.js', base+'lib/raphael.js']) await load(src);\nconst parts = ['core','translations','anim','utils','messages','effects','events','graphicals','datastructures','array','tree','list','graph','matrix','code','settings','questions','exercise'].map(x => 'gh/vkaravir/JSAV@v1.0.1/src/'+x+'.js').join(','); await load('https://cdn.jsdelivr.net/combine/'+parts);\nconst link = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: base+'css/JSAV.css' }); document.head.appendChild(link);\nconst states = data.states.length ? data.states : [{ values: [], message: '' }], av = new JSAV(el), arr = av.ds.array(states[0].values, { layout: data.layout ?? 'array', indexed: data.indexed ?? true }); av.umsg(states[0].message ?? ''); av.displayInit();\nfor (const state of states.slice(1)) { state.values.forEach((v, i) => arr.value(i, v)); av.umsg(state.message ?? ''); av.step(); } av.recorded();",
+    "widget": "// legacy 全局脚本进 document.head；JSAV CSS 文本与可视 DOM 只落 shadow(铁律 2)\nconst style = document.createElement('style'); const el = document.createElement('div'); el.style.minHeight = '360px'; shadowRoot.append(style, el); if (data.controls ?? true) el.innerHTML = '<div class=\"jsavcontrols\"></div><p class=\"jsavoutput jsavline\"></p>';\nconst { default: jQuery } = await import('https://cdn.jsdelivr.net/npm/jquery@1.12.4/+esm'); globalThis.jQuery = globalThis.$ = jQuery;\nconst load = src => new Promise((ok, bad) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => bad(new Error(`failed to load ${src}`)); document.head.appendChild(s); });\nconst base = 'https://cdn.jsdelivr.net/gh/vkaravir/JSAV@v1.0.1/';\nfor (const src of [base+'lib/jquery.transit.js', base+'lib/raphael.js']) await load(src);\nconst parts = ['core','translations','anim','utils','messages','effects','events','graphicals','datastructures','array','tree','list','graph','matrix','code','settings','questions','exercise'].map(x => 'gh/vkaravir/JSAV@v1.0.1/src/'+x+'.js').join(','); await load('https://cdn.jsdelivr.net/combine/'+parts);\nstyle.textContent = await fetch(base+'css/JSAV.css').then(r => r.text());\nconst states = data.states.length ? data.states : [{ values: [], message: '' }], av = new JSAV(el), arr = av.ds.array(states[0].values, { layout: data.layout ?? 'array', indexed: data.indexed ?? true }); av.umsg(states[0].message ?? ''); av.displayInit();\nfor (const state of states.slice(1)) { state.values.forEach((v, i) => arr.value(i, v)); av.umsg(state.message ?? ''); av.step(); } av.recorded();",
     "codex": "同 artifact(sandbox iframe):必须按 jQuery→transit→Raphaël→JSAV 源模块顺序载入；同名 npm 包不是本项目,不要误导入。"
   },
   "example": {
@@ -40,15 +40,27 @@
     "minimal": {
       "states": [
         {
-          "values": [3, 1, 2],
+          "values": [
+            3,
+            1,
+            2
+          ],
           "message": "初始数组"
         },
         {
-          "values": [1, 3, 2],
+          "values": [
+            1,
+            3,
+            2
+          ],
           "message": "第一轮比较后"
         },
         {
-          "values": [1, 2, 3],
+          "values": [
+            1,
+            2,
+            3
+          ],
           "message": "排序完成"
         }
       ],
@@ -71,7 +83,29 @@
     "globalDomMutation": "yes",
     "globalEvents": "unknown",
     "evidence": "boot 必须向 document.head append jQuery/jquery.transit/Raphael/JSAV-combine 5+ 个 classic <script> 并污染全局 $/jQuery/Raphael/JSAV,是内在不可避免的全局足迹(domMutation=yes,无 ESM 替代)。库本身不自注入 <style>,CSS 由 boot 手动加载(widget 落 shadow <style>、artifact 落 head <link>)故 styleInject=no。控件(prev/next)事件绑在自身 DOM 上,是否另有 document 级监听未证(events=unknown)。可视 DOM+CSS 能落 shadow(boot 已做),但依赖全局 jQuery/Raphael 与 combine-CDN 需 CSP 放行,非零足迹(shadow=conditional)。",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for algorithm lessons that need step-by-step data-structure states, explanatory text, and forward/back navigation instead of implementing them by hand, because native DOM fails at reversible step history, control synchronization, and structure layout. Not for general business flowcharts or ordinary lists.",
+      "why_valuable": "AI defaults can only produce text plus emoji pseudo-animation and cannot maintain reversible multi-step state with synchronized structural graphics and explanations; JSAV provides the native recording and playback model used by OpenDSA.",
+      "data_in": {
+        "note": "Focused on a JSAV array slideshow: states[0] is the initial state and each later item creates one step. All values arrays must have equal length because native arr.value(i,v) only changes an existing slot.",
+        "schema": {
+          "states": [
+            {
+              "values": "(string | number | null)[] -- Complete array state for each step; all steps have the same length",
+              "message?": "string -- Explanation for this step; default ''"
+            }
+          ],
+          "layout?": "'array' | 'bar' | 'vertical' -- Default 'array'",
+          "indexed?": "boolean -- Default true",
+          "controls?": "boolean -- Default true"
+        }
+      },
+      "spec": {
+        "note": "The container has an explicit min-height of 360px; vh and percentage heights are forbidden (rule 3). Actual height grows with the structure and explanation."
+      }
+    }
   }
 }

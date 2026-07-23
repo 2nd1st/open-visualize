@@ -4,6 +4,25 @@
   "name": "tocbot",
   "when_to_use": "需要从长文标题自动生成层级目录并随滚动高亮当前章节时用它而非手写,因为原生静态锚点没有 scroll-spy 而自制滚动状态机在嵌套标题、底部边界和节流上失败。",
   "why_valuable": "AI 默认只能一次性列静态目录,做不到标题层级解析、当前章节判定、折叠祖先展开和滚动节流的一致闭环;tocbot 从真实 DOM 标题持续生成并同步目录。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to generate a hierarchical table of contents automatically from headings in a long document and highlight the current section while scrolling instead of hand-writing it. Native static anchors have no scroll-spy, while custom scroll state machines fail on nested headings, bottom boundaries, and throttling.",
+      "why_valuable": "AI can only list a static table of contents once by default. It cannot consistently parse heading hierarchy, determine the current section, expand collapsed ancestors, and throttle scrolling. tocbot continuously generates and synchronizes the table of contents from real DOM headings.",
+      "data_in": {
+        "note": "The table-of-contents hierarchy comes from real h1-h6 DOM inside the content root. Every captured heading must have a unique id, and the toc root must be a separate empty container. This entry is not a Markdown/HTML renderer.",
+        "schema": {
+          "toc_selector": "string - selector for the unique table-of-contents container within the current carrier root",
+          "content_selector": "string - selector for the unique long-document container within the current carrier root",
+          "heading_selector?": "string - heading selector, default 'h1, h2, h3'",
+          "collapse_depth?": "number - heading depth through which items remain uncollapsed, default 0",
+          "scroll_smooth?": "boolean - artifact/codex default true; widget default false because upstream smooth positioning uses document-level id lookup",
+          "has_inner_containers?": "boolean - set true when headings are inside relatively or absolutely positioned inner containers, default false",
+          "ordered_list?": "boolean - default true",
+          "include_html?": "boolean - whether toc labels copy inline HTML from headings, default false"
+        }
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -43,7 +62,6 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "+esm grep 无 document.head/createElement('style')/.body.appendChild(CSS 为 opt-in dist/tocbot.css,boot 手动加 <link>,widget 落 shadowRoot)→globalStyleInjection=no;目录构建于传入 tocElement 内,不 append body→globalDomMutation=no。注册 addEventListener('scroll')×2、('resize')×2、('click')×3,需 tocbot.destroy() 才清理(默认 enableUrlHashUpdateOnScroll 还会改 location.hash)→globalEvents=yes。元素+CSS 可入 shadowRoot,但 scroll-spy 依赖 document/window 滚动与 getBoundingClientRect,shadow 内部滚动可能不追踪→conditional(boot 已关 scrollSmooth)。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

@@ -68,7 +68,32 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "src/_base.js: WebGL canvas mounts via `this.el.appendChild(this.renderer.domElement)` (l.185) and text-wrap <span>s go into el's own childNodes (l.137-140) — nothing appended to document.body/head; it only sets `el.style.position='relative'`. It registers `window.addEventListener('resize'|'scroll'|'mousemove')` (l.110-117), but `destroy()` removes all three via `window.removeEventListener` (l.391-397) — the mousemove-on-window is intentional (pointer response when el sits under other elements). It sets `window.VANTA={}` (l.6) — a global JS namespace object, not DOM. No CSS/head injection. Canvas in a shadow-hosted el works; listeners are global-by-design and cleaned on destroy.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to place a pointer-responsive WebGL wave background behind a hero, cover, or presentation page instead of writing a shader by hand; native WebGL camera, lighting, mesh animation, and destruction cleanup are near-0% success areas for handwritten AI code. Not for foreground 3D models, data charts, or real particle physics.",
+      "why_valuable": "AI defaults can only assemble a static gradient or fragile canvas noise and cannot provide a stable WebGL mesh, per-frame waves, pointer response, and resize/destroy lifecycle; Vanta compresses these into one native effect instance.",
+      "data_in": {
+        "note": "The current boot conservatively fixes the upstream WAVES effect so different effects' three/p5 dependencies and heterogeneous options are not mixed into one unreliable dynamic entry point. data_in.options is passed unchanged to WAVES, while boot injects el and THREE.",
+        "schema": {
+          "effect": "'waves' -- The currently calibrated effect; fixed and required",
+          "options?": {
+            "_default": "Default {}; all other keys use upstream WAVES defaults",
+            "color?": "number(0xRRGGBB) -- Default 0x005588",
+            "shininess?": "number -- Default 30",
+            "waveHeight?": "number -- Default 15",
+            "waveSpeed?": "number -- Default 1",
+            "zoom?": "number -- Default 1",
+            "mouseControls?": "boolean -- Default true",
+            "touchControls?": "boolean -- Default true",
+            "gyroControls?": "boolean -- Default false"
+          }
+        }
+      },
+      "spec": {
+        "note": "Vanta canvas reads the host element dimensions; default explicit height is 420px, and AI may replace it with another fixed pixel value. vh and percentage heights are forbidden by rule 3, while width may follow the container. Call effect.destroy() on unmount."
+      }
+    }
   }
 }

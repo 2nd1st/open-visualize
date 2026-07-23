@@ -48,7 +48,20 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Verified: +esm exports ce/pe/z/We/Se/Ee as diffChars/diffWords/diffLines/diffSentences/diffJson/diffCss and `ae as createTwoFilesPatch` — all six method imports + patch fn are real named exports in 9.0.0. README confirms `{ignoreCase: true}` option on diffChars/diffWords/diffLines. types.d.ts ChangeObject = {value, added, removed, count} (matches provides output {value,count?,added?,removed?}). +esm bundle: 0 DOM/style/event APIs — pure Myers diff.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need a reproducible runtime diff between any two text, JSON, or CSS inputs instead of a handwritten comparison loop, which fails at Myers alignment, granularity changes, and patch generation. It produces data only and does not render it.",
+      "why_valuable": "AI defaults can only pre-annotate short diffs manually and cannot reliably run a Myers diff on unknown browser inputs, switch consistently among character/word/line granularity, and generate a unified patch.",
+      "data_in": {
+        "schema": {
+          "oldText": "string -- Baseline text",
+          "newText": "string -- Comparison text",
+          "granularity?": "'chars'|'words'|'lines'|'sentences'|'json'|'css' -- Default lines",
+          "ignoreCase?": "boolean -- Default false; applies to comparators that support this option"
+        }
+      }
+    }
   }
 }

@@ -1,0 +1,66 @@
+{
+  "entry_version": "thin-1",
+  "id": "chordsheetjs",
+  "name": "chordsheetjs",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for song chord charts, lead sheets, worship sheets, or guitar sheets: parse ChordPro or chord-over-lyric text into a Song, then format it as HTML/Text with chords precisely aligned above the correct lyric syllables and optional transpose/capo. The output is an HTML/text string for the consumer to insert and style. For engraved staff notation (vexflow/abcjs/verovio), do not use it -- it specializes in chords-over-lyrics, not engraved staff.",
+      "why_valuable": "Parsing ChordPro / Ultimate-Guitar sheets and placing chords precisely above the corresponding lyric syllables, including transposition, is exactly where native AI is least reliable -- monospace chord-over-lyric alignment drifts and manual transposition is error-prone.",
+      "data_in": {
+        "note": "Provide one chord-chart STRING; choose the parser by dialect: ChordProParser accepts {directives}/[chords], while ChordsOverWordsParser / UltimateGuitarParser accepts plain chords-above-lyrics text. WARNING: the license is GPL-2.0-only (copyleft); account for its reciprocal terms when distributing.",
+        "schema": {
+          "source": "string -- chord-chart text (required)",
+          "dialect?": "string -- 'chordpro' (default) | 'chords-over-words' | 'ultimate-guitar'; selects parser",
+          "format?": "string -- 'html-div' (default) | 'html-table' | 'text' | 'chordpro'; selects formatter",
+          "transpose?": "number -- semitone count, applied through song.transpose(n) before formatting; default 0"
+        }
+      }
+    }
+  },
+  "when_to_use": "歌曲和弦谱、lead sheet、敬拜/吉他谱:把 ChordPro 或 chord-over-lyric 文本 parse 成 Song,再 format 成 HTML/Text,和弦精确对齐到正确歌词音节上方,可选 transpose/capo;输出是一段 HTML/文本字符串,由消费方插入并加 CSS。要五线谱雕刻(vexflow/abcjs/verovio)则不用它——它专做 chords-over-lyrics 而非 engraved staff。",
+  "why_valuable": "解析 ChordPro / Ultimate-Guitar 谱并把和弦精确定位到对应歌词音节上方(含 transpose),正是原生 AI 最不稳的活——monospace 的 chord-over-lyric 对齐会漂移、手动移调易错。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "chordsheetjs",
+    "version": "15.5.2",
+    "github": "martijnversluis/ChordSheetJS"
+  },
+  "license": "GPL-2.0-only",
+  "data_in": {
+    "shape": "chord-chart",
+    "note": "喂一段和弦谱 STRING;按方言选 parser:ChordProParser 吃 {directives}/[chords],ChordsOverWordsParser / UltimateGuitarParser 吃 chords-above-lyrics 纯文本。⚠️ license 为 GPL-2.0-only(copyleft),分发时注意传染性。",
+    "schema": {
+      "source": "string —— 和弦谱文本(必填)",
+      "dialect?": "string —— 'chordpro'(默认) | 'chords-over-words' | 'ultimate-guitar',选 parser",
+      "format?": "string —— 'html-div'(默认) | 'html-table' | 'text' | 'chordpro',选 formatter",
+      "transpose?": "number —— 半音数,format 前经 song.transpose(n) 应用;默认 0"
+    }
+  },
+  "provides": {
+    "shape": "chord-sheet-markup",
+    "_note": "headless-primitive:返回 HTML/Text STRING,无 mount/DOM 足迹。HtmlDivFormatter/HtmlTableFormatter 输出用 .chord/.lyrics/.row 类,需消费方 CSS 才能把和弦叠在歌词上方;TextFormatter 是自足 monospace 无需 CSS。",
+    "outputs": "解析出的 Song 模型 + 格式化后的 HTML/Text 字符串;Song 与 Chord 上带 transpose/capo 辅助。",
+    "api_surface": {
+      "parse": "new ChordProParser().parse(text) → Song(另有 ChordsOverWordsParser、UltimateGuitarParser)",
+      "format": "new HtmlDivFormatter().format(song) → string(另有 HtmlTableFormatter、TextFormatter、ChordProFormatter)",
+      "transpose": "song.transpose(delta) / chord.transpose(delta) / transposeUp() / transposeDown()(均返回新对象,immutable)"
+    }
+  },
+  "peer": {
+    "id": "consumer-css",
+    "note": "HtmlDiv/HtmlTable 输出需消费方补一小段 CSS 做 chord-over-lyric 定位;纯文本用 TextFormatter 免 CSS。"
+  },
+  "boot": {
+    "shared": "// headless:和弦谱 string → parse → 可选 transpose → format 成 HTML/Text 字符串(无 DOM 足迹)\nimport { ChordProParser, ChordsOverWordsParser, UltimateGuitarParser, HtmlDivFormatter, HtmlTableFormatter, TextFormatter } from 'https://cdn.jsdelivr.net/npm/chordsheetjs@15.5.2/+esm';\nconst Parser = { 'chordpro': ChordProParser, 'chords-over-words': ChordsOverWordsParser, 'ultimate-guitar': UltimateGuitarParser }[data.dialect ?? 'chordpro'];\nlet song = new Parser().parse(data.source);\nif (data.transpose) song = song.transpose(data.transpose);\nconst Formatter = { 'html-div': HtmlDivFormatter, 'html-table': HtmlTableFormatter, 'text': TextFormatter }[data.format ?? 'html-div'];\nconst markup = new Formatter().format(song); // string;消费方插入(HTML 格式另加 CSS)",
+    "note": "song.transpose 返回新 Song(immutable)。也可 `import ChordSheetJS from '...+esm'` 用默认命名空间(ChordSheetJS.ChordProParser ...)。beta 的 MeasuredHtmlFormatter/PdfFormatter 会用 DomMeasurer/CanvasMeasurer 触 DOM,已刻意排除在 boot 外。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr chordsheetjs@15.5.2 +esm: all boot exports present as named (Vc as ChordProParser, k2 as ChordsOverWordsParser, e7 as UltimateGuitarParser, O2 as HtmlDivFormatter, W2 as HtmlTableFormatter, Jc as TextFormatter, u2 as ChordProFormatter, Ds as Song, Ls as Chord; also ej as default namespace). lib/main.d.ts: Song.transpose(delta, key?, opts?) (L711), Chord.transpose/transposeUp/transposeDown (L1042+), Key.transpose (L835); README pins new XxxParser().parse(text)→Song and new XxxFormatter().format(song)→string. Pure string transform: zero DOM/style/event footprint → trivially shadow-safe (headless-primitive, no carriers/spec by design). Caveat is licensing (GPL-2.0-only), not runtime. The only DOM-touching formatters (Measured/Pdf, beta, DomMeasurer/CanvasMeasurer) are excluded from boot. confidence high.",
+    "confidence": "high"
+  }
+}

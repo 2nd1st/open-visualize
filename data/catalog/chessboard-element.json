@@ -27,8 +27,8 @@
     "note": "棋盘 1:1;boot 显式设 480×480px和 max-width:100%,AI 可改固定 px,禁 vh/百分比高。组件内部 shadow 自带样式与棋子 SVG。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested。import 会注册 <chess-board>\nimport 'https://cdn.jsdelivr.net/npm/chessboard-element@1/+esm';\nconst b = document.createElement('chess-board'); // 铁律 4:custom element 必须 JS 创建\nb.style.cssText = 'display:block;width:480px;max-width:100%;height:480px';\nb.orientation = data.orientation ?? 'white'; b.draggablePieces = data.draggable ?? false;\nb.setPosition(data.fen, false);\ndocument.getElementById('board').appendChild(b);",
-    "widget": "import 'https://cdn.jsdelivr.net/npm/chessboard-element@1/+esm';\nconst b = document.createElement('chess-board'); // 铁律 4:禁声明式自定义标签\nb.style.cssText = 'display:block;width:480px;max-width:100%;height:480px';\nb.orientation = data.orientation ?? 'white'; b.draggablePieces = data.draggable ?? false;\nb.setPosition(data.fen, false);\nshadowRoot.appendChild(b); // 组件自身也有 shadow,样式继续封闭",
+    "artifact": "// 先建立可见状态,再载入并用 JS 创建已注册的 custom element\nconst host = document.getElementById('board'); host.style.minHeight = '480px'; host.textContent = 'Loading chessboard…';\nawait import('https://cdn.jsdelivr.net/npm/chessboard-element@1/+esm');\nconst b = document.createElement('chess-board'); // 铁律 4:custom element 必须 JS 创建\nb.style.cssText = 'display:block;width:480px;max-width:100%;height:480px';\nb.orientation = data.orientation ?? 'white'; b.draggablePieces = data.draggable ?? false; b.setPosition(data.fen, false);\nhost.textContent = ''; host.appendChild(b);",
+    "widget": "const loading = document.createElement('div'); loading.textContent = 'Loading chessboard…'; shadowRoot.appendChild(loading);\nawait import('https://cdn.jsdelivr.net/npm/chessboard-element@1/+esm');\nconst b = document.createElement('chess-board'); // 铁律 4:禁声明式自定义标签\nb.style.cssText = 'display:block;width:480px;max-width:100%;height:480px';\nb.orientation = data.orientation ?? 'white'; b.draggablePieces = data.draggable ?? false; b.setPosition(data.fen, false);\nloading.replaceWith(b); // 组件自身也有 shadow,样式继续封闭",
     "codex": "同 artifact(sandbox iframe):ESM import 注册后 createElement('chess-board') + setPosition;不写声明式标签。"
   },
   "peer": {
@@ -46,7 +46,29 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "+esm tail `c=p([Z(\"chess-board\")],c)` confirms side-effect import registers the <chess-board> custom element (class ChessBoardElement). lib/chessboard-element.d.ts confirms boot's props/method: `orientation: SquareColor` (l.182), `draggablePieces: boolean` (l.186), `setPosition(position, useAnimation?): void` (l.274). It is a LitElement with its own shadow DOM; grep found ZERO document.head/document.body/createElement('style') — pieces are inline SVG (renderWikipediaSVGPiece export). globalEvents=yes: 4 window.addEventListener (mousemove/mouseup/touchmove drag tracking) but 8 removeEventListener present (cleaned up), and draggable defaults false in boot. Fully self-contained in shadow.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
+      "orientation": "white",
+      "draggable": false
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need a Web Component to render a FEN position as a standard, reversible chessboard with optional piece dragging, instead of hand-writing HTML/CSS, because native implementations fail at piece artwork, drag animations, and board-state synchronization. Rules, legal moves, and engine analysis are out of scope.",
+      "why_valuable": "AI can only produce FEN text, a Unicode board, or a fragile static grid by default; it cannot provide production-grade piece SVGs, dragging, and animation. This shadow-based custom element provides the full board UI in one native component.",
+      "data_in": {
+        "schema": {
+          "fen": "string -- The piece-placement section of FEN: 8 ranks separated by /; this entry passes it through setPosition and does not treat rule fields such as side to move or castling rights as board state",
+          "orientation?": "'white' | 'black' -- Perspective at the bottom edge; default white",
+          "draggable?": "boolean -- Whether to enable only the component's native piece-dragging UI; default false. Legality validation still requires the consuming AI to connect a rules engine"
+        }
+      },
+      "spec": {
+        "note": "The board is 1:1. boot explicitly sets 480x480px and max-width:100%; AI may change the fixed px value, but vh/percentage height is prohibited. The component's internal shadow includes its styles and piece SVGs."
+      }
+    }
   }
 }

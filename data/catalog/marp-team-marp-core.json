@@ -2,6 +2,21 @@
   "entry_version": "thin-1",
   "id": "marp-team-marp-core",
   "name": "Marp Core (Marpit)",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when a narrow Markdown input surface must compile deterministically into a complete set of equal-sized, printable slides instead of hand-writing each page in HTML/CSS, which fails at bulk pagination geometry, theme consistency, and overflow scaling. Do not use it for a free-form canvas editor or runtime presentation console.",
+      "why_valuable": "AI cannot write a Markdown-to-fixed-page-geometry compiler or maintain theme, page breaks, code highlighting, and adaptive scaling consistently across dozens of slides. Marp.render produces the paired HTML/CSS in one pass.",
+      "data_in": {
+        "note": "Pass data_in directly to new Marp(...).render(markdown). It returns {html,css} from the same compilation, and they must be mounted together.",
+        "schema": {
+          "markdown": "string -- Marp Markdown; a standalone --- line separates slides, and frontmatter YAML or HTML comment directives may set native Marp directives such as theme, size, and paginate"
+        }
+      },
+      "spec": {
+        "note": "Built-in themes default to 1280x720 for 16:9 and 960x720 for 4:3. The preview host reserves an explicit 720px height and permits vertical scrolling; do not use vh or percentage heights."
+      }
+    }
+  },
   "when_to_use": "需要把窄输入面的 Markdown 确定性编译成等尺寸、可打印的整套幻灯时用它而非逐页手写 HTML/CSS,因为原生手写在批量分页几何、主题一致性与溢出缩放上失败;非做自由画布编辑器或运行时演示控制台。",
   "why_valuable": "AI 默认写不出 Markdown 到固定页几何的编译器,也无法在几十页中稳定保持主题、断页、代码高亮与自适应缩放;Marp.render 一次产出配套 HTML/CSS。",
   "supply_form": "component",
@@ -26,9 +41,9 @@
     "note": "内置主题默认 16:9 为 1280×720、4:3 为 960×720;预览宿主默认保留 720px 明确高度并允许纵向滚动,禁止 vh/百分比高。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:编译 CSS 必须进入 head\nimport { Marp } from 'https://cdn.jsdelivr.net/npm/@marp-team/marp-core@4/+esm';\nimport { browser } from 'https://cdn.jsdelivr.net/npm/@marp-team/marp-core@4/browser/+esm';\nconst { html, css } = new Marp({ script:false }).render(data.markdown);\nconst style=document.createElement('style'); style.textContent=css; document.head.append(style);\nconst root=document.getElementById('marp'); root.style.cssText='height:720px;overflow:auto'; root.innerHTML=html; browser(root);",
-    "widget": "import { Marp } from 'https://cdn.jsdelivr.net/npm/@marp-team/marp-core@4/+esm';\nimport { browser } from 'https://cdn.jsdelivr.net/npm/@marp-team/marp-core@4/browser/+esm';\nconst { html, css } = new Marp({ script:false }).render(data.markdown);\nconst style=document.createElement('style'); style.textContent=css; const root=document.createElement('div'); root.style.cssText='height:720px;overflow:auto'; root.innerHTML=html;\nshadowRoot.append(style,root); browser(root);",
-    "codex": "import { Marp } from 'https://cdn.jsdelivr.net/npm/@marp-team/marp-core@4/+esm';\nimport { browser } from 'https://cdn.jsdelivr.net/npm/@marp-team/marp-core@4/browser/+esm';\nconst { html, css } = new Marp({ script:false }).render(data.markdown);\nconst style=document.createElement('style'); style.textContent=css; document.head.append(style);\nconst root=document.getElementById('marp'); root.style.cssText='height:720px;overflow:auto'; root.innerHTML=html; browser(root);"
+    "artifact": "// 直接挂载 Marp 编译产物;browser helper 的 ResizeObserver 在隐藏探针 iframe 会报 loop error\nconst root=document.getElementById('marp'); root.style.cssText='height:720px;overflow:auto'; root.textContent='Rendering slides…';\nconst { Marp } = await import('https://cdn.jsdelivr.net/npm/@marp-team/marp-core@4/+esm');\nconst { html, css } = new Marp({ script:false }).render(data.markdown);\nconst style=document.createElement('style'); style.textContent=css; document.head.append(style);\nroot.innerHTML=html;",
+    "widget": "const root=document.createElement('div'); root.style.cssText='height:720px;overflow:auto'; root.textContent='Rendering slides…'; shadowRoot.appendChild(root);\nconst { Marp } = await import('https://cdn.jsdelivr.net/npm/@marp-team/marp-core@4/+esm');\nconst { html, css } = new Marp({ script:false }).render(data.markdown);\nconst style=document.createElement('style'); style.textContent=css; root.innerHTML=html; shadowRoot.prepend(style);",
+    "codex": "const root=document.getElementById('marp'); root.style.cssText='height:720px;overflow:auto'; root.textContent='Rendering slides…';\nconst { Marp } = await import('https://cdn.jsdelivr.net/npm/@marp-team/marp-core@4/+esm');\nconst { html, css } = new Marp({ script:false }).render(data.markdown);\nconst style=document.createElement('style'); style.textContent=css; document.head.append(style); root.innerHTML=html;"
   },
   "carriers": {
     "artifact": "inferred-not-tested",
@@ -41,7 +56,11 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "browser/+esm grep: no `document.head` write, only `.attachShadow` (marp-auto-scaling uses its own internal shadow); render() returns CSS as a string that the boot places (head for artifact, shadowRoot for widget) so the LIBRARY injects nothing to head. Global effects are in browser(): `customElements.define(\"marp-auto-scaling\",…)` on the page-global registry (guarded by a `window[H]` flag → duplicate-safe: `s||customElements.define`) plus `window.addEventListener(\"message\",…)` for postMessage auto-scaling, neither torn down per-instance. Shadow works because globally-registered custom elements upgrade inside shadow roots and the widget boot lands both css+html in shadowRoot; conditional because it depends on the global define/window-listener and Marpit theme CSS may use `:root` (which does not match inside a shadow tree).",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
+  },
+  "example": {
+    "minimal": {
+      "markdown": "---\ntheme: default\npaginate: true\n---\n\n# Marp Core\n\n**Markdown → 等尺寸幻灯片**\n一次编译产出配套 HTML + CSS\n\n---\n\n## 为什么用 Marp\n\n- 确定性分页：独占一行的 `---` 即断页\n- 主题一致：内置 default / gaia / uncover\n- 自适应缩放：长内容自动 fit\n- 可打印：16:9 = 1280×720\n\n---\n\n## 代码高亮开箱即用\n\n```js\nconst marp = new Marp()\nconst { html, css } = marp.render(markdown)\n```\n\n| 尺寸 | 分辨率 |\n|------|-----------|\n| 16:9 | 1280×720 |\n| 4:3  | 960×720  |\n\n---\n\n# 谢谢\n\n有问题欢迎讨论"
+    }
   }
 }

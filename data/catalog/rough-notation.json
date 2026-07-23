@@ -2,6 +2,30 @@
   "entry_version": "thin-1",
   "id": "rough-notation",
   "name": "Rough Notation",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of drawing by hand when underlines, circles, boxes, or highlights must span multiline text and remain attached to the target after layout changes, because native SVG fails on line-wrapped text geometry, reflow recalculation, and hand-drawn animation.",
+      "why_valuable": "AI defaults can only add a static border/background to text; they cannot handle multiline getClientRects geometry, animated double hand-drawn strokes, and realignment after layout changes. Rough Notation compresses these capabilities into one target element plus shallow configuration.",
+      "data_in": {
+        "note": "target_selector must match a DOM element whose layout is complete; annotate inserts SVG beside the target. Inside a table cell, wrap the target in a span or div first.",
+        "schema": {
+          "target_selector": "string -- CSS selector for one target element",
+          "config": {
+            "type": "'underline' | 'box' | 'circle' | 'highlight' | 'strike-through' | 'crossed-off' | 'bracket' -- required",
+            "animate?": "boolean -- default true",
+            "animationDuration?": "number -- milliseconds; default 800",
+            "color?": "string -- CSS color; default 'currentColor'",
+            "strokeWidth?": "number -- default 1",
+            "padding?": "number | number[] -- pixels or an array in CSS order; default 5",
+            "multiline?": "boolean -- outline each line of multiline inline text; default false",
+            "iterations?": "number -- default 2",
+            "brackets?": "'left'|'right'|'top'|'bottom' | string[] -- bracket only; default 'right'",
+            "rtl?": "boolean -- default false"
+          }
+        }
+      }
+    }
+  },
   "when_to_use": "需要让下划线、圈选、框选或高亮跨多行文字并在布局变化后仍贴住目标时用它而非手写,因为原生 SVG 在文本分行几何、reflow 重算和手绘动画上失败。",
   "why_valuable": "AI 默认只能给文本加静态 border/background,做不到跨行 getClientRects 几何、手绘双笔触动画与布局变化后的重新贴合;Rough Notation 把这些能力压成一个目标元素加浅配置。",
   "supply_form": "component",
@@ -48,7 +72,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "rough-notation@0.5.1 +esm: createElement('style') with textContent '@keyframes rough-notation-dash { to { stroke-dashoffset... }}' appended to document.head (ensureKeyframes, one-time/idempotent). Annotation svg (createElementNS 'svg'/'path') is appended to target.parentElement as an absolutely-positioned sibling (uses .style.position + parentElement) — stays in the target's subtree (inside shadow if the target is), no document.body portal. No document/window event listeners; animation is pure CSS keyframes. Shadow works for the SVG sibling but the head-level @keyframes is unreachable from shadow -> default-animate annotation won't render unless animate:false or keyframes replicated in-shadow.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

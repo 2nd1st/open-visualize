@@ -2,6 +2,30 @@
   "entry_version": "thin-1",
   "id": "lil-gui",
   "name": "lil-gui",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written controls when you need a compact panel for live adjustment of numeric, boolean, color, and enum parameters, because native implementations fail on controller type inference, nested folders, and consistently wiring fine adjustments. It is not for long business forms.",
+      "why_valuable": "AI defaults can only assemble scattered range/checkbox controls, not reliable object binding, controller type inference, folder organization, and consistent numeric stepping; lil-gui keeps the current values in the same params object.",
+      "data_in": {
+        "note": "params is the object bound in place by lil-gui; controllers only describes the keys and constraints needed by gui.add. The consuming AI wires callbacks and upstream state.",
+        "schema": {
+          "params": "Record<string, number|string|boolean> -- every controllers[].key must exist",
+          "controllers": [
+            {
+              "key": "string",
+              "label?": "string -- defaults to key",
+              "min?": "number -- no explicit lower bound by default",
+              "max?": "number -- no explicit upper bound by default",
+              "step?": "number -- inferred upstream from the current value by default",
+              "options?": "string[] | number[] | Record<string,string|number> -- omitted by default, selecting a control from the params[key] type"
+            }
+          ],
+          "title?": "string -- default 'Controls'",
+          "closed?": "boolean -- default false"
+        }
+      }
+    }
+  },
   "when_to_use": "需要用紧凑面板实时调数值、布尔、颜色和枚举参数时用它而非手写,因为原生在 controller 类型推断、嵌套 folder 与一致的微调布线上失败;非做业务长表单。",
   "why_valuable": "AI 默认只能拼散落的 range/checkbox,做不到稳定的对象绑定、控制器类型推断、folder 收纳和统一数值步进;lil-gui 让当前值始终留在同一个 params 对象。",
   "supply_form": "component",
@@ -48,7 +72,55 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "esm 默认经 `_injectStyles`→document.head 注入(_injectStyles x2、document.head x2),受 injectStyles 开关控制(d.ts 默认 true L334);entry boot 传 injectStyles:false 阻断,并把 pinned dist/lil-gui.css link 放进 shadowRoot。传 container 覆盖 autoPlace(默认 true,L318/321)→ 不向 body 追加。拖拽仅临时绑 window mousemove/up 并在松手解绑,无持久全局泄漏 → 节点+CSS 全落 shadow,widget 成立(与 entry supported 一致)。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "title": "Scene Controls",
+      "params": {
+        "rotationSpeed": 2.5,
+        "size": 1.2,
+        "opacity": 0.85,
+        "wireframe": true,
+        "shape": "Torus"
+      },
+      "controllers": [
+        {
+          "key": "rotationSpeed",
+          "label": "Rotation Speed",
+          "min": 0,
+          "max": 10,
+          "step": 0.1
+        },
+        {
+          "key": "size",
+          "min": 0.1,
+          "max": 5,
+          "step": 0.1
+        },
+        {
+          "key": "opacity",
+          "min": 0,
+          "max": 1,
+          "step": 0.01
+        },
+        {
+          "key": "wireframe",
+          "label": "Wireframe"
+        },
+        {
+          "key": "shape",
+          "label": "Geometry",
+          "options": [
+            "Box",
+            "Sphere",
+            "Torus",
+            "Cone",
+            "Cylinder"
+          ]
+        }
+      ],
+      "closed": false
+    }
   }
 }

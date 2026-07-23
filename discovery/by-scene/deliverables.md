@@ -1,35 +1,75 @@
-# 成品交付(scene: deliverables,31 条)
+# 成品交付(scene: deliverables,71 条)
 
 每条:`id` — 何时用 · 数据形态 · supply_form · license。选中读 `data/catalog/<id>.json`。
 
-- `cerberus` — 应用态 · key-value · app-needs-fork · MIT ⚠blocked(需fork)
-- `docx` — 需要在浏览器把标题、段落、富文本层级和分节内容生成可继续编辑的 Word .docx Blob 时用… · hierarchy · headless-primitive · MIT
+- `avatar-group` — 需要在交付物页、项目摘要或团队卡片中紧凑展示一组参与者，并把超出名额折叠成 “+N” 时用它 · records · component L1 · Apache-2.0
+- `before-after-metrics` — 需要用一组同口径指标说明改版、迁移、优化或实验前后的变化时用它 · tabular · component L1 · MIT
+- `bento-grid` — 需要把一组异质但同属一个主题的指标、亮点和说明组合成强视觉摘要时用它 · records · component L1 · MIT
+- `bwip-js` — 要出物流面单/医药/证件里的 2D 码(DataMatrix、PDF417、Aztec、MaxiCo… · code-string · headless-primitive · MIT
+- `callout` — 需要把正文中的一段 note、tip、warning、danger 或 success 信息明显抬升时用它 · text-span · component L1 · MIT
+- `cerberus` — 应用态 · ? · app-needs-fork · MIT ⚠blocked(需fork)
+- `changelog` — 需要把产品或代码库的发布记录按版本、日期和变更类型交付时用它 · sequence · component L1 · MIT
+- `chat-transcript` — 需要把一段对话作为交付物、案例或教学素材原样呈现时用它 · sequence · component L1 · MIT
+- `checklist-coverage` — 需要只读展示交付物、审计项、上线条件或本地工具准备度的覆盖状态时用它 · tabular · component L1 · MIT
+- `citation-cards` — 需要把 RAG 检索结果或回答依据呈现为可核验的来源卡片时用它 · records · component L1 · MIT
+- `docx` — 需要在浏览器把标题、段落、富文本层级和分节内容生成可继续编辑的 Word .docx Blob 时用它 · hierarchy · headless-primitive · MIT
+- `docxtemplater` — 「设计师做好的 Word/PPTX 模板 + 每条记录套数据批量出件」(合同、offer lette… · template · headless-primitive · MIT
+- `empty-state` — 需要在列表、搜索结果、项目空间或报告暂无内容时，用一个有明确语气的居中画面解释当前状态并给出静态下一步提示时用它 · key-value · component L1 · MIT
+- `event-card` — 需要把一场活动的标题、日期时间、地点、简介和可选封面作为成品卡片交付时用它 · key-value · component L1 · MIT
+- `exceljs` — 交付「打开即用的带样式 Excel 报表/财务表/带公式模板」时用——单元格格式/字体/填充/边框… · workbook · headless-primitive · MIT
+- `faq-accordion` — 需要在交付说明、产品介绍或教学回答中容纳多组“问题→答案”，并让读者按需展开时用它 · records · component L1 · MIT
 - `github-markdown-css` — 需要让已经渲染的 Markdown 报告获得用户熟悉且跨页面稳定的 GitHub 外观时用它 · notation-string · component L1 · MIT
+- `grapesjs` — 需要让用户可视化拖拽拼装/就地编辑一个页面、邮件或模板(builder UI)并导出 HTML/CSS 时用它 · component-tree · component L1 · BSD-3-Clause
 - `gutenberg-css` — 需要给报告、讲义或文章补齐打印排版、孤行控制、表头复现和断页辅助类时用它 · notation-string · component L1 · MIT
-- `html-resume-mnjul` — 需要把已写好的单页简历 HTML 套进严格 Letter 纸张、左右栏与 print-to-PDF … · notation-string · component L2 · Apache-2.0
-- `html-resume-template-owengretzinger` — 应用态 · key-value · app-needs-fork · Unlicense ⚠blocked(需fork)
-- `html-to-image` — 需要在浏览器把一个已渲染 DOM 节点带计算样式、伪元素、图片与字体导出为 PNG/JPEG/SVG… · geometry · headless-primitive · MIT
-- `jsbarcode` — 需要生成可扫描的 CODE128、EAN、UPC、CODE39、ITF 或 MSI 条形码 SVG … · key-value · component L1 · MIT
+- `html-resume-mnjul` — 需要把已写好的单页简历 HTML 套进严格 Letter 纸张、左右栏与 print-to-PDF 样式时用它 · notation-string · component L2 · Apache-2.0
+- `html-resume-template-owengretzinger` — 应用态 · ? · app-needs-fork · Unlicense ⚠blocked(需fork)
+- `html-to-image` — 需要在浏览器把一个已渲染 DOM 节点带计算样式、伪元素、图片与字体导出为 PNG/JPEG/SVG/Blob 时用它 · geometry · headless-primitive · MIT
+- `ics` — 交付「点一下加进日历」的事件/邀请/课表/循环日程(.ics 下载或邮件附件)时用它 · events · headless-primitive · ISC
+- `jsbarcode` — 需要生成可扫描的 CODE128、EAN、UPC、CODE39、ITF 或 MSI 条形码 SVG 时用它 · key-value · component L1 · MIT
 - `jsonresume-component` — 需要在浏览器中把 resume.json 原生挂成带 microdata 与 Shadow DOM … · key-value · component L1 · MIT
-- `jsonresume-theme-even` — 需要把标准 resume.json 一步排成带 print 间距、分页控制与明暗配色的完整简历 HT… · key-value · component L1 · MIT
-- `jsonresume-themes-panasenco` — 需要在纯浏览器把旧版 JSON Resume 字段渲成一页式 Handlebars 简历 HTML … · key-value · component L2 · MIT
+- `jsonresume-theme-even` — 需要把标准 resume.json 一步排成带 print 间距、分页控制与明暗配色的完整简历 HTML 时用它 · key-value · component L1 · MIT
+- `jsonresume-themes-panasenco` — 需要在纯浏览器把旧版 JSON Resume 字段渲成一页式 Handlebars 简历 HTML 时用它 · key-value · component L2 · MIT
 - `jspdf` — 需要在浏览器按绝对坐标生成票据、证书、标签或固定版式 PDF Blob 时用它 · geometry · headless-primitive · MIT
+- `jspdf-autotable` — 交付含表格的 PDF(发票、对账单、数据报表、成绩单)时配 jsPDF 用——自动分页、表头跨页重复… · tabular · headless-primitive · MIT
 - `latex-css` — 需要把语义 HTML 稳定排成 LaTeX 论文式摘要、作者块、定理和参考文献时用它 · notation-string · component L1 · MIT
-- `latex-js` — 需要在浏览器把 AI 熟悉的 LaTeX 文档源码翻译成带数学、章节和文档类样式的 HTML5 时用… · notation-string · component L1 · MIT
+- `latex-js` — 需要在浏览器把 AI 熟悉的 LaTeX 文档源码翻译成带数学、章节和文档类样式的 HTML5 时用它 · notation-string · component L1 · MIT
+- `makerjs` — 交付物是「可进激光切割机/CNC/CAD 的图纸(DXF)」或参数化生成的切割/雕刻 SVG 时用;… · geometry · headless-primitive · Apache-2.0
 - `marp-team-marp-core` — 需要把窄输入面的 Markdown 确定性编译成等尺寸、可打印的整套幻灯时用它 · notation-string · component L1 · MIT
+- `masonry-grid` — 需要把高低不一的卡片、作品缩略图或交付物排成紧凑的砖墙时用它 · records · component L1 · MIT
+- `milestone-tracker` — 需要按先后顺序展示一个交付计划已经完成、当前进行和未来待办的关键节点时用它 · sequence · component L1 · MIT
 - `mjml-browser` — 需要在浏览器把 MJML 源码编译为兼容 Outlook 等邮件客户端的完整 HTML 时用它 · notation-string · headless-primitive · MIT
 - `myriaddreamin-typst-ts` — 需要在浏览器把 AI 熟悉的 Typst 源码编译成专业多页 SVG 预览或 PDF 时用它 · notation-string · component L1 · Apache-2.0
+- `opentype-js` — 交付需要「文字转曲线」的成品(激光刻字路径、印厂要的转曲 SVG、字体无关 logo)或要读取/子集… · text · headless-primitive · MIT
 - `pagedjs` — 需要把长 HTML 按 CSS Paged Media 排成带断页、页码、running heade… · notation-string · component L1 · MIT
-- `paper-css` — 需要把一组语义 HTML 快速摆成 A3/A4/A5/Letter/Legal 的实体纸张预览与打印… · notation-string · component L1 · MIT
+- `paper-css` — 需要把一组语义 HTML 快速摆成 A3/A4/A5/Letter/Legal 的实体纸张预览与打印页时用它 · notation-string · component L1 · MIT
+- `pdf-lib` — 当交付物是「在客户给的现有 PDF 上操作」——填 AcroForm 表单域、合并/拆分页面、盖章/… · pdf-document · headless-primitive · MIT
 - `pdfmake` — 需要在浏览器把声明式文档树稳定生成含多栏、表格、页眉页脚和自动分页的真 PDF 时用它 · hierarchy · component L1 · MIT
+- `pdfme-generator` — 批量套版式的成品(同一张证书填 100 个名字、快递标签、门票、发票)用它——一份 JSON tem… · template-schema · headless-primitive · MIT
 - `pptxgenjs` — 需要在浏览器按幻灯片坐标生成公司可继续编辑的 .pptx Blob 时用它 · geometry · headless-primitive · MIT
+- `pricing-table` — 需要让读者一眼比较 2–4 个套餐的价格、计费周期和核心权益时用它 · comparison-matrix · component L1 · MIT
+- `product-cards` — 需要把少量商品、套餐或内容条目做成可扫读的媒体卡片网格，并同时展示图片、标题、价格、标签和评分时用它 · records · component L1 · MIT
+- `profile-cards` — 需要在交付物中介绍团队成员、讲者、评审人或联系人，并让头像、姓名、角色、简介和链接一眼可扫时用它 · records · component L1 · MIT
 - `qr-code-styling` — 需要把 URL/文本做成带圆点、品牌色、渐变或 logo 且仍可扫码的 QR 交付物时用它 · key-value · component L1 · MIT
+- `quadrant-2x2` — 需要按两个维度把少量项目放进四象限并直观看相对位置时用它 · points · component L1 · MIT
 - `react-email-components` — 需要用 React 组件树组合邮件并在浏览器渲成邮件安全 HTML 时用它 · hierarchy · component L1 · MIT
 - `react-pdf-renderer` — 已经在 React 组件模型里并需要把 Document/Page/View/Text 树稳定生成多… · hierarchy · component L1 · MIT
+- `receiptline` — 交付点单小票/收据/厨房单——要么给顾客一张票面图(SVG),要么直接驱动热敏打印机(ESC/POS… · receipt-markup · headless-primitive · Apache-2.0
+- `recipe-card` — 需要把一道菜的成品封面、时间/份量等元信息、配料和有序步骤整合成可直接阅读的交付卡片时用它 · key-value · component L1 · MIT
 - `remark-slides` — 需要最轻的浏览器内 Markdown 演示、讲者备注与克隆讲者视图时用它 · notation-string · component L1 · MIT
 - `resumed` — 需要以 JSON Resume 数据和主题生态稳定生成简历 HTML 时应在完成浏览器 fork 后… · key-value · app-needs-fork · MIT ⚠blocked(需fork)
-- `reveal-js` — 需要从 Markdown 生成带横纵分组、fragment 递进、键盘导航和打印版式的演示 deck… · notation-string · component L1 · MIT
-- `satori` — 需要把固定尺寸的 React-like 元素树与 CSS 子集排成社交卡片、海报或 OG 图 SVG… · hierarchy · headless-primitive · MPL-2.0
+- `reveal-js` — 需要从 Markdown 生成带横纵分组、fragment 递进、键盘导航和打印版式的演示 deck 时用它 · notation-string · component L1 · MIT
+- `review-scorecard` — 需要把方案、文稿、设计稿、代码审查或交付物的总体评价压缩成一个可扫读结论时用它 · key-value · component L1 · MIT
+- `rubric-grid` — 需要把评分标准按“评价维度 × 表现等级”完整讲清，并标出某份作业在各维度所处等级时用它 · matrix · component L1 · MIT
+- `satori` — 需要把固定尺寸的 React-like 元素树与 CSS 子集排成社交卡片、海报或 OG 图 SVG 时用它 · hierarchy · headless-primitive · MPL-2.0
 - `shower-core` — 需要 HTML-first 的 list/full 双模式演示并兼顾浏览与打印时用它 · notation-string · component L1 · MIT
+- `spec-sheet` — 需要清晰交付某一个产品、设备、方案或文件的成组规格时用它 · key-value · component L1 · MIT
+- `stat-cards` — 需要用一排 KPI 快速概括当前状态、环比变化和短期趋势时用它 · single-metric · component L1 · MIT
+- `stepper` — 需要把教程、实施计划、交付流程或当前进度按明确顺序讲清楚时用它 · sequence · component L1 · MIT
+- `svg2pdf-js` — 已有 SVG 成品(d3/echarts 导出的 SVG、图示、徽章、二维码)要放进矢量清晰、可打印的 PDF 时用它 · svg · headless-primitive · MIT
+- `swot-grid` — 需要把某个项目、产品或组织的内部优势/劣势与外部机会/威胁放在一张战略快照中时用它 · key-value · component L1 · MIT
+- `testimonial-quote` — 需要把一到数条用户评价作为交付物中的社会证明或重点引语时用它 · records · component L1 · MIT
+- `timeline-vertical` — 需要按日期锚定、从上到下讲清里程碑、交付计划或事件经过时用它 · interval-set · component L1 · MIT
 - `tufte-css` — 需要带边注、旁注编号和紧凑图文节奏的研究简报或讲义时用它 · notation-string · component L1 · MIT
+- `turbodocx-html-to-docx` — 已有(或让 AI 生成)一段 HTML,要交付可在 Word 里继续编辑的 .docx 时用它 · html · headless-primitive · MIT
+- `xlsx` — 需要在浏览器里解析 .xlsx/.xls/.ods 二进制表格并取数据或转 HTML 表(sheet… · workbook · headless-primitive · Apache-2.0
 - `zumer-snapdom` — 需要把已渲染 DOM 连同计算样式、伪元素、字体与 shadow DOM 快速导出为 PNG/JPE… · geometry · headless-primitive · MIT

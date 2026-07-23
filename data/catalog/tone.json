@@ -2,6 +2,26 @@
   "entry_version": "thin-1",
   "id": "tone",
   "name": "Tone.js",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written Web Audio when you need to synthesize timbres, schedule notes precisely to a meter, or create an interactive music-theory experiment in the browser -- native implementations make AudioContext unlocking, beat scheduling, and synth-node orchestration expensive and prone to drift.",
+      "why_valuable": "AI defaults can only assemble a one-off oscillator, not stable transport scheduling, polyphonic synthesis, envelopes, and effect chains; Tone.js turns a note sequence directly into a repeatable Web Audio timeline without depending on external audio assets.",
+      "data_in": {
+        "note": "The input is a timed note sequence passed to Tone.Part; time uses Tone.TransportTime notation, and note uses Tone.Frequency notation. Defaults for every optional field are specified below.",
+        "schema": {
+          "events": [
+            {
+              "time": "number | string -- Tone.TransportTime; required",
+              "note": "number | string -- Tone.Frequency; required",
+              "duration?": "number | string -- Tone.Time; default '8n'",
+              "velocity?": "number (0..1); default 1"
+            }
+          ],
+          "bpm?": "number (>0); default 120"
+        }
+      }
+    }
+  },
   "when_to_use": "需要在浏览器里合成音色、按拍号精确调度音符或做可交互乐理实验时用它,而非手写 Web Audio——原生在 AudioContext 解锁、节拍调度与合成器节点编排上昂贵且易漂移。",
   "why_valuable": "AI 默认只能拼一次性 oscillator,做不到稳定 transport 调度、复音合成、包络与效果链;Tone.js 把音符序列直接变成可重复的 Web Audio 时间线,且不依赖外部音频素材。",
   "supply_form": "headless-primitive",
@@ -51,7 +71,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Web Audio 引擎,不触 DOM/style/body。Tone 15 的 Tone.start() 需显式在用户手势内调用(boot 已放在 click 处理器),不自动挂 document 点击监听(旧版 StartAudioContext 已移除)。注意:AudioContext/Transport 为页面级全局单例,多实例共享同一时钟(非 style/dom/event-listener 副作用,但同页多份需消费方自管 dispose)。headless 无渲染面→shadowCompatible=yes。API 已逐一验证,内部监听未逐字节反编译,故置信 med。",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

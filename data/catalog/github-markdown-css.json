@@ -38,7 +38,26 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "纯 CSS,无运行时 JS,不存在库主动注入;.markdown-body 作用域样式。widget boot 将 <link>+article 一并落 shadowRoot,样式隔离可行(shadow 内 media/data-theme 门控行为不变,但那是功能瑕疵不是隔离问题)。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "color_mode": "light",
+      "html": "<h1>Project Report</h1>\n<p>A <strong>quarterly summary</strong> with <em>metrics</em> and a <a href=\"https://github.com\">reference link</a>.</p>\n<h2>Highlights</h2>\n<ul>\n<li>Shipped the new <code>parser</code> module</li>\n<li>Reduced build time by <strong>40%</strong></li>\n</ul>\n<blockquote>\n<p>Note: all figures below are provisional.</p>\n</blockquote>\n<h2>Benchmarks</h2>\n<table>\n<thead>\n<tr><th>Metric</th><th>Before</th><th>After</th></tr>\n</thead>\n<tbody>\n<tr><td>Latency (ms)</td><td>120</td><td>72</td></tr>\n<tr><td>Throughput (rps)</td><td>850</td><td>1400</td></tr>\n</tbody>\n</table>\n<h2>Example</h2>\n<pre><code>function greet(name) {\n  return `Hello, ${name}!`;\n}</code></pre>\n<h2>Checklist</h2>\n<ul class=\"contains-task-list\">\n<li class=\"task-list-item\"><input type=\"checkbox\" checked disabled> Write tests</li>\n<li class=\"task-list-item\"><input type=\"checkbox\" disabled> Ship release</li>\n</ul>"
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need already-rendered Markdown reports to have a familiar, page-consistent GitHub appearance, instead of hand-writing CSS, because native implementations fail to match code blocks, tables, task lists, and light/dark color variables item by item. Not a Markdown parser or branded publishing design.",
+      "why_valuable": "AI can only approximate Markdown styling to about 80% by default and cannot stay synchronized with GitHub code, tables, quotes, task lists, and color variables over time. It is a low-surprise document baseline rather than a creative visual highlight.",
+      "data_in": {
+        "note": "Input must be HTML already converted by a Markdown engine and sanitized according to the trust boundary. This entry supplies only .markdown-body styles.",
+        "schema": {
+          "html": "string -- Rendered Markdown HTML",
+          "color_mode?": "'auto' | 'light' | 'dark' -- Color mode; default auto (follows prefers-color-scheme)",
+          "padding?": "number -- Root-container padding (px); default 32"
+        }
+      }
+    }
   }
 }

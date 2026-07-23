@@ -4,6 +4,49 @@
   "name": "vis-timeline",
   "when_to_use": "需要在长时间跨度里探索点事件与区间、按 group 排成泳道并缩放平移时用它而非手写 DOM/SVG,因为原生在区间堆叠、可视窗口命中检测和跨尺度时间刻度上失败。",
   "why_valuable": "AI 默认只能产出静态 Mermaid 小甘特或位置脆弱的绝对定位 DOM;默认做不到长跨度缩放平移、区间防重叠堆叠、分组泳道与随窗口变化的时间刻度和命中检测。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to explore point events and intervals across a long time span, arrange them into group swimlanes, and zoom or pan, instead of hand-writing DOM/SVG. Native implementations fail on interval stacking, hit-testing in the visible window, and time scales that change across zoom levels.",
+      "why_valuable": "AI can only produce a small static Mermaid Gantt chart or fragile absolutely positioned DOM by default. It cannot provide zooming and panning across long spans, non-overlapping interval stacking, grouped swimlanes, or time ticks and hit-testing that respond to the visible window.",
+      "data_in": {
+        "note": "The primary structure is an interval-set: each item represents a point or interval with start/end. group references groups[].id as a relational-ref, while start/end are temporal values. The schema keeps only the high-frequency native fields needed for one assembly.",
+        "schema": {
+          "items": [
+            {
+              "id": "string | number",
+              "content": "string - short label shown on the timeline",
+              "start": "Date | ISO-8601 string | epoch-milliseconds",
+              "end?": "Date | ISO-8601 string | epoch-milliseconds - when end is present, the item is an interval",
+              "group?": "string | number - corresponds to groups[].id",
+              "type?": "'box' | 'point' | 'range' | 'background'",
+              "className?": "string",
+              "title?": "string"
+            }
+          ],
+          "groups?": [
+            {
+              "id": "string | number",
+              "content": "string - swimlane label",
+              "order?": "number | string",
+              "className?": "string"
+            }
+          ],
+          "options?": {
+            "start?": "Date | ISO-8601 string | epoch-milliseconds - initial visible-window start",
+            "end?": "Date | ISO-8601 string | epoch-milliseconds - initial visible-window end",
+            "orientation?": "'top' | 'bottom' | 'both'",
+            "stack?": "boolean",
+            "zoomMin?": "number - minimum visible span in milliseconds",
+            "zoomMax?": "number - maximum visible span in milliseconds",
+            "cluster?": "boolean"
+          }
+        }
+      },
+      "spec": {
+        "note": "Timeline swimlane stacking and hit-testing depend on stable geometry. The container and Timeline options.height both default to 400px. AI may choose another explicit px height, but vh and percentage heights are prohibited (hard rule 3)."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",

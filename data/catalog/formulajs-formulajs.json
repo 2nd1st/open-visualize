@@ -50,7 +50,26 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Financial functions PMT/PV/FV/NPER/NPV/IRR are pure (return number|Error per the .d.mts); the package has no DOM/CSS/event surface — safe in any context.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to recompute Excel-style financial and statistical functions in JavaScript, instead of writing them by hand, because native implementations fail at payment timing, IRR iteration, and Excel parameter order. Not for an entire spreadsheet, cell references, or formula parsing.",
+      "why_valuable": "AI rewrites PMT/NPV/IRR from memory by default and cannot consistently preserve Excel sign conventions, optional-parameter defaults, and error boundaries. Formula.js provides named pure-function entry points.",
+      "data_in": {
+        "note": "call must come from the allowlist, and args must follow the native Excel/Formula.js positions exactly. Rates use per-period decimals, not percentage strings.",
+        "schema": {
+          "call": "'PMT'|'PV'|'FV'|'NPER'|'NPV'|'IRR'",
+          "args": {
+            "PMT": "[rate:number,nper:number,pv:number,fv?:number=0,type?:0|1=0]",
+            "PV": "[rate:number,nper:number,pmt:number,fv?:number=0,type?:0|1=0]",
+            "FV": "[rate:number,nper:number,pmt:number,pv?:number=0,type?:0|1=0]",
+            "NPER": "[rate:number,pmt:number,pv:number,fv?:number=0,type?:0|1=0]",
+            "NPV": "[rate:number,...cashflows:number[]] -- At least one cashflow, all treated as occurring at period end",
+            "IRR": "[cashflows:number[],guess?:number=0.1] -- cashflows must contain both positive and negative values"
+          }
+        }
+      }
+    }
   }
 }

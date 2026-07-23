@@ -2,6 +2,25 @@
   "entry_version": "thin-1",
   "id": "topojson-client",
   "name": "topojson-client",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when atlas-style TopoJSON must be decoded to GeoJSON, shared boundaries extracted, or administrative regions merged instead of hand-written arc decoding, which fails at delta/transform restoration, reversed arcs, and topological stitching.",
+      "why_valuable": "AI cannot correctly reconstruct TopoJSON delta-encoded arcs, negative-index reversed arcs, and transform data, and hand-written merging also destroys shared boundaries. This primitive is a reliable bridge from us-atlas/world-atlas to d3-geo or ECharts.",
+      "data_in": {
+        "note": "Input is exactly a TopoJSON Topology plus one key from its objects; it is not GeoJSON. object_name must exist in topology.objects, for example 'counties' in us-atlas counties-10m.json.",
+        "schema": {
+          "topology": {
+            "type": "'Topology'",
+            "objects": "Record<string, TopoJSON Geometry | GeometryCollection>",
+            "arcs": "number[][][]",
+            "transform?": "{scale:[number,number], translate:[number,number]} -- absent by default; without it, arcs already use absolute coordinates",
+            "bbox?": "[number, number, number, number] -- absent by default"
+          },
+          "object_name": "string -- existing key in topology.objects"
+        }
+      }
+    }
+  },
   "when_to_use": "需要把 atlas 类 TopoJSON 解码成 GeoJSON、提取共享边界或合并行政区时用它而非手写弧段解码,因为原生在 delta/transform 还原、反向弧与拓扑拼接上失败。",
   "why_valuable": "AI 默认做不到正确还原 TopoJSON 的 delta-encoded arcs、负索引反向弧和 transform,手写合并还会破坏共享边界;本 primitive 是 us-atlas/world-atlas 到 d3-geo 或 ECharts 的可靠桥。",
   "supply_form": "headless-primitive",
@@ -53,7 +72,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "纯几何变换库(TopoJSON→GeoJSON/mesh/merge),README 与导出确认全部为数据函数,无 DOM/document/window 触及。headless-primitive 无渲染面→shadowCompatible=yes,三副作用轴均 no。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

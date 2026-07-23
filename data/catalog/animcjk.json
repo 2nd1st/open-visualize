@@ -4,6 +4,20 @@
   "name": "animCJK",
   "when_to_use": "需要日文汉字、假名、韩文汉字或简繁汉字的现成笔顺 SVG 时用它,而非手写路径——原生实现在跨语言字形差异、逐画几何与动画顺序上完全失败。",
   "why_valuable": "AI 默认无法生成任何可靠的 CJK 笔顺 SVG,也分不清同一 Unicode 在日中韩语境下的字形/笔顺差异；animCJK 提供按字符与语言分桶的已绘制动画几何。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need ready-made stroke-order SVGs for Japanese kanji, kana, Korean hanja, or Simplified and Traditional Chinese characters instead of hand-writing paths. Native implementations fail completely on cross-language glyph differences, per-stroke geometry, and animation order.",
+      "why_valuable": "AI cannot generate reliable CJK stroke-order SVGs by default and cannot distinguish glyph or stroke-order differences for the same Unicode character across Japanese, Chinese, and Korean contexts. animCJK provides pre-drawn animated geometry bucketed by character and language.",
+      "data_in": {
+        "note": "The asset is complete SVG text. Its filename is the character's decimal Unicode code point followed by .svg. Choose folder by language from svgsJa, svgsJaKana, svgsKo, svgsZhHans, or svgsZhHant; do not infer the language from the character alone.",
+        "schema": {
+          "svg_text": "string - a complete <svg> document containing stroke paths, median paths, and per-stroke CSS animation",
+          "folder": "'svgsJa' | 'svgsJaKana' | 'svgsKo' | 'svgsZhHans' | 'svgsZhHant'",
+          "unicode_decimal": "positive integer - decimal value of character.codePointAt(0), used directly in the filename"
+        }
+      }
+    }
+  },
   "supply_form": "data-asset",
   "mode": "direct-import",
   "upstream": {
@@ -28,7 +42,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "纯 SVG 文本资产,实读结构:`<svg>` 内含 `<style>`+`@keyframes`+`id='z20013'`(codepoint 作用域)+ clip-path 逐画动画,无 JS、无监听。<style> 位于 <svg> 内联,随 SVG 内联进 shadow root 即被作用域化,不注 document.head。注意:同一 root 内联多字符时 @keyframes 名可能撞车(多实例消费侧留意),单字符典型用法无碍。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

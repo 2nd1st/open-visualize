@@ -1,0 +1,77 @@
+{
+  "entry_version": "thin-1",
+  "id": "turbodocx-html-to-docx",
+  "name": "html-to-docx (TurboDocx fork)",
+  "when_to_use": "已有(或让 AI 生成)一段 HTML,要交付可在 Word 里继续编辑的 .docx 时用它;需要逐 API 精确程序化控制文档结构请用 docx,套现成模板请用 docxtemplater。它吃「任意 HTML → Word」,把 AI 最擅长产出的 HTML 一步变成 .docx。",
+  "why_valuable": ".docx 是 zip 打包的多部件 OOXML,AI 手写字节不可能;而 AI 天生最会产 HTML。这条 fork 把标题/段落/表格/列表/图片/内联样式映射成 OOXML,补上「AI 已有的 HTML → 可编辑 Word 成品」这一步(原版 html-docx-js 停在 2016 且 +esm 加载失败,故选活跃 fork)。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@turbodocx/html-to-docx",
+    "version": "1.22.0",
+    "github": "turbodocx/html-to-docx"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "html",
+    "note": "默认导出即转换函数(import htmlToDocx from,非解构)。签名是 (html, headerHTML|null, options, footerHTML|null),第 2/4 参是页眉/页脚 HTML,可传 null。浏览器 bundle 较重(~1.75MB,jszip/xmlbuilder2 等经 +esm shim),复杂 HTML/远程图片建议先小样验证。",
+    "schema": {
+      "html": "string —— 文档主体 HTML(AI 直接产出;支持 h1-h6/p/table/ul-ol/img/内联 style)",
+      "orientation?": "'portrait' | 'landscape' —— 默认 portrait",
+      "margins?": "{ top?, right?, bottom?, left?, header?, footer?, gutter? } —— twip 单位",
+      "title?": "string —— 文档属性标题",
+      "font?": "string —— 默认字体名",
+      "fontSize?": "number —— half-point,如 22 = 11pt",
+      "table?": "{ row?:{ cantSplit?:boolean }, borderOptions?:{ size, stroke, color } }",
+      "headerHTML?": "string —— 页眉 HTML(第 2 位参数)",
+      "footerHTML?": "string —— 页脚 HTML(第 4 位参数)",
+      "pageNumber?": "boolean —— 页脚页码"
+    }
+  },
+  "provides": {
+    "shape": "docx-blob",
+    "_note": "headless-primitive:HTML→docx 转换器,不挂视觉组件;浏览器端 resolve 成 Blob。",
+    "outputs": "可在 Word/WPS 继续编辑的 .docx(OOXML zip)Blob:标题/段落/表格/列表/图片/内联样式 → 对应 OOXML 部件。",
+    "api_surface": {
+      "convert": "htmlToDocx(htmlString, headerHTML?, documentOptions?, footerHTML?) → Promise<Blob | ArrayBuffer | Buffer>(浏览器返回 Blob)",
+      "options": "documentOptions:{ orientation, pageSize, margins, title, font, fontSize, table, pageNumber, header, footer, numbering, heading, ... }"
+    }
+  },
+  "peer": {
+    "id": "none",
+    "note": "无渲染依赖;Blob 直接 URL.createObjectURL 触发 .docx 下载。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:HTML→docx Blob,零视觉挂载\nimport htmlToDocx from 'https://cdn.jsdelivr.net/npm/@turbodocx/html-to-docx@1/+esm';\n// 默认导出即函数(非解构);第 2/4 参为页眉/页脚 HTML,不用则传 null\nconst blob = await htmlToDocx(\n  data.html,\n  data.headerHTML ?? null,\n  {\n    orientation: data.orientation ?? 'portrait',\n    margins: data.margins,\n    title: data.title,\n    font: data.font,\n    fontSize: data.fontSize,\n    table: { row: { cantSplit: true } }\n  },\n  data.footerHTML ?? null\n);\nconst url = URL.createObjectURL(blob); // <a href=url download='out.docx'>",
+    "note": "默认导出是转换函数本身(import x from,不能解构)。返回 Promise,浏览器端 resolve 成 Blob。bundle 重(~1.75MB,经 jsDelivr 浏览器 shim),含远程 <img> 时走 axios 拉取有网络/CSP 约束,复杂 HTML 建议先小样验证。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm 200(约 1.75MB),导出 {default}(export{DV as default},须 import x from 不可解构)。index.d.ts:default HTMLtoDOCX(htmlString, headerHTMLstring?, documentOptions?, footerHtmlString?) → Promise<ArrayBuffer|Blob|Buffer>,DocumentOptions 字段 orientation/margins/font/fontSize/table/... 与 schema 对齐。+esm grep 无 document.head/body 的 append,document.createElement×2 均为依赖内特性探测('onreadystatechange'in document.createElement('script'),离屏未挂载);htmlparser2/xmlbuilder2/jszip 纯字符串/buffer。零持久全局副作用 → headless shadow-safe。confidence=medium:重 bundle 经浏览器 shim、复杂 HTML 未逐样实测(存在 browser build)。",
+    "confidence": "medium"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you already have, or ask AI to generate, HTML and need to deliver an editable .docx for Word. For precise programmatic control of document structure through individual APIs, use docx; for existing templates, use docxtemplater. It accepts arbitrary HTML -> Word and turns the format AI produces best into .docx in one step.",
+      "why_valuable": ".docx is multipart OOXML packaged as ZIP, so AI cannot handwrite its bytes, while AI is naturally strong at HTML. This fork maps headings, paragraphs, tables, lists, images, and inline styles to OOXML, providing the missing AI-generated HTML -> editable Word deliverable step. The original html-docx-js stopped in 2016 and fails to load through +esm, so this active fork is used.",
+      "data_in": {
+        "note": "The default export is the conversion function (import htmlToDocx from), not a destructured member. Its signature is (html, headerHTML|null, options, footerHTML|null); arguments 2 and 4 are header/footer HTML and may be null. The browser bundle is heavy (about 1.75MB, with jszip/xmlbuilder2 and others through the +esm shim); validate complex HTML or remote images with a small sample first.",
+        "schema": {
+          "html": "string -- Document-body HTML generated directly by AI; supports h1-h6/p/table/ul-ol/img/inline style",
+          "orientation?": "'portrait' | 'landscape' -- Default portrait",
+          "margins?": "{ top?, right?, bottom?, left?, header?, footer?, gutter? } -- Units are twips",
+          "title?": "string -- Document property title",
+          "font?": "string -- Default font name",
+          "fontSize?": "number -- Half-points, such as 22 = 11pt",
+          "table?": "{ row?:{ cantSplit?:boolean }, borderOptions?:{ size, stroke, color } }",
+          "headerHTML?": "string -- Header HTML (second argument)",
+          "footerHTML?": "string -- Footer HTML (fourth argument)",
+          "pageNumber?": "boolean -- Footer page number"
+        }
+      }
+    }
+  }
+}

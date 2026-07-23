@@ -2,6 +2,23 @@
   "entry_version": "thin-1",
   "id": "coderline-alphatab",
   "name": "alphaTab",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of ASCII tab or hand-written SVG when you need to render alphaTex or MusicXML in the browser as notation containing both standard staff and guitar tab while preserving rhythm, bends, and multi-track information -- native implementations fail on rhythmic alignment, guitar-technique glyphs, and multi-track layout. It is not a score editor.",
+      "why_valuable": "AI defaults can only write ASCII tab that loses rhythm and technique; they cannot lay out standard staff and tab together, render specialized symbols such as bends, or provide an extensible playback pipeline. alphaTab engraves text/interchange formats directly into production-grade SVG.",
+      "data_in": {
+        "note": "format is required to remove ambiguity between tex() and the binary importer; alphaTex is the library's own DSL, so a minimal example is included. The default boot only engraves notation and does not automatically enable WebAudio.",
+        "schema": {
+          "format": "'alphatex' | 'musicxml' -- required; alphatex uses api.tex(string), while musicxml is first UTF-8 encoded and then passed to api.load(Uint8Array)",
+          "notation": "string -- when format=alphatex, the complete alphaTex from metadata through the . delimiter and notes; when format=musicxml, a complete <score-partwise>/<score-timewise> document",
+          "playback?": "boolean -- whether to enable the native WebAudio player and load the bundled soundfont; default false. The host's consuming AI must still provide playback UI and handle the user gesture"
+        }
+      },
+      "spec": {
+        "note": "The score container defaults to a fixed 560px height with scrolling; do not use vh or percentage heights. The renderer sets useWorkers:false to avoid +esm relative worker URL ambiguity; playback=true still requires WebAudio, a worklet/worker, the soundfont CDN, and a user gesture, and must be tested in the target carrier."
+      }
+    }
+  },
   "when_to_use": "需要把 alphaTex 或 MusicXML 渲成同时含标准谱与吉他 tab、保留节奏/推弦/多轨信息的浏览器谱面时用它,而非 ASCII tab 或手写 SVG——原生手写在节奏对齐、吉他技法 glyph 和多轨排版上失败;它非做谱面编辑器。",
   "why_valuable": "AI 默认只能写丢失节奏与技法的 ASCII tab,做不到标准谱/tab 联排、推弦等专用符号和可扩展播放管线;alphaTab 将文本/交换格式直接刻成生产级 SVG。",
   "supply_form": "component",
@@ -55,7 +72,6 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "API verified against @coderline/alphatab@1.8.4/dist/alphaTab.d.ts: import{AlphaTabApi} is a real named export; constructor(element:HTMLElement, options:SettingsJson|Settings) (L255); api.tex(tex:string) (L259) and api.load(scoreData:unknown):boolean (L626) — boot's tex()/load(Uint8Array) dispatch is correct. CoreSettings.engine/useWorkers/scriptFile/fontDirectory all real (L6081/6100/5970/5985); PlayerSettings.enablePlayer:boolean (L13648) and soundFont:string|null (L13610) real. Asset paths exist: dist/font/Bravura.woff2, dist/soundfont/sonivox.sf2, dist/alphaTab.mjs. HEAVY global footprint: +esm injects a music-font stylesheet into the DOCUMENT head — createElement('style'); s.id='alphaTabStyle...'; s.innerHTML=cssSource; t.getElementsByTagName('head').item(0).appendChild(s) — @font-face must be at document level (font-face rules do not apply inside a shadow root), so this is unavoidable. FontLoadingChecker appends a hidden trigger element to document.body (r.innerText='Trigger ... load'; document.body.appendChild(r)); player/export paths append audio/anchor to body. Registers window.addEventListener('resize',...) (2 sites) plus ResizeObserver. SVG renders into the provided element (can be in shadow) but the font @font-face + body probe leak to the main document → conditional, not zero-footprint.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

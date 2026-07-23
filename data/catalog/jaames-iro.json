@@ -1,0 +1,80 @@
+{
+  "entry_version": "thin-1",
+  "id": "jaames-iro",
+  "name": "@jaames/iro",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need a wheel- or box-style expressive color picker with an alpha slider, hex/rgb/hsv formats, and multiple color selection instead of a bare <input type=color>, such as for theme customization, drawing tools, or design controls. For a full row of parameter controls, use leva or tweakpane from the catalog; for one native color swatch, do not add it.",
+      "why_valuable": "An HSV color wheel or gradient box requires real color-space math, canvas/conic rendering, synchronized sliders, and format conversion. AI-written versions usually stop at a broken hue strip rather than a true color wheel.",
+      "data_in": {
+        "note": "These are native iro options. The default export is the iro namespace, so construct with new iro.ColorPicker(el, options). The event outlet is picker.on('color:change', cb), and the color object exposes hexString/rgb/hsv/rgba.",
+        "schema": {
+          "color?": "string -- initial color in any CSS, hex, rgb, or hsv format; defaults to '#fff'",
+          "width?": "number -- overall control width (wheel diameter); defaults to 300",
+          "layoutDirection?": "'vertical' | 'horizontal' -- component stacking direction; defaults to 'vertical'",
+          "colors?": "string[] -- initial set for multi-color selection; defaults to one color",
+          "transparency?": "boolean -- whether to include the alpha channel/slider; defaults to false",
+          "options?": "object -- other native options: borderWidth/borderColor/padding/margin/handleRadius/sliderSize/wheelLightness/wheelAngle/wheelDirection/boxHeight, etc."
+        }
+      },
+      "spec": {
+        "note": "iro renders from the width option (wheel height is approximately width), and content determines total height. :host{display:block;width:100%} grows with it; do not use vh or percentage heights."
+      }
+    }
+  },
+  "when_to_use": "需要 wheel/box 型表达式颜色选择器(带 alpha 滑块、hex/rgb/hsv 多格式、多色选择)而非裸 <input type=color> 时用它——主题定制、绘图工具、设计控件。要一整排参数面板用目录里的 leva/tweakpane;只要一个原生色块就别上。",
+  "why_valuable": "HSV 色轮/渐变方块要真实色彩空间数学 + canvas/conic 渲染 + 多滑块联动 + 格式互转;AI 从零写通常只能凑出坏掉的 hue 长条,做不出真正的轮盘。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@jaames/iro",
+    "version": "5.5.2",
+    "github": "jaames/iro.js"
+  },
+  "license": "MPL-2.0",
+  "data_in": {
+    "shape": "color-value",
+    "note": "iro 原生 options;默认导出是 iro 命名空间,构造走 new iro.ColorPicker(el, options)。事件出口 picker.on('color:change', cb),color 对象带 hexString/rgb/hsv/rgba。",
+    "schema": {
+      "color?": "string —— 初始颜色(任意 CSS 格式/hex/rgb/hsv),默认 '#fff'",
+      "width?": "number —— 控件总宽度(轮盘直径),默认 300",
+      "layoutDirection?": "'vertical' | 'horizontal' —— 组件堆叠方向,默认 'vertical'",
+      "colors?": "string[] —— 多色选择的初始色组,默认单色",
+      "transparency?": "boolean —— 是否含 alpha 通道/滑块,默认 false",
+      "options?": "object —— 其余原生选项:borderWidth/borderColor/padding/margin/handleRadius/sliderSize/wheelLightness/wheelAngle/wheelDirection/boxHeight 等"
+    }
+  },
+  "spec": {
+    "height": 300,
+    "note": "iro 按 width 选项自渲染(轮盘高≈width),高度由内容撑开;:host{display:block;width:100%} 撑高,禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:iro 渲染内联 SVG 到容器,无 CSS 注入\nimport iro from 'https://cdn.jsdelivr.net/npm/@jaames/iro@5/+esm';\nconst el = document.getElementById('picker');\nconst picker = new iro.ColorPicker(el, { width: data.width ?? 300, color: data.color ?? '#f00', layoutDirection: data.layoutDirection ?? 'vertical', ...(data.options ?? {}) });\npicker.on('color:change', (color) => { /* color.hexString / color.rgba / color.hsv —— 消费 AI 接原生回调 */ });",
+    "widget": "// iro 不注入任何全局样式;SVG 控件落 shadow\nimport iro from 'https://cdn.jsdelivr.net/npm/@jaames/iro@5/+esm';\nconst el = document.createElement('div'); shadowRoot.appendChild(el);\nconst picker = new iro.ColorPicker(el, { width: data.width ?? 300, color: data.color ?? '#f00', ...(data.options ?? {}) });\npicker.on('color:change', (color) => { /* 消费 AI 接原生回调 */ });",
+    "codex": "import iro from 'https://cdn.jsdelivr.net/npm/@jaames/iro@5/+esm';\nconst el = document.getElementById('picker');\nconst picker = new iro.ColorPicker(el, { width: data.width ?? 300, color: data.color ?? '#f00', ...(data.options ?? {}) });\npicker.on('color:change', (color) => { /* color.hexString 等 */ });"
+  },
+  "uplink": "color:change 回调携带当前 color(hexString/rgba/hsv);若需外传选中色,由消费 AI 直接接 picker.on() 原生回调并按载体处理,本条不预设事件契约。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:SVG 控件 + 事件回调落 shadow,iro 零全局样式注入,天然 shadow-safe",
+    "codex": "supported:ESM CDN,纯 SVG DOM,无 worker/wasm/uplink 硬依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm default export 为 iro 命名空间(grep: 'ft as default');API iro.ColorPicker(parent: string|HTMLElement, props) 见 dist/ColorPicker.d.ts,README 实例 `new iro.ColorPicker('#picker', {width:320, color:'#f00'})`。选项 width/color/colors/layoutDirection/padding/margin/borderWidth/borderColor/handleRadius/sliderSize/wheelLightness/wheelAngle/boxHeight/transparency 均真实(README availableOptions + iro-core IroColorPickerOptions)。零全局足迹:+esm grep document.head=0、document.body=0——iro 把 SVG 渲染进传入的 parent 元素并内联样式(无外部 CSS、无 stylesheet 注入)。事件 picker.on('color:change', cb),color.hexString/.rgba/.hsv 见 ColorPicker.d.ts 的 on/off 方法。完全容器内 → shadow 安全。",
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "color": "#2f80ed",
+      "width": 280,
+      "options": {
+        "transparency": true
+      }
+    }
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "entry_version": "thin-1",
+  "id": "makerjs",
+  "name": "makerjs",
+  "when_to_use": "交付物是「可进激光切割机/CNC/CAD 的图纸(DXF)」或参数化生成的切割/雕刻 SVG 时用;普通网页矢量插画直接写 SVG,文字转曲线用 opentype.js。",
+  "why_valuable": "参数化 2D 几何建模 → 导出 DXF(工程标准格式)/SVG,支持布尔运算、路径链、圆角、齿轮/箭头等参数模型、文本转路径;DXF 是工程交付格式,原生 AI 完全无法产出。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when the deliverable is a drawing for a laser cutter/CNC/CAD system in DXF, or a parametrically generated cutting or engraving SVG. For ordinary web vector illustration, write SVG directly; for converting text to outlines, use opentype.js.",
+      "why_valuable": "It provides parametric 2D geometry modeling with DXF, an engineering-standard format, or SVG export; boolean operations, path chains, fillets, parametric models such as gears and arrows, and text-to-path conversion. DXF is an engineering delivery format that native AI cannot produce.",
+      "data_in": {
+        "note": "Use built-in models to construct parametric models, use model for boolean operations and transforms, combine them into a model tree ({paths,models,units}), then export a string with exporter.toDXF/toSVG. The consuming AI assembles a model description that boot converts into maker objects. args depend on the model: most are numbers, while Slot uses points [x,y].",
+        "schema": {
+          "units": "string - 'mm' | 'inch' and similar values corresponding to makerjs.unitType.*, affecting DXF unit metadata",
+          "models": "Array<{ type:string, args:any[] }> - one built-in model per item; type is one of 'Rectangle'|'Oval'|'Ring'|'Star'|'Slot'|'Square'; args examples: Rectangle [width,height], Oval [width,height], Ring [outerR,innerR?], Star [numPoints,outerR,innerR?,skip?], Square [side], Slot [[x1,y1],[x2,y2],radius]",
+          "export": "'dxf' | 'svg' - target format, default 'svg'"
+        }
+      }
+    }
+  },
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "makerjs",
+    "version": "0.19.2",
+    "github": "Microsoft/maker.js"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "geometry",
+    "note": "用内置 models 构参数模型、model 做布尔/变换,组合出一个 model 树({paths,models,units}),再经 exporter.toDXF/toSVG 出串。消费 AI 拼的是「模型描述」,由 boot 翻成 maker 对象。args 依模型而定:多数是数字,Slot 用点 [x,y]。",
+    "schema": {
+      "units": "string —— 'mm' | 'inch' 等(对应 makerjs.unitType.*),影响 DXF 单位标注",
+      "models": "Array<{ type:string, args:any[] }> —— 每项一个内置模型;type ∈ 'Rectangle'|'Oval'|'Ring'|'Star'|'Slot'|'Square';args 如 Rectangle→[width,height]、Oval→[width,height]、Ring→[outerR,innerR?]、Star→[numPoints,outerR,innerR?,skip?]、Square→[side]、Slot→[[x1,y1],[x2,y2],radius]",
+      "export": "'dxf' | 'svg' —— 目标格式,默认 'svg'"
+    }
+  },
+  "provides": {
+    "shape": "dxf-or-svg-string",
+    "_note": "headless-primitive:纯几何 → 字符串生成;无渲染组件、无 carriers 矩阵。",
+    "outputs": "makerjs.exporter.toDXF(model) → string(CAD 交付,包 Blob 下载)/ makerjs.exporter.toSVG(model) → string(可 innerHTML 注入预览)。",
+    "api_surface": {
+      "models": "new makerjs.models.Rectangle(w,h) / Oval(w,h) / Ring(outerR,innerR?) / Star(pts,outerR,innerR?,skip?) / Slot(origin,end,radius) / Square(side)",
+      "compose": "makerjs.model.combineUnion/combineSubtraction/combineIntersection(a,b);model.center/rotate/move",
+      "export_dxf": "makerjs.exporter.toDXF(model, {units}?) → string",
+      "export_svg": "makerjs.exporter.toSVG(model, {units,fill,stroke,strokeWidth,useSvgPathOnly}?) → string"
+    }
+  },
+  "boot": {
+    "shared": "// 产 DXF/SVG 字符串,零全局足迹;default 命名空间导入\nimport makerjs from 'https://cdn.jsdelivr.net/npm/makerjs@0.19.2/+esm';\nconst ctors = makerjs.models;\nconst model = { units: data.units ?? 'mm', models: {} };\n(data.models ?? []).forEach((m, i) => {\n  model.models['m' + i] = new ctors[m.type](...(m.args ?? []));\n});\nconst out = data.export === 'dxf'\n  ? makerjs.exporter.toDXF(model)\n  : makerjs.exporter.toSVG(model, { units: model.units });\n// DXF: new Blob([out],{type:'application/dxf'}) 下载\n// SVG: const d=document.createElement('div'); d.innerHTML=out; (widget) shadowRoot.appendChild(d) / (artifact) targetEl.appendChild(d)",
+    "note": "makerjs 是 default 导出的命名空间对象。model = { paths?, models?, units?, origin? }。toDXF/toSVG 均返回纯字符串,库零 DOM/style/event 足迹。SVG 输出内联自包含,widget 里 div.innerHTML=svg 后 shadowRoot.appendChild 即隔离。toPDF 需 pdfkit,不在此路径。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr makerjs@0.19.2 +esm (118KB): export{Rn as default} — boot uses default namespace import. dist/index.d.ts: exporter.toDXF(model:IModel, options?:IDXFRenderOptions):string; exporter.toSVG(model:IModel, options?:ISVGRenderOptions{fill?,stroke?,strokeWidth?,units?,useSvgPathOnly?}):string; models.Rectangle constructor(width,height); Oval(width,height); Ring(outerRadius,innerRadius?); Star(numberOfPoints,outerRadius,innerRadius?,skipPoints?); Slot(origin:IPoint,endPoint:IPoint,radius,...); Square(side); IModel={paths?,models?,units?,origin?}; unitType map present; model.combineUnion/combineSubtraction/combineIntersection(a,b) — schema/boot match. Global-footprint grep: document.head 0, document.body 0, document.createElement 0, <style/insertRule/adoptedStyleSheets 0, addEventListener 0 — pure geometry→string builder, no DOM/style/event side effects; SVG output is self-contained inline markup, so shadow injection is fully isolated.",
+    "confidence": "high"
+  }
+}

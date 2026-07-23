@@ -1,0 +1,98 @@
+{
+  "entry_version": "thin-1",
+  "id": "wavesurfer-js",
+  "name": "wavesurfer.js",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when teaching signals, DSP, speech, or music requires an audio waveform that can be scrubbed, zoomed, annotated, and aligned. Do not use it when one play button is enough and no waveform visualization is needed. In Claude artifact, prefer precomputed peaks+duration to avoid CSP restrictions on external audio fetch through connect-src/media-src.",
+      "why_valuable": "It combines Web Audio decoding, waveform peak extraction, zoomable canvas rendering, cursor/region annotations, and playback synchronization. A hand-written interactive waveform must handle decoding, downsampling, and zoom performance, and is very likely to lag or be inaccurate.",
+      "data_in": {
+        "note": "To avoid network/decoding under CSP, pass precomputed peaks + duration. The url path fetches and decodes, requiring connect-src/media-src access to the audio source; in Claude artifact, use a data: URI or peaks instead.",
+        "schema": {
+          "url?": "string -- audio URL (fetched and decoded; under artifact CSP use a data: URI or peaks)",
+          "peaks?": "(Float32Array | number[])[] -- precomputed waveform peaks (one array per channel), avoiding fetch/decode",
+          "duration?": "number -- audio duration in seconds, used with peaks",
+          "waveColor?": "string | string[] | CanvasGradient -- waveform color",
+          "progressColor?": "string | string[] | CanvasGradient -- playback-progress color",
+          "height?": "number | 'auto' -- waveform height in px; default 128, while 'auto' fills the container"
+        }
+      },
+      "spec": {
+        "note": "The waveform canvas adapts to container width; give the container a fixed px height (default 128). Do not use vh or percentage heights. After import, use ws.on('ready') for subsequent logic."
+      }
+    }
+  },
+  "when_to_use": "教信号/DSP/语音/音乐,需要可 scrub/缩放/标注/对齐的音频波形显示时用。只放一个播放按钮、不需要波形可视化的场景不用它。Claude artifact 下优先传 precomputed peaks+duration,以避开外链音频 fetch 的 CSP(connect-src/media-src)限制。",
+  "why_valuable": "Web Audio 解码 + 波形峰值提取 + 可缩放 canvas 渲染 + 光标/区域标注 + 播放同步一体;AI 徒手做可交互波形要处理 decode/降采样/缩放性能,极易卡顿或不准。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "wavesurfer.js",
+    "version": "7.12.11",
+    "github": "katspaugh/wavesurfer.js"
+  },
+  "license": "BSD-3-Clause",
+  "data_in": {
+    "shape": "audio-signal",
+    "note": "要避开网络/解码(CSP),传 precomputed peaks + duration;url 路径会 fetch+解码,要求 connect-src/media-src 到音频源(Claude artifact 下改用 data: URI 或 peaks)。",
+    "schema": {
+      "url?": "string —— 音频地址(会 fetch+解码;artifact CSP 下用 data: URI 或改走 peaks)",
+      "peaks?": "(Float32Array | number[])[] —— 预算的波形峰值(每声道一数组),免 fetch/解码",
+      "duration?": "number —— 配合 peaks 使用的音频时长(秒)",
+      "waveColor?": "string | string[] | CanvasGradient —— 波形颜色",
+      "progressColor?": "string | string[] | CanvasGradient —— 播放进度颜色",
+      "height?": "number | 'auto' —— 波形高度 px,默认 128,'auto' 撑满容器"
+    }
+  },
+  "spec": {
+    "height": 128,
+    "note": "波形 canvas 按容器宽自适应;给容器固定 px 高(默认 128),禁 vh/百分比高。import 后可继续用 ws.on('ready') 挂后续逻辑。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested。WaveSurfer 在 container 内部自建 shadow root,不向 document.head 注 CSS(实测 0);default 导出\nimport WaveSurfer from 'https://cdn.jsdelivr.net/npm/wavesurfer.js@7.12.11/+esm';\nconst el = document.getElementById('wave'); el.style.height = '128px';\nconst ws = WaveSurfer.create({ container: el, height: data.height ?? 128, waveColor: data.waveColor ?? '#888', progressColor: data.progressColor ?? '#4a9', peaks: data.peaks, duration: data.duration, url: data.url });",
+    "widget": "// container div 放进 shadowRoot;WaveSurfer 在其内部再套一层自有 shadow,零 document.head 足迹\nimport WaveSurfer from 'https://cdn.jsdelivr.net/npm/wavesurfer.js@7.12.11/+esm';\nconst el = document.createElement('div'); el.style.height = '128px'; shadowRoot.appendChild(el);\nconst ws = WaveSurfer.create({ container: el, height: data.height ?? 128, waveColor: data.waveColor ?? '#888', progressColor: data.progressColor ?? '#4a9', peaks: data.peaks, duration: data.duration, url: data.url });",
+    "codex": "import WaveSurfer from 'https://cdn.jsdelivr.net/npm/wavesurfer.js@7.12.11/+esm';\nconst el = document.getElementById('wave'); el.style.height = '128px';\nconst ws = WaveSurfer.create({ container: el, height: data.height ?? 128, waveColor: data.waveColor ?? '#888', progressColor: data.progressColor ?? '#4a9', peaks: data.peaks, duration: data.duration, url: data.url });"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:external-url 会碰 CSP connect-src/media-src,优先 peaks+duration 免 fetch",
+    "widget": "supported:内部自建 shadow、实测 0 document.head CSS;container 放 shadowRoot 即完全隔离",
+    "codex": "supported:ESM + Web Audio;peaks 路径免网络解码"
+  },
+  "example": {
+    "_why": "波形不 fetch 时用 peaks+duration 直接渲染,minimal 给一小段单声道峰值。",
+    "minimal": {
+      "peaks": [
+        [
+          0,
+          0.4,
+          -0.6,
+          0.3,
+          -0.2,
+          0.8,
+          -0.5,
+          0.1
+        ]
+      ],
+      "duration": 8,
+      "waveColor": "#888",
+      "progressColor": "#4a9",
+      "height": 128
+    },
+    "empty": {
+      "peaks": [
+        []
+      ],
+      "duration": 0
+    }
+  },
+  "uplink": "波形交互(click/interaction/timeupdate)默认不上行;需外传由消费 AI 直接接 ws.on('interaction'|'click'|'timeupdate', cb) 并按载体处理。",
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "API correct: +esm default export WaveSurfer (export{H as default}); dist/wavesurfer.d.ts: static create(options: WaveSurferOptions): WaveSurfer and constructor(options); WaveSurferOptions.container: HTMLElement|string, height: number|'auto', url?: string, peaks?: (Float32Array|number[])[], waveColor?/progressColor?. globalStyleInjection=no: +esm grep shows 0 'document.head' refs and 0 createElement('style') — WaveSurfer builds its OWN shadow root INSIDE the container ('const t=document.createElement(\"div\"),e=t.attachShadow({mode:\"open\"})', attachShadow count=1) and puts its CSS there; a cspNonce option is present → CSP-aware. globalDomMutation=no: renders only into the provided container. globalEvents=no window listeners: uses a ResizeObserver scoped to its own element + an AudioContext, torn down on destroy(). shadowCompatible=yes: nesting its shadow inside a container placed in the widget shadowRoot stays fully isolated. CSP caveat: url path fetches+decodes audio (connect-src/media-src) — in Claude artifact prefer precomputed peaks+duration.",
+    "confidence": "high"
+  }
+}

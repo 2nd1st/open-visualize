@@ -1,0 +1,63 @@
+{
+  "entry_version": "thin-1",
+  "id": "docxtemplater",
+  "name": "docxtemplater",
+  "when_to_use": "「设计师做好的 Word/PPTX 模板 + 每条记录套数据批量出件」(合同、offer letter、证书、批量报告)用它——保留模板原有排版/页眉页脚/样式,注入 {placeholder}/{#loop}/{condition};从零程序化构建文档用 docx,只预览 .docx 用 docx-preview/mammoth。",
+  "why_valuable": "邮件合并(mail-merge)进 Word 模板:原生 AI 无法在保持复杂 Word 排版的前提下注数据。docxtemplater 独占「现有模板套数据」这一档(且一并覆盖 pptx/xlsx 模板)。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "docxtemplater",
+    "version": "3.69.2",
+    "github": "open-xml-templating/docxtemplater"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "template",
+    "note": "输入 = 一个含 {tags} 的 .docx 模板字节 + 一份数据对象。模板字节须先经 PizZip 装成同步 zip 实例喂给构造器。render 后 doc.toBlob()/toUint8Array() 取件。",
+    "schema": {
+      "templateDocx": "ArrayBuffer | Uint8Array —— 含 {name} / {#items}...{/items} / {#cond}...{/cond} 标签的 .docx(或 .pptx)模板字节",
+      "data": "Record<string,any> —— 标签→值;数组值配 {#loop}...{/loop} 循环渲染,布尔配 {#cond} 条件显隐"
+    }
+  },
+  "provides": {
+    "shape": "docx-bytes",
+    "_note": "headless-primitive:产出 docx/pptx 二进制,不渲染,无 carriers 矩阵。",
+    "outputs": "doc.toBlob() → Blob / doc.toUint8Array() → Uint8Array(MIME application/vnd.openxmlformats-officedocument.wordprocessingml.document)。",
+    "api_surface": {
+      "load": "import PizZip;const zip = new PizZip(templateBytes)",
+      "construct": "new Docxtemplater(zip, { paragraphLoop:true, linebreaks:true })(default 导入)",
+      "render": "doc.render(data) —— 就地替换标签、展开循环/条件",
+      "output": "doc.toBlob() / doc.toUint8Array() / doc.toBase64() / doc.toArrayBuffer() / doc.toBuffer()"
+    }
+  },
+  "peer": {
+    "id": "pizzip",
+    "note": "docxtemplater 需同步 zip;用 PizZip@3(new PizZip(arrayBuffer))装模板字节,不能用异步的 JSZip。PizZip 是 default 导出,license (MIT OR GPL-3.0)。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:产 docx 字节,零 DOM 足迹\nimport Docxtemplater from 'https://cdn.jsdelivr.net/npm/docxtemplater@3.69.2/+esm';\nimport PizZip from 'https://cdn.jsdelivr.net/npm/pizzip@3/+esm';\nconst zip = new PizZip(data.templateDocx);\nconst doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });\ndoc.render(data.data);\nconst blob = doc.toBlob();",
+    "note": "Docxtemplater 与 PizZip 都是 default 导出。render 对模板语法错误会抛带定位信息的 error,消费 AI 应 try/catch。产字节无渲染,无 shadow/head 足迹;图片/HTML 等高级标签({%image}/{~html})需付费模块,开源版仅覆盖文本/循环/条件。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr docxtemplater@3.69.2 +esm (129KB): export{zn as default} — boot uses default import. js/docxtemplater.d.ts: class Docxtemplater{ constructor(zip,options?); render(data?):this; getZip(); toBlob(options?):Blob; toUint8Array():Uint8Array; toArrayBuffer(); toBase64(); toBuffer() } — boot's construct/render/toBlob all match. Peer PizZip@3.2.0 (MIT OR GPL-3.0) +esm exports include 'J as default'; loads 200; new PizZip(bytes) is the synchronous zip loader docxtemplater's constructor requires (its +esm references JSZip-compatible loadZip). Global-footprint grep over docxtemplater +esm: document.head 0, document.body 0, document.createElement 0, <style/insertRule 0, addEventListener 0 — pure-JS (XML via @xmldom/xmldom) byte producer, renders nothing, trivially shadow-safe.",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for \"a designer-made Word/PPTX template + per-record data for batch document generation\" (contracts, offer letters, certificates, bulk reports). It preserves the template's layout, headers/footers, and styles while injecting {placeholder}/{#loop}/{condition}. Use docx to build documents programmatically from scratch; use docx-preview/mammoth only to preview .docx.",
+      "why_valuable": "It provides mail-merge into Word templates: native AI cannot inject data while preserving complex Word layout. docxtemplater uniquely covers the \"existing template filled with data\" use case, including pptx/xlsx templates.",
+      "data_in": {
+        "note": "Input = bytes for a .docx template containing {tags} + one data object. The template bytes must first be loaded into a synchronous zip instance with PizZip and passed to the constructor. After render, retrieve the result with doc.toBlob()/toUint8Array().",
+        "schema": {
+          "templateDocx": "ArrayBuffer | Uint8Array -- Bytes for a .docx (or .pptx) template containing {name} / {#items}...{/items} / {#cond}...{/cond} tags",
+          "data": "Record<string,any> -- Tag -> value; array values render loops with {#loop}...{/loop}, and booleans control conditional visibility with {#cond}"
+        }
+      }
+    }
+  }
+}

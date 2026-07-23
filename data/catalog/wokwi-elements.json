@@ -2,6 +2,34 @@
   "entry_version": "thin-1",
   "id": "wokwi-elements",
   "name": "@wokwi/elements",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written CSS/SVG when introductory electronics explanations need realistic component appearance and state for an LED, seven-segment display, or button -- native implementations easily get pins, package details, and consistency across states wrong. It is not for circuit solving or MCU simulation.",
+      "why_valuable": "AI defaults can only draw abstract boxes or inconsistent LEDs/seven-segment displays, not credible component packages, pins, and states; Wokwi Elements provides packaged native Web Components that manage appearance without pretending to be a simulator.",
+      "data_in": {
+        "note": "The input is a restricted custom-element tag plus its native properties; boot uses createElement + Object.assign and does not write declarative custom tags (iron rule 4). Each optional property's default is noted below.",
+        "schema": {
+          "element": {
+            "tag": "'wokwi-led' | 'wokwi-7segment' | 'wokwi-pushbutton' -- required",
+            "props?": {
+              "_default": "{} -- when omitted, use the element's complete default state",
+              "color?": "string -- component primary color; default 'red'",
+              "value?": "boolean -- LED lit state; default false; wokwi-led only",
+              "brightness?": "number (0..1) -- LED brightness; default 1; wokwi-led only",
+              "values?": "number[] -- seven-segment 0/1 array ordered A,B,C,D,E,F,G,DP per digit; default [0,0,0,0,0,0,0,0]; wokwi-7segment only",
+              "digits?": "number -- number of seven-segment digits; default 1; wokwi-7segment only",
+              "colon?": "boolean -- whether to draw the colon; default false; wokwi-7segment only",
+              "colonValue?": "boolean -- whether the colon is lit; default false; wokwi-7segment only",
+              "offColor?": "string -- unlit-segment color; default '#444'; wokwi-7segment only",
+              "background?": "string -- seven-segment background color; default 'black'; wokwi-7segment only",
+              "pins?": "'top' | 'extend' | 'none' -- pin display mode; default 'top'; wokwi-7segment only",
+              "pressed?": "boolean -- button pressed state; default false; wokwi-pushbutton only"
+            }
+          }
+        }
+      }
+    }
+  },
   "when_to_use": "需要在电子入门讲解中显示 LED、七段管或按钮的真实元件外观与状态时用它,而非手写 CSS/SVG——原生在引脚、封装细节和跨状态一致性上容易画错;非做电路求解或 MCU 仿真。",
   "why_valuable": "AI 默认只能画抽象方框或不一致的 LED/七段管,做不到可信元件封装、引脚与状态表现;Wokwi Elements 提供已封装的原生 Web Components,专管长相而不冒充仿真器。",
   "supply_form": "component",
@@ -52,7 +80,35 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "LIVE: the rendered <wokwi-led> carries its OWN shadowRoot (childCount 1, styles inside the shadow — led_shadowHasStyle=true) and document.head was unchanged (stayed at example.com's baseline count of 1). Lit uses per-element shadow styling, not document.head injection; nothing appended to document.body. LED/7segment are pure passive display elements (no document/window listeners). Each element is a self-contained custom element that drops straight into a widget shadow container.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "element": {
+        "tag": "wokwi-7segment",
+        "props": {
+          "digits": 2,
+          "values": [
+            0,
+            1,
+            1,
+            0,
+            0,
+            1,
+            1,
+            0,
+            1,
+            1,
+            0,
+            1,
+            1,
+            0,
+            1,
+            0
+          ],
+          "color": "red"
+        }
+      }
+    }
   }
 }

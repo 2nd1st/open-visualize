@@ -1,0 +1,123 @@
+{
+  "entry_version": "thin-1",
+  "id": "webgl-fluid",
+  "name": "webgl-fluid",
+  "when_to_use": "教流体/GPU 模拟/向量场直觉,或做可交互流体背景时用;要严谨 CFD 数值分析不适合。augment 边界:整套 Navier-Stokes GLSL 管线由库内置,消费 AI 只给一个 canvas + 大写常量 config,交互(splat)由库自带的 canvas/window 监听驱动。",
+  "why_valuable": "实时 GPU Navier-Stokes(平流/散度/压力迭代/涡量约束,多趟 GLSL shader + framebuffer ping-pong)AI 徒手写整条 shader 管线基本跑不通,是最能体现『原生做不出』的类目;这是 PavelDoGreat 名作的 ESM 重打包。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "webgl-fluid",
+    "version": "0.4.0",
+    "github": "cloydlau/webgl-fluid"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "config",
+    "note": "这不是外部数据而是模拟参数;键名全大写常量,值域见各字段。canvas(DOM)由 boot 注入,config 是 WebGLFluid(canvas, config) 的第二参。",
+    "schema": {
+      "_defaults": {
+        "TRIGGER": "'hover'",
+        "DENSITY_DISSIPATION": "1",
+        "VELOCITY_DISSIPATION": "0.3",
+        "PRESSURE": "0.8",
+        "CURL": "30",
+        "SPLAT_RADIUS": "0.35",
+        "COLORFUL": "true",
+        "TRANSPARENT": "false"
+      },
+      "TRIGGER?": "'hover' | 'click' —— 激活方式,默认 'hover'",
+      "SIM_RESOLUTION?": "number —— 速度场分辨率,默认 128",
+      "DYE_RESOLUTION?": "number —— 染料场分辨率,默认 1024",
+      "DENSITY_DISSIPATION?": "number —— 染料耗散,默认 1(越大越快消散)",
+      "VELOCITY_DISSIPATION?": "number —— 速度耗散,默认 0.3",
+      "PRESSURE?": "number —— 压力,默认 0.8",
+      "CURL?": "number —— 涡量强度,默认 30",
+      "SPLAT_RADIUS?": "number —— 注入半径,默认 0.35",
+      "SPLAT_FORCE?": "number —— 注入力,默认 6000",
+      "COLORFUL?": "boolean —— 彩色循环,默认 true",
+      "SPLAT_COLOR?": "{ r:number, g:number, b:number } —— 固定色(COLORFUL=false 时)",
+      "BACK_COLOR?": "{ r:number, g:number, b:number } —— 背景色,默认 {r:0,g:0,b:0}",
+      "TRANSPARENT?": "boolean —— 透明背景,默认 false",
+      "BLOOM?": "boolean —— 辉光,默认 true",
+      "SUNRAYS?": "boolean —— 光线,默认 true",
+      "AUTO?": "boolean —— 自动 splat,默认 false;配 INTERVAL(ms) 定时",
+      "PAUSED?": "boolean —— 暂停,默认 false"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "canvas 需同时设 style 尺寸与像素 buffer(canvas.width/height 应等于 clientWidth/Height);禁 vh 高,给 canvas 显式 px 高,否则 WebGL viewport 为 0。"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to teach intuition for fluids/GPU simulation/vector fields, or as an interactive fluid background; it is not appropriate for rigorous CFD numerical analysis. Augmentation boundary: the full Navier-Stokes GLSL pipeline is built into the library. Consuming AI supplies only a canvas plus an uppercase-constant config, while interaction (splat) is driven by the library's own canvas/window listeners.",
+      "why_valuable": "A real-time GPU Navier-Stokes pipeline (advection, divergence, pressure iteration, vorticity confinement, multi-pass GLSL shaders, and framebuffer ping-pong) is extremely unlikely to run when hand-written by AI. This category most clearly demonstrates what cannot be built natively; it is an ESM repackaging of PavelDoGreat's well-known implementation.",
+      "data_in": {
+        "note": "These are simulation parameters, not external data. Keys are uppercase constants, with ranges documented per field. boot injects the canvas (DOM), and config is the second argument to WebGLFluid(canvas, config).",
+        "schema": {
+          "_defaults": {
+            "TRIGGER": "'hover'",
+            "DENSITY_DISSIPATION": "1",
+            "VELOCITY_DISSIPATION": "0.3",
+            "PRESSURE": "0.8",
+            "CURL": "30",
+            "SPLAT_RADIUS": "0.35",
+            "COLORFUL": "true",
+            "TRANSPARENT": "false"
+          },
+          "TRIGGER?": "'hover' | 'click' -- activation mode; default 'hover'",
+          "SIM_RESOLUTION?": "number -- velocity-field resolution; default 128",
+          "DYE_RESOLUTION?": "number -- dye-field resolution; default 1024",
+          "DENSITY_DISSIPATION?": "number -- dye dissipation; default 1 (larger dissipates faster)",
+          "VELOCITY_DISSIPATION?": "number -- velocity dissipation; default 0.3",
+          "PRESSURE?": "number -- pressure; default 0.8",
+          "CURL?": "number -- vorticity strength; default 30",
+          "SPLAT_RADIUS?": "number -- injection radius; default 0.35",
+          "SPLAT_FORCE?": "number -- injection force; default 6000",
+          "COLORFUL?": "boolean -- color cycling; default true",
+          "SPLAT_COLOR?": "{ r:number, g:number, b:number } -- fixed color (when COLORFUL=false)",
+          "BACK_COLOR?": "{ r:number, g:number, b:number } -- background color; default {r:0,g:0,b:0}",
+          "TRANSPARENT?": "boolean -- transparent background; default false",
+          "BLOOM?": "boolean -- glow; default true",
+          "SUNRAYS?": "boolean -- light rays; default true",
+          "AUTO?": "boolean -- automatic splat; default false; pair with INTERVAL(ms) for timing",
+          "PAUSED?": "boolean -- paused; default false"
+        }
+      },
+      "spec": {
+        "note": "Set both the canvas style dimensions and pixel buffer (canvas.width/height should equal clientWidth/Height). Do not use vh height; give the canvas an explicit px height or the WebGL viewport will be 0."
+      }
+    }
+  },
+  "boot": {
+    "artifact": "// webgl-fluid 需要真实 canvas，不能把宿主 div 直接传给 getContext\nconst el = document.getElementById('fluid'); el.style.height = `${spec.height ?? 400}px`;\nconst canvas = document.createElement('canvas'); canvas.style.cssText = 'display:block;width:100%;height:100%'; el.appendChild(canvas); canvas.width = el.clientWidth || 600; canvas.height = el.clientHeight || 400;\nconst { default: WebGLFluid } = await import('https://cdn.jsdelivr.net/npm/webgl-fluid@0.4.0/+esm');\nWebGLFluid(canvas, { TRIGGER: data.TRIGGER ?? 'hover', DENSITY_DISSIPATION: data.DENSITY_DISSIPATION ?? 1, VELOCITY_DISSIPATION: data.VELOCITY_DISSIPATION ?? 0.3, CURL: data.CURL ?? 30, SPLAT_RADIUS: data.SPLAT_RADIUS ?? 0.35, COLORFUL: data.COLORFUL ?? true, BACK_COLOR: data.BACK_COLOR ?? { r: 0, g: 0, b: 0 }, TRANSPARENT: data.TRANSPARENT ?? false });",
+    "widget": "// canvas 落 shadow;须同时设 style 尺寸与像素 buffer\nconst canvas = document.createElement('canvas'); canvas.style.width = '600px'; canvas.style.height = '400px'; shadowRoot.appendChild(canvas); canvas.width = 600; canvas.height = 400;\nconst { default: WebGLFluid } = await import('https://cdn.jsdelivr.net/npm/webgl-fluid@0.4.0/+esm');\nWebGLFluid(canvas, { TRIGGER: data.TRIGGER ?? 'hover', CURL: data.CURL ?? 30, SPLAT_RADIUS: data.SPLAT_RADIUS ?? 0.35, COLORFUL: data.COLORFUL ?? true });\n// 注:库对 window 挂了 keydown/mouseup/touchend 且无销毁钩子(WebGLFluid 返回 void),全局键盘监听会驻留",
+    "codex": "const el = document.getElementById('fluid'); el.style.height = `${spec.height ?? 400}px`;\nconst canvas = document.createElement('canvas'); canvas.style.cssText = 'display:block;width:100%;height:100%'; el.appendChild(canvas); canvas.width = el.clientWidth || 600; canvas.height = el.clientHeight || 400;\nconst { default: WebGLFluid } = await import('https://cdn.jsdelivr.net/npm/webgl-fluid@0.4.0/+esm');\nWebGLFluid(canvas, { TRIGGER: data.TRIGGER ?? 'hover', CURL: data.CURL ?? 30, COLORFUL: data.COLORFUL ?? true });"
+  },
+  "example": {
+    "_why": "config 全是大写常量键,钉死真实键名与 hover/click 触发。",
+    "minimal": {
+      "TRIGGER": "hover",
+      "CURL": 30,
+      "SPLAT_RADIUS": 0.35,
+      "COLORFUL": true
+    },
+    "empty": {}
+  },
+  "uplink": "纯本地 GPU 演示,无上行;交互(splat)由库内建的 canvas 指针监听与 window 键盘监听驱动。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:canvas 落 shadow 可正常渲染,但库对 window 挂了 keydown/mouseup/touchend 且无销毁钩子,全局键盘监听会驻留整个页面生命周期",
+    "codex": "supported:WebGL canvas,无 worker/wasm;注意 window 全局监听不可回收"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "dist +esm default export WebGLFluid(canvas, config) 已核。指针监听(mousedown/mousemove/touchstart/touchmove)绑定在传入的 canvas 元素上(已 scoped)。但有三个监听绑在 window 且从不移除:window.addEventListener('mouseup')、('touchend')、('keydown')——WebGLFluid 返回 void、不给销毁句柄,故在 widget/shadow 下 keydown 处理器会驻留整页。零 document.head / 零 style 注入 / 零 body 变更;渲染全在传入 canvas 内(WebGL context)。shadowCompatible=conditional:canvas 在 shadow 渲染正常,唯一隐患是不可回收的 window keydown/mouseup/touchend。config 键(TRIGGER/DENSITY_DISSIPATION/VELOCITY_DISSIPATION/PRESSURE/CURL/SPLAT_RADIUS/SPLAT_FORCE/COLORFUL/BACK_COLOR/TRANSPARENT/BLOOM/SUNRAYS...)已在 dist mjs 核实存在。",
+    "confidence": "high"
+  }
+}

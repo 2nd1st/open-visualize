@@ -1,0 +1,92 @@
+{
+  "entry_version": "thin-1",
+  "id": "vivus",
+  "name": "vivus",
+  "when_to_use": "把已有 SVG(logo/图标/插画/签名/图表)做手绘/线描揭示(stroke-dashoffset)时用它;给现有 SVG 描边绘制用它,预烘焙复杂矢量动画用 lottie-web(已在目录)。你提供带描边的 SVG,vivus 测量各 path 长度并编排绘制顺序/时序。",
+  "why_valuable": "测量每条 path 长度并跨多 path 按正确顺序编排 dashoffset 时序很痛;AI 常搞砸多 path 的绘制顺序与时序。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "vivus",
+    "version": "0.4.6",
+    "github": "maxwellito/vivus"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "svg",
+    "note": "目标是一个已存在的 SVG;其 path 必须有 stroke、fill:none 才看得到描边。type 决定绘制编排,duration 单位是帧。默认 start:'inViewport' 会装 window scroll 监听。",
+    "schema": {
+      "target": "string id(document.getElementById)| SVGSVGElement 节点 —— 传节点可命中 shadow",
+      "options?": {
+        "type?": "'delayed' | 'sync' | 'oneByOne' | 'scenario' | 'scenario-sync' —— 绘制编排,默认 'delayed'",
+        "duration?": "number —— 总时长(帧),默认 120",
+        "delay?": "number —— oneByOne/delayed 的间隔(帧)",
+        "start?": "'inViewport' | 'manual' | 'autostart' —— 触发方式,默认 'inViewport'(装 window scroll 监听);shadow 用 'autostart'/'manual'",
+        "animTimingFunction?": "Vivus.LINEAR | Vivus.EASE | Vivus.EASE_IN | Vivus.EASE_OUT | Vivus.EASE_OUT_BOUNCE —— 整体缓动",
+        "pathTimingFunction?": "同上 —— 单条 path 缓动",
+        "reverseStack?": "boolean —— 反转绘制顺序,默认 false"
+      }
+    }
+  },
+  "spec": {
+    "note": "SVG 由自身 viewBox/width/height 定尺;其 path 必须 stroke、fill:none 才见描边;勿用 vh。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested。SVG 须已存在且 path 有描边(fill:none)才看得到绘制。\nimport Vivus from 'https://cdn.jsdelivr.net/npm/vivus@0.4.6/+esm';\nconst v = new Vivus(data.target ?? 'my-svg', data.options ?? { type: 'oneByOne', duration: 150, start: 'autostart' });\n// start:'manual' 时调 v.play();另有 v.reset()/v.stop()",
+    "widget": "// 传 SVG ELEMENT 节点(字符串 id 走 document.getElementById,够不到 shadow)。用 start:'autostart' 或 'manual' 跳过默认 start:'inViewport' 装的 window scroll 监听。\nimport Vivus from 'https://cdn.jsdelivr.net/npm/vivus@0.4.6/+esm';\nconst svg = shadowRoot.querySelector('svg');\nconst v = new Vivus(svg, data.options ?? { type: 'oneByOne', duration: 150, start: 'autostart' });",
+    "codex": "import Vivus from 'https://cdn.jsdelivr.net/npm/vivus@0.4.6/+esm';\nconst v = new Vivus(data.target ?? 'my-svg', data.options ?? { type: 'oneByOne', duration: 150, start: 'autostart' });"
+  },
+  "example": {
+    "_why": "target 传 SVG 的 id;type 只在 delayed/sync/oneByOne/scenario/scenario-sync 取值。",
+    "minimal": {
+      "target": "logo",
+      "options": {
+        "type": "oneByOne",
+        "duration": 150,
+        "start": "autostart"
+      }
+    },
+    "empty": {
+      "target": "logo"
+    }
+  },
+  "uplink": "纯 display,默认不上行;若需绘制完成事件,消费 AI 用 Vivus 原生 onready 回调并按载体处理。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:传 SVG 节点(id 查找是 document 域);start 设 'autostart'/'manual' 跳过 window scroll 监听;vivus 只改 shadow 内 SVG 的 path",
+    "codex": "supported:default export + SVG 描边,无 worker/wasm"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "conditional",
+    "evidence": "API correct: +esm default export(b as default)= Vivus(element_or_id, options, callback);构造器接受 SVGSVGElement 或字符串 id(document.getElementById(t));start 枚举 ['inViewport','manual','autostart'],默认 e[0]='inViewport' → window.addEventListener('scroll', …)(grep);type 默认 'delayed',duration 默认 120 帧(l(t.duration,120))。globalStyleInjection=no;globalDomMutation=no:只改目标 SVG 的 path stroke-dasharray/dashoffset;grep 到 0 处 document.head、0 处 document.body append、0 处 window.* 赋值。globalEvents=conditional:window 'scroll' 监听仅在 start:'inViewport'(默认)时装 —— 'autostart'/'manual' 不装。shadowCompatible=conditional:传 SVG 节点(id 查找为 document 域)且用 start:'autostart'/'manual'。",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to give an existing SVG logo, icon, illustration, signature, or chart a hand-drawn/line-reveal effect with stroke-dashoffset. Use it to draw the strokes of an existing SVG; for pre-rendered complex vector animation use lottie-web from the catalog. You provide a stroked SVG, and vivus measures every path length and orchestrates drawing order and timing.",
+      "why_valuable": "Measuring every path and orchestrating dashoffset timing in the correct order across many paths is painful; AI often gets multi-path drawing order and timing wrong.",
+      "data_in": {
+        "note": "The target is an existing SVG. Its paths need stroke and fill:none for the line drawing to be visible. type determines drawing orchestration, and duration is in frames. The default start:'inViewport' installs a window scroll listener.",
+        "schema": {
+          "target": "string id (document.getElementById) | SVGSVGElement node -- Passing the node can target content inside shadow",
+          "options?": {
+            "type?": "'delayed' | 'sync' | 'oneByOne' | 'scenario' | 'scenario-sync' -- Drawing orchestration; default 'delayed'",
+            "duration?": "number -- Total duration in frames; default 120",
+            "delay?": "number -- Interval in frames for oneByOne/delayed",
+            "start?": "'inViewport' | 'manual' | 'autostart' -- Trigger mode; default 'inViewport', which installs a window scroll listener. Use 'autostart'/'manual' in shadow",
+            "animTimingFunction?": "Vivus.LINEAR | Vivus.EASE | Vivus.EASE_IN | Vivus.EASE_OUT | Vivus.EASE_OUT_BOUNCE -- Overall easing",
+            "pathTimingFunction?": "Same as above -- Per-path easing",
+            "reverseStack?": "boolean -- Reverse drawing order; default false"
+          }
+        }
+      },
+      "spec": {
+        "note": "The SVG is sized by its own viewBox/width/height. Its paths need stroke and fill:none for line drawing to appear. Do not use vh."
+      }
+    }
+  }
+}

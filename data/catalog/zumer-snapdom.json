@@ -63,7 +63,37 @@
     "globalDomMutation": "yes",
     "globalEvents": "no",
     "evidence": "Verified against dist/snapdom.mjs via grep. styleInject=no: only TRANSIENTLY appends probe `<link rel=stylesheet data-snapdom=\"injected-import\">` to head to read cross-origin stylesheet rules, then removes all (`for(y of h) try{y.remove()}`); no persistent style/link left. domMutation=yes: Ti()/Xe creates a PERSISTENT cached hidden singleton `<div id=\"snapdom-measure-slot\" aria-hidden=\"true\" position:absolute left:-99999px 0x0 opacity:0 contain:size layout style>` appended to document.documentElement and reused across captures, PLUS transient measurement nodes and self-removing download-anchors on document.body (paired appendChild/removeChild, anchor.click()+remove()). No interactive UI (no tooltip/modal/menu/portal) -- all hidden/offscreen/transient -- but the top-level DOM IS mutated. events=no: grep found 0 window/document addEventListener; only a try/catch MutationObserver on document.head for font/@import resource discovery, no persistent event listeners. shadow=conditional: headless primitive -- callable from a shadow-scoped widget and can capture nodes that live inside shadow roots (README cross-shadow capture), but its measurement/rasterization scaffolding lives in the top-level document (persistent #snapdom-measure-slot on documentElement + transient body/head nodes), so it is NOT fully contained within the widget's shadow root, though every injected node is hidden/offscreen/transient.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to quickly export rendered DOM, including computed styles, pseudo-elements, fonts, and shadow DOM, as PNG/JPEG/WebP/SVG instead of implementing it by hand, which fails at deep cloning, resource inlining, and high-fidelity rasterization.",
+      "why_valuable": "AI cannot produce reliable DOM screenshots by default: it cannot recursively freeze computed style, reconstruct pseudo-elements, embed the fonts actually used and content across shadow roots, or handle DPR and cross-origin resources consistently. SnapDOM collects these steps into one asynchronous call.",
+      "data_in": {
+        "note": "node is a connected Element that has completed layout and whose resources are ready, not an HTML string or CSS selector. The library reads its actual pixel geometry and creates a self-contained snapshot. Cross-origin images/fonts still need readable CORS or useProxy.",
+        "schema": {
+          "node": "Element -- Rendered root node to capture",
+          "options?": {
+            "_default": "{}; one-shot export defaults to PNG, scale=1, dpr=devicePixelRatio",
+            "scale?": "positive number -- Default 1; takes precedence over width/height",
+            "dpr?": "positive number -- Default devicePixelRatio",
+            "width?": "positive number(px) -- Defaults to source-node bounds width; providing only one dimension preserves aspect ratio",
+            "height?": "positive number(px) -- Defaults to source-node bounds height; providing only one dimension preserves aspect ratio",
+            "backgroundColor?": "CSS color string -- PNG/SVG default transparent; JPEG/WebP default #ffffff",
+            "quality?": "number 0..1 -- JPEG/WebP default 0.92",
+            "embedFonts?": "boolean -- Default false; icon fonts are always embedded",
+            "exclude?": "string[] -- Default []; matching elements are hidden from the snapshot",
+            "excludeMode?": "'hide' | 'remove' -- Default 'hide'",
+            "compress?": "boolean -- Default true",
+            "cache?": "'disabled' | 'full' | 'auto' | 'soft' -- Default 'soft'",
+            "useProxy?": "string -- No proxy by default",
+            "debug?": "boolean -- Default false"
+          }
+        }
+      },
+      "spec": {
+        "note": "The default 400px height applies only to the consumer-side preview of the export result. SnapDOM itself reads node's computed pixel dimensions; do not use vh or percentage heights, and do not let this spec implicitly crop the source node."
+      }
+    }
   }
 }

@@ -34,6 +34,31 @@
       }
     }
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to read deeply nested objects or large arrays with progressive expansion, collapse, and type coloring instead of a handwritten recursive details tree, which tends to fail at deep expansion state, chunking large arrays, and node-creation performance.",
+      "why_valuable": "AI can reliably output a pre block or a few details elements only for shallow JSON. It does not reliably support arbitrary-depth collapse, automatic chunking of large arrays, depth-based opening, and consistent type coloring.",
+      "data_in": {
+        "note": "The constructor accepts only an already parsed object or array, not a raw JSON string. The ESM entry writes its built-in CSS to document.head on import.",
+        "schema": {
+          "value": "JSON object | JSON array -- parsed value; must not be a raw JSON string",
+          "open?": "non-negative integer | Infinity -- initial expansion depth; default 1",
+          "config?": {
+            "_default": "uses upstream defaultConfig when omitted",
+            "hoverPreviewEnabled?": "boolean -- default false",
+            "hoverPreviewArrayCount?": "number -- default 100",
+            "hoverPreviewFieldCount?": "number -- default 5",
+            "animateOpen?": "boolean -- default true",
+            "animateClose?": "boolean -- default true",
+            "theme?": "'dark' | null -- default null",
+            "useToJSON?": "boolean -- default true",
+            "maxArrayItems?": "positive integer -- default 100",
+            "exposePath?": "boolean -- default false"
+          }
+        }
+      }
+    }
+  },
   "boot": {
     "artifact": "// inferred-not-tested:ESM import 自带 CSS 并写入 document.head\nimport JSONFormatter from 'https://cdn.jsdelivr.net/npm/json-formatter-js@2/+esm';\nconst el = document.getElementById('json-view');\nconst formatter = new JSONFormatter(data.value, data.open ?? 1, data.config ?? {});\nel.appendChild(formatter.render());",
     "widget": "unsupported:json-formatter-js v2.5.23 的 ESM 入口在 import 时无条件向 document.head 追加内置 style,上游没有关闭或指定 shadow 样式目标的参数。",
@@ -50,7 +75,37 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "dist/index.d.ts 顶部 import \"./style.less\";+esm 含 createElement(\"style\")+document.head → 模块无条件向 document.head 注入内置样式,且无指定 shadow 目标的参数(styleInject=yes)。formatter.render() 返回元素挂进传入的 el、不向 body 追加 portal(domMutation=no);toggleOpen 等点击监听绑在自身渲染元素上、非 document/window(events=no)。因样式被强制入 head 无法跨 shadow 边界,DOM 落 shadow 会失样(shadow=no,与 catalog widget:unsupported 一致)。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "value": {
+        "package": "json-formatter-js",
+        "version": "2.5.23",
+        "license": "MIT",
+        "stars": 1387,
+        "maintained": true,
+        "deprecated": null,
+        "keywords": [
+          "json",
+          "formatter",
+          "collapsible",
+          "tree"
+        ],
+        "author": {
+          "name": "Mohsen Azimi",
+          "github": "mohsen1"
+        },
+        "stats": {
+          "weeklyDownloads": 985210,
+          "openIssues": 12,
+          "forks": 214
+        }
+      },
+      "open": 2,
+      "config": {
+        "hoverPreviewEnabled": true
+      }
+    }
   }
 }

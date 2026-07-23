@@ -4,6 +4,33 @@
   "name": "svguitar",
   "when_to_use": "需要把逐弦品位、空弦/闷弦与横按精确画成标准 SVG 吉他和弦图时用它,而非 ASCII 或手写 SVG——原生手写在品格几何、横按、指法标签和横竖布局上失败;它非做和弦识别、音频播放或完整 tab 谱。",
   "why_valuable": "AI 默认只能给出约 50% 可用的 ASCII 和弦图,易把弦序、品位和横按画错,也没有标准视觉比例;该库直接消费结构化指法并稳定生成 SVG。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to draw per-string frets, open or muted strings, and barres precisely as a standard SVG guitar chord diagram instead of ASCII or hand-written SVG. Native implementations fail on fret geometry, barres, fingering labels, and vertical or horizontal layout. It is not for chord recognition, audio playback, or complete tablature.",
+      "why_valuable": "AI can only produce an approximately 50% usable ASCII chord diagram by default, often drawing string order, frets, and barres incorrectly, with no standard visual proportions. This library consumes structured fingering directly and reliably generates SVG.",
+      "data_in": {
+        "note": "Input is a per-string x fret grid, not only a chord name. The same chord name can have multiple fingerings, so consuming AI must specify fingers/barres.",
+        "schema": {
+          "chord": {
+            "fingers": "[string:number, fret:number|0|'x', labelOrOptions?:string|{text?:string,color?:string,textColor?:string}][] - string is 1-based; 0 means open and 'x' means muted",
+            "barres?": "{fromString:number,toString:number,fret:number,text?:string}[] - barre list, default []",
+            "title?": "string - diagram title, hidden by default",
+            "position?": "positive integer - starting fret, default 1"
+          },
+          "config?": {
+            "orientation?": "'vertical' | 'horizontal' - default vertical",
+            "style?": "'normal' | 'handdrawn' - default normal",
+            "strings?": "positive integer - number of strings, default 6",
+            "frets?": "positive integer - number of visible frets, default 4",
+            "tuning?": "string[] - string labels, default ['E','A','D','G','B','E']"
+          }
+        }
+      },
+      "spec": {
+        "note": "boot gives the SVG container a fixed height of 360px and width of 320px. AI may override with fixed px values; do not use vh or percentage heights. The SVG has its own viewBox, and narrow containers may use max-width:100%."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -46,12 +73,33 @@
     "minimal": {
       "chord": {
         "fingers": [
-          [1, 0],
-          [2, 1, "1"],
-          [3, 0],
-          [4, 2, "2"],
-          [5, 3, "3"],
-          [6, "x"]
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            1,
+            "1"
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            2,
+            "2"
+          ],
+          [
+            5,
+            3,
+            "3"
+          ],
+          [
+            6,
+            "x"
+          ]
         ],
         "barres": [],
         "title": "C",
@@ -81,7 +129,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "svguitar.d.ts constructor takes an HTMLElement directly (no global selector needed); renders SVG (via svg.js/rough.js) into that supplied container. No document.head style injection, no body portal, no window/document listeners — one-shot static SVG draw. Fully in-shadow.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

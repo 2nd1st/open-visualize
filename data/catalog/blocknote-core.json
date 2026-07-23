@@ -5,6 +5,28 @@
   "when_to_use": "需要 Notion 风格的嵌套 block 编辑、拖拽与斜杠菜单并把文档保留为 JSON 时用它而非手写 contenteditable,因为原生在嵌套 block、选区与菜单状态上失败;非做分页出版、后端协同协议或纯 Markdown 编辑。",
   "why_valuable": "AI 默认做不到 ProseMirror 级选区、嵌套 block、拖拽与可序列化文档模型的组合;BlockNote 把这些高耦合编辑状态封进 editor.document。",
   "supply_form": "component",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing contenteditable when you need Notion-style nested block editing, drag-and-drop, and a slash menu while preserving the document as JSON, because native implementations fail at nested blocks, selections, and menu state; not for paginated publishing, backend collaboration protocols, or pure Markdown editing.",
+      "why_valuable": "AI cannot normally combine ProseMirror-grade selections, nested blocks, drag-and-drop, and a serializable document model; BlockNote encapsulates these tightly coupled editing states in editor.document.",
+      "data_in": {
+        "note": "blocks maps exactly to BlockNote PartialBlock[]; initialContent does not accept an empty array, so boot normalizes an omitted value or [] to the library's default empty paragraph.",
+        "schema": {
+          "blocks?": [
+            {
+              "id?": "string -- generated automatically by default",
+              "type?": "'paragraph'|'heading'|'bulletListItem'|'numberedListItem'|'checkListItem'|'quote'|'codeBlock'|'table'|'image'|'video'|'audio'|'file' -- default paragraph",
+              "props?": "object -- narrowed by block type; defaults to that type's default props",
+              "content?": "string | {type:'text',text:string,styles?:object}[] -- default empty string",
+              "children?": "PartialBlock[] -- nested child blocks, default []"
+            }
+          ],
+          "editable?": "boolean -- whether editing is enabled, default true",
+          "theme?": "'light'|'dark' -- default light"
+        }
+      }
+    }
+  },
   "level": "L1",
   "mode": "direct-import",
   "upstream": {
@@ -32,8 +54,8 @@
     }
   },
   "boot": {
-    "artifact": "// inferred-not-tested:@blocknote/core 是文档引擎,可见视图须同版 react+mantine peer;CSS 按铁律 2 进 head\nconst css = ['@mantine/core@9/styles.css','@blocknote/core@0/dist/style.css','@blocknote/react@0/dist/style.css','@blocknote/mantine@0/src/mantineStyles.css','@blocknote/mantine@0/src/blocknoteStyles.css'];\nfor (const p of css) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://cdn.jsdelivr.net/npm/' + p; document.head.appendChild(l); }\nconst [{ default: React }, { createRoot }, { BlockNoteEditor }, { BlockNoteView }] = await Promise.all([import('https://cdn.jsdelivr.net/npm/react@19/+esm'),import('https://cdn.jsdelivr.net/npm/react-dom@19/client/+esm'),import('https://cdn.jsdelivr.net/npm/@blocknote/core@0/+esm'),import('https://cdn.jsdelivr.net/npm/@blocknote/mantine@0/+esm')]);\nconst editor = BlockNoteEditor.create(data.blocks?.length ? { initialContent: data.blocks } : {});\ncreateRoot(document.getElementById('editor')).render(React.createElement(BlockNoteView, { editor, editable: data.editable ?? true, theme: data.theme ?? 'light' }));",
-    "widget": "// CSS 全部 fetch 后落 shadow style(铁律 2),不把 Mantine/BlockNote 样式泄到宿主\nconst base = 'https://cdn.jsdelivr.net/npm/', paths = ['@mantine/core@9/styles.css','@blocknote/core@0/dist/style.css','@blocknote/react@0/dist/style.css','@blocknote/mantine@0/src/mantineStyles.css','@blocknote/mantine@0/src/blocknoteStyles.css'];\nconst style = document.createElement('style'); style.textContent = (await Promise.all(paths.map(p => fetch(base + p).then(r => r.text())))).join('\\n'); shadowRoot.appendChild(style);\nconst [{ default: React }, { createRoot }, { BlockNoteEditor }, { BlockNoteView }] = await Promise.all([import(base+'react@19/+esm'),import(base+'react-dom@19/client/+esm'),import(base+'@blocknote/core@0/+esm'),import(base+'@blocknote/mantine@0/+esm')]);\nconst editor = BlockNoteEditor.create(data.blocks?.length ? { initialContent: data.blocks } : {}), holder = shadowRoot.appendChild(document.createElement('div'));\ncreateRoot(holder).render(React.createElement(BlockNoteView, { editor, editable: data.editable ?? true, theme: data.theme ?? 'light' }));",
+    "artifact": "// 0.52.1 的拆分 +esm 会重复注册 ProseMirror selection；0.18.0 的单一模块图可在浏览器直跑\nconst el = document.getElementById('editor'); const holder = document.createElement('div'); holder.textContent = 'Loading editor…'; el.appendChild(holder);\nconst css = ['@mantine/core@7.13.4/styles.css','@blocknote/core@0.18.0/dist/style.css','@blocknote/react@0.18.0/dist/style.css','@blocknote/mantine@0.18.0/dist/style.css'];\nfor (const p of css) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://cdn.jsdelivr.net/npm/' + p; document.head.appendChild(l); }\nconst [{ default: React }, { createRoot }, { BlockNoteEditor }, { BlockNoteView }] = await Promise.all([import('https://cdn.jsdelivr.net/npm/react@18.3.1/+esm'),import('https://cdn.jsdelivr.net/npm/react-dom@18.3.1/client/+esm'),import('https://cdn.jsdelivr.net/npm/@blocknote/core@0.18.0/+esm'),import('https://cdn.jsdelivr.net/npm/@blocknote/mantine@0.18.0/+esm')]);\nconst editor = BlockNoteEditor.create(data.blocks?.length ? { initialContent: data.blocks } : {}); holder.textContent = ''; createRoot(holder).render(React.createElement(BlockNoteView, { editor, editable: data.editable ?? true, theme: data.theme ?? 'light' }));",
+    "widget": "// CSS 全部落 shadow style，不把 Mantine/BlockNote 静态样式泄到宿主\nconst base = 'https://cdn.jsdelivr.net/npm/', paths = ['@mantine/core@7.13.4/styles.css','@blocknote/core@0.18.0/dist/style.css','@blocknote/react@0.18.0/dist/style.css','@blocknote/mantine@0.18.0/dist/style.css'];\nconst holder = document.createElement('div'); holder.textContent = 'Loading editor…'; shadowRoot.appendChild(holder);\nconst [texts, { default: React }, { createRoot }, { BlockNoteEditor }, { BlockNoteView }] = await Promise.all([Promise.all(paths.map(p => fetch(base + p).then(r => r.text()))),import(base+'react@18.3.1/+esm'),import(base+'react-dom@18.3.1/client/+esm'),import(base+'@blocknote/core@0.18.0/+esm'),import(base+'@blocknote/mantine@0.18.0/+esm')]);\nconst style = document.createElement('style'); style.textContent = texts.join('\\n'); shadowRoot.prepend(style);\nconst editor = BlockNoteEditor.create(data.blocks?.length ? { initialContent: data.blocks } : {}); holder.textContent = ''; createRoot(holder).render(React.createElement(BlockNoteView, { editor, editable: data.editable ?? true, theme: data.theme ?? 'light' }));",
     "codex": "同 artifact(sandbox iframe):加载五份 CSS 到 head,用 BlockNoteEditor.create({initialContent}) 创建模型,再由 React createRoot 渲染 BlockNoteView。"
   },
   "example": {
@@ -70,7 +92,6 @@
     "globalDomMutation": "yes",
     "globalEvents": "unknown",
     "evidence": "API 全对:@blocknote/core@0.52.1/+esm 导出 cu as BlockNoteEditor 且 static create(t) 确认,@blocknote/mantine@0.52.1/+esm 导出 le as BlockNoteView;5 份 CSS(@mantine/core@9/styles.css、@blocknote/core@0/dist/style.css、@blocknote/react@0/dist/style.css、@blocknote/mantine@0/src/mantineStyles.css、@blocknote/mantine@0/src/blocknoteStyles.css)全部 HTTP 200;data_in blocks=PartialBlock[](id/type/props/content/children)与默认 block specs 一致。隔离:@blocknote/mantine +esm 含 12 处 createPortal/Portal → SideMenu/FormattingToolbar/SlashMenu 浮层默认 portal 到 document.body、逃出 shadow(globalDomMutation=yes);Mantine v9/ProseMirror 样式注入目标与 document 级监听未活体验证(globalStyleInjection/globalEvents=unknown)。shadowCompatible=conditional:editor 主体可渲进 shadow,但菜单 portal 到 body 带不到 shadow 内 CSS → 浮层无样式(经典 React-portal-in-shadow),需把 portal 容器重定向进 shadow。",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

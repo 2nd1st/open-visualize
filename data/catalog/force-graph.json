@@ -4,10 +4,43 @@
   "name": "force-graph",
   "when_to_use": "需要用最浅的 nodes/links 契约快速得到可缩放、可拖拽的中等规模 canvas 力导向图时用它,而非手写物理模拟——原生在力学迭代、命中测试和视口交互上失败;非做严格层级、正交连线或万级节点 WebGL 图。",
   "why_valuable": "AI 默认能写静态节点与连线,但做不到持续收敛的力导向模拟、canvas 命中测试和拖拽缩放协同;单包单调用把该 0% 区压成浅契约。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing a physics simulation when you need the shallowest nodes/links contract to quickly create a zoomable, draggable, medium-scale canvas force graph, because native implementations fail at force iterations, hit testing, and viewport interaction; not for strict hierarchies, orthogonal edges, or WebGL graphs with tens of thousands of nodes.",
+      "why_valuable": "AI can normally draw static nodes and links but cannot deliver a continuously converging force simulation, canvas hit testing, and coordinated drag/zoom behavior; one package and one call reduce this 0% area to a shallow contract.",
+      "data_in": {
+        "note": "This is the native graphData shape: the edge array is named links, and endpoint fields are source/target.",
+        "schema": {
+          "nodes": [
+            {
+              "id": "string | number",
+              "name?": "string -- no hover text by default",
+              "val?": "number -- node area is based on 1 by default",
+              "color?": "string -- uses the library's node color by default"
+            }
+          ],
+          "links": [
+            {
+              "source": "string | number -- must reference nodes.id",
+              "target": "string | number -- must reference nodes.id",
+              "name?": "string -- no hover text by default"
+            }
+          ]
+        }
+      },
+      "spec": {
+        "note": "The canvas must receive an explicit pixel height; default 400px, with width taken from container.clientWidth. Do not use vh or percentage heights."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
-  "upstream": { "npm": "force-graph", "version": "1.51.4", "github": "vasturiano/force-graph" },
+  "upstream": {
+    "npm": "force-graph",
+    "version": "1.51.4",
+    "github": "vasturiano/force-graph"
+  },
   "license": "MIT",
   "data_in": {
     "shape": "graph",
@@ -43,11 +76,20 @@
     "_why": "网络图库对 links/edges 与 source/target/from/to 分歧大,minimal 固定本库最浅原生契约。",
     "minimal": {
       "nodes": [
-        { "id": "a", "name": "Alpha" },
-        { "id": "b", "name": "Beta" }
+        {
+          "id": "a",
+          "name": "Alpha"
+        },
+        {
+          "id": "b",
+          "name": "Beta"
+        }
       ],
       "links": [
-        { "source": "a", "target": "b" }
+        {
+          "source": "a",
+          "target": "b"
+        }
       ]
     },
     "empty": {
@@ -67,7 +109,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "force-graph@1.51.4 +esm contains the style-inject helper (document.head||getElementsByTagName('head')[0] + createElement('style') + styleSheet) that runs at module-eval to push .force-graph-container/.graph-tooltip CSS into document.head — confirmed. That head CSS both violates zero-footprint and never reaches shadow content, so the widget carrier is correctly unsupported. Tooltip stays in the container (no document.body); d3 zoom/drag add only transient listeners.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

@@ -4,6 +4,21 @@
   "name": "spacetime",
   "when_to_use": "需要跨 IANA 时区换算、DST 边界日期算术或口语化日期格式时用它而非手写,因为原生 AI 在夏令时跳变、闰年与跨月边界上失败。",
   "why_valuable": "AI 默认会把时区当固定 UTC offset,也会在 DST、月底与闰日附近算错;spacetime 自带精简时区数据并以不可变对象闭环同一 instant 的换区、格式化和差值。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need conversion across IANA time zones, date arithmetic at DST boundaries, or conversational date formatting instead of hand-writing it. Native AI fails on daylight-saving transitions, leap years, and month boundaries.",
+      "why_valuable": "AI treats time zones as fixed UTC offsets by default and miscalculates around DST, month ends, and leap days. spacetime includes compact time-zone data and uses immutable objects to handle zone changes, formatting, and differences for the same instant.",
+      "data_in": {
+        "note": "instant and timeZone are passed directly to spacetime(instant, timeZone). Numeric timestamps must be milliseconds, not Unix seconds. Use goto to change zones while preserving the same instant.",
+        "schema": {
+          "instant": "string | number | Date - ISO/parseable date string, millisecond epoch, or Date",
+          "timeZone": "string - IANA zone used to interpret instant",
+          "targetTimeZone?": "string - target IANA zone, defaulting to timeZone (no zone change)",
+          "format?": "'iso'|'iso-short'|'iso-utc'|'sql'|'nice'|'nice-full'|string - spacetime format token, default 'iso'"
+        }
+      }
+    }
+  },
   "supply_form": "headless-primitive",
   "mode": "direct-import",
   "upstream": {
@@ -46,7 +61,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "headless-primitive: pure-JS temporal library with bundled tz data; touches no DOM/style/event API (only reads system Intl on goto(null)). Produces strings/numbers/Spacetime objects. Nothing to render → trivially shadow-safe.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

@@ -55,6 +55,20 @@
     "_why_no_minimal": "值加浅 options 没有深层 config；制式约束已在 schema 钉死，保留空 SVG fixture 即可。",
     "empty": {
       "value": ""
+    },
+    "minimal": {
+      "value": "OpenVisualize",
+      "options": {
+        "format": "CODE128",
+        "displayValue": true,
+        "width": 2,
+        "height": 100,
+        "fontSize": 20,
+        "textMargin": 4,
+        "lineColor": "#000000",
+        "background": "#ffffff",
+        "margin": 10
+      }
     }
   },
   "uplink": "纯生成/显示组件，默认无需上行；SVG 序列化、打印或下载由消费 AI 自己实现，不建立平台事件契约。",
@@ -69,7 +83,43 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "+esm 内无 document.head、无 createElement(\"style\")(styleInject=no);JsBarcode(svg,value,options) 只把几何绘入传入的 SVG 元素,不向 document.body 追加 portal(domMutation=no);无 addEventListener(events=no);SVG 直接写入 shadowRoot 子容器即可(shadow=yes)。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to generate scannable CODE128, EAN, UPC, CODE39, ITF, or MSI barcode SVG, instead of drawing black bars by hand, because native implementations fail at symbology encoding, check digits, character sets, and quiet-zone width. Not a barcode scanner or label-layout system.",
+      "why_valuable": "AI can only draw visually similar stripes by default; it cannot implement each symbology's start/stop codes, check digits, module widths, and valid-character checks, so the result is not scannable. JsBarcode turns a value and shallow options directly into standard SVG geometry.",
+      "data_in": {
+        "note": "value and options pass directly to JsBarcode(svg,value,options). For an empty value, boot leaves an empty SVG so auto format does not throw on an empty string.",
+        "schema": {
+          "value": "string -- Value to encode; EAN/UPC and similar formats must satisfy their length and checksum rules; empty string is the empty state",
+          "options?": {
+            "_default": "{} -- format auto, bar width 2px, bar height 100px, human-readable text shown",
+            "format?": "'auto' | 'CODE128' | 'CODE128A' | 'CODE128B' | 'CODE128C' | 'EAN13' | 'EAN8' | 'EAN5' | 'EAN2' | 'UPC' | 'UPCE' | 'CODE39' | 'CODE93' | 'ITF14' | 'ITF' | 'MSI' | 'MSI10' | 'MSI11' | 'MSI1010' | 'MSI1110' | 'pharmacode' | 'codabar' -- Default auto",
+            "width?": "positive number CSS pixels/module -- Default 2",
+            "height?": "positive number CSS pixels -- Default 100",
+            "displayValue?": "boolean -- Default true",
+            "text?": "string -- Uses value by default",
+            "fontOptions?": "'' | 'bold' | 'italic' | 'bold italic' -- Default empty string",
+            "font?": "CSS font-family string -- Default monospace",
+            "textAlign?": "'left' | 'center' | 'right' -- Default center",
+            "textPosition?": "'top' | 'bottom' -- Default bottom",
+            "textMargin?": "number CSS pixels -- Default 2",
+            "fontSize?": "positive number CSS pixels -- Default 20",
+            "background?": "CSS color string -- Default #ffffff",
+            "lineColor?": "CSS color string -- Default #000000",
+            "margin?": "non-negative number CSS pixels -- Default 10",
+            "marginTop?": "non-negative number CSS pixels -- Inherits margin by default",
+            "marginRight?": "non-negative number CSS pixels -- Inherits margin by default",
+            "marginBottom?": "non-negative number CSS pixels -- Inherits margin by default",
+            "marginLeft?": "non-negative number CSS pixels -- Inherits margin by default",
+            "flat?": "boolean -- Default false"
+          }
+        }
+      },
+      "spec": {
+        "note": "Actual barcode SVG height is determined by options.height plus text and margin. The container defaults to at least 140px and prohibits vh/percentage height. If fontSize/margin/options.height increases, increase spec.height as well."
+      }
+    }
   }
 }

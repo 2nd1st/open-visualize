@@ -46,7 +46,31 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Verified against @codemirror/merge@6.12.2/dist/index.d.ts: MergeView takes DirectMergeConfig {a:EditorStateConfig, b:EditorStateConfig, parent?, root?:Document|ShadowRoot} — import{MergeView} is a real named export (+esm: 'Rt as MergeView'); EditorState.readOnly is 'static readOnly: Facet<boolean,boolean>' (state d.ts L1228) so .of(true) is valid; collapseUnchanged type is exactly {margin?:number,minSize?:number} with doc-stated defaults margin=3/minSize=4 (d.ts L232-239) — matches schema verbatim. Styling: CM uses style-mod, whose StyleModule.mount() branches on the root — for a ShadowRoot (no .head, has adoptedStyleSheets) it mounts into root.adoptedStyleSheets, NOT document.head (style-mod src L94,L129-130). The widget boot passes root:shadowRoot, so styles stay in shadow; DirectMergeConfig.root doc literally says 'Only necessary if the view is mounted in a shadow root'. Editors/gutters/revert-controls render inside parent, no body portal. EditorView.destroy() exists (view d.ts L1124) to remove any managed doc/window listeners.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "original": "function total(items) {\n  let sum = 0;\n  for (const it of items) {\n    sum += it.price;\n  }\n  return sum;\n}",
+      "modified": "function total(items) {\n  let sum = 0;\n  for (const it of items) {\n    sum += it.price * it.qty;\n  }\n  return sum.toFixed(2);\n}",
+      "readOnly": true
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need an editable side-by-side code comparison with synchronized vertical alignment, change-chunk navigation, and large-document scrolling, instead of hand-writing two pre elements, because native implementations fail at editor state, chunk alignment, and scroll stability. Not for AST-aware semantic merging, three-way merge, or code execution.",
+      "why_valuable": "AI can only generate two static pre elements by default; it cannot provide CodeMirror-grade selection editing, change-chunk calculation, vertical alignment between sides, or coordinated scrolling for long documents.",
+      "data_in": {
+        "schema": {
+          "original": "string -- Baseline document on side A",
+          "modified": "string -- Comparison document on side B",
+          "readOnly?": "boolean -- Whether both sides are read-only; default true",
+          "orientation?": "'a-b'|'b-a' -- Display order; default a-b",
+          "collapseUnchanged?": "{margin?:number,minSize?:number} -- Omitted by default, meaning no collapsing; when provided, margin defaults to 3 and minSize defaults to 4"
+        }
+      },
+      "spec": {
+        "note": "MergeView does not scroll by itself by default. The container explicitly has height 400px and .cm-mergeView has height:100%;overflow:auto. AI may change the pixel value, but vh/percentage container height is prohibited (Rule 3)."
+      }
+    }
   }
 }

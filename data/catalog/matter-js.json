@@ -81,7 +81,34 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Render.create({element}) appends only a canvas to the passed element — no CSS/head write and no body append. Matter.Mouse (via Mouse.create(render.canvas)) binds mousemove/mousedown/mouseup/wheel/touch listeners to the canvas element itself, not to document/window, so pointer handling stays inside the shadow container. Entry carrier is 'supported'; a plain div in the shadow works as the render element.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need draggable 2D collisions, gravity, rigid-body constraints, or spring-based teaching simulations, instead of hand-writing an integrator, because native implementations blow up in collision response, stacking stability, and constraint solving.",
+      "why_valuable": "AI cannot provide stable rigid-body collision and constraint solving by default; hand-written canvas is usually just a fake keyframe animation. Matter.js puts broadphase, collision response, iterative solving, runner, and canvas renderer into one deterministic loop.",
+      "data_in": {
+        "note": "This is the entry's common-geometry trimming layer. boot maps each item exactly to Bodies.rectangle/Bodies.circle. Coordinates and dimensions use the renderer's CSS pixels; the origin is at top left and y increases downward.",
+        "schema": {
+          "gravityY?": "number -- Engine.gravity.y; default 1",
+          "bodies": [
+            {
+              "shape": "'rectangle' | 'circle'",
+              "x": "number -- Body-center x",
+              "y": "number -- Body-center y",
+              "width?": "positive number -- Rectangle width; default 40",
+              "height?": "positive number -- Rectangle height; default 40",
+              "radius?": "positive number -- Circle radius; default 20",
+              "isStatic?": "boolean -- Whether fixed in place; default false",
+              "restitution?": "number 0..1 -- Elasticity; default 0"
+            }
+          ],
+          "mouseDrag?": "boolean -- Whether to attach MouseConstraint; default true"
+        }
+      },
+      "spec": {
+        "note": "Render.create requires explicit pixel dimensions. Default height is 400px and width is the container clientWidth (640px when unavailable); vh/percentage height is prohibited. After the container width changes, the consuming AI must rebuild the renderer or synchronize canvas/options dimensions."
+      }
+    }
   }
 }

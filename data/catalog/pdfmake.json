@@ -107,7 +107,39 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Pure generation: createPdf(...).getBlob() produces a Blob, boot appends an <iframe src=blob:> to the given (shadow) container. No document.head CSS, no document.body append, no persistent global listeners — fonts come from the in-memory VFS, not injected. Fully shadow-containable.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to reliably generate a real PDF in the browser from a declarative document tree with columns, tables, headers/footers, and automatic pagination, instead of hand-writing PDF or print CSS, because native implementations fail at font embedding, cross-page tables, and deterministic pagination. Not a WYSIWYG editor or interactive browser application.",
+      "why_valuable": "AI cannot generate PDF bytes, embed fonts, repeat table headers across pages, or lay out multiple pages by default; it only produces unstable print CSS. pdfmake reduces these problems to a verifiable docDefinition tree.",
+      "data_in": {
+        "note": "data_in.docDefinition passes directly to pdfMake.createPdf. The schema below fixes common nodes only; consult the upstream 0.3 API for unlisted paths rather than inventing an intermediate format.",
+        "schema": {
+          "docDefinition": {
+            "content": "Content[] -- Each item is a string or a node containing one of text/stack/columns/table/ul/ol/image/svg/qr",
+            "pageSize?": "string | {width:number,height:number} -- Default 'A4'",
+            "pageOrientation?": "'portrait' | 'landscape' -- Default 'portrait'",
+            "pageMargins?": "number | [horizontal,vertical] | [left,top,right,bottom] -- Default 40pt on all sides",
+            "header?": "Content | ((currentPage:number,pageCount:number,pageSize:object)=>Content) -- Omitted by default",
+            "footer?": "Content | ((currentPage:number,pageCount:number,pageSize:object)=>Content) -- Omitted by default",
+            "styles?": "Record<string,Style> -- Default {}",
+            "defaultStyle?": "Style -- Default {fontSize:12,font:'Roboto'}",
+            "info?": "{title?:string,author?:string,subject?:string,keywords?:string} -- Omitted by default",
+            "table_node": {
+              "table": {
+                "body": "Cell[][] -- At least one row, with a consistent column count across rows",
+                "headerRows?": "integer -- Default 0",
+                "widths?": "(number | 'auto' | '*')[] -- Default 'auto' for every column"
+              },
+              "layout?": "string | object -- No custom outer border by default (uses the built-in default table layout)"
+            }
+          }
+        }
+      },
+      "spec": {
+        "note": "The preview displays a PDF blob through an iframe whose container must have an explicit height. Default 640px; AI may override it, and Rule 3 prohibits vh/percentage height. The generated file's paper dimensions are controlled by docDefinition.pageSize."
+      }
+    }
   }
 }

@@ -2,6 +2,22 @@
   "entry_version": "thin-1",
   "id": "jstat",
   "name": "jStat",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written formulas when you need pdf/cdf/quantiles/sampling or parameter-sweep curves for distributions beyond the normal distribution, because native AI implementations fail on cumulative probabilities and inverse functions for t, F, Gamma, and Beta distributions.",
+      "why_valuable": "AI can write a normal pdf somewhat reliably by default but often gets cdf, inv, and parameter order wrong for t/F/Gamma/Beta; jStat provides reproducible values through one consistent distribution API.",
+      "data_in": {
+        "note": "The input maps to jStat[distribution][operation](input, ...params); params must follow the native signature order and must not be mixed with named parameters.",
+        "schema": {
+          "distribution": "'normal' | 'studentt' | 'centralF' | 'chisquare' | 'gamma' | 'beta' | 'poisson' | 'binomial'",
+          "operation?": "'pdf' | 'cdf' | 'inv' | 'sample' | 'mean' | 'variance' -- default 'pdf'",
+          "params": "number[] -- native parameter order: normal=[mean,sd],studentt=[dof],centralF=[dof1,dof2],chisquare=[dof],gamma=[shape,scale],beta=[alpha,beta],poisson=[lambda],binomial=[n,p]",
+          "x?": "number -- input for pdf/cdf, omitted by default; required for those two operations",
+          "p?": "number -- 0..1 probability for inv, omitted by default; required when operation='inv'"
+        }
+      }
+    }
+  },
   "when_to_use": "需要正态以外的 pdf/cdf/分位数/抽样或参数变化曲线时用它而非手写,因为原生 AI 在 t、F、Gamma、Beta 分布的累计概率和反函数上会失败。",
   "why_valuable": "AI 默认只能较稳定写出正态 pdf,对 t/F/Gamma/Beta 的 cdf、inv 和参数顺序经常出错；jStat 用同一分布 API 给出可复算数值。",
   "supply_form": "headless-primitive",
@@ -48,7 +64,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Pure numeric JS: jStat[dist][op](...) returns scalars/samples with zero DOM, style, event, or window access. Headless math layer, runs identically in any context including inside a shadow root.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

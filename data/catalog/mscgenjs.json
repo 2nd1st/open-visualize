@@ -1,0 +1,76 @@
+{
+  "entry_version": "thin-1",
+  "id": "mscgenjs",
+  "name": "mscgenjs",
+  "when_to_use": "需要正式的协议/电信 Message Sequence Chart(MSC 记号:parallel coregion、method-call 弧、timer、box)时用它;一般开发者时序图用 @zenuml/core 或 mermaid sequence。喂一段 MscGen / Xù / MsGenny 源码字符串,inputType 选方言。license 为 GPL-3.0(copyleft)——分发/集成前评估许可影响。",
+  "why_valuable": "MSC(ITU-T Z.120)的 MscGen/Xù/MsGenny 形式化记号——并行 coregion、方法调用弧、timer、box——mermaid 默认时序图和手绘 SVG 都表达不准;mscgenjs 解析这三种 DSL 并渲染出合规 MSC,渲染回调直接给出 SVG 字符串便于二次处理。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need formal protocol/telecom Message Sequence Charts (MSC notation: parallel coregions, method-call arcs, timers, and boxes); use @zenuml/core or mermaid sequence for ordinary developer sequence diagrams. Supply an MscGen / Xù / MsGenny source string and choose the dialect with inputType. The license is GPL-3.0 (copyleft), so evaluate licensing impact before distribution or integration.",
+      "why_valuable": "The formal MscGen/Xù/MsGenny notation for MSC (ITU-T Z.120) includes parallel coregions, method-call arcs, timers, and boxes that a default mermaid sequence diagram or hand-drawn SVG cannot express accurately; mscgenjs parses all three DSLs and renders a compliant MSC, with the render callback directly returning an SVG string for further processing.",
+      "data_in": {
+        "note": "Input is an MscGen/Xù/MsGenny DSL source string, with inputType selecting the dialect. renderMsc finds its target through (options.window||window).document.getElementById(elementId), so it recognizes only light DOM; the callback's second argument pSuccess is the rendered SVG string (inject it for shadow scenarios).",
+        "schema": {
+          "source": "string -- MscGen/xu/msgenny source, for example 'msc { a,b; a=>>b[label=\"hi\"]; }'",
+          "inputType?": "'mscgen' | 'xu' | 'msgenny' | 'json' -- default 'mscgen'",
+          "mirrorEntitiesOnBottom?": "boolean -- default false",
+          "additionalTemplate?": "string -- named style from getAllowedValues().namedStyle",
+          "styleAdditions?": "string -- additional CSS inlined into the output SVG"
+        }
+      },
+      "spec": {
+        "note": "The output SVG sizes itself to its content and needs no fixed pixel height; give the container width:100% plus overflow:auto. Do not use vh."
+      }
+    }
+  },
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "mscgenjs",
+    "version": "8.0.0",
+    "github": "mscgenjs/mscgenjs-core"
+  },
+  "license": "GPL-3.0",
+  "data_in": {
+    "shape": "notation-string",
+    "note": "输入是 MscGen/Xù/MsGenny 的 DSL 源码字符串,inputType 选方言。renderMsc 通过 (options.window||window).document.getElementById(elementId) 找目标——只认 light DOM;回调第二参 pSuccess 是渲染好的 SVG 字符串(shadow 场景用它注入)。",
+    "schema": {
+      "source": "string —— MscGen/xu/msgenny 源码,如 'msc { a,b; a=>>b[label=\"hi\"]; }'",
+      "inputType?": "'mscgen' | 'xu' | 'msgenny' | 'json' —— 默认 'mscgen'",
+      "mirrorEntitiesOnBottom?": "boolean —— 默认 false",
+      "additionalTemplate?": "string —— 命名样式,取自 getAllowedValues().namedStyle",
+      "styleAdditions?": "string —— 额外 CSS,内联进输出 SVG"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "输出 SVG 按内容自适应尺寸,无需固定像素高;容器给 width:100% + overflow:auto。禁 vh。"
+  },
+  "boot": {
+    "artifact": "// 根 +esm 残留 require();改用官方 browser bundle 的 file-level +esm default export\nconst el = document.getElementById('msc'); el.style.cssText = 'width:100%;overflow:auto;min-height:40px'; el.textContent = 'Rendering sequence chart…';\nconst { default:mscgenjs } = await import('https://cdn.jsdelivr.net/npm/mscgenjs@8.0.0/dist/bundle/index.min.js/+esm');\nel.textContent = ''; await new Promise((resolve, reject) => mscgenjs.renderMsc(data.source, { elementId:'msc', inputType:data.inputType ?? 'mscgen', includeSource:false }, (err, svg) => { if (err) { reject(err); return; } if (svg && !el.querySelector('svg')) el.innerHTML = svg; resolve(); }));",
+    "widget": "// renderMsc 只能 document.getElementById(light DOM);临时 light 宿主取 SVG 字符串后注入 shadow\nconst box = document.createElement('div'); box.style.width = '100%'; box.textContent = 'Rendering sequence chart…'; shadowRoot.appendChild(box);\nconst { default:mscgenjs } = await import('https://cdn.jsdelivr.net/npm/mscgenjs@8.0.0/dist/bundle/index.min.js/+esm');\nconst tid = 'msc_' + Math.random().toString(36).slice(2);\nconst tmp = document.createElement('div'); tmp.id = tid; tmp.style.cssText = 'position:absolute;left:-9999px;top:0'; document.body.appendChild(tmp);\nawait new Promise((resolve, reject) => mscgenjs.renderMsc(data.source, { elementId:tid, inputType:data.inputType ?? 'mscgen', includeSource:false }, (err, svg) => { tmp.remove(); if (err) { box.textContent = String(err); reject(err); return; } box.innerHTML = svg; resolve(); }));",
+    "codex": "const el = document.getElementById('msc'); el.style.cssText = 'width:100%;overflow:auto;min-height:40px'; el.textContent = 'Rendering sequence chart…';\nconst { default:mscgenjs } = await import('https://cdn.jsdelivr.net/npm/mscgenjs@8.0.0/dist/bundle/index.min.js/+esm');\nel.textContent = ''; await new Promise((resolve, reject) => mscgenjs.renderMsc(data.source, { elementId:'msc', inputType:data.inputType ?? 'mscgen', includeSource:false }, (err, svg) => { if (err) { reject(err); return; } if (svg && !el.querySelector('svg')) el.innerHTML = svg; resolve(); }));"
+  },
+  "example": {
+    "_why": "三种方言语法不同,minimal 钉死默认 mscgen 方言的最小合法程序。",
+    "minimal": {
+      "source": "msc {\n  a [label=\"Client\"], b [label=\"Server\"];\n  a =>> b [label=\"request\"];\n  b >> a [label=\"response\"];\n}",
+      "inputType": "mscgen"
+    }
+  },
+  "uplink": "display 默认不上行;无内建交互回调,SVG 静态产物。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:回调取 SVG 字符串注入 shadow,临时 light 宿主用后即删",
+    "codex": "supported:ESM CDN,无 worker/wasm/uplink 硬依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "no",
+    "evidence": "+esm named exports renderMsc/translateMsc/getParser/getGraphicsRenderer/getTextRenderer/getAllowedValues/version. types/mscgen.d.ts: renderMsc(pScript:string, pOptions?:IRenderOptions, pCallBack?:(err:Error, svg:string)=>void):void; IRenderOptions={elementId?(default '__svg', assumed to pre-exist), inputType?('mscgen'|'msgenny'|'xu'|'json', default 'mscgen'), mirrorEntitiesOnBottom?, additionalTemplate?, includeSource?, styleAdditions?, window?(defaults to browser window)} — schema pins source+inputType, both consumed by boot. Render target resolved via (options.window||window).document.getElementById(elementId), i.e. light-DOM only (ShadowRoot elements are not found); the callback's pSuccess returns the finished SVG string, which the widget boot injects into shadowRoot. globalStyleInjection=no: the single createElement(\"style\") is emitted INSIDE the generated SVG (scoped), not document.head (grep: 0 document.head). globalDomMutation=yes: renders into the given light-DOM elementId; widget path creates a transient off-screen host on document.body then removes it. globalEvents=no. License GPL-3.0 (strong copyleft) — flag for distribution. shadowCompatible=conditional via callback→inject pattern.",
+    "confidence": "high"
+  }
+}

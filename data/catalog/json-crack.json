@@ -2,6 +2,24 @@
   "entry_version": "thin-1",
   "id": "json-crack",
   "name": "JSON Crack",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when nested JSON/YAML/CSV needs to become a zoomable, collapsible, searchable node-link diagram instead of a hand-written version, which fails at automatic layout, large-tree interaction, and format conversion. Do not use it as an ordinary JSON text viewer.",
+      "why_valuable": "AI can manually arrange only a few nodes for small JSON. It cannot handle automatic layout for large structures, pan/zoom, collapse/search, format conversion, and reliable image export.",
+      "data_in": {
+        "note": "The selected picks upstream is a GitHub-only full application with no pinned npm package/version. A future fork must narrow input to document + format and generate nodes/edges internally through its parser; it must not require the consuming AI to pre-layout coordinates.",
+        "schema": {
+          "document": "string | Record<string,unknown> | unknown[] -- for format=json, an object/array may be passed directly; other formats require the raw string",
+          "format?": "'json'|'yaml'|'csv'|'xml' -- defaults to 'json'",
+          "layout_direction?": "'LEFT'|'RIGHT'|'DOWN'|'UP' -- defaults to 'RIGHT'",
+          "theme?": "'dark'|'light' -- defaults to 'dark'",
+          "show_controls?": "boolean -- defaults to true",
+          "show_grid?": "boolean -- defaults to true",
+          "max_renderable_nodes?": "integer -- defaults to 1500; beyond it, show a fallback notice instead of continuing layout"
+        }
+      }
+    }
+  },
   "when_to_use": "需要把嵌套 JSON/YAML/CSV 变成可缩放、折叠和搜索的节点连线图时用它而非手写,因为原生在自动布局、大树交互和格式转换上失败;非做普通 JSON 文本查看器。",
   "why_valuable": "AI 默认只能为小 JSON 手排少量节点,做不到大结构的自动布局、平移缩放、折叠搜索、格式互转和稳定图片导出。",
   "supply_form": "app-needs-fork",

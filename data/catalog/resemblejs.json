@@ -1,0 +1,66 @@
+{
+  "entry_version": "thin-1",
+  "id": "resemblejs",
+  "name": "resemblejs",
+  "when_to_use": "要「给两张图片(data URL/File/URL/ArrayBuffer),直接得到差异分析 + 可视化 diff 图」而不想自己搞 ImageData 时用它。追求极致速度或已有像素缓冲的底层场景用 pixelmatch。",
+  "why_valuable": "turnkey 图像对比:自动加载解码,输出 misMatchPercentage、差异包围盒、尺寸差,并生成粉色高亮 diff 图,可忽略抗锯齿/仅比亮度;原生 AI 做不到「这两张截图差多少、差在哪」。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "resemblejs",
+    "version": "5.0.0",
+    "github": "rsmbl/Resemble.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "bitmap",
+    "note": "turnkey:image 接受 data URL / File/Blob / ArrayBuffer / ImageData,内部离屏 canvas 自动解码;异步经 onComplete 回调出结果。ignoreX 必须在 onComplete 前链式设定。",
+    "schema": {
+      "image1": "string | Blob | ArrayBuffer | ImageData —— 图 A(data URL / 文件 / 缓冲 / ImageData)",
+      "image2": "string | Blob | ArrayBuffer | ImageData —— 图 B",
+      "ignoreAntialiasing?": "boolean —— 忽略抗锯齿差异,默认 false",
+      "ignoreColors?": "boolean —— 仅比亮度(忽略色彩),默认 false"
+    }
+  },
+  "provides": {
+    "shape": "diff-analysis",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;计算 + 产 diff 图 dataURL。",
+    "outputs": "onComplete(res) 的 res:misMatchPercentage(字符串百分比)、rawMisMatchPercentage、isSameDimensions、dimensionDifference{width,height}、diffBounds{top,left,bottom,right}、analysisTime,及 res.getImageDataUrl()(粉色高亮 diff 图 dataURL)、res.getBuffer()。",
+    "api_surface": {
+      "chain": "resemble(image).compareTo(image2).ignoreAntialiasing?().ignoreColors?().onComplete(res => ...)",
+      "convenience": "resemble.compare(image1, image2, options, callback)",
+      "globalWarning": "resemble.outputSettings({errorColor,errorType,transparency,outputDiff,boundingBox,ignoredBox}) 会改全局模块状态,影响后续所有比较"
+    }
+  },
+  "peer": {
+    "id": "pixelmatch",
+    "note": "本条 turnkey、自动加载解码;若已有 RGBA 像素缓冲、追求极致速度用底层 pixelmatch。"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you want to supply two images (data URL/File/URL/ArrayBuffer) and directly receive difference analysis plus a visual diff image without managing ImageData yourself. For maximum speed or low-level cases where pixel buffers already exist, use pixelmatch.",
+      "why_valuable": "Turnkey image comparison: it loads and decodes automatically, returns misMatchPercentage, difference bounds, and dimension differences, and generates a pink-highlighted diff image. It can ignore antialiasing or compare luminance only. Native AI cannot reliably answer how much two screenshots differ and where.",
+      "data_in": {
+        "note": "Turnkey input: image accepts data URL / File/Blob / ArrayBuffer / ImageData, and an internal offscreen canvas decodes it automatically. Results arrive asynchronously through onComplete. Chain ignoreX before onComplete.",
+        "schema": {
+          "image1": "string | Blob | ArrayBuffer | ImageData -- image A (data URL / file / buffer / ImageData)",
+          "image2": "string | Blob | ArrayBuffer | ImageData -- image B",
+          "ignoreAntialiasing?": "boolean -- ignore antialiasing differences; default false",
+          "ignoreColors?": "boolean -- compare luminance only (ignore color); default false"
+        }
+      }
+    }
+  },
+  "boot": {
+    "shared": "// 三载体一致:turnkey,内部用离屏 canvas,不落 DOM\nimport resemble from 'https://cdn.jsdelivr.net/npm/resemblejs@5/+esm';\n// data.image1 / data.image2:data URL | File/Blob | ArrayBuffer | ImageData\nconst cmp = resemble(data.image1).compareTo(data.image2);\nif (data.ignoreAntialiasing) cmp.ignoreAntialiasing();\nif (data.ignoreColors) cmp.ignoreColors();\ncmp.onComplete((res) => {\n  // res.misMatchPercentage / res.rawMisMatchPercentage / res.isSameDimensions\n  // res.dimensionDifference{width,height} / res.diffBounds{top,left,bottom,right}\n  // res.getImageDataUrl() → 粉色高亮 diff 图 dataURL\n});",
+    "note": "异步:ignoreX 必须在 onComplete 之前设。resemble.outputSettings({errorColor,outputDiff,boundingBox,...}) 改全局状态、影响后续所有比较,慎用或每次重设。浏览器用原生 canvas,node-only 'canvas' 依赖在浏览器 bundle 非硬依赖。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm default export `resemble`(grep: 'Qe as default');API resemble(image).compareTo(image2).onComplete(cb),链式 ignoreColors/ignoreAntialiasing/ignoreNothing/scaleToSameSize/repaint(README)及 resemble.compare(img1,img2,options,cb)。onComplete data 字段对 +esm 源码逐一核实:misMatchPercentage、rawMisMatchPercentage、isSameDimensions、dimensionDifference、diffBounds、analysisTime、getImageDataUrl、getBuffer 全部存在。headless:+esm grep document.head=0、document.body=0——内部经 document.createElement('canvas')(1 处,从不 append)建离屏 canvas 并操作 ImageData(10 处);node-only 'canvas' 依赖在浏览器 bundle 非硬依赖。CAVEAT:resemble.outputSettings({...}) 改全局模块状态、影响后续所有比较(README 明示)——按次设或避免。无 shadow 足迹(headless-primitive)。",
+    "confidence": "high"
+  }
+}

@@ -66,7 +66,85 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "+esm grep: `createElement('style')` x1 + `document.head` x1 → injects a base <style> (defaultClassName='emoji-styles') into head on first blast (entry migrates it via unique-className match — handled). defaultCreateContainer JSDoc: '<div/> element prepended to document.body' → default body mutation, but entry always passes explicit `container:el` so emojis stay in the shadow container. `document.addEventListener('pointermove'|'pointerup')` for grab-and-toss (document-level, transient per drag). Emoji elements use `position: fixed` — entry establishes a local containing block via `transform:translateZ(0)` on the container so fixed coords resolve inside it. Containable with all three boot mitigations → conditional.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "options": {
+        "emojis": [
+          "🎉",
+          "✨",
+          "🎊",
+          "🥳",
+          "🔥",
+          "⭐",
+          "💖",
+          "🚀"
+        ],
+        "emojiCount": 20,
+        "physics": {
+          "gravity": 0,
+          "preserveOutOfBounds": true,
+          "fontSize": {
+            "min": 26,
+            "max": 44
+          },
+          "initialVelocities": {
+            "rotation": {
+              "min": -4,
+              "max": 4
+            },
+            "x": {
+              "min": -6,
+              "max": 6
+            },
+            "y": {
+              "min": -9,
+              "max": 1
+            }
+          }
+        }
+      }
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to bind conversational meaning to a burst of emoji confetti with gravity, rotation, and a tactile feel, instead of hand-writing span animations, because native implementations fail at ballistic physics, per-frame cleanup, and production-ready triggers.",
+      "why_valuable": "AI can only float several emoji at the same CSS speed by default; it cannot provide randomized initial velocity, gravity, rotational deceleration, out-of-bounds cleanup, or uniqueness within a burst. This library directly produces a stoppable one-shot celebration.",
+      "data_in": {
+        "note": "The schema accepts pure data parameters and maps them exactly to emojiBlast(settings). container and className are managed by boot; the consuming AI connects interaction hooks directly to the upstream API for the carrier.",
+        "schema": {
+          "options?": {
+            "_default": "{} -- Uses the upstream default emoji set, a random count of 14-27, and a position calibrated by this entry to the container center",
+            "emojis?": "string[] -- Candidate emoji; uses the upstream built-in set by default",
+            "emojiCount?": "integer -- Count for this burst; random 14-27 by default",
+            "uniqueness?": "integer -- Maximum number of distinct emoji in one burst; default Infinity",
+            "position?": {
+              "_default": "Below the center of the effect container: {x:containerWidth/2,y:height*0.7}",
+              "x": "number -- Pixel coordinate relative to the left of the effect container",
+              "y": "number -- Pixel coordinate relative to the top of the effect container"
+            },
+            "physics?": {
+              "_default": "Upstream defaultPhysics",
+              "fontSize?": "{min:number,max:number} -- Pixel font-size range; default {min:14,max:28}",
+              "framerate?": "number -- Physics baseline frame rate; default 60",
+              "gravity?": "number -- Downward acceleration per frame; default 0.35",
+              "rotation?": "{min:number,max:number} -- Initial-angle range; default {min:-45,max:45}",
+              "rotationDeceleration?": "number -- Rotational-velocity decay; default 0.98",
+              "preserveOutOfBounds?": "boolean -- Whether to retain out-of-bounds particles; default false",
+              "initialVelocities?": {
+                "_default": "{rotation:{min:-7,max:7},x:{min:-7,max:7},y:{min:-21,max:-7}}",
+                "rotation?": "{min:number,max:number} -- Default {min:-7,max:7}",
+                "x?": "{min:number,max:number} -- Default {min:-7,max:7}",
+                "y?": "{min:number,max:number} -- Default {min:-21,max:-7}"
+              }
+            }
+          }
+        }
+      },
+      "spec": {
+        "note": "emoji uses fixed positioning. boot establishes a local containing block with transform and explicitly sets a default height of 400px, so coordinates and clipping remain inside the effect container. vh/percentage height is prohibited."
+      }
+    }
   }
 }

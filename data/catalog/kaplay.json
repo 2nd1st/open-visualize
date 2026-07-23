@@ -4,6 +4,45 @@
   "name": "KAPLAY",
   "when_to_use": "需要在几十行内做出带碰撞、重力、键盘输入和游戏循环的 2D 可玩 demo 时用它而非手写 canvas，因为原生在稳定帧循环、碰撞求解、输入状态与场景清理上失败；非做 3D、联网同步或大型资产管线。",
   "why_valuable": "AI 默认只能画一帧 canvas 或拼脆弱的 requestAnimationFrame，做不到一致的 delta-time、碰撞体、重力落地、输入绑定和对象生命周期；KAPLAY 用小 API 面把这些高故障能力闭环。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing canvas when you need a playable 2D demo with collisions, gravity, keyboard input, and a game loop in a few dozen lines, because native implementations fail at stable frame loops, collision resolution, input state, and scene cleanup; not for 3D, network synchronization, or large asset pipelines.",
+      "why_valuable": "AI can normally only draw one canvas frame or assemble a fragile requestAnimationFrame loop; it cannot consistently deliver delta-time, colliders, grounded gravity, input binding, and object lifecycles. KAPLAY closes these high-failure capabilities behind a small API surface.",
+      "data_in": {
+        "note": "scene is a narrowed scene geometry that boot maps to KAPLAY's native pos/rect/color/area/body and input APIs; colors are RGB triples, and coordinates and sizes are all logical game pixels.",
+        "schema": {
+          "scene": {
+            "_defaults": "platforms defaults to []; defaults for the other optional fields are listed below.",
+            "width?": "positive integer -- default 640",
+            "background?": "[r,g,b], each item integer 0..255 -- default [18,24,38]",
+            "gravity?": "non-negative number -- default 1600; 0 disables downward acceleration",
+            "player?": {
+              "_default": "when omitted, render only the platforms and do not create a controllable character",
+              "x?": "number -- default 80",
+              "y?": "number -- default 80",
+              "width?": "positive number -- default 28",
+              "height?": "positive number -- default 28",
+              "color?": "[r,g,b] -- default [255,198,66]",
+              "speed?": "non-negative number pixels/second -- default 260",
+              "jumpForce?": "non-negative number -- default 560"
+            },
+            "platforms?": [
+              {
+                "x": "number",
+                "y": "number",
+                "width": "positive number",
+                "height": "positive number",
+                "color?": "[r,g,b] -- default [66,76,96]"
+              }
+            ]
+          }
+        }
+      },
+      "spec": {
+        "note": "The KAPLAY canvas must have an explicit pixel viewport; boot defaults to a logical width of 640px and height of 360px and fits the container with stretch+letterbox. Rule 3 forbids vh or percentage heights; AI may override the height with spec.height."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -58,14 +97,22 @@
     "minimal": {
       "scene": {
         "width": 640,
-        "background": [18, 24, 38],
+        "background": [
+          18,
+          24,
+          38
+        ],
         "gravity": 1600,
         "player": {
           "x": 80,
           "y": 240,
           "width": 28,
           "height": 28,
-          "color": [255, 198, 66],
+          "color": [
+            255,
+            198,
+            66
+          ],
           "speed": 260,
           "jumpForce": 560
         },
@@ -75,7 +122,11 @@
             "y": 330,
             "width": 640,
             "height": 30,
-            "color": [66, 76, 96]
+            "color": [
+              66,
+              76,
+              96
+            ]
           }
         ]
       }
@@ -98,7 +149,6 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "No createElement('style')/head.appendChild in the bundle, and canvas?:HTMLCanvasElement option confirmed (8753) so KAPLAY renders into the boot-supplied shadow canvas — no document.body.appendChild found. globalEvents=yes: attaches listeners to window (window.addEventListener(p,E) over Object.entries) and document, in addition to canvas, and runs a persistent requestAnimationFrame loop; none are torn down unless k.quit() is called, which the boot does not. global:false avoids polluting window with KAPLAY's API. Rendering + input work inside the shadow (the window/document listeners actually let keyboard work without canvas focus); the uncleaned global listeners are a teardown/leak caveat, not a render blocker.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

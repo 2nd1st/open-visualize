@@ -5,6 +5,21 @@
   "when_to_use": "需要把 FEN 盘面渲成带棋子、坐标、动画且可继续接走子输入的 SVG 棋盘时用它,而非手写 table/SVG——原生手写在棋子资源、翻转、响应式布局和拖子状态上失败;规则、合法性与复盘树不在本条。",
   "why_valuable": "AI 默认只能给出 FEN 文本、Unicode 棋盘或一次性静态方格,做不到稳定的棋子 sprite、盘面翻转、位置动画和指针走子输入;本库以轻量原生 SVG 把这些 UI 能力闭环。",
   "supply_form": "component",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a hand-written table or SVG when you need to render a FEN position as an SVG chessboard with pieces, coordinates, animation, and the option to add move input, because native implementations fail at piece assets, orientation, responsive layout, and drag state; rules, legality, and variation trees are outside this entry.",
+      "why_valuable": "AI can normally only provide FEN text, a Unicode board, or a one-off static grid; it cannot reliably deliver piece sprites, board orientation, position animation, and pointer-based move input. This library closes the UI loop with lightweight native SVG.",
+      "data_in": {
+        "schema": {
+          "fen": "string -- the piece-placement segment of FEN: exactly 8 ranks separated by /, containing only PNBRQKpnbrqk and empty-square counts 1..8; do not pass the other five fields for turn, castling, and so on",
+          "orientation?": "'white' | 'black' -- perspective at the bottom edge, default white"
+        }
+      },
+      "spec": {
+        "note": "The board is a 1:1 SVG; boot defaults the container to 480x480px with max-width:100%. AI may override it with fixed px values; do not use vh or percentage heights. The library handles responsive layout changes itself."
+      }
+    }
+  },
   "level": "L1",
   "mode": "direct-import",
   "upstream": {
@@ -45,7 +60,12 @@
     "globalDomMutation": "yes",
     "globalEvents": "no",
     "evidence": "grep of +esm: no document.head and no createElement('style') — chessboard.css is external (loaded by boot). document.body appears twice: (1) `cacheSpriteToDiv('cm-chessboard-sprite', getSpriteUrl())` appends a hidden aria-hidden sprite div via XHR to document.body on every render when assetsCache=true (default) — globalDomMutation; (2) drag ghost `createSvg(document.body)` only on active drag. Pointer listener is `mousedown` bound to the board element/context (ChessboardView l.69/94), not document/window, and move-input is disabled in the boot -> globalEvents=no. shadowCompatible=conditional: requires assetsCache:false (else <use href='#id'> can't reach the body sprite from shadow) plus CSS-in-shadow.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "fen": "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R",
+      "orientation": "white"
+    }
   }
 }

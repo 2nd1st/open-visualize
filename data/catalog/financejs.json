@@ -39,6 +39,19 @@
     ],
     "note": "本条只产金融标量；多组情景结果可交给 ECharts,现金流与敏感性明细可交给 Grid.js,输入控件和回调由消费 AI 自行编写。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to recompute classic financial formulas such as PV/FV/NPV/IRR, installment payments, CAGR, or compound interest instead of hand-writing them, which tends to fail on rate conventions, parameter order, and rounding conventions.",
+      "why_valuable": "AI defaults to restating financial formulas but cannot consistently handle mixed percentage/decimal rate conventions, variable-length cash-flow arguments, and the library's two-decimal rounding. Recomputing the same problem may otherwise produce different results.",
+      "data_in": {
+        "note": "data_in maps exactly to new Finance()[formula](...args). The rate convention is not uniform across methods, so values must follow the signatures below rather than being normalized independently.",
+        "schema": {
+          "formula": "'PV' | 'FV' | 'NPV' | 'IRR' | 'AM' | 'CAGR' | 'PMT'",
+          "args": "number[] -- exact signatures: PV=[ratePercent,cashFlow,numPeriods? (default 1)], FV=[ratePercent,cashFlow,numPeriods], NPV=[ratePercent,initialInvestment,...cashFlows], IRR=[...cashFlows], AM=[principal,annualRatePercent,period,yearOrMonth,payAtBeginning? (default false)], CAGR=[beginningValue,endingValue,numPeriods], PMT=[fractionalRate,numPayments,principal]"
+        }
+      }
+    }
+  },
   "boot": {
     "artifact": "// inferred-not-tested:artifact H0 探针未闭合；纯 JS、无 DOM\nimport Finance from 'https://cdn.jsdelivr.net/npm/financejs@4/+esm';\nconst finance = new Finance();\nconst allowed = new Set(['PV','FV','NPV','IRR','AM','CAGR','PMT']);\nif (!allowed.has(data.formula)) throw new Error('Unknown finance.js formula');\nconst result = finance[data.formula](...data.args);",
     "widget": "// widget 内纯计算,无需接触 shadow DOM\nimport Finance from 'https://cdn.jsdelivr.net/npm/financejs@4/+esm';\nconst finance = new Finance();\nconst allowed = new Set(['PV','FV','NPV','IRR','AM','CAGR','PMT']);\nif (!allowed.has(data.formula)) throw new Error('Unknown finance.js formula');\nconst result = finance[data.formula](...data.args);",
@@ -51,7 +64,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Pure-JS formula engine (provides.shape=financial-scalar, headless-primitive). finance.js is `Finance.prototype.<method>=function(){...}` numeric math only — no DOM, no document/window, no styles, no events. boot only does `new Finance()` + `finance[formula](...args)`. No isolation concerns; runs anywhere including inside shadow.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

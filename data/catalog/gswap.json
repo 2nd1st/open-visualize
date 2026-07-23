@@ -1,20 +1,23 @@
 {
- "entry_version": "thin-1",
- "id": "gswap",
- "name": "gswap",
- "supply_form": "app-needs-fork",
- "status": "blocked-until-forked",
- "upstream": {
-  "github": "yDgunz/gswap"
- },
- "license": "MIT",
- "scenarios": [
-  "notation"
- ],
- "fork_note": "应用态,需 fork+改造+发 npm 才过白名单;不作可消费条目上架。one_liner: 用 Three.js 的 siteswap 杂耍记法动画演示器",
- "data_in": {
-  "shapes": [
-   "notation-string"
-  ]
- }
+  "entry_version": "thin-1",
+  "id": "gswap",
+  "name": "gswap",
+  "i18n": {
+    "en": {}
+  },
+  "supply_form": "app-needs-fork",
+  "status": "blocked-until-forked",
+  "upstream": {
+    "github": "yDgunz/gswap"
+  },
+  "license": "MIT",
+  "scenarios": [
+    "notation"
+  ],
+  "fork_note": "应用态,需 fork+改造+发 npm 才过白名单;不作可消费条目上架。one_liner: 用 Three.js 的 siteswap 杂耍记法动画演示器",
+  "data_in": {
+    "shapes": [
+      "notation-string"
+    ]
+  }
 }

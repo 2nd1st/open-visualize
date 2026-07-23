@@ -7,7 +7,9 @@
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
-  "upstream": { "github": "bonartm/quizdown-js" },
+  "upstream": {
+    "github": "bonartm/quizdown-js"
+  },
   "license": "MIT",
   "data_in": {
     "shape": "notation-string",
@@ -48,7 +50,38 @@
     "globalDomMutation": "no",
     "globalEvents": "unknown",
     "evidence": "STYLE=no:/gh/ build 实测无 document.head(grep 空),createApp 经 attachShadow 建自带 shadow root,Svelte 组件 CSS 封闭其中而非 document.head。DOM=no:mount 进传入 host 及其内部 nested shadow root。EVENTS=unknown:自封闭 Svelte-in-shadow,压缩 UMD 未能确证是否注册全局监听(倾向 scoped,但无直接证据)。shadowCompatible=yes:host 落我们的 shadowRoot,quizdown 再 attachShadow 一层,CSS 自封闭(与条目 widget=supported 一致)。",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
+  },
+  "example": {
+    "minimal": {
+      "source": "### What's the capital of Germany?\n\n> Hint: It's the _largest_ city in Germany.\n\n1. [ ] Munich\n1. [x] Berlin\n    > Correct! Berlin has been the capital since 1990.\n1. [ ] Frankfurt\n1. [ ] Cologne\n\n### Which of these are programming languages?\n\n- [x] Python\n- [ ] HTML\n- [x] JavaScript\n- [ ] CSS\n\n### Order the planets from the Sun outward.\n\n> Mercury is closest to the Sun.\n\n1. Mercury\n2. Venus\n3. Earth\n4. Mars\n",
+      "config": {
+        "shuffleQuestions": false,
+        "shuffleAnswers": false,
+        "primaryColor": "steelblue"
+      }
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to turn Markdown-like questions into a locally scored quiz with single choice, multiple choice, and ordering in one pass, instead of hand-writing each question in HTML, because native implementations fail at parsing multiple question types, normalizing scores, and result-page state.",
+      "why_valuable": "AI can only reliably write a single-question button demo by default; it cannot consistently parse single choice, multiple choice, ordering, correct answers, hints, and feedback from one readable text. quizdown lets AI produce a native notation close to Markdown.",
+      "data_in": {
+        "schema": {
+          "source": "string -- Each question starts with a Markdown heading; unordered task lists (- [x]/- [ ]) are multiple choice, ordered task lists (1. [x]/1. [ ]) are single choice, and ordered lists without checkboxes are ordering questions; [x] marks a correct item",
+          "config?": {
+            "shuffleAnswers?": "boolean -- Default true",
+            "shuffleQuestions?": "boolean -- Default false",
+            "nQuestions?": "positive integer -- Default undefined, meaning all questions",
+            "primaryColor?": "CSS color string -- Default 'steelblue'",
+            "secondaryColor?": "CSS color string -- Default '#f2f2f2'",
+            "textColor?": "CSS color string -- Default 'black'",
+            "locale?": "'de'|'en'|'es'|'fr'|null -- Default null, automatically using the browser language",
+            "enableRetry?": "boolean -- Default true",
+            "_default": "When config is omitted, uses the upstream defaults above"
+          }
+        }
+      }
+    }
   }
 }

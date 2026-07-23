@@ -1,0 +1,81 @@
+{
+  "entry_version": "thin-1",
+  "id": "highlight-js",
+  "name": "highlight.js",
+  "when_to_use": "手上有代码但不确定语言、或需一次性支持大量语言并自动识别(automatic language detection)时用它。已知语言且要高保真 TextMate 着色用 shiki;要极轻量用 speed-highlight;prism 亦可——这三者都必须显式指定语言,唯 highlight.js 能自动判定。",
+  "why_valuable": "highlight.js 是唯一带自动语言检测的高亮器(190+ 语言),拿到一段未知语言的代码也能判定并着色;AI 手写高亮既慢又不准、且要求先知道语言,更做不到跨语言自动识别。着色靠 highlight()/highlightAuto() 产出的 HTML + 一张主题 CSS。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you have code but do not know its language, or need one-time support for many languages with automatic language detection. For a known language and high-fidelity TextMate coloring, use shiki; for a very lightweight option, use speed-highlight; prism is another option. All three require an explicit language, while only highlight.js can detect it automatically.",
+      "why_valuable": "highlight.js is the only highlighter with automatic language detection across 190+ languages, so it can identify and color an unknown code fragment. AI-written highlighting is slow and inaccurate, requires the language in advance, and cannot detect languages across a broad set. Coloring uses the HTML produced by highlight()/highlightAuto() plus one theme CSS file.",
+      "data_in": {
+        "note": "code is the complete source to color; when language is omitted, highlightAuto performs automatic detection. Coloring requires one theme CSS file from styles/*.min.css. artifact/codex may link it into the current page head (hard rule 2: owned document); a widget must place it in shadowRoot. The default +esm entry includes all 190+ languages, which is large but gives the broadest auto-detection. If only common languages are needed, use /lib/common.",
+        "schema": {
+          "code": "string - complete code to highlight",
+          "language?": "string - highlight.js language id such as 'python'/'rust'/'json'; omit it to use highlightAuto automatic detection",
+          "theme?": "string - theme name such as 'github'/'github-dark'/'default'; boot loads styles/<theme>.min.css accordingly, default 'default'",
+          "ignoreIllegals?": "boolean - ignore illegal syntax without throwing when language is specified; boot default true"
+        }
+      },
+      "spec": {
+        "note": "highlight.js only produces colored <span> elements and does not set a height. This is the recommended height for the scrolling <pre><code> carrier, default 360px while allowing content to expand. Do not use vh or percentage heights (hard rule 3)."
+      }
+    }
+  },
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "highlight.js",
+    "version": "11.11.1",
+    "github": "highlightjs/highlight.js"
+  },
+  "license": "BSD-3-Clause",
+  "data_in": {
+    "shape": "code-string",
+    "note": "code 是要着色的代码全文;language 省略则走 highlightAuto 自动检测。着色需一张主题 CSS(styles/*.min.css):artifact/codex 可 link 进本页 head(铁律 2:自有 document),widget 必须落进 shadowRoot。默认 +esm 入口含全部 190+ 语言(体积大但自动检测最全);仅需常见语言可换 /lib/common。",
+    "schema": {
+      "code": "string —— 要高亮的代码全文",
+      "language?": "string —— highlight.js 语言 id(如 'python'/'rust'/'json');省略则 highlightAuto 自动检测",
+      "theme?": "string —— 主题名(如 'github'/'github-dark'/'default'),boot 据此加载 styles/<theme>.min.css,默认 'default'",
+      "ignoreIllegals?": "boolean —— 指定 language 时忽略非法语法不报错,boot 默认 true"
+    }
+  },
+  "spec": {
+    "height": 360,
+    "note": "highlight.js 只产 <span> 着色不设高度;此为承载 <pre><code> 的滚动容器建议高度(默认 360px,内容可撑开),禁 vh/百分比高(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:主题 CSS link 进本页 head(铁律 2:artifact 自有 document);默认 +esm 含全部语言 → highlightAuto 可用\nimport hljs from 'https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/+esm';\nconst link = document.createElement('link'); link.rel = 'stylesheet'; link.href = `https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/styles/${data.theme ?? 'default'}.min.css`; document.head.appendChild(link);\nconst el = document.getElementById('code'); el.style.maxHeight = '360px'; el.style.overflow = 'auto';\nconst res = data.language ? hljs.highlight(data.code, { language: data.language, ignoreIllegals: data.ignoreIllegals ?? true }) : hljs.highlightAuto(data.code);\nel.innerHTML = `<pre class=\"hljs\"><code>${res.value}</code></pre>`;  // res.value 已转义的高亮 HTML;res.language 是检测/指定到的语言",
+    "widget": "// 主题 CSS 必须落 shadowRoot(铁律 2),不能进 host head\nimport hljs from 'https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/+esm';\nconst link = document.createElement('link'); link.rel = 'stylesheet'; link.href = `https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/styles/${data.theme ?? 'default'}.min.css`; shadowRoot.appendChild(link);\nconst el = document.createElement('div'); el.style.maxHeight = '360px'; el.style.overflow = 'auto'; shadowRoot.appendChild(el);\nconst res = data.language ? hljs.highlight(data.code, { language: data.language, ignoreIllegals: data.ignoreIllegals ?? true }) : hljs.highlightAuto(data.code);\nel.innerHTML = `<pre class=\"hljs\"><code>${res.value}</code></pre>`;",
+    "codex": "// sandbox iframe:主题 CSS link 进本 iframe head\nimport hljs from 'https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/+esm';\nconst link = document.createElement('link'); link.rel = 'stylesheet'; link.href = `https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/styles/${data.theme ?? 'default'}.min.css`; document.head.appendChild(link);\nconst el = document.getElementById('code'); el.style.maxHeight = '360px'; el.style.overflow = 'auto';\nconst res = data.language ? hljs.highlight(data.code, { language: data.language, ignoreIllegals: data.ignoreIllegals ?? true }) : hljs.highlightAuto(data.code);\nel.innerHTML = `<pre class=\"hljs\"><code>${res.value}</code></pre>`;"
+  },
+  "example": {
+    "_why": "核心差异化是「不指定语言即可着色」;minimal 钉死自动检测形态(省略 language),并展示可选深色主题。",
+    "minimal": {
+      "code": "def add(a, b):\n    return a + b\n",
+      "theme": "github-dark"
+    },
+    "empty": {
+      "code": ""
+    }
+  },
+  "uplink": {
+    "artifact": "artifact 无上行;highlightAuto 检测到的语言 res.language 可展示,消费 AI 如需回传自行导出。",
+    "widget": "消费 AI 如需回传检测语言/代码,在确认控件读取 res.language 后拼 sendPrompt;本条不焊接统一事件出口。",
+    "codex": "消费 AI 读取 res.language/code 后自行调用 sendFollowUpMessage。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:hljs.highlight 只产 HTML 字符串,着色 DOM 与主题 CSS 都落 shadowRoot;JS 本身不写 head",
+    "codex": "supported:纯 ESM tokenizer + 一张主题 CSS,无 worker/wasm 依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "highlight.js@11.11.1 +esm default export `hljs` (export{ec as HighlightJS,ec as default}) — import hljs default correct. types/index.d.ts: highlight(code, {language, ignoreIllegals?}):HighlightResult (L32) returning {value:string, language, relevance}; highlightAuto(code, languageSubset?):AutoHighlightResult (L35); highlightElement(element):void (L37); registerLanguage/listLanguages (L42/44) — boot uses highlight()/highlightAuto() exactly. globalStyleInjection=no: the library JS injects no CSS — 0 document.head, 0 createElement('style'); coloring requires a separate theme stylesheet from highlight.js@11.11.1/styles/*.min.css (exports map exposes ./styles/*; default/github/github-dark .min.css all verified 200), which boot loads into document.head (artifact/codex, own document) or shadowRoot (widget) per iron-law #2. highlight()/highlightAuto() are pure functions returning escaped HTML strings (no document/window touch). The single window.addEventListener in the bundle lives INSIDE highlightAll() (DOMContentLoaded auto-run) which this boot never calls — so no listener registered and no document-wide mutation for the highlight()/highlightAuto() path. Only optional highlightElement (unused) would mutate a passed element in place. Default +esm entry registers all ~190 languages (enables highlightAuto); lib/common is a lighter subset. → shadow-safe.",
+    "confidence": "high"
+  }
+}

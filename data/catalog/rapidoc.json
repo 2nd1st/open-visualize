@@ -2,6 +2,39 @@
   "entry_version": "thin-1",
   "id": "rapidoc",
   "name": "RapiDoc",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a hand-written implementation when you need to turn OpenAPI 3.x documentation into a searchable API reader with recursively expanded schemas and request examples in multiple languages, because native implementations fail at $ref resolution, deep-link navigation, and request-model expansion; not for an arbitrary Markdown documentation site or API gateway.",
+      "why_valuable": "AI can only assemble static endpoint cards by default; it cannot consistently render cross-file $ref, recursive oneOf/allOf schemas, deep-link navigation, security schemes, and multi-language code examples.",
+      "data_in": {
+        "note": "spec is passed directly to <rapi-doc>'s public loadSpec(JSON object), not spec-url. The schema below covers only common OpenAPI fields; $ref is still resolved according to OpenAPI rules.",
+        "schema": {
+          "spec": {
+            "openapi": "string -- '3.0.x' or '3.1.x'",
+            "info": {
+              "title": "string",
+              "version": "string",
+              "description?": "string -- Markdown, omitted by default"
+            },
+            "servers?": "Array<{url:string,description?:string}> -- default []",
+            "paths": "Record<string,Partial<Record<'get'|'post'|'put'|'patch'|'delete'|'head'|'options',{summary?:string (none by default),description?:string (none by default),operationId?:string (none by default),parameters?:object[] (default []),requestBody?:object (none by default),responses:Record<string,{description:string,content?:object}>}>>>",
+            "components?": "OpenAPI components object -- default {}"
+          },
+          "config?": {
+            "render_style?": "'read'|'view'|'focused' -- default 'read'",
+            "theme?": "'light'|'dark' -- default 'light' in this entry",
+            "show_header?": "boolean -- default false in this entry",
+            "show_side_nav?": "boolean -- default true",
+            "allow_try?": "boolean -- default false in this entry, preventing the documentation viewer from accidentally sending real API requests",
+            "schema_style?": "'tree'|'table' -- default 'tree'"
+          }
+        }
+      },
+      "spec": {
+        "note": "API documentation is long content; the outer container defaults to an explicit 640px height with internal component scrolling, and AI may override it with another pixel value. vh/percentage height is prohibited; set the height before mounting the custom element to prevent upstream from changing a zero-height parent to 100vh."
+      }
+    }
+  },
   "when_to_use": "需要把 OpenAPI 3.x 文档变成可搜索、递归展开 schema 并带多语言请求样例的 API 阅读器时用它而非手写,因为原生在 $ref 解析、深链导航和请求模型展开上失败;非做任意 Markdown 文档站或 API 网关。",
   "why_valuable": "AI 默认只能拼静态 endpoint 卡片,做不到跨文件 $ref、oneOf/allOf 递归 schema、深链导航、安全方案和多语言代码样例的一致渲染。",
   "supply_form": "component",
@@ -114,7 +147,6 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "STYLE=no(boot 配置下):唯一 document.head.appendChild 实测被 X 门控(X&&document.head,X=load-fonts 标志),boot 设 load-fonts=false 故不注入;LitElement 样式落自身 shadow(createRenderRoot x5、attachShadow)。若 load-fonts=true 则会注入字体 <link>。DOM=yes:实测 document.body.appendChild x3,为瞬时剪贴板(临时 <textarea>)与下载(<a>)辅助,复制/下载动作触发后自清,非常驻 portal。EVENTS=yes:实测 window.addEventListener 注册多监听 —— hashchange(深链导航)、keydown、keyup、storage、message、mousedown、mouseup、change;disconnect 时是否全清不确定。shadowCompatible=conditional:标准 shadow-DOM Web Component 可挂入外层 shadowRoot,但劫持 window hashchange 做深链、用 document.body 做剪贴板/下载、含外部 $ref 的 spec 需网络/CORS(与条目 widget=conditional 一致)。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

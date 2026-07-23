@@ -2,6 +2,22 @@
   "entry_version": "thin-1",
   "id": "regulex",
   "name": "Regulex",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of drawing by hand when you need to explain a JavaScript regular expression as a scalable railroad SVG, because native implementations fail on precise layout for branches, backreferences, character sets, and quantifiers.",
+      "why_valuable": "AI defaults can only explain a regex in words; they cannot reliably generate SVG with branching links, character-set boxes, and quantifier loops from a regex AST. AI should not rewrite either parsing or layout.",
+      "data_in": {
+        "note": "Pass only the expression body in regex, without /.../ delimiters; pass flags separately to the visualizer. Regulex 0.0.5 is a legacy ECMAScript parser and is not guaranteed to accept later syntax such as Unicode property escapes.",
+        "schema": {
+          "regex": "string -- JavaScript RegExp source, for example the body of ^(?:foo|bar)+$",
+          "flags?": "string -- composed only of g, i, and m; default ''. The visual layout reads only m, while the others annotate the title"
+        }
+      },
+      "spec": {
+        "note": "Regulex calculates the SVG's real width and height from content; the wrapper defaults to an explicit 360px height with scrolling in both directions, which AI may override with a pixel value. Do not use vh or percentage heights."
+      }
+    }
+  },
   "when_to_use": "需要把 JavaScript 正则表达式解释成可缩放 railroad SVG 时用它而非手写,因为原生在分支、回溯引用、字符集和量词的精确布局上失败。",
   "why_valuable": "AI 默认只能用文字解释正则,做不到从正则 AST 稳定生成带分支连线、字符集盒和量词回路的 SVG;解析与布局两层都不应由 AI 重写。",
   "supply_form": "component",
@@ -45,7 +61,12 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "dist/regulex.js is an almond AMD bundle that installs global require/define; Raphael draws inline SVG into the target element (no document.head style, no document.body append, and no document/window addEventListener found in the bundle). The real footprint is the legacy global require/define (+ Raphael globals), which is why the catalog isolates it inside a same-origin <iframe> nested in the shadowRoot rather than mounting bare in shadow.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "regex": "^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$",
+      "flags": ""
+    }
   }
 }

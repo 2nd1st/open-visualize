@@ -1,0 +1,244 @@
+{
+  "entry_version": "thin-1",
+  "id": "fossflow",
+  "name": "fossflow",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for fashionable isometric cloud, infrastructure, or network architecture diagrams. It provides a declarative model: icons (with url), items (referencing icon ids), and views (placing items on isometric grid tile{x,y}, with connectors joining anchors). Use editorMode 'EXPLORABLE_READONLY' for read-only display. For a freehand whiteboard use excalidraw; for a flat node graph use xyflow/drawflow -- the isometric look is its sole selling point. It is a heavy component: React, with transitive MUI/paper/gsap (817KB bundle plus several MB of dependencies), and emotion injects styles into document.head, so it is unsuitable for strict shadow isolation.",
+      "why_valuable": "Isometric network/infrastructure diagrams require correct isometric projection, grid placement, and icon stacking. Native AI cannot fake 3D projection geometry in flat SVG and can only draw skewed rectangles by hand; FossFLOW renders a clean, interactive isometric topology from a declarative JSON model.",
+      "data_in": {
+        "note": "isoflow uses a declarative Model validated by zod. items reference icons[].id through icon; view.items places an item on the isometric grid with tile{x,y}; connectors join anchors on items in the view. icons[].url must be a loadable image (https or data URI). initialData passed to Isoflow = Model & {fitToView?, view?}.",
+        "schema": {
+          "title": "string -- required",
+          "description?": "string",
+          "icons": [
+            {
+              "id": "string",
+              "name": "string",
+              "url": "string -- icon image URL/data URI referenced by items[].icon",
+              "collection?": "string"
+            }
+          ],
+          "colors": [
+            {
+              "id": "string",
+              "value": "string -- hex color referenced by an item/connector"
+            }
+          ],
+          "items": [
+            {
+              "id": "string",
+              "name": "string",
+              "icon?": "string -- an icons[].id",
+              "description?": "string"
+            }
+          ],
+          "views": [
+            {
+              "id": "string",
+              "name": "string",
+              "items": [
+                {
+                  "id": "string -- equals an items[].id",
+                  "tile": {
+                    "x": "number",
+                    "y": "number"
+                  },
+                  "labelHeight?": "number"
+                }
+              ],
+              "connectors?": [
+                {
+                  "id": "string",
+                  "anchors": [
+                    {
+                      "id": "string",
+                      "ref": {
+                        "item?": "string -- items[].id",
+                        "anchor?": "string",
+                        "tile?": "{x,y}"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "spec": {
+        "note": "IsoflowProps has width/height(number|string). Give both the container and height px values; do not use vh or percentage heights. The example uses height:400."
+      }
+    }
+  },
+  "when_to_use": "画云/基础设施/网络架构的流行等距(isometric)风格图时用它:提供一个声明式模型——icons(带 url)+ items(引用 icon id)+ views(把 item 放到等距网格 tile{x,y},connectors 连接 anchors),editorMode 用 'EXPLORABLE_READONLY' 做只读展示。要自由手绘白板用 excalidraw,要平面节点图用 xyflow/drawflow——等距外观是它唯一卖点。重组件:React,链式拉入 MUI/paper/gsap(bundle 817KB + 依赖数 MB),且 emotion 把样式注入 document.head,不适合严格 shadow 隔离。",
+  "why_valuable": "等距网络/基础设施架构图需要正确的等距投影、网格摆位与图标叠放,原生 AI 在平面 SVG 里无法伪造 3D 投影几何,徒手只能画歪斜矩形;FossFLOW 从声明式 JSON 模型渲染出规整、可交互的等距拓扑图。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "fossflow",
+    "version": "1.0.5",
+    "github": "stan-smith/fossflow-lib"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "isometric-scene",
+    "note": "isoflow 声明式 Model(zod 校验)。items 通过 icon 字段引用 icons[].id;view.items 用 tile{x,y} 摆到等距网格;connectors 连接 view 内 item 的 anchor。icons[].url 必须是可加载的图片(https 或 data URI)。传给 Isoflow 的 initialData = Model & {fitToView?, view?}。",
+    "schema": {
+      "title": "string —— 必填",
+      "description?": "string",
+      "icons": [
+        {
+          "id": "string",
+          "name": "string",
+          "url": "string —— 图标图片 URL/data URI,被 items[].icon 引用",
+          "collection?": "string"
+        }
+      ],
+      "colors": [
+        {
+          "id": "string",
+          "value": "string —— hex 颜色,被 item/connector 引用"
+        }
+      ],
+      "items": [
+        {
+          "id": "string",
+          "name": "string",
+          "icon?": "string —— 某个 icons[].id",
+          "description?": "string"
+        }
+      ],
+      "views": [
+        {
+          "id": "string",
+          "name": "string",
+          "items": [
+            {
+              "id": "string —— 等于某个 items[].id",
+              "tile": {
+                "x": "number",
+                "y": "number"
+              },
+              "labelHeight?": "number"
+            }
+          ],
+          "connectors?": [
+            {
+              "id": "string",
+              "anchors": [
+                {
+                  "id": "string",
+                  "ref": {
+                    "item?": "string —— items[].id",
+                    "anchor?": "string",
+                    "tile?": "{x,y}"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "IsoflowProps 有 width/height(number|string)。容器与 height 都给 px 数值,禁用 vh/百分比高;示例用 height:400。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:default export = Isoflow(React 组件),用 createRoot 挂载;data.model 是 data_in.schema 的完整 isoflow Model\nimport React from 'https://cdn.jsdelivr.net/npm/react@19/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19/client/+esm';\nimport Isoflow from 'https://cdn.jsdelivr.net/npm/fossflow@1.0.5/+esm';\nconst el = document.getElementById('diagram'); el.style.height = '400px';\ncreateRoot(el).render(React.createElement(Isoflow, { initialData: { ...data.model, fitToView: true }, editorMode: 'EXPLORABLE_READONLY', width: '100%', height: 400 }));",
+    "widget": "// 注意:MUI/emotion 把 CSS 注入 document.head(违背零 head 注入铁律),head 样式不跨越 shadow,故 shadow 内 MUI 内容默认无样式;菜单/对话框还会 portal 到 document.body。真正 shadow 化需给 emotion 建指向 shadowRoot 的 CacheProvider(进阶,未实测)。以下为基础挂载:\nimport React from 'https://cdn.jsdelivr.net/npm/react@19/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19/client/+esm';\nimport Isoflow from 'https://cdn.jsdelivr.net/npm/fossflow@1.0.5/+esm';\nconst el = document.createElement('div'); el.style.height = '400px'; shadowRoot.appendChild(el);\ncreateRoot(el).render(React.createElement(Isoflow, { initialData: { ...data.model, fitToView: true }, editorMode: 'EXPLORABLE_READONLY', width: '100%', height: 400 }));",
+    "codex": "// ⚠ BROKEN(2026-07-24 audit-102 双 skeptic 实证):fossflow@1.0.5/+esm 无法解析——jsDelivr/esbuild 缺陷把 react-quill 的 CSS 内联进模板字面量,backtick 奇数(651)、`node --check` 与 Chrome import() 均 SyntaxError@989。任何 import 修法无效,须等上游修复或改用可解析的版本/CDN。当前不可 CDN 加载,勿用。\nimport React from 'https://cdn.jsdelivr.net/npm/react@19/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19/client/+esm';\nimport Isoflow from 'https://cdn.jsdelivr.net/npm/fossflow@1.0.5/+esm';\nconst el = document.getElementById('diagram'); el.style.height = '400px';\ncreateRoot(el).render(React.createElement(Isoflow, { initialData: { ...data.model, fitToView: true }, editorMode: 'EXPLORABLE_READONLY', width: '100%', height: 400 }));"
+  },
+  "example": {
+    "_why": "isoflow Model 三段联动(icons→items→views.tile)最易漏,minimal 钉死引用链。icons[].url 需替换成真实图片。",
+    "minimal": {
+      "model": {
+        "title": "Simple infra",
+        "icons": [
+          {
+            "id": "server",
+            "name": "Server",
+            "url": "https://raw.githubusercontent.com/stan-smith/fossflow-lib/main/public/icon.png"
+          }
+        ],
+        "colors": [
+          {
+            "id": "blue",
+            "value": "#0066ff"
+          }
+        ],
+        "items": [
+          {
+            "id": "web",
+            "name": "Web",
+            "icon": "server"
+          },
+          {
+            "id": "db",
+            "name": "DB",
+            "icon": "server"
+          }
+        ],
+        "views": [
+          {
+            "id": "main",
+            "name": "Main",
+            "items": [
+              {
+                "id": "web",
+                "tile": {
+                  "x": 0,
+                  "y": 0
+                }
+              },
+              {
+                "id": "db",
+                "tile": {
+                  "x": 2,
+                  "y": 1
+                }
+              }
+            ],
+            "connectors": [
+              {
+                "id": "c1",
+                "anchors": [
+                  {
+                    "id": "a1",
+                    "ref": {
+                      "item": "web"
+                    }
+                  },
+                  {
+                    "id": "a2",
+                    "ref": {
+                      "item": "db"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "uplink": "display 默认不上行;节点/连接的选择或编辑若需外传,由消费 AI 接 onModelUpdated(Model)=>void 回调并按载体处理。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:emotion/MUI 注入 document.head + 菜单 portal 到 document.body,破坏 shadow 隔离;shadow 化需 emotion CacheProvider 绑定 shadowRoot(未实测)",
+    "codex": "supported:light DOM + ESM 自解析 react/mui;bundle 重(数 MB)"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "+esm default export = Isoflow (dist/index.d.ts: `export { default } from './Isoflow'`; Isoflow(props: IsoflowProps)=>JSX). IsoflowProps (dist/types/isoflowProps.d.ts): initialData?:Model&{fitToView?,view?}, editorMode?, width?, height?, onModelUpdated?. Model (dist/schemas/model.d.ts, zod): {title(req string), items:[{id,name,icon?,description?}], views:[{id,name,items:[{id,tile:{x,y},labelHeight?}], connectors?:[{id,anchors:[{id,ref:{item?/anchor?/tile?}}]}]}], colors:[{id,value}], icons:[{id,name,url,collection?}]} — schema pins these exactly. editorMode enum (dist/types/common.d.ts): NON_INTERACTIVE|EXPLORABLE_READONLY|EDITABLE. +esm (816947 bytes) chains react@19.1.0, react-dom@19.1.0, @mui/material@5.17.1, @emotion/react@11.14.0, @mui/icons-material, paper, gsap. globalStyleInjection=yes: emotion/MUI inject CSS into document.head (grep +esm: document.head x2, insertRule x1, styleSheet x2, createElement(\"style\") x4) — violates zero-head-injection, and head CSS does not cross a widget shadow boundary, so MUI content in shadow is unstyled without an emotion cache bound to shadowRoot. globalDomMutation=yes: MUI portals menus/dialogs/context-menu to document.body (document.body x15). globalEvents=yes: window/document keydown x8, resize x3, mousemove x2, pointermove x1. shadowCompatible=conditional: light-DOM (artifact/codex) renders fine; widget/shadow needs an emotion CacheProvider targeting the shadow root and menus still escape to body.",
+    "confidence": "low",
+    "status": "broken-bundle"
+  }
+}

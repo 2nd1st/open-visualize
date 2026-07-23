@@ -1,0 +1,71 @@
+{
+  "entry_version": "thin-1",
+  "id": "hyperformula",
+  "name": "hyperformula",
+  "when_to_use": "需要一个真正的电子表格计算引擎——改一个单元格、依赖它的公式格按依赖图自动重算(what-if 预算模型、活电子表格、级联计算)时用它;它是无头引擎,只算不渲染,消费 AI 自己接 UI(可配目录里的 x-data-spreadsheet 网格)。目录里的 formulajs-formulajs 只是一堆孤立函数(无单元格引用、无重算),x-data-spreadsheet 只是纯 UI 表格(无公式引擎),都不是引擎层;非只需算几个独立公式的场景(那用 formulajs)。",
+  "why_valuable": "AI 徒手实现\"跨单元格引用 + 依赖图拓扑排序 + 增量重算 + 循环依赖检测 + 400+ 内置函数(SUM/VLOOKUP/IF/日期/文本…)\"是一整套引擎工程,成功率近 0;HyperFormula 把这套 Excel 语义的计算内核固定下来,setCellContents 后依赖链自动重算,AI 只需拼二维数据 + 接 UI。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "hyperformula",
+    "version": "3.3.0",
+    "github": "handsontable/hyperformula"
+  },
+  "license": "GPL-3.0-only",
+  "data_in": {
+    "shape": "tabular",
+    "note": "喂二维数组 RawCellContent[][](行×列):普通值直接放 number|string|boolean|null,公式放以 '=' 开头的字符串(如 '=A1+B1'、'=SUM(A1:A3)'、'=VLOOKUP(...)'、'=IF(...)')。列/行用 0 基下标寻址 {sheet,col,row}(A1 = {sheet:0,col:0,row:0})。关键:v2.0.0+ 构建时必须在 config 传 licenseKey;开源 GPL 用途填 'gpl-v3'(实测 bundle 内接受该串),漏了会报 missing-license 警告。license 为 GPL-3.0-only(或向 Handsontable 购商用双授权),CDN 载入用户 artifact 前需告知 license 取向。",
+    "schema": {
+      "sheet": "RawCellContent[][] —— 单表二维数据;单元格 = number | string | boolean | null,公式为 '=' 开头字符串",
+      "sheets?": "{ [sheetName: string]: RawCellContent[][] } —— buildFromSheets 的多表形态,默认单表用 sheet",
+      "config": {
+        "licenseKey": "string —— 必填;开源 GPL 用途填 'gpl-v3'"
+      },
+      "updates?": "Array<{ address: {sheet,col,row}, contents: RawCellContent[][] | RawCellContent }> —— 交互时用 setCellContents 触发自动重算,默认无(静态一次算)"
+    }
+  },
+  "provides": {
+    "shape": "computed-cells",
+    "_note": "headless-primitive:纯计算内核,不渲染、无 L 级、无 carriers 矩阵;消费 AI 取 getSheetValues 后自行绘表。",
+    "outputs": "按依赖图求值后的单元格值(getSheetValues → CellValue[][]、getCellValue → 单值);setCellContents 返回受影响单元格的 ExportedChange[],可据此局部刷新 UI;错误以 DetailedCellError(如 #DIV/0!、#REF!)形式落在对应单元格。",
+    "api_surface": {
+      "build": "HyperFormula.buildFromArray(sheet, config, namedExpressions?) → 实例;多表用 buildFromSheets(sheets, config);空表 buildEmpty(config)",
+      "read": "getCellValue({sheet,col,row}) 取单值;getSheetValues(sheetId) 取整表值;getAllSheetsValues() 取全部;getCellFormula(addr) 取原公式串",
+      "mutate": "setCellContents({sheet,col,row}, [['=B1*2']]) 写入并自动重算依赖链,返回 ExportedChange[]",
+      "lifecycle": "用完 instance.destroy() 释放"
+    }
+  },
+  "peer": {
+    "id": "x-data-spreadsheet",
+    "note": "HyperFormula 只算不画;把 getSheetValues 的结果喂给 x-data-spreadsheet 这类纯 UI 网格渲染,单元格编辑回调再 setCellContents 触发重算,即成活电子表格。"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need a real spreadsheet calculation engine: change one cell and formulas that depend on it automatically recalculate through a dependency graph (what-if budgets, live spreadsheets, cascading calculations). It is a headless engine that calculates but does not render; connect your own UI, optionally using the catalog's x-data-spreadsheet grid. formulajs-formulajs is only a set of isolated functions (no cell references or recalculation), while x-data-spreadsheet is UI only (no formula engine), so neither replaces the engine layer. If you only need a few independent formulas, use formulajs.",
+      "why_valuable": "Implementing cross-cell references, dependency-graph topological ordering, incremental recalculation, circular-reference detection, and 400+ built-in functions (SUM/VLOOKUP/IF/date/text, etc.) is an entire engine project with near-zero success from handwritten AI. HyperFormula fixes this Excel-semantic calculation core; after setCellContents, dependency chains recalculate automatically, so AI only needs to assemble 2D data and connect a UI.",
+      "data_in": {
+        "note": "Supply a 2D RawCellContent[][] array (rows x columns): put number|string|boolean|null values directly, and formulas in strings beginning with '=' (for example '=A1+B1', '=SUM(A1:A3)', '=VLOOKUP(...)', '=IF(...)'). Address rows and columns with zero-based {sheet,col,row} ({sheet:0,col:0,row:0} is A1). Important: since v2.0.0, construction requires licenseKey in config. For open-source GPL use, set it to 'gpl-v3' (verified as accepted by the bundle); omission produces a missing-license warning. The license is GPL-3.0-only, with a commercial dual license available from Handsontable, so disclose the license choice before loading the CDN into a user artifact.",
+        "schema": {
+          "sheet": "RawCellContent[][] -- single-sheet 2D data; cell = number | string | boolean | null, and formulas are strings beginning with '='",
+          "sheets?": "{ [sheetName: string]: RawCellContent[][] } -- multi-sheet form for buildFromSheets; use sheet for a single sheet by default",
+          "config": {
+            "licenseKey": "string -- required; use 'gpl-v3' for open-source GPL use"
+          },
+          "updates?": "Array<{ address: {sheet,col,row}, contents: RawCellContent[][] | RawCellContent }> -- use setCellContents during interaction to trigger automatic recalculation; none by default (one static calculation)"
+        }
+      }
+    }
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS 计算引擎,零 DOM/CSS/uplink/shadow 足迹\nimport { HyperFormula } from 'https://cdn.jsdelivr.net/npm/hyperformula@3/+esm';\nconst hf = HyperFormula.buildFromArray(data.sheet, { licenseKey: 'gpl-v3', ...(data.config ?? {}) });\nconst values = hf.getSheetValues(0); // CellValue[][],公式已按依赖图求值\n// 交互重算:\nfor (const u of (data.updates ?? [])) hf.setCellContents(u.address, u.contents);\n// 用完释放:hf.destroy();",
+    "note": "构建时 licenseKey 必填,GPL 场景恒填 'gpl-v3'(实测有效);漏填只报警告不阻断但不规范。地址用 0 基 {sheet,col,row}(A1={sheet:0,col:0,row:0})。公式串必须以 '=' 起头,否则当纯文本。命名导入 { HyperFormula }。用完 destroy() 避免长会话内存累积。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr hyperformula@3.3.0 +esm (433KB): named export HyperFormula present (grep 'ae as HyperFormula', plus 'L as default'). Public API from typings/HyperFormula.d.ts — static buildFromArray(sheet, configInput?, namedExpressions?), buildFromSheets(sheets,...), buildEmpty(...); instance getCellValue(SimpleCellAddress), getSheetValues(sheetId): CellValue[][], getAllSheetsValues(), getCellFormula(addr), setCellContents(topLeftCornerAddress, RawCellContent[][]|RawCellContent) → ExportedChange[] — all match api_surface/boot. licenseKey: ConfigParams.d.ts declares required 'licenseKey: string'; the string 'gpl-v3' is present verbatim in the bundle (valid free GPL key; 'internal-use-in-handsontable' also present). Zero global footprint: grep over the 433KB bundle found 0 document.head/body/createElement/querySelector/addEventListener, 0 window.addEventListener, 0 customElements, 0 adoptedStyleSheets/insertRule — pure headless compute engine, trivially shadow-safe. Caveat: large (~433KB) engine — heavy but side-effect-free.",
+    "confidence": "high"
+  }
+}

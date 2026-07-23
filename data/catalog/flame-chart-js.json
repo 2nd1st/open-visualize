@@ -1,0 +1,122 @@
+{
+  "entry_version": "thin-1",
+  "id": "flame-chart-js",
+  "name": "flame-chart-js",
+  "when_to_use": "把带时间轴的 span/调用数据渲成可缩放、可平移的时间型 flame chart / 性能时间线时用它,而非手写 canvas——原生在时间轴缩放、span 命中测试、按调用深度嵌套上失败。区别于目录里的堆栈型 flame graph:d3-flame-graph/speedscope 是按栈聚合(value 权重),flame-chart-js 是时间型(start+duration 落时间轴);perf-cascade 专做 HAR。",
+  "why_valuable": "可缩放、刻度正确、命中测试可靠的时间轴 flame 渲染器是 canvas 重活,AI 手写通常昂贵且有 bug。flame-chart-js 从 span/节点数据渲出时间型 flame chart、marks 与多轨 waterfall,自带缩放/平移交互。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "flame-chart-js",
+    "version": "3.3.0",
+    "github": "pyatyispyatil/flame-chart-js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "timeline-tree",
+    "note": "data 是节点树,每节点 { name, start, duration, children? };start/duration 同一时间单位(常为 ms),落共享时间轴的绝对坐标;children 按调用深度嵌套。渲染进一个显式尺寸的 canvas,canvas 必须给像素 width/height(禁 vh)。",
+    "schema": {
+      "data": [
+        {
+          "name": "string —— 节点标签",
+          "start": "number —— 时间轴起点(绝对)",
+          "duration": "number —— 持续时长(同单位)",
+          "color?": "string —— 该节点颜色,默认按 name 派生",
+          "children?": "FlameChartNode[] —— 子节点(嵌套 span),默认无"
+        }
+      ],
+      "colors?": "Record<string,string> —— 按类型名映射颜色,默认自动",
+      "marks?": "[{ shortName, fullName, timestamp, color }] —— 时间轴标记,默认无",
+      "settings?": "object —— 样式/表头覆盖,默认内置"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "渲进提供的 canvas,canvas.width/height 必须是显式像素(读容器 clientWidth + 定高 400);禁 vh/百分比高(铁律 3),尺寸变化时重设 canvas.width。"
+  },
+  "boot": {
+    "artifact": "import { FlameChart } from 'https://cdn.jsdelivr.net/npm/flame-chart-js@3/+esm';\nconst el = document.getElementById('flame'); el.style.cssText = 'height:400px';\nconst canvas = document.createElement('canvas'); canvas.width = el.clientWidth || 800; canvas.height = 400; el.appendChild(canvas);\nconst chart = new FlameChart({ canvas, data: data.data, colors: data.colors, marks: data.marks, settings: data.settings });",
+    "widget": "// canvas 落 shadow 内 host;无 CSS/head/worker 副作用\nimport { FlameChart } from 'https://cdn.jsdelivr.net/npm/flame-chart-js@3/+esm';\nconst el = document.createElement('div'); el.style.cssText = 'height:400px'; shadowRoot.appendChild(el);\nconst canvas = document.createElement('canvas'); canvas.width = el.clientWidth || 800; canvas.height = 400; el.appendChild(canvas);\nconst chart = new FlameChart({ canvas, data: data.data, colors: data.colors, marks: data.marks, settings: data.settings });",
+    "codex": "import { FlameChart } from 'https://cdn.jsdelivr.net/npm/flame-chart-js@3/+esm';\nconst el = document.getElementById('flame'); el.style.cssText = 'height:400px';\nconst canvas = document.createElement('canvas'); canvas.width = el.clientWidth || 800; canvas.height = 400; el.appendChild(canvas);\nconst chart = new FlameChart({ canvas, data: data.data, colors: data.colors, marks: data.marks, settings: data.settings });"
+  },
+  "example": {
+    "_why": "节点树语义直白,minimal 给一层嵌套展示 start/duration/children。",
+    "minimal": {
+      "data": [
+        {
+          "name": "handleRequest",
+          "start": 0,
+          "duration": 120,
+          "children": [
+            {
+              "name": "parseBody",
+              "start": 0,
+              "duration": 30
+            },
+            {
+              "name": "queryDb",
+              "start": 30,
+              "duration": 60,
+              "children": [
+                {
+                  "name": "acquireConn",
+                  "start": 30,
+                  "duration": 10
+                }
+              ]
+            },
+            {
+              "name": "render",
+              "start": 90,
+              "duration": 28
+            }
+          ]
+        }
+      ]
+    },
+    "empty": {
+      "data": []
+    }
+  },
+  "uplink": "display/local-interact 默认不上行;节点选中/缩放状态若需外传,由消费 AI 直接接 flame-chart-js 原生事件(chart.on('select',...))并按载体处理,不预设统一事件契约。",
+  "carriers": {
+    "artifact": "inferred-not-tested:纯 canvas 无 head/worker/wasm 足迹,理论可用,待真机渲染确认",
+    "widget": "supported:canvas 落 shadow;监听仅挂在 canvas 元素上,无 CSS/head/worker 注入",
+    "codex": "supported:ESM CDN + canvas,无 worker/wasm/uplink 依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "API verified vs flame-chart-js@3.3.0: +esm exports 含 `{rt as FlameChart, Le as FlameChartContainer, ...plugins}`。dist/flame-chart.d.ts:`class FlameChart` 构造签名 `constructor({canvas, data, marks, waterfall, timeframeTimeseries, timeseries, colors, settings, plugins}: FlameChartOptions)`,FlameChartOptions.canvas:HTMLCanvasElement 必填、data?:FlameChartNodes;方法 setNodes/setMarks/setWaterfall。dist/types.d.ts:`interface FlameChartNode { name:string; start:number; duration:number; color?:string; children?:FlameChartNode[] }`——schema data/colors/marks/settings 精确消费。全局副作用 grep = 0(无 document.head/body、无 new Worker、无 WebAssembly、无 window resize 监听);渲进提供的 canvas,交互监听挂在该 canvas 上。peerDeps 的 react/use-resize-observer 仅供 /react 子路径,vanilla FlameChart 入口不拉。最干净的一条:shadow-safe、无 CSS/head/worker/wasm。",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to render timeline-based span/call data as a zoomable, pannable time-based flame chart or performance timeline, instead of hand-writing canvas, because native implementations fail at timeline zoom, span hit testing, and nesting by call depth. Unlike stack-based flame graphs in the catalog, d3-flame-graph/speedscope aggregate by stack (value weight), while flame-chart-js is time-based (start+duration on a timeline); perf-cascade specializes in HAR.",
+      "why_valuable": "A zoomable timeline renderer with correct ticks and reliable hit testing is heavy canvas work that AI implementations usually make expensive and buggy. flame-chart-js renders time-based flame charts, marks, and multi-track waterfalls from span/node data and includes zoom/pan interaction.",
+      "data_in": {
+        "note": "data is a node tree in which each node is { name, start, duration, children? }. start/duration use the same time unit (commonly ms) and map to absolute coordinates on a shared timeline; children nest by call depth. Rendering targets an explicitly sized canvas, whose width/height must be in pixels (no vh).",
+        "schema": {
+          "data": [
+            {
+              "name": "string -- Node label",
+              "start": "number -- Timeline start (absolute)",
+              "duration": "number -- Duration (same unit)",
+              "color?": "string -- Node color; derived from name by default",
+              "children?": "FlameChartNode[] -- Child nodes (nested spans); none by default"
+            }
+          ],
+          "colors?": "Record<string,string> -- Maps type names to colors; automatic by default",
+          "marks?": "[{ shortName, fullName, timestamp, color }] -- Timeline marks; none by default",
+          "settings?": "object -- Style/header overrides; built-in defaults"
+        }
+      },
+      "spec": {
+        "note": "Renders into the supplied canvas. canvas.width/height must be explicit pixels (container clientWidth + fixed height 400); vh/percentage height is prohibited (Rule 3). Reset canvas.width when dimensions change."
+      }
+    }
+  }
+}

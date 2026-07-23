@@ -4,6 +4,24 @@
   "name": "PathFinding.js",
   "when_to_use": "需要在障碍网格上可靠比较 A*、BFS、Dijkstra 或 JPS 并得到路径时用它而非手写,因为原生 AI 在启发式、对角规则、角落穿越和网格状态复用上会失败。",
   "why_valuable": "AI 默认能写一个玩具 BFS,却常在 A*/JPS、对角移动、不可穿角和多次求路的网格变异上出错；PathFinding.js 给出经验证的统一 finder API。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a hand-written implementation when you need to reliably compare A*, BFS, Dijkstra, or JPS and obtain a path through an obstacle grid, because native AI implementations fail at heuristics, diagonal rules, corner crossing, and grid-state reuse.",
+      "why_valuable": "AI can normally write a toy BFS but often gets A*/JPS, diagonal movement, no-corner-cutting, and grid mutation across repeated searches wrong; PathFinding.js provides a verified common finder API.",
+      "data_in": {
+        "note": "matrix is passed directly to PF.Grid(matrix): 0 is walkable and 1 is blocked. Coordinate order is always [x,y], where x is the column and y is the row. finder.findPath mutates Grid, so create a new instance or clone for every search.",
+        "schema": {
+          "matrix": "(0 | 1)[][] -- non-empty rectangular matrix, 0=walkable, 1=blocked",
+          "start": "[x: integer, y: integer] -- zero-based coordinates",
+          "goal": "[x: integer, y: integer] -- zero-based coordinates",
+          "finder?": "'AStar' | 'BreadthFirst' | 'Dijkstra' | 'BiAStar' | 'JumpPoint' -- default 'AStar'",
+          "allowDiagonal?": "boolean -- default false",
+          "dontCrossCorners?": "boolean -- default false; has no effect when allowDiagonal=false",
+          "weight?": "number -- heuristic weight for A*/BiAStar, default 1"
+        }
+      }
+    }
+  },
   "supply_form": "headless-primitive",
   "mode": "direct-import",
   "upstream": {
@@ -49,7 +67,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "headless-primitive, pure algorithmic JS (Grid + finders over a matrix). No DOM, no document.head/body, no listeners anywhere in the module. Returns [x,y][] path (or [] if unreachable). Trivially shadow-compatible / carrier-agnostic.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

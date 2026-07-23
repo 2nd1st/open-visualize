@@ -49,9 +49,9 @@
     "note": "boot 的文档预览 iframe 默认显式高 900px 并内部滚动,AI 可改成其他像素值;禁止 vh 或百分比高。打印时以主题自己的 print CSS 为准。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:render 返回完整文档,CSS 位于 iframe 自己的 head\nimport { render } from 'https://cdn.jsdelivr.net/npm/jsonresume-theme-even@0/+esm';\nconst frame = document.createElement('iframe');\nframe.style.cssText = `width:100%;height:${spec.height ?? 900}px;border:0`;\nframe.srcdoc = render(data.resume);\ndocument.getElementById('resume').appendChild(frame);",
-    "widget": "// 完整文档放进 iframe,iframe 本身落 shadow 容器,不向宿主 head 泄漏主题 CSS\nimport { render } from 'https://cdn.jsdelivr.net/npm/jsonresume-theme-even@0/+esm';\nconst frame = document.createElement('iframe');\nframe.style.cssText = `width:100%;height:${spec.height ?? 900}px;border:0`;\nframe.srcdoc = render(data.resume);\nshadowRoot.appendChild(frame);",
-    "codex": "// sandbox iframe 内再用 srcdoc 隔离完整简历文档\nimport { render } from 'https://cdn.jsdelivr.net/npm/jsonresume-theme-even@0/+esm';\nconst frame = document.createElement('iframe');\nframe.style.cssText = `width:100%;height:${spec.height ?? 900}px;border:0`;\nframe.srcdoc = render(data.resume);\ndocument.getElementById('resume').appendChild(frame);"
+    "artifact": "// 先挂 iframe 再动态加载主题,冷缓存时也有稳定可见的预览载体\nconst frame = document.createElement('iframe');\nframe.style.cssText = `width:100%;height:${spec.height ?? 900}px;border:0`;\nframe.srcdoc = '<!doctype html><p style=\"font:14px system-ui\">Rendering résumé…</p>';\ndocument.getElementById('resume').appendChild(frame);\nconst { render } = await import('https://cdn.jsdelivr.net/npm/jsonresume-theme-even@0.26.1/+esm');\nframe.srcdoc = render(data.resume);",
+    "widget": "// 完整文档放进 iframe,iframe 本身落 shadow 容器,不向宿主 head 泄漏主题 CSS\nconst frame = document.createElement('iframe');\nframe.style.cssText = `width:100%;height:${spec.height ?? 900}px;border:0`;\nframe.srcdoc = '<!doctype html><p style=\"font:14px system-ui\">Rendering résumé…</p>';\nshadowRoot.appendChild(frame);\nconst { render } = await import('https://cdn.jsdelivr.net/npm/jsonresume-theme-even@0.26.1/+esm');\nframe.srcdoc = render(data.resume);",
+    "codex": "// sandbox iframe 内再用 srcdoc 隔离完整简历文档\nconst frame = document.createElement('iframe');\nframe.style.cssText = `width:100%;height:${spec.height ?? 900}px;border:0`;\nframe.srcdoc = '<!doctype html><p style=\"font:14px system-ui\">Rendering résumé…</p>';\ndocument.getElementById('resume').appendChild(frame);\nconst { render } = await import('https://cdn.jsdelivr.net/npm/jsonresume-theme-even@0.26.1/+esm');\nframe.srcdoc = render(data.resume);"
   },
   "carriers": {
     "artifact": "inferred-not-tested",
@@ -64,7 +64,115 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "render(resume):string is a pure string builder (no DOM). Theme CSS is embedded inside the returned full HTML document, which the boot mounts via iframe srcdoc so it lands in the iframe head, never the host head. Output references external Google Fonts — blocked under widget CSP, degrades to system-font fallback (layout intact). Because render returns a whole document, it MUST use an iframe (can't inject a full doc into a shadow root); the iframe is placed into shadowRoot.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "resume": {
+        "basics": {
+          "name": "Ada Lovelace",
+          "label": "Software Engineer",
+          "email": "ada@example.com",
+          "phone": "+1 555 0100",
+          "url": "https://ada.example.com",
+          "summary": "Engineer focused on **reliable systems** and clear docs. Building tools that make hard things simple.",
+          "location": {
+            "city": "London",
+            "countryCode": "GB"
+          },
+          "profiles": [
+            {
+              "network": "GitHub",
+              "username": "ada",
+              "url": "https://github.com/ada"
+            },
+            {
+              "network": "LinkedIn",
+              "username": "ada",
+              "url": "https://linkedin.com/in/ada"
+            }
+          ]
+        },
+        "work": [
+          {
+            "name": "Analytical Engines Ltd",
+            "position": "Senior Engineer",
+            "url": "https://ae.example.com",
+            "startDate": "2021-03",
+            "endDate": "2024-06",
+            "summary": "Led the platform team building compute infrastructure.",
+            "highlights": [
+              "Cut build times by **60%** across CI",
+              "Designed the plugin runtime used by 40+ teams"
+            ]
+          }
+        ],
+        "education": [
+          {
+            "institution": "University of London",
+            "area": "Computer Science",
+            "studyType": "B.Sc.",
+            "startDate": "2016-09",
+            "endDate": "2020-06"
+          }
+        ],
+        "skills": [
+          {
+            "name": "Languages",
+            "keywords": [
+              "TypeScript",
+              "Rust",
+              "Python"
+            ]
+          },
+          {
+            "name": "Infrastructure",
+            "keywords": [
+              "Docker",
+              "Kubernetes",
+              "CI/CD"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to lay out a standard resume.json as complete resume HTML with print spacing, pagination control, and light/dark colors instead of building it by hand, which fails at column density, cross-page breaks, and print styles. Not for a resume editor or theme picker.",
+      "why_valuable": "AI defaults can only assemble resume HTML that is about 60% usable and cannot reliably control CSS grid density, page-break behavior, print backgrounds, or long entries across pages; this theme closes canonical JSON Resume into a printable document.",
+      "data_in": {
+        "note": "data.resume is passed directly to upstream render(resume) and must be a JSON Resume object; render returns a complete HTML string containing doctype, head, inline theme CSS, and body.",
+        "schema": {
+          "resume": {
+            "basics": {
+              "name": "string -- Required full name",
+              "label?": "string -- Job title is hidden by default",
+              "email?": "string -- Email is hidden by default",
+              "phone?": "string -- Phone is hidden by default",
+              "url?": "string -- Personal URL is hidden by default",
+              "summary?": "string (may contain Markdown) -- Summary is hidden by default",
+              "location?": "JSON Resume location object -- Location is hidden by default",
+              "profiles?": "JSON Resume profile[] -- Default []"
+            },
+            "work?": "JSON Resume work[] -- Default []",
+            "volunteer?": "JSON Resume volunteer[] -- Default []",
+            "education?": "JSON Resume education[] -- Default []",
+            "awards?": "JSON Resume award[] -- Default []",
+            "certificates?": "JSON Resume certificate[] -- Default []",
+            "publications?": "JSON Resume publication[] -- Default []",
+            "skills?": "JSON Resume skill[] -- Default []",
+            "languages?": "JSON Resume language[] -- Default []",
+            "interests?": "JSON Resume interest[] -- Default []",
+            "references?": "JSON Resume reference[] -- Default []",
+            "projects?": "JSON Resume project[] -- Default []",
+            "meta?": "JSON Resume meta; meta.themeOptions.colors can override the palette, which defaults to the theme's built-in light/dark colors"
+          }
+        }
+      },
+      "spec": {
+        "note": "The document-preview iframe in boot has an explicit default height of 900px with internal scrolling. AI may use another pixel value; vh and percentage heights are forbidden. Printing follows the theme's own print CSS."
+      }
+    }
   }
 }

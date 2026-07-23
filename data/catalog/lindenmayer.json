@@ -1,0 +1,66 @@
+{
+  "entry_version": "thin-1",
+  "id": "lindenmayer",
+  "name": "lindenmayer",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to teach L-systems, fractals, or procedural growth (ferns, trees, Koch curves, Penrose tilings): provide an axiom and productions, let it iterate the rewritten string, then render with a few lines of turtle graphics. Do not use it for fixed geometry or systems not based on rewriting.",
+      "why_valuable": "This L-system rewriting engine supports context-sensitive, stochastic (weighted), and parametric productions. AI will make mistakes deriving many rewriting generations by hand; it reliably expands an axiom and rules into the correct turtle-command sequence.",
+      "data_in": {
+        "note": "LSystem is the default export. Production values may be strings, weighted stochastic objects, or functions. Use classic <> syntax for context sensitivity and [ ] for branches.",
+        "schema": {
+          "axiom": "string -- initial axiom, such as 'F++F++F' (parametric L-systems may also pass object arrays)",
+          "productions": "{ [symbol:string]: string | object | function } -- rewriting rules, such as { 'F': 'F-F++F-F' }",
+          "iterations?": "number -- number of generations passed to iterate(n); supplied by the consumer, for example 4",
+          "finals?": "{ [symbol:string]: function } -- optional drawing functions executed per symbol by final()"
+        }
+      }
+    }
+  },
+  "when_to_use": "教 L-system/分形/程序化生长(蕨、树、Koch 曲线、Penrose 铺砖)时用:给公理+产生式,它迭代出重写串,你接几行海龟绘图渲染。固定几何图形或非重写系统不用它。",
+  "why_valuable": "支持上下文敏感/随机(加权)/参数化产生式的 L-system 重写引擎;AI 徒手推导多代重写串必错,它把『公理+规则』稳定展开成正确的海龟指令序列。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "lindenmayer",
+    "version": "1.5.4",
+    "github": "nylki/lindenmayer"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "rewrite-rules",
+    "note": "LSystem 是 default 导出。productions 值可为 字符串 / 加权随机对象 / 函数;上下文敏感用经典 <> 语法,分支用 [ ]。",
+    "schema": {
+      "axiom": "string —— 初始公理,如 'F++F++F'(参数化 L-system 也可传对象数组)",
+      "productions": "{ [symbol:string]: string | object | function } —— 重写规则,如 { 'F': 'F-F++F-F' }",
+      "iterations?": "number —— iterate(n) 的代数,默认由消费方给(如 4)",
+      "finals?": "{ [symbol:string]: function } —— final() 时逐符号执行的绘图函数(可选)"
+    }
+  },
+  "provides": {
+    "shape": "symbol-string",
+    "_note": "headless-primitive:引擎产字符串,无渲染;符号→海龟绘图交消费 AI。",
+    "outputs": "迭代 n 代后的重写字符串(公理展开),以及可选 finals() 逐符号绘图回调用于海龟解释。",
+    "api_surface": {
+      "ctor": "new LSystem({ axiom, productions, finals?, branchSymbols?, ignoredSymbols? })",
+      "run": "ls.iterate(n) → 最终字符串;ls.getString() 取当前串;ls.final() 执行 finals 绘图回调",
+      "mutate": "ls.setAxiom(str) / ls.setProductions(obj)"
+    }
+  },
+  "peer": {
+    "id": "p5",
+    "note": "p5 提供 canvas/海龟绘图,把 iterate() 出的串解释成分形/植物图形(F 前进、+/- 转角、[ ] 分支入/出栈)。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS 重写引擎,无 DOM。LSystem 是 default 导出(不是命名)\nimport LSystem from 'https://cdn.jsdelivr.net/npm/lindenmayer@1.5.4/+esm';\nconst ls = new LSystem({ axiom: data.axiom, productions: data.productions });\nconst result = ls.iterate(data.iterations ?? 4); // 展开后的重写字符串\n// 把 result 当海龟指令解释:F=前进 +/-=转向 [ ]=压/弹栈,画进自建 canvas\nfor (const ch of result) { /* turtle: forward / turn / push / pop */ }",
+    "note": "default 导出(import LSystem from …,不是命名导出)。引擎只产重写字符串;把符号解释为海龟绘图是消费 AI 的事,画进自建 canvas(定高 px 禁 vh)。productions 支持 字符串/加权随机对象/函数,上下文敏感用经典 <> 语法。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "API correct: +esm export is default-only (export{g as default}) → import LSystem from 'lindenmayer' (react-pdf-renderer style default-namespace import). README confirms new LSystem({axiom, productions[, finals]}); iterate(n) returns the expanded string; getString(); final() runs finals draw callbacks; productions accept String|Object|Function; classic context-sensitive <> and branch [] syntax. Pure string-rewriting engine: no DOM, no stylesheet, no events → shadow-safe; turtle rendering is the consumer's own canvas code.",
+    "confidence": "high"
+  }
+}

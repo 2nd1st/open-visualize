@@ -4,6 +4,37 @@
   "name": "cursor-effects",
   "when_to_use": "需要复古 fairy-dust、emoji、彩虹、时钟或跟随点等有成熟手感的鼠标尾迹时用它而非手写 pointer canvas,因为原生在采样节奏、轨迹衰减和多种怀旧效果复刻上失败。",
   "why_valuable": "AI 默认只能在 pointer 坐标画同质圆点,做不到弹性链、字符轨迹、时钟排版、彩虹多层尾线与 reduced-motion 处理的一致成品手感;本包提供十二种已调参效果。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need polished retro cursor trails such as fairy dust, emoji, rainbows, clocks, or a following dot instead of hand-writing a pointer canvas. Native implementations fail on sampling cadence, trail decay, and recreating multiple nostalgic effects.",
+      "why_valuable": "AI can only draw uniform dots at pointer coordinates by default. It cannot deliver a consistent finished feel for elastic chains, character trails, clock layout, layered rainbow tails, and reduced-motion handling. This package provides twelve tuned effects.",
+      "data_in": {
+        "note": "boot selects a factory by effect from the package's named exports and forces element to the effects container. When the system enables prefers-reduced-motion, upstream does not start by default.",
+        "schema": {
+          "effect?": "'bubbleCursor'|'characterCursor'|'clockCursor'|'emojiCursor'|'fairyDustCursor'|'followingDotCursor'|'ghostCursor'|'rainbowCursor'|'snowflakeCursor'|'springyEmojiCursor'|'textFlag'|'trailingCursor' - default fairyDustCursor",
+          "options?": {
+            "_default": "{} - use the upstream defaults for the selected effect; pass only fields supported by that effect",
+            "emoji?": "string[] (emojiCursor, default ['😀','😂','😆','😊']) | string (springyEmojiCursor, default '🤪')",
+            "colors?": "string[] - fairyDustCursor default ['#D61C59','#E7D84B','#1B8798'];rainbowCursor default ['#FE0000','#FD8C00','#FFE500','#119F0B','#0644B3','#C22EDC'];characterCursor default ['#6622CC','#A755C2','#B07C9E','#B59194','#D2A1B8']",
+            "length?": "integer - number of rainbowCursor trail segments, default 20",
+            "size?": "number - rainbowCursor line width, default 3",
+            "color?": "CSS color string - followingDotCursor default '#323232a6';textFlag default '#000000'",
+            "characters?": "string[] - characterCursor character list, default ['h','e','l','l','o']",
+            "font?": "CSS font string - characterCursor default '15px serif';textFlag default 'monospace'",
+            "text?": "string - textFlag text, default 'Your Text Here'",
+            "textSize?": "number - textFlag font size in pixels, default 12",
+            "gap?": "number - textFlag character spacing, default textSize+2",
+            "particles?": "integer - number of trailingCursor trail nodes, default 15",
+            "rate?": "number 0..1 - trailingCursor follow factor, default 0.4",
+            "baseImageSrc?": "string - trailingCursor image URL/data URL, default upstream built-in pointer image"
+          }
+        }
+      },
+      "spec": {
+        "note": "Each effect creates a canvas and reads the target container size. boot explicitly sets a default 400px height and position:relative; do not use vh or percentage heights."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -57,7 +88,14 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "dist/esm.js: each factory sets c=element||document.body and, when element is supplied (boot always passes {element:el}), the canvas is c.appendChild(e) into the shadow container (only the element-omitted fallback does document.body.appendChild). Styling is inline canvas.style only — no document.head/<link>/<style>. mousemove/touchmove/touchstart are bound to the element (scoped to the shadow container). BUT every factory does window.addEventListener('resize',m) and destroy() re-adds rather than removes it (confirmed leak). Works inside shadow DOM but leaves an un-removable global window resize listener → conditional.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "effect": "springyEmojiCursor",
+      "options": {
+        "emoji": "🎉"
+      }
+    }
   }
 }

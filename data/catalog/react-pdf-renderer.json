@@ -2,6 +2,34 @@
   "entry_version": "thin-1",
   "id": "react-pdf-renderer",
   "name": "react-pdf (renderer)",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing PDF when you are already in the React component model and need to reliably generate a multi-page PDF preview or file from a Document/Page/View/Text tree, because native implementations fail at pagination, font embedding, and the PDF-specific flex-style subset; not for web DOM screenshots, rich-text editors, or arbitrary CSS printing.",
+      "why_valuable": "AI cannot generate PDF bytes, paginate and reflow, control widows/orphans, or embed fonts by default, and often applies browser CSS incorrectly to react-pdf's restricted style set; the upstream component tree exposes these capabilities through native React interfaces.",
+      "data_in": {
+        "note": "The input is a runtime React element tree, not a new JSON DSL; the root must be Document, its direct children may only be Page, and ordinary strings may only appear inside Text.",
+        "schema": {
+          "document": {
+            "type": "ReactElement<typeof Document>",
+            "props?": "{title?:string,author?:string,subject?:string,keywords?:string,language?:string,pageMode?:string,pageLayout?:string} -- all omitted by default",
+            "children": [
+              {
+                "type": "ReactElement<typeof Page>",
+                "props?": "{size?:PageSize,orientation?:'portrait'|'landscape',wrap?:boolean,style?:Style} -- defaults: size='A4', orientation='portrait', wrap=true",
+                "children": "ReactElement<typeof View | Text | Image | Link | Svg>[]",
+                "view_props?": "{wrap?:boolean,fixed?:boolean,break?:boolean,style?:Style} -- defaults: wrap=true, fixed=false, break=false",
+                "text_props?": "{wrap?:boolean,fixed?:boolean,orphans?:number,widows?:number,style?:Style} -- defaults: wrap=true, fixed=false; orphans/widows omitted",
+                "style_note": "Style is a react-pdf style object (numeric pt values and supported flex/text properties), not arbitrary browser CSS"
+              }
+            ]
+          }
+        }
+      },
+      "spec": {
+        "note": "PDFViewer creates an internal iframe, so the outer container must have an explicit height; default 640px, overridable by AI. Rule 3 prohibits vh/percentage height. Page.size determines paper size."
+      }
+    }
+  },
   "when_to_use": "已经在 React 组件模型里并需要把 Document/Page/View/Text 树稳定生成多页 PDF 预览或文件时用它而非手写 PDF，因为原生在分页、字体嵌入和 PDF 专用 flex 样式子集上失败；非做网页 DOM 截图、富文本编辑器或任意 CSS 打印。",
   "why_valuable": "AI 默认做不到 PDF 字节生成、分页回流、孤行控制和字体嵌入，也常把浏览器 CSS 错套到 react-pdf 的受限样式集；上游组件树把这些能力收敛为 React 原生接口。",
   "supply_form": "component",
@@ -45,7 +73,73 @@
   "example": {
     "_why": "Document/Page/View/Text 层级和 PDF 专用 style 子集容易与 DOM React 混淆；以可复制的原生 createElement 片段校准。",
     "minimal_js": "const documentNode = React.createElement(Document, { title:'Report' }, React.createElement(Page, { size:'A4', style:{ padding:40 } }, React.createElement(View, null, React.createElement(Text, { style:{ fontSize:18 } }, 'Report'))));",
-    "empty_js": "const documentNode = React.createElement(Document, null, React.createElement(Page, { size:'A4' }));"
+    "empty_js": "const documentNode = React.createElement(Document, null, React.createElement(Page, { size:'A4' }));",
+    "minimal": {
+      "document": {
+        "type": "Document",
+        "props": {
+          "title": "Quarterly Report"
+        },
+        "children": [
+          {
+            "type": "Page",
+            "props": {
+              "size": "A4",
+              "style": {
+                "padding": 40,
+                "fontSize": 12
+              }
+            },
+            "children": [
+              {
+                "type": "View",
+                "props": {
+                  "style": {
+                    "marginBottom": 16
+                  }
+                },
+                "children": [
+                  {
+                    "type": "Text",
+                    "props": {
+                      "style": {
+                        "fontSize": 24,
+                        "marginBottom": 6
+                      }
+                    },
+                    "children": "Quarterly Report"
+                  },
+                  {
+                    "type": "Text",
+                    "props": {
+                      "style": {
+                        "color": "#666666"
+                      }
+                    },
+                    "children": "Q2 2026 · Analytics Team"
+                  }
+                ]
+              },
+              {
+                "type": "View",
+                "props": {
+                  "style": {
+                    "padding": 12,
+                    "backgroundColor": "#eef3ff"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "Text",
+                    "children": "Revenue grew 18% quarter over quarter, led by EMEA expansion."
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
   },
   "carriers": {
     "artifact": "inferred-not-tested",
@@ -58,7 +152,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "+esm shows no document.head / createElement('style') / adoptedStyleSheets and no document/window addEventListener. PDFViewer renders an <iframe> fed by a Blob URL (URL.createObjectURL; 8x Blob) as its React output inside the mount container -> self-contained, no host CSS footprint; mounts in a shadow container fine.",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

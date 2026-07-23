@@ -2,6 +2,22 @@
   "entry_version": "thin-1",
   "id": "remark-slides",
   "name": "remark (slides)",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing a slide runtime when you need the lightest in-browser Markdown presentation with speaker notes and a cloned presenter view, because native implementations fail at scaling, incremental reveals, and presenter-state synchronization; not for a scrolling article or visual slide editor.",
+      "why_valuable": "AI can only split Markdown into static div elements by default; it cannot provide cross-resolution scaling, incremental content, speaker notes, and dual-window presenter mode. remark supplies a complete presentation runtime from one source string.",
+      "data_in": {
+        "note": "remark.create reads the source string and takes over the current document; upstream has no npm package, and picks has no version that can be pinned.",
+        "schema": {
+          "markdown": "string -- remark source; a standalone --- starts a new slide, a standalone -- creates an incremental step, and content after ??? is the current slide's speaker notes",
+          "ratio?": "'16:9' | '4:3' -- catalog default '16:9'"
+        }
+      },
+      "spec": {
+        "note": "remark takes over the complete document viewport and scales itself; the host iframe should have an explicit height of 600px. vh/percentage height is prohibited. It has no locally scoped mount root that can be specified safely."
+      }
+    }
+  },
   "when_to_use": "需要最轻的浏览器内 Markdown 演示、讲者备注与克隆讲者视图时用它而非手写幻灯运行时,因为原生手写在缩放、增量呈现和讲者状态同步上失败;非做滚动文章或可视化幻灯编辑器。",
   "why_valuable": "AI 默认只能把 Markdown 切成静态 div,做不到跨分辨率缩放、增量内容、讲者备注与双窗口讲者模式;remark 用单一 source 字符串提供完整演示运行时。",
   "supply_form": "component",
@@ -41,7 +57,6 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "remark.create() takes over the entire document: injects its presentation stylesheet into document.head, builds slide-container DOM in document.body, and binds window-level keyboard navigation + hashchange + localStorage-based presenter-view sync with no scoped teardown; there is no shadowRoot mount parameter. Bundle confirms a global remark UMD (create:function). Catalog correctly marks the widget carrier 'unsupported'.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

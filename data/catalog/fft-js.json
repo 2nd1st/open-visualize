@@ -1,0 +1,63 @@
+{
+  "entry_version": "thin-1",
+  "id": "fft-js",
+  "name": "fft.js",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you have waveform/time-series samples and want to plot a spectrum (which frequency components are strong), make a waterfall/spectrogram, or compare before and after frequency-domain filtering: it turns a real time-domain array into a complex frequency-domain array, and the consuming AI plots each bin's magnitude. The catalog has no other signal-processing/FFT primitive; this is not for window functions, filter design, or a complete DSP suite (which needs a heavier library).",
+      "why_valuable": "The fast Fourier transform is an O(n log n) radix-4/2 butterfly iteration, and AI cannot possibly calculate a correct complex spectrum for thousands of samples by hand; fft.js is a widely adopted, very fast numerical implementation that converts time-domain samples to the frequency domain in one step, leaving AI only to assemble the input array and plot magnitudes.",
+      "data_in": {
+        "note": "Core constraint: transform size must be a power of two and >1 (1024/2048/4096...), or new FFT throws--zero-pad or truncate the signal to a power of two first. Real signals use realTransform (an ordinary real array of length size); complex signals use transform (an interleaved array [re,im,re,im,...] of length 2*size). Input and output must be different arrays (using the same array throws). The library does not consume sampleRate; the consuming AI uses it only to map bin index k to frequency k*sampleRate/size.",
+        "schema": {
+          "samples": "number[] -- real time-domain samples; length must be a power of two and >1 (for realTransform)",
+          "sampleRate?": "number -- sample rate (Hz); the library does not consume it, and the consuming AI uses it to calculate the frequency axis freq(k)=k*sampleRate/size; defaults to bin indices only"
+        }
+      }
+    }
+  },
+  "when_to_use": "有一段波形/时间序列采样,想画『频谱』(哪些频率成分强)、做瀑布图/声谱、或频域滤波前后对比时用它:把时域实数数组变成频域复数数组,消费 AI 取每个 bin 的幅值去画。目录里没有任何信号处理/FFT 原语;非需要窗函数/滤波器设计/完整 DSP 套件(那需更重的库,本条只给核心 FFT)。",
+  "why_valuable": "快速傅里叶变换是 O(n log n) 的蝶形迭代(radix-4/2),AI 绝无可能对上千点信号徒手算出正确复数频谱;fft.js 是采用度极高、极快的纯数值实现,把时域采样一步变频域,AI 只管拼输入数组、取幅值绘图。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "fft.js",
+    "version": "4.0.4",
+    "github": "indutny/fft.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "array",
+    "note": "核心约束:变换点数 size 必须是 2 的幂且 >1(1024/2048/4096…),否则 new FFT 即抛错——先把信号补零/截断到 2 的幂。实数信号走 realTransform(输入长度 = size 的普通实数数组);已是复数则走 transform(输入是长度 2*size 的交错数组 [re,im,re,im,…])。输入与输出必须是两个不同的数组(同一个会抛错)。sampleRate 本库不消费,仅消费 AI 用来把 bin 下标 k 映射成频率 k*sampleRate/size。",
+    "schema": {
+      "samples": "number[] —— 时域实数采样;长度必须是 2 的幂且 >1(realTransform 用)",
+      "sampleRate?": "number —— 采样率(Hz);库不消费,消费 AI 用它算频率轴 freq(k)=k*sampleRate/size,默认仅出 bin 下标"
+    }
+  },
+  "provides": {
+    "shape": "spectrum",
+    "_note": "headless-primitive:纯数值 in/out,不渲染、无 L 级、无 carriers 矩阵;消费 AI 算幅值后自行画频谱线/热力瀑布。",
+    "outputs": "长度 2*size 的交错复数频域数组 [re0,im0,re1,im1,…];bin k 的幅值 = Math.hypot(out[2*k], out[2*k+1]),相位 = Math.atan2(out[2*k+1], out[2*k])。实数输入时频谱共轭对称,只有前 size/2+1 个 bin 独立(realTransform 已填满该非冗余部分)。",
+    "api_surface": {
+      "construct": "new FFT(size) —— size 为 2 的幂且 >1(default 导出即构造函数)",
+      "buffers": "createComplexArray() → 长度 2*size 的零数组;toComplexArray(realInput) → 交错复数数组",
+      "forward": "realTransform(out, realInput) 实→频(填满前半非冗余部分,需完整谱再 completeSpectrum(out));或 transform(out, complexInput) 复→频",
+      "inverse": "inverseTransform(out, complexInput) 频→时(结果已自动除以 size)"
+    }
+  },
+  "peer": {
+    "id": "uplot",
+    "note": "fft.js 只出频域复数数组;算出每 bin 幅值后组成 [freq, magnitude] 序列,交给目录里的 uplot 这类快线图画频谱,大点数也流畅。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS 数值变换,零 DOM/CSS/uplink/shadow 足迹;default 导出\nimport FFT from 'https://cdn.jsdelivr.net/npm/fft.js@4/+esm';\nconst size = data.samples.length;              // 必须是 2 的幂且 >1\nconst fft = new FFT(size);\nconst out = fft.createComplexArray();          // 长度 2*size\nfft.realTransform(out, data.samples);          // 实数信号 → 频谱(填满前半非冗余部分)\nconst mag = [];                                // 0..Nyquist 各 bin 幅值\nfor (let k = 0; k <= size / 2; k++) mag.push(Math.hypot(out[2*k], out[2*k+1]));\n// 频率轴(可选):const freq = k => k * (data.sampleRate ?? size) / size;",
+    "note": "size 必须 2 的幂且 >1,否则 new FFT 抛 'FFT size must be a power of two and bigger than 1'——先补零/截断。取幅值谱只需 realTransform 后读 bin 0..size/2(已填满);要完整对称谱(如做逆变换前)再调 completeSpectrum(out)。输入数组与输出 out 必须是不同对象(同一个会抛 'Input and output buffers must be different')。inverseTransform 结果已自动除以 size。default 导出:import FFT from …(非命名导入)。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr fft.js@4.0.4: +esm has a DEFAULT export (grep 'export{yt as default}') — the FFT constructor; import must be default (import FFT from …), not named. API from lib/fft.d.ts matches boot: new FFT(size); createComplexArray()→any[]; realTransform(out,data); transform(out,data); inverseTransform(out,data); completeSpectrum(spectrum); toComplexArray/fromComplexArray. Constraints confirmed against real source (lib/fft.js): lines 5-6 throw 'FFT size must be a power of two and bigger than 1' when (size<=1 || (size & (size-1))!==0); transform/realTransform/inverseTransform throw 'Input and output buffers must be different' when out===data; inverseTransform divides output by this.size (line 110). Pure numeric, no DOM/event/style footprint → trivially shadow-safe (headless-primitive, no carriers matrix by design).",
+    "confidence": "high"
+  }
+}

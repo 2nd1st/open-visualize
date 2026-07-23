@@ -4,6 +4,34 @@
   "name": "GraphQL Voyager",
   "when_to_use": "需要把 GraphQL SDL 展开成可缩放、可追踪字段关系的全景图时用它,而非手写节点连线——原生手写在类型展开、Relay 包装裁剪、边路由和大 schema 导航上失败。非做任意知识图谱、查询执行或 resolver 性能分析。",
   "why_valuable": "AI 默认只能复述 SDL 或画少量 Mermaid 边,做不到从完整 schema 建立可导航类型图、字段侧栏、Relay 降噪和根类型切换；Voyager 把这些高歧义关系稳定收进同一视图。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to expand GraphQL SDL into a zoomable overview whose field relationships can be traced, instead of hand-writing nodes and edges. Native implementations fail on type expansion, Relay-wrapper pruning, edge routing, and navigation of large schemas. It is not for arbitrary knowledge graphs, query execution, or resolver performance analysis.",
+      "why_valuable": "AI can only restate SDL or draw a few Mermaid edges by default. It cannot build a navigable type graph, field sidebar, Relay noise reduction, and root-type switching from a complete schema. Voyager keeps these ambiguous relationships stable in one view.",
+      "data_in": {
+        "note": "boot uses upstream sdlToSchema to turn data_in.sdl into a GraphQLSchema, then passes it as Voyager.introspection. This is not a generic {nodes,edges} graph. An existing introspection response can also be passed directly to Voyager's introspection prop, but its exact shape must be {data:{__schema:...}}.",
+        "schema": {
+          "sdl": "string - complete SDL parseable by GraphQL buildSchema; must include a query root type",
+          "displayOptions?": {
+            "_default": "default {}",
+            "skipRelay?": "boolean - default true",
+            "skipDeprecated?": "boolean - default true",
+            "rootType?": "string - defaults to the query root type name",
+            "sortByAlphabet?": "boolean - default false",
+            "showLeafFields?": "boolean - default true",
+            "hideRoot?": "boolean - default false"
+          },
+          "hideDocs?": "boolean - default false",
+          "hideSettings?": "boolean - default false",
+          "hideVoyagerLogo?": "boolean - default true",
+          "allowToChangeSchema?": "boolean - default false"
+        }
+      },
+      "spec": {
+        "note": "Voyager's graph and sidebar depend on a sized parent container. boot defaults to an explicit height of 560px and width 100%; vh and percentage heights are prohibited. Its SVG pan/zoom view handles container-width changes, but the host must still provide a nonzero clientWidth."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -38,9 +66,9 @@
     "note": "Voyager 的图面与侧栏依赖有尺寸的父容器；boot 默认显式 height 560px、宽度 100%,禁止 vh/百分比高。容器宽变化由其 SVG pan/zoom 视图处理,宿主仍须保证非零 clientWidth。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:CSS 进 document.head,组件用 React 18 原生入口\nimport React from 'https://cdn.jsdelivr.net/npm/react@18/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@18/client/+esm';\nimport { Voyager, sdlToSchema } from 'https://cdn.jsdelivr.net/npm/graphql-voyager@2/+esm';\nconst style = document.createElement('style'); style.textContent = await fetch('https://cdn.jsdelivr.net/npm/graphql-voyager@2.1.0/dist/voyager.css').then(r => r.text()); document.head.appendChild(style);\nconst el = document.getElementById('voyager'); el.style.height = '560px';\nconst { sdl, ...props } = data; createRoot(el).render(React.createElement(Voyager, { ...props, introspection: sdlToSchema(sdl) }));",
-    "widget": "// CSS 与 Emotion 动态样式都落 shadow,避免写 document.head\nimport React from 'https://cdn.jsdelivr.net/npm/react@18/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@18/client/+esm';\nimport { CacheProvider } from 'https://cdn.jsdelivr.net/npm/@emotion/react@11/+esm'; import createCache from 'https://cdn.jsdelivr.net/npm/@emotion/cache@11/+esm';\nimport { Voyager, sdlToSchema } from 'https://cdn.jsdelivr.net/npm/graphql-voyager@2/+esm';\nconst style = document.createElement('style'); style.textContent = await fetch('https://cdn.jsdelivr.net/npm/graphql-voyager@2.1.0/dist/voyager.css').then(r => r.text()); shadowRoot.appendChild(style);\nconst el = document.createElement('div'); el.style.height = '560px'; shadowRoot.appendChild(el); const cache = createCache({ key: 'voyager', container: shadowRoot });\nconst { sdl, ...props } = data; createRoot(el).render(React.createElement(CacheProvider, { value: cache }, React.createElement(Voyager, { ...props, introspection: sdlToSchema(sdl) })));",
-    "codex": "同 artifact(sandbox iframe):React 18 createRoot + graphql-voyager@2/+esm 的 Voyager/sdlToSchema；voyager.css 放 iframe head,容器高 560px。"
+    "artifact": "// 包根 +esm 的 MUI 子模块 import shape 损坏；standalone 构建内含一致的 React/MUI 图并导出 renderVoyager\nconst el = document.getElementById('voyager'); el.style.height = `${spec.height ?? 560}px`; el.textContent = 'Loading schema…';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/graphql-voyager@2.1.0/dist/voyager.css' }); document.head.appendChild(css);\nconst { renderVoyager, sdlToSchema } = await import('https://cdn.jsdelivr.net/npm/graphql-voyager@2.1.0/dist/voyager.standalone.js/+esm');\nconst { sdl, ...props } = data; el.textContent = ''; renderVoyager(el, { ...props, introspection: sdlToSchema(sdl) });",
+    "widget": "// standalone 保证单一 React/MUI 图；静态 CSS 与本次新建的 Emotion style 都搬入 shadow\nconst el = document.createElement('div'); el.style.height = `${spec.height ?? 560}px`; el.textContent = 'Loading schema…'; shadowRoot.appendChild(el);\nconst style = document.createElement('style'); style.textContent = await fetch('https://cdn.jsdelivr.net/npm/graphql-voyager@2.1.0/dist/voyager.css').then(r => r.text()); shadowRoot.prepend(style);\nconst before = new Set(document.head.querySelectorAll('style')); const moveStyles = () => { for (const s of document.head.querySelectorAll('style')) if (!before.has(s)) shadowRoot.appendChild(s); }; const observer = new MutationObserver(moveStyles); observer.observe(document.head, { childList: true });\nconst { renderVoyager, sdlToSchema } = await import('https://cdn.jsdelivr.net/npm/graphql-voyager@2.1.0/dist/voyager.standalone.js/+esm');\nconst { sdl, ...props } = data; el.textContent = ''; renderVoyager(el, { ...props, introspection: sdlToSchema(sdl) }); setTimeout(() => { moveStyles(); observer.disconnect(); }, 500);",
+    "codex": "const el = document.getElementById('voyager'); el.style.height = `${spec.height ?? 560}px`; el.textContent = 'Loading schema…';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/graphql-voyager@2.1.0/dist/voyager.css' }); document.head.appendChild(css);\nconst { renderVoyager, sdlToSchema } = await import('https://cdn.jsdelivr.net/npm/graphql-voyager@2.1.0/dist/voyager.standalone.js/+esm');\nconst { sdl, ...props } = data; el.textContent = ''; renderVoyager(el, { ...props, introspection: sdlToSchema(sdl) });"
   },
   "example": {
     "_why": "GraphQL 类型、字段与根类型构成深且高歧义的图 config；minimal 同时钉死 SDL 输入和 Voyager displayOptions。",
@@ -68,7 +96,6 @@
     "globalDomMutation": "unknown",
     "globalEvents": "unknown",
     "evidence": "1MB 单包(document.* 被别名化,负计数不可信):硬证据 createElement('style')=1(Emotion/MUI 注样式)+ new Worker=1(graphviz 布局 worker,另触 CSP worker-src);entry 自身 widget boot 引 @emotion/react CacheProvider + @emotion/cache container:shadowRoot 重定向样式并把 voyager.css 落 shadow——正是 MUI-in-shadow 标准手法,反证 Emotion 默认注 head。document.body/addEventListener 字面 grep=0 但因 minify 别名不可信,故 DOM portal(MUI Popover/Settings/DocExplorer 惯例 portal 到 body)与全局事件标 unknown。shadowCompatible=conditional:须 Emotion cache 重定向 + voyager.css 入 shadow,MUI 弹层 DOM 仍可能逃逸 body。",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

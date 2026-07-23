@@ -25,6 +25,22 @@
     "height": 400,
     "note": "VList 自身是滚动视口,必须给确定高度;boot 默认 400px,AI 可传其他明确像素值,禁止百分比或视口单位。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to virtualize many variable-height rows, long paragraphs, or dynamically sized cards in React instead of hand-writing a windowed list, which tends to fail at asynchronous measurement, size caching, and scroll anchoring. It is not a complete data table with sorting and filtering.",
+      "why_valuable": "AI defaults to rendering everything or assuming fixed row heights. It cannot reliably combine ResizeObserver measurement of variable-height rows, cache correction, smooth scroll anchoring, and a minimal DOM window.",
+      "data_in": {
+        "note": "This entry follows the stable native React VList API: data receives items, and children renders the current item. It defaults to a single-column text list. Consuming AI may change the render function, but the entry does not predefine an event outlet.",
+        "schema": {
+          "items": "JSONValue[] -- VList data array",
+          "itemTextField?": "string | null -- field name to display from a record; default null; strings display directly and other values use JSON.stringify"
+        }
+      },
+      "spec": {
+        "note": "VList is itself the scrolling viewport and must have a definite height. boot defaults to 400px; AI may supply another explicit pixel value, but not percentages or viewport units."
+      }
+    }
+  },
   "boot": {
     "artifact": "// inferred-not-tested:virtua@0/+esm 当前 peer 解析为 React 19.2.7\nimport React from 'https://cdn.jsdelivr.net/npm/react@19.2.7/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19.2.7/client/+esm';\nimport { VList } from 'https://cdn.jsdelivr.net/npm/virtua@0/+esm';\nconst el = document.getElementById('list');\nconst row = item => React.createElement('div', { style: { padding: '8px 12px', borderBottom: '1px solid #ddd' } }, data.itemTextField == null ? (typeof item === 'string' ? item : JSON.stringify(item)) : String(item?.[data.itemTextField] ?? ''));\ncreateRoot(el).render(React.createElement(VList, { data: data.items, style: { height: `${spec.height ?? 400}px` } }, row));",
     "widget": "// React 挂载点落 shadow 容器;virtua 无外部 CSS\nimport React from 'https://cdn.jsdelivr.net/npm/react@19.2.7/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19.2.7/client/+esm';\nimport { VList } from 'https://cdn.jsdelivr.net/npm/virtua@0/+esm';\nconst el = document.createElement('div'); shadowRoot.appendChild(el);\nconst row = item => React.createElement('div', { style: { padding: '8px 12px', borderBottom: '1px solid #ddd' } }, data.itemTextField == null ? (typeof item === 'string' ? item : JSON.stringify(item)) : String(item?.[data.itemTextField] ?? ''));\ncreateRoot(el).render(React.createElement(VList, { data: data.items, style: { height: `${spec.height ?? 400}px` } }, row));",
@@ -61,7 +77,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "virtua@0.49.3 +esm exports named VList (_e) — import correct and peer React 19 resolvable. lib/react/VList.d.ts: VListProps picks 'children'|'data' from VirtualizerProps, where VirtualizerProps.children: ReactNode | ((data:T,index:number)=>ReactElement) and data?:ArrayLike<T>; JSDoc literally says 'pass a function and set data to create elements lazily' — so boot's createElement(VList,{data:items},rowFn) is the documented render-prop API. schema items(->data)/itemTextField(->render fn) match. Grep of bundle: 0 document.head, 0 createElement('style'), 0 body.append, 0 document/window listeners; measurement is via element-scoped ResizeObserver only.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

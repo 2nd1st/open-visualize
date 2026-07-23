@@ -39,6 +39,36 @@
     "height": 260,
     "note": "SVG 仍需稳定几何尺寸;默认显式传 height 260px,width 取容器像素宽或 800px,禁用 vh/百分比高。容器宽变化后重新创建实例以重算 SVG。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to draw scales, chords, or CAGED positions on a guitar fretboard with strings, frets, and highlighted notes instead of hand-writing SVG, which tends to fail at fret geometry, tuning conversion, and consistent position highlighting.",
+      "why_valuable": "AI defaults to listing note names or drawing an approximate grid and cannot reliably map string x fret coordinates, nonlinear fret spacing, alternate tunings, and scale positions. Upstream closes the loop between these calculations and SVG rendering.",
+      "data_in": {
+        "note": "The main input is a string-number x fret-number grid. view selects one of the three native upstream entry points: setDots, renderScale, or renderChord. Do not mix their data in a single call.",
+        "schema": {
+          "view?": "'dots' | 'scale' | 'chord' -- default 'dots'",
+          "dots?": [
+            {
+              "string": "integer 1..stringCount -- human numbering, where 1 is the highest-pitched string",
+              "fret": "integer >= 0 -- 0 is an open string",
+              "note?": "string -- display/style metadata; omitted by default",
+              "interval?": "string -- for example '1P' or '3M'; omitted by default"
+            }
+          ],
+          "scale?": {
+            "root": "string -- root note, such as 'C' or 'F#'",
+            "type": "string -- Tonal scale name, such as 'major' or 'dorian'"
+          },
+          "chord?": "string -- fingering from string 6 to string 1, such as x32010; separate frets 10 and above with hyphens; omitted by default",
+          "tuning?": "string[] -- low string to high string; default ['E2','A2','D3','G3','B3','E4']",
+          "fretCount?": "integer > 0 -- number of frets shown; default 15"
+        }
+      },
+      "spec": {
+        "note": "The SVG still needs stable geometry dimensions. Pass an explicit height of 260px by default; width is the container's pixel width or 800px. Do not use vh or percentage heights. Recreate the instance after container-width changes so the SVG is recalculated."
+      }
+    }
+  },
   "boot": {
     "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合\nimport { Fretboard } from 'https://cdn.jsdelivr.net/npm/@moonwave99/fretboard.js@0/+esm';\nconst el = document.getElementById('fretboard'); el.style.height = '260px';\nconst fb = new Fretboard({ el, height: 260, width: el.clientWidth || 800, tuning: data.tuning, fretCount: data.fretCount });\nif (data.view === 'scale') fb.renderScale(data.scale); else if (data.view === 'chord') fb.renderChord(data.chord); else fb.setDots(data.dots || []).render();",
     "widget": "// SVG 与 hover DOM 全落 shadow 容器,无 document.head CSS\nimport { Fretboard } from 'https://cdn.jsdelivr.net/npm/@moonwave99/fretboard.js@0/+esm';\nconst el = document.createElement('div'); el.style.height = '260px'; shadowRoot.appendChild(el);\nconst fb = new Fretboard({ el, height: 260, width: el.clientWidth || 800, tuning: data.tuning, fretCount: data.fretCount });\nif (data.view === 'scale') fb.renderScale(data.scale); else if (data.view === 'chord') fb.renderChord(data.chord); else fb.setDots(data.dots || []).render();",
@@ -59,7 +89,24 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "+esm scan: 0 `document.head`, 0 createElement('style') -> styling via inline SVG attributes/classes, no global stylesheet. 0 `document.body` -> all SVG rendered into the passed container el via d3. 0 document/window addEventListener -> hover handlers bind to SVG elements via d3 .on(); Fretboard.d.ts exposes removeEventListeners() for cleanup. Pure ESM+SVG fully contained in the passed shadow container.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "view": "scale",
+      "scale": {
+        "root": "C",
+        "type": "major"
+      },
+      "tuning": [
+        "E2",
+        "A2",
+        "D3",
+        "G3",
+        "B3",
+        "E4"
+      ],
+      "fretCount": 15
+    }
   }
 }

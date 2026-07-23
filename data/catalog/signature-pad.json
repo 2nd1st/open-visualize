@@ -51,9 +51,9 @@
     "note": "Canvas 必须显式使用像素高度;boot 默认 240px并按 devicePixelRatio 扩大 backing store,铁律 3 禁 vh/百分比高。改变宽高会清空 Canvas,须先保存 toData() 再重绘。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:无外置 CSS,Canvas 直接挂 artifact DOM\nimport SignaturePad from 'https://cdn.jsdelivr.net/npm/signature_pad@5/+esm';\nconst canvas = document.getElementById('signature'); canvas.style.cssText = 'width:100%;height:240px;touch-action:none';\nconst ratio = Math.max(window.devicePixelRatio || 1, 1); canvas.width = Math.round(canvas.getBoundingClientRect().width * ratio); canvas.height = 240 * ratio; canvas.getContext('2d').scale(ratio, ratio);\nconst pad = new SignaturePad(canvas, data.options ?? {});\nif (data.strokes?.length) pad.fromData(data.strokes);",
+    "artifact": "// harness 提供的是 div；在容器内建立 SignaturePad 所需的原生 canvas\nconst el = document.getElementById('signature'); const canvas = document.createElement('canvas'); canvas.style.cssText = 'width:100%;height:240px;touch-action:none'; el.appendChild(canvas);\nconst ratio = Math.max(window.devicePixelRatio || 1, 1); canvas.width = Math.round((el.clientWidth || 600) * ratio); canvas.height = 240 * ratio; canvas.getContext('2d').scale(ratio, ratio);\nconst { default: SignaturePad } = await import('https://cdn.jsdelivr.net/npm/signature_pad@5.1.2/+esm');\nconst pad = new SignaturePad(canvas, data.options ?? {});\nif (data.strokes?.length) pad.fromData(data.strokes);",
     "widget": "// Canvas 落在 widget shadow 容器,无 head/CSS 足迹\nimport SignaturePad from 'https://cdn.jsdelivr.net/npm/signature_pad@5/+esm';\nconst canvas = document.createElement('canvas'); canvas.style.cssText = 'width:100%;height:240px;touch-action:none'; shadowRoot.appendChild(canvas);\nconst ratio = Math.max(window.devicePixelRatio || 1, 1); canvas.width = Math.round(canvas.getBoundingClientRect().width * ratio); canvas.height = 240 * ratio; canvas.getContext('2d').scale(ratio, ratio);\nconst pad = new SignaturePad(canvas, data.options ?? {});\nif (data.strokes?.length) pad.fromData(data.strokes);",
-    "codex": "// sandbox iframe 内走同一原生构造器与高 DPI backing store\nimport SignaturePad from 'https://cdn.jsdelivr.net/npm/signature_pad@5/+esm';\nconst canvas = document.getElementById('signature'); canvas.style.cssText = 'width:100%;height:240px;touch-action:none';\nconst ratio = Math.max(window.devicePixelRatio || 1, 1); canvas.width = Math.round(canvas.getBoundingClientRect().width * ratio); canvas.height = 240 * ratio; canvas.getContext('2d').scale(ratio, ratio);\nconst pad = new SignaturePad(canvas, data.options ?? {});\nif (data.strokes?.length) pad.fromData(data.strokes);"
+    "codex": "// sandbox iframe 的宿主 id 是 div；canvas 落在该容器内并使用高 DPI backing store\nconst el = document.getElementById('signature'); const canvas = document.createElement('canvas'); canvas.style.cssText = 'width:100%;height:240px;touch-action:none'; el.appendChild(canvas);\nconst ratio = Math.max(window.devicePixelRatio || 1, 1); canvas.width = Math.round((el.clientWidth || 600) * ratio); canvas.height = 240 * ratio; canvas.getContext('2d').scale(ratio, ratio);\nconst { default: SignaturePad } = await import('https://cdn.jsdelivr.net/npm/signature_pad@5.1.2/+esm');\nconst pad = new SignaturePad(canvas, data.options ?? {});\nif (data.strokes?.length) pad.fromData(data.strokes);"
   },
   "example": {
     "_why": "PointGroup 要求每组同时带绘制参数与 BasicPoint[],属于高歧义几何输入;minimal 钉死 fromData 的精确层级。",
@@ -109,7 +109,47 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Verified vs jsDelivr signature_pad@5.1.3: `S as default` export matches `import SignaturePad from`. dist/types/signature_pad.d.ts: `constructor(canvas: HTMLCanvasElement, options?: Options)`, `fromData(pointGroups: PointGroup[])`, `toData(): PointGroup[]`. Schema fields are exact: PointGroupOptions{dotSize,minWidth,maxWidth,penColor,velocityFilterWeight,compositeOperation}, PointGroup extends it with points: BasicPoint[], BasicPoint{x,y,pressure,time} (point.d.ts) — all match schema.PointGroup + points. options keys (minWidth/maxWidth/penColor/backgroundColor/velocityFilterWeight/throttle/minDistance) all exist on Options. Isolation: +esm shows 0 across document.head/body/createElement('style')/document.addEventListener/window.addEventListener — pointer events are attached to the canvas element only; all state stays in the shadow-mounted canvas. Textbook shadow-safe.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to capture a smooth handwritten signature in a conversational artifact while preserving replayable strokes instead of handwritten Canvas code, which fails at pressure-point sampling, variable-width Bezier smoothing, and consistent high-DPI coordinates.",
+      "why_valuable": "AI defaults can only create fixed-width pointermove drawing and cannot provide stable velocity filtering, stroke grouping, pressure-point round-tripping, and high-DPI clarity; signature_pad natively closes input and output as PointGroup[].",
+      "data_in": {
+        "note": "strokes maps exactly to the PointGroup[] returned and accepted by signaturePad.toData()/fromData(); point coordinates use the Canvas CSS-pixel coordinate system, so restore them at the same canvas size.",
+        "schema": {
+          "strokes?": "PointGroup[] -- Default []; represents an empty signature",
+          "PointGroup": {
+            "dotSize": "number",
+            "minWidth": "number",
+            "maxWidth": "number",
+            "penColor": "string -- Canvas fillStyle color",
+            "velocityFilterWeight": "number",
+            "compositeOperation": "GlobalCompositeOperation string",
+            "points": [
+              {
+                "x": "number",
+                "y": "number",
+                "pressure": "number",
+                "time": "number -- Millisecond timestamp"
+              }
+            ]
+          },
+          "options?": {
+            "_default": "Uses upstream defaults when omitted",
+            "minWidth?": "number -- Default 0.5",
+            "maxWidth?": "number -- Default 2.5",
+            "penColor?": "string -- Default 'black'",
+            "backgroundColor?": "string -- Default 'rgba(0,0,0,0)'",
+            "velocityFilterWeight?": "number -- Default 0.7",
+            "throttle?": "integer -- Default 16ms",
+            "minDistance?": "number -- Default 5px"
+          }
+        }
+      },
+      "spec": {
+        "note": "Canvas must use an explicit pixel height; boot defaults to 240px and scales the backing store by devicePixelRatio. vh and percentage heights are forbidden by rule 3. Changing width or height clears Canvas, so save toData() before resizing and redraw afterward."
+      }
+    }
   }
 }

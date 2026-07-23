@@ -2,6 +2,18 @@
   "entry_version": "thin-1",
   "id": "latex-js",
   "name": "LaTeX.js",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a hand-written parser when you need to translate LaTeX document source familiar to AI into HTML5 with mathematics, sections, and document-class styling in the browser, because native implementations fail at macro parsing, mathematical DOM, and LaTeX whitespace semantics; not for a complete TeX engine or direct PDF output.",
+      "why_valuable": "AI can write LaTeX by default but cannot parse macros in the browser, generate structured HTML, restore mathematical typesetting, and apply document-class styles; LaTeX.js turns familiar input notation into mountable DOM.",
+      "data_in": {
+        "schema": {
+          "latex": "string -- LaTeX document or body source, passed unchanged as the first argument to parse",
+          "hyphenate?": "boolean -- whether to hyphenate automatically, default true"
+        }
+      }
+    }
+  },
   "when_to_use": "需要在浏览器把 AI 熟悉的 LaTeX 文档源码翻译成带数学、章节和文档类样式的 HTML5 时用它而非手写解析器，因为原生在宏解析、数学 DOM 和 LaTeX 空白语义上失败；非做完整 TeX 引擎或直接 PDF 输出。",
   "why_valuable": "AI 默认能写 LaTeX 却做不到在浏览器解析宏、生成结构化 HTML、复原数学排版和文档类样式；LaTeX.js 把熟悉的输入记法变成可挂载 DOM。",
   "supply_form": "component",
@@ -38,7 +50,12 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "dist/latex.mjs 里 web-component(LaTeXJSComponent)路径会 `t.head.appendChild(this.stylesAndScripts())` 注入字体/样式到 ownerDocument.head(head.appendChild x5);但 entry boot 刻意绕开 component,直接用 parse/HtmlGenerator 拿 fragment 挂 shadowRoot,故其选定路径 head-free。component 本身也支持 `this.shadow.appendChild`。字体 CMU/KaTeX 从 pinned 同包加载需 font-cdn;stylesAndScripts 含 <script> 元素,进 shadow 的执行行为未深验。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "latex": "\\documentclass{article}\n\\title{LaTeX.js Demo}\n\\author{Open Visualize}\n\\begin{document}\n\\maketitle\n\n\\section{Introduction}\nLaTeX.js renders \\textbf{LaTeX} source to HTML5 in the browser, including inline math such as $E = mc^2$.\n\n\\section{Mathematics}\nThe solutions of $ax^2 + bx + c = 0$ are given by\n\\[ x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}. \\]\n\n\\section{Highlights}\n\\begin{itemize}\n  \\item Macros and environments\n  \\item Sectioning and headings\n  \\item Math typeset with KaTeX\n\\end{itemize}\n\\end{document}",
+      "hyphenate": false
+    }
   }
 }

@@ -4,6 +4,36 @@
   "name": "sakura",
   "when_to_use": "需要自然旋转、横向吹拂且可换渐变色的春季花瓣雨时用它而非手写 CSS 花瓣,因为原生在多段风摆、随机尺寸与持续生成清理上失败。",
   "why_valuable": "AI 默认只能做同速下落的粉色椭圆,做不到九组摆动、四组风向、随机尺寸/渐变和离屏回收的自然组合;该库把长期调参固化为一个构造器。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need spring petals that fall with natural rotation and crosswind, with configurable gradient colors, instead of hand-writing CSS petals. Native implementations fail on multi-stage wind sway, randomized sizes, and continuous generation and cleanup.",
+      "why_valuable": "AI can only make pink ellipses fall at one speed by default. It cannot naturally combine nine sway groups, four wind directions, randomized size and gradients, and off-screen recycling. This library packages long-term tuning in one constructor.",
+      "data_in": {
+        "note": "data_in.options is passed exactly to new Sakura(selector, options). Keep className at its default sakura to match the official CSS.",
+        "schema": {
+          "options?": {
+            "_default": "{} - use all upstream defaults",
+            "className?": "string - petal class name, default 'sakura'; when renamed, the consumer must provide matching CSS",
+            "fallSpeed?": "number - larger values fall more slowly, default 1",
+            "maxSize?": "integer - maximum pixel size, default 14",
+            "minSize?": "integer - minimum pixel size, default 10",
+            "delay?": "integer - interval between new petals in milliseconds, default 300",
+            "colors?": [
+              {
+                "_default": "the array contains only this item by default",
+                "gradientColorStart?": "CSS color string - default 'rgba(255, 183, 197, 0.9)'",
+                "gradientColorEnd?": "CSS color string - default 'rgba(255, 197, 208, 0.9)'",
+                "gradientColorDegree?": "number - gradient angle, default 120"
+              }
+            ]
+          }
+        }
+      },
+      "spec": {
+        "note": "The target container explicitly uses a default height of 400px with position:relative/overflow:hidden. Upstream horizontal coordinates and durations still reference the current iframe viewport, so the container should occupy the available width. Do not use vh or percentage heights."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -57,7 +87,33 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "sakura-js@1.1.1 dist/sakura.min.js: 'var Sakura=function(t,e){this.el=document.querySelector(t)...}'. Petals created with document.createElement('div') and appended to this.el (the target, set position:relative/overflow:hidden by boot) — not document.body/head; library injects no style (CSS loaded by boot <link>). Render loop uses window.requestAnimationFrame with window.cancelAnimationFrame cleanup (stop()); the only addEventListener is animationend on individual petal elements — no window/document resize/scroll listener. Constructor's document.querySelector(selector) cannot resolve shadow-internal nodes and .sakura CSS targets light-DOM petals -> shadow-incompatible.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "options": {
+        "delay": 200,
+        "minSize": 12,
+        "maxSize": 18,
+        "fallSpeed": 1.5,
+        "colors": [
+          {
+            "gradientColorStart": "rgba(255, 183, 197, 0.9)",
+            "gradientColorEnd": "rgba(255, 197, 208, 0.9)",
+            "gradientColorDegree": 120
+          },
+          {
+            "gradientColorStart": "rgba(255, 160, 190, 0.9)",
+            "gradientColorEnd": "rgba(255, 210, 225, 0.9)",
+            "gradientColorDegree": 120
+          },
+          {
+            "gradientColorStart": "rgba(250, 140, 200, 0.9)",
+            "gradientColorEnd": "rgba(255, 200, 230, 0.9)",
+            "gradientColorDegree": 135
+          }
+        ]
+      }
+    }
   }
 }

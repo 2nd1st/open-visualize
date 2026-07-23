@@ -1,0 +1,128 @@
+{
+  "entry_version": "thin-1",
+  "id": "3d-force-graph",
+  "name": "3d-force-graph",
+  "when_to_use": "网络规模大到 2D 铺不开、或要 3D 空间叙事(知识图谱、依赖网络、社群结构)时用它——喂 {nodes,links} 即出可旋转/点选的力导向 3D 图;2D 图谱仍用 vis-network/sigma/cytoscape,只算力学不渲染用 d3-force。link 端点字段是 source/target(非 vis-network 的 from/to)。",
+  "why_valuable": "AI 徒手做不出 three.js 场景 + d3-force-3d 三维布局 + 节点拾取 + 相机/轨道控制的协同;手写只能出静态 3D 错觉图,可旋转可交互的 3D 力网络成功率≈0。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "3d-force-graph",
+    "version": "1.80.0",
+    "github": "vasturiano/3d-force-graph"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "graph",
+    "note": "3d-force-graph 原生字段:link 端点是 source/target(引用 node.id),不是 from/to。node/link 可带任意额外字段供默认访问器(nodeLabel→name、nodeVal→val、nodeColor→color)读取。",
+    "schema": {
+      "_defaults": {
+        "links": "[]"
+      },
+      "nodes": [
+        {
+          "id": "string | number —— 唯一标识,必填",
+          "name?": "string —— 默认 nodeLabel 访问器读它作悬浮标签",
+          "val?": "number —— 默认 nodeVal 访问器读它作节点尺寸",
+          "color?": "string —— 默认 nodeColor 访问器读它作节点色"
+        }
+      ],
+      "links": [
+        {
+          "source": "string | number —— 必须引用 nodes.id",
+          "target": "string | number —— 必须引用 nodes.id",
+          "color?": "string —— 默认 linkColor 访问器读它"
+        }
+      ]
+    }
+  },
+  "spec": {
+    "height": 500,
+    "note": "WebGL 场景读取容器尺寸;默认容器 height 500px(3D 需纵深),width 跟随容器,禁 vh/百分比高。构造前先设好容器高度(否则初始高度可能为 0)。"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when a network is too large to lay out clearly in 2D, or when you need a spatial 3D narrative (knowledge graphs, dependency networks, community structure): feed it {nodes,links} to get a rotatable, clickable force-directed 3D graph. For 2D graphs, continue to use vis-network/sigma/cytoscape; for physics without rendering, use d3-force. Link endpoints are source/target, not vis-network's from/to.",
+      "why_valuable": "AI cannot reliably coordinate a three.js scene, a d3-force-3d layout, node picking, and camera/orbit controls from scratch. Handwritten output usually amounts to a static 3D illusion; the success rate for a rotatable, interactive 3D force network is effectively zero.",
+      "data_in": {
+        "note": "Native 3d-force-graph fields: link endpoints are source/target (referencing node.id), not from/to. Nodes and links may carry arbitrary extra fields read by the default accessors (nodeLabel -> name, nodeVal -> val, nodeColor -> color).",
+        "schema": {
+          "_defaults": {
+            "links": "[]"
+          },
+          "nodes": [
+            {
+              "id": "string | number -- unique identifier; required",
+              "name?": "string -- read by the default nodeLabel accessor for the hover label",
+              "val?": "number -- read by the default nodeVal accessor for node size",
+              "color?": "string -- read by the default nodeColor accessor for node color"
+            }
+          ],
+          "links": [
+            {
+              "source": "string | number -- must reference nodes.id",
+              "target": "string | number -- must reference nodes.id",
+              "color?": "string -- read by the default linkColor accessor"
+            }
+          ]
+        }
+      },
+      "spec": {
+        "note": "The WebGL scene reads the container dimensions. The default container height is 500px (3D needs depth), and width follows the container; do not use vh or percentage heights. Set the container height before construction, or its initial height may be 0."
+      }
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested。默认导出是构造器:new ForceGraph3D(el)(非旧版 ForceGraph3D()(el))。+esm 经嵌套 /npm/*/+esm 递归解析 three/three-forcegraph。link 端点用 source/target。\nimport ForceGraph3D from 'https://cdn.jsdelivr.net/npm/3d-force-graph@1.80.0/+esm';\nconst el = document.getElementById('graph'); el.style.height = '500px';\nconst graph = new ForceGraph3D(el).graphData({ nodes: data.nodes, links: data.links });",
+    "widget": "// WebGL canvas + 2D 覆盖层落 shadow 容器;注意 bundle 会经 style-inject 向 document.head 注入一小段覆盖层 <style>(不可避免,通用无害)。\nimport ForceGraph3D from 'https://cdn.jsdelivr.net/npm/3d-force-graph@1.80.0/+esm';\nconst el = document.createElement('div'); el.style.width = '100%'; el.style.height = '500px'; shadowRoot.appendChild(el);\nconst graph = new ForceGraph3D(el).graphData({ nodes: data.nodes, links: data.links });",
+    "codex": "import ForceGraph3D from 'https://cdn.jsdelivr.net/npm/3d-force-graph@1.80.0/+esm';\nconst el = document.getElementById('graph'); el.style.height = '500px';\nconst graph = new ForceGraph3D(el).graphData({ nodes: data.nodes, links: data.links });"
+  },
+  "example": {
+    "_why": "钉死 link 端点字段是 source/target(与 vis-network 的 from/to 相反)。",
+    "minimal": {
+      "nodes": [
+        {
+          "id": "a",
+          "name": "Alpha"
+        },
+        {
+          "id": "b",
+          "name": "Beta"
+        },
+        {
+          "id": "c",
+          "name": "Gamma"
+        }
+      ],
+      "links": [
+        {
+          "source": "a",
+          "target": "b"
+        },
+        {
+          "source": "b",
+          "target": "c"
+        }
+      ]
+    },
+    "empty": {
+      "nodes": [],
+      "links": []
+    }
+  },
+  "uplink": "display/local-interact 默认不上行;节点点选/拖拽/相机状态若需外传,由消费 AI 接库原生回调(.onNodeClick 等)并按载体处理。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:WebGL canvas + 2D 覆盖层落 shadow 容器;但 bundle 通过 style-inject 向 document.head 注入一小段覆盖层 <style>(不可避免、无害),且 three-render-objects 挂 window resize 监听。",
+    "codex": "supported:ESM CDN(+esm 递归解析 three),无 worker/wasm 硬依赖。"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "默认导出是构造器(dts: interface IForceGraph3D { new(element: HTMLElement, configOptions?: ConfigOptions): ForceGraph3DInstance },export{ForceGraph3D as default};README: const myGraph = new ForceGraph3D(<DOMElement>).graphData(...))——已用 new 模式,非旧版 curried。.graphData({nodes,links}) 来自 three-forcegraph:LinkObject.source/target、NodeObject.id(schema 已钉 source/target,非 from/to)。+esm 11990B 把 three/three-forcegraph/three-render-objects 外置为嵌套 /npm/*/+esm。globalStyleInjection=yes:lib 代码含 style-inject(grep 命中 document.head + createElement(\"style\"),l.type=\"text/css\")向 head 注 2D 覆盖层 CSS。globalDomMutation=no:canvas 与 CSS2D/nav-info 覆盖层渲染在传入容器内,lib 代码无 document.body append。globalEvents=yes:standalone 全量包 grep 命中 window.addEventListener(\"resize\"(three-render-objects 的自适应尺寸),+esm 路径经嵌套 import 引同一 three-render-objects,运行时该监听仍在。",
+    "confidence": "high"
+  }
+}

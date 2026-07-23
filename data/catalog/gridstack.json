@@ -95,7 +95,39 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "gridstack@13.0.0 +esm(87KB,document.addEventListener 出现即未别名化,0 计数可信):0 document.head、0 createElement(style)(改用行内 CSS 变量 --gs-cell-height,不注 stylesheet)、0 document.body(拖拽 helper 不挂 body)→ 无全局样式/DOM 注入;document.addEventListener('mousemove'/'mouseup'/'keydown') 用于拖拽/缩放/Esc,全局但随手势临时挂载。shadowCompatible=conditional:widget boot 把 gridstack.min.css 与 .grid-stack 落 shadowRoot 可行,但拖放依赖 document.elementFromPoint,shadow 内需 retarget(掉落目标检测有已知 shadow 坑)。",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when users need to drag, resize, and save a dashboard/layout grid, instead of hand-writing CSS Grid, because native implementations fail at collision resolution, automatic compaction, pointer resizing, and layout serialization. Not for a one-off static grid; use CSS directly for static layouts.",
+      "why_valuable": "AI can only generate static CSS Grid by default. It cannot provide non-overlapping placement after dragging, multi-row/column resizing, compact backfilling, or stable JSON replay, and hand-written hit testing and collision algorithms are unreliable.",
+      "data_in": {
+        "note": "data.items passes directly to GridStack.load; coordinates and dimensions are measured in grid cells. Upstream treats content as HTML, so this entry permits trusted short text only and must not receive unsanitized user HTML.",
+        "schema": {
+          "items": [
+            {
+              "id": "string -- Stable widget identifier",
+              "content": "string -- Trusted short text or sanitized HTML",
+              "x?": "integer >= 0 -- Column coordinate; default 0",
+              "y?": "integer >= 0 -- Row coordinate; default 0",
+              "w?": "integer >= 1 -- Width in cells; default 1",
+              "h?": "integer >= 1 -- Height in cells; default 1",
+              "minW?": "integer >= 1 -- Minimum width; unconstrained by default",
+              "minH?": "integer >= 1 -- Minimum height; unconstrained by default",
+              "locked?": "boolean -- Whether position and size are locked; default false"
+            }
+          ],
+          "options?": {
+            "column?": "integer >= 1 -- Column count; default 12",
+            "cellHeight?": "number | string -- Row height; default 'auto'",
+            "margin?": "number | string -- Gap between cells; default 10",
+            "float?": "boolean -- Whether widgets may float; default false"
+          }
+        }
+      },
+      "spec": {
+        "note": "Grid dragging depends on a stable geometry area. The container has min-height 400px by default; AI may provide another explicit pixel height, but vh/percentage height is prohibited (Rule 3). Actual content may grow downward with the row count."
+      }
+    }
   }
 }

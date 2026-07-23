@@ -1,0 +1,142 @@
+{
+  "entry_version": "thin-1",
+  "id": "roughjs",
+  "name": "roughjs",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when diagrams, whiteboards, or wireframes should read as hand-drawn sketches: it draws rectangles, ellipses, circles, lines, polygons, and arbitrary SVG paths in a rough style on canvas or SVG. It is a core drawing primitive, not rough-notation for annotating existing DOM or rough-viz for prefabricated sketch charts; do not use it for precise/CAD output.",
+      "why_valuable": "A convincing hand-drawn look requires an algorithm of multiple jittered strokes, hachure fills, and randomized control points; when asked to \"make it rougher,\" AI only draws clean shapes. roughjs packages this rough geometry as methods that draw immediately (canvas) or return nodes (svg), supports reproducible seed values, draws only into the supplied surface, and has no global side effects.",
+      "data_in": {
+        "note": "roughjs is natively imperative (rc.rectangle(x,y,w,h,options)); this schema uses a declarative {type,args,options} sequence that boot dispatches through rc[type](...args, options). Canvas methods draw immediately; SVG methods return an SVGGElement that must be appended. type is a RoughCanvas/RoughSVG method name.",
+        "schema": {
+          "_defaults": {
+            "options": "{}"
+          },
+          "shapes": "Array<{ type, args, options? }> -- sequence of rough shapes to draw",
+          "shapes[].type": "'rectangle' | 'ellipse' | 'circle' | 'line' | 'linearPath' | 'polygon' | 'arc' | 'curve' | 'path'",
+          "shapes[].args": "any[] -- positional arguments for the method: rectangle[x,y,w,h], ellipse[x,y,w,h], circle[x,y,diameter], line[x1,y1,x2,y2], polygon[[[x,y],...]], path['<svg d>'], arc[x,y,w,h,start,stop,closed?]",
+          "shapes[].options?": {
+            "roughness?": "number -- degree of roughness, default 1 (0 is nearly smooth)",
+            "bowing?": "number -- line-bowing amount, default 1",
+            "stroke?": "string -- stroke color",
+            "strokeWidth?": "number -- default 1",
+            "fill?": "string -- fill color",
+            "fillStyle?": "'hachure' | 'solid' | 'zigzag' | 'cross-hatch' | 'dots' | 'dashed' | 'zigzag-line' -- default 'hachure'",
+            "hachureAngle?": "number -- fill-line angle",
+            "hachureGap?": "number -- spacing between fill lines",
+            "fillWeight?": "number -- fill-line thickness",
+            "seed?": "number -- deterministic seed (the same seed produces the same rough shape)"
+          }
+        }
+      },
+      "spec": {
+        "note": "canvas/SVG size is determined by the surface you create (matching the drawing coordinates); in a widget, give canvas explicit width/height plus style.maxWidth:100%. vh/percentage height is prohibited."
+      }
+    }
+  },
+  "when_to_use": "需要让图示/白板/线框读起来像手绘草图时用它:把矩形/椭圆/圆/线/多边形/任意 SVG path 画成潦草风,渲染到 canvas 或 SVG。它是核心绘图原语,不是给现成 DOM 加标注的 rough-notation、也不是预制草图图表 rough-viz;要精确/CAD 输出别用。",
+  "why_valuable": "可信的手绘观感是多趟抖动描边 + hachure 填充 + 控制点随机扰动的算法,AI 被要求'画潦草点'只会画出干净形状;roughjs 把这套潦草几何封成即时绘制(canvas)/返回节点(svg)的方法,seed 可复现,只画进你给的画布、零全局副作用。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "roughjs",
+    "version": "4.6.6",
+    "github": "rough-stuff/rough"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geometry",
+    "note": "roughjs 原生是命令式(rc.rectangle(x,y,w,h,options));本 schema 用 {type,args,options} 声明式序列,boot 内 rc[type](...args, options) 派发。canvas 版方法即时绘制;svg 版方法返回 SVGGElement 需 appendChild。type 即 RoughCanvas/RoughSVG 方法名。",
+    "schema": {
+      "_defaults": {
+        "options": "{}"
+      },
+      "shapes": "Array<{ type, args, options? }> —— 要绘制的草图形状序列",
+      "shapes[].type": "'rectangle' | 'ellipse' | 'circle' | 'line' | 'linearPath' | 'polygon' | 'arc' | 'curve' | 'path'",
+      "shapes[].args": "any[] —— 该方法位置参数:rectangle[x,y,w,h]、ellipse[x,y,w,h]、circle[x,y,diameter]、line[x1,y1,x2,y2]、polygon[[[x,y],...]]、path['<svg d>']、arc[x,y,w,h,start,stop,closed?]",
+      "shapes[].options?": {
+        "roughness?": "number —— 潦草程度,默认 1(0 近似平滑)",
+        "bowing?": "number —— 线条弯曲度,默认 1",
+        "stroke?": "string —— 描边色",
+        "strokeWidth?": "number —— 默认 1",
+        "fill?": "string —— 填充色",
+        "fillStyle?": "'hachure' | 'solid' | 'zigzag' | 'cross-hatch' | 'dots' | 'dashed' | 'zigzag-line' —— 默认 'hachure'",
+        "hachureAngle?": "number —— 填充线角度",
+        "hachureGap?": "number —— 填充线间距",
+        "fillWeight?": "number —— 填充线粗细",
+        "seed?": "number —— 决定性种子(同 seed 同潦草形态)"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "canvas/SVG 尺寸由你创建的画布决定(与绘制坐标一致);widget 内给 canvas 显式 width/height + style.maxWidth:100%,禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// default import；容器是 div，先在其中创建真实 canvas 再交给 rough.canvas\nimport rough from 'https://cdn.jsdelivr.net/npm/roughjs@4.6.6/+esm';\nconst el = document.getElementById('rough'); const canvas = document.createElement('canvas'); canvas.width = el.clientWidth || 600; canvas.height = 400; canvas.style.maxWidth = '100%'; el.appendChild(canvas);\nconst rc = rough.canvas(canvas);\n(data.shapes ?? []).forEach(s => rc[s.type](...s.args, s.options ?? {}));",
+    "widget": "// default import;canvas 落 shadow,rough.canvas 画进去;若用 svg 版,方法返回 SVGGElement 需 appendChild\nimport rough from 'https://cdn.jsdelivr.net/npm/roughjs@4.6.6/+esm';\nconst canvas = document.createElement('canvas'); canvas.width = 600; canvas.height = 400; canvas.style.maxWidth = '100%'; shadowRoot.appendChild(canvas);\nconst rc = rough.canvas(canvas);\n(data.shapes ?? []).forEach(s => rc[s.type](...s.args, s.options ?? {}));",
+    "codex": "import rough from 'https://cdn.jsdelivr.net/npm/roughjs@4.6.6/+esm';\nconst el = document.getElementById('rough'); const canvas = document.createElement('canvas'); canvas.width = el.clientWidth || 600; canvas.height = 400; canvas.style.maxWidth = '100%'; el.appendChild(canvas);\nconst rc = rough.canvas(canvas);\n(data.shapes ?? []).forEach(s => rc[s.type](...s.args, s.options ?? {}));"
+  },
+  "example": {
+    "_why": "钉死 shapes[].type 是方法名、args 是位置参数、path 吃 SVG d 字符串。",
+    "minimal": {
+      "shapes": [
+        {
+          "type": "rectangle",
+          "args": [
+            10,
+            10,
+            120,
+            80
+          ],
+          "options": {
+            "fill": "#e63946",
+            "fillStyle": "hachure",
+            "roughness": 1.5
+          }
+        },
+        {
+          "type": "circle",
+          "args": [
+            220,
+            60,
+            80
+          ],
+          "options": {
+            "fill": "#457b9d",
+            "stroke": "#1d3557",
+            "strokeWidth": 2
+          }
+        },
+        {
+          "type": "path",
+          "args": [
+            "M 300 20 L 380 100 L 300 100 Z"
+          ],
+          "options": {
+            "fill": "#2a9d8f",
+            "fillStyle": "cross-hatch"
+          }
+        }
+      ]
+    },
+    "empty": {
+      "shapes": []
+    }
+  },
+  "uplink": "纯绘制、不上行。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:canvas 落 shadow 后 rough.canvas 画进去,零 CSS/全局副作用;svg 版方法返回节点需 appendChild",
+    "codex": "supported:ESM CDN + canvas/SVG,无 worker/wasm"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm 仅 default 导出(Ft)。bin/rough.d.ts:default={ canvas(HTMLCanvasElement, config?)=>RoughCanvas, svg(SVGSVGElement, config?)=>RoughSVG, generator(config?), newSeed() }。RoughCanvas(canvas.d.ts)方法 rectangle/ellipse/circle/line/linearPath/polygon/arc/curve/path(x,y,...,options?)=>Drawable 即时绘制;RoughSVG(svg.d.ts)同名方法返回 SVGGElement 供 appendChild。Options(core.d.ts):roughness、bowing、stroke、strokeWidth、fill、fillStyle、fillWeight、hachureAngle、hachureGap、seed 等。+esm 隔离扫描:document.head/body=0、createElement('style')=0、insertRule=0、监听=0 —— 零全局足迹,所有输出进目标 canvas/svg。",
+    "confidence": "high"
+  }
+}

@@ -1,31 +1,51 @@
-# 内容浏览与对照(scene: browse-compare,27 条)
+# 内容浏览与对照(scene: browse-compare,47 条)
 
 每条:`id` — 何时用 · 数据形态 · supply_form · license。选中读 `data/catalog/<id>.json`。
 
 - `clusterize-js` — 需要在 vanilla DOM 中显示成千上万条等高 HTML 行而不全量挂载时用它 · tabular · component L1 · MIT
 - `codemirror-merge` — 需要可编辑的双栏代码对照、同步垂直对齐、变更块导航与大文本滚动时用它 · text-span · component L1 · MIT
+- `comparison-table` — 需要把多个方案按同一组能力、价格或质量指标横向比较时用它 · comparison-matrix · component L1 · MIT
+- `decision-matrix` — 需要把少量候选方案按多项重要性不同的标准做可解释选型时用它 · matrix · component L1 · MIT
 - `diff` — 需要在运行时对任意两段文本、JSON 或 CSS 求可复算差异时用它 · text-span · headless-primitive · BSD-3-Clause
 - `diff-match-patch` — 需要给散文、合同或翻译对照做字符级 diff、语义清理和可容错 patch 时用它 · text-span · headless-primitive · Apache-2.0
 - `diff2html` — 需要把 unified/git diff 渲成 GitHub 风格的 line-by-line 或 … · text-span · component L1 · MIT
 - `docx-preview` — 需要在浏览器内把 DOCX 二进制渲成保留分页、页眉页脚、图片和样式的 HTML 预览时用它 · text-span · component L1 · Apache-2.0
 - `driver-js` — 需要在已渲染页面上做元素聚光、滚动定位与分步讲解时用它 · sequence · component L1 · MIT
+- `epubjs` — 要在浏览器里渲染/翻页一本 EPUB 电子书(分页或滚动流、目录跳转、CFI 定位、进度记忆)时用它 · epub-document · component L1 · BSD-2-Clause
+- `feature-matrix` — 需要快速扫视多个产品或方案对一组分组能力的支持情况时用它 · comparison-matrix · component L1 · MIT
 - `fuse-js` — 需要在内联中小型记录集上做容错拼写、加权多字段与相关度排序时用它 · tabular · headless-primitive · Apache-2.0
 - `git-diff-view-react` — 需要在 React 中查看带文件名、语言、完整 unified patch 与长文件高亮的 GitH… · text-span · component L1 · MIT
+- `head-to-head` — 需要让两个候选项像“赛前数据卡”一样逐项对决，并明确标出每一行谁占优时用它 · comparison-matrix · component L1 · MIT
 - `img-comparison-slider` — 需要可触摸、可键盘操作且随容器缩放的 before/after 图片拖拽对照时用它 · key-value · component L1 · MIT
 - `json-formatter-js` — 需要渐进展开、折叠和类型着色地阅读深层对象或大数组时用它 · key-value · component L1 · MIT
 - `jsondiffpatch` — 需要把两个嵌套 JSON 值按对象键和数组身份对齐后渲成增删改树时用它 · text-span · component L1 · MIT
-- `lit-labs-virtualizer` — 需要以标准 custom element 虚拟化大量变高 DOM 项并直接落入 shadow tre… · tabular · component L1 · BSD-3-Clause
+- `leaderboard` — 需要把参与者、团队、产品或模型按一个主分数排序，并快速看出前 3 名、相对差距和名次趋势时用它 · ranking · component L1 · MIT
+- `lit-labs-virtualizer` — 需要以标准 custom element 虚拟化大量变高 DOM 项并直接落入 shadow tree 时用它 · tabular · component L1 · BSD-3-Clause
 - `littlefoot` — 需要把长文的标准脚注引用变成就地弹出、自动贴边且不打断阅读流的注释层时用它 · text-span · component L1 · MIT
+- `mammoth` — 需要把 .docx(OOXML zip)转成干净、语义化、可再排版的 HTML 以「读内容/抽取正文」时用它 · docx-document · headless-primitive · BSD-2-Clause
 - `mermaid` — 需要把 flowchart、sequence、state、ER、mindmap、gantt 或 gi… · notation-string · component L1 · MIT
 - `node-htmldiff` — 需要比较两段渲染态 HTML 并保留标签层级、用 ins/del 标出文案或合同条款变化时用它 · text-span · headless-primitive · MIT
+- `openseadragon` — 要在小视口里对超大/超高清图逐级像素级深缩浏览(扫描古籍、地图、病理/天文影像、艺术品),图源是 D… · raster-image · component L1 · BSD-3-Clause
+- `panzoom-panzoom` — 需要给一个「过大的生成内容」(大 SVG 架构/流程/电路图、超宽表/图、canvas)加平滑 pa… · dom-element · component L1 · MIT
 - `pdfjs-dist` — 需要在浏览器内把 PDF 二进制稳定解析并渲成可缩放 canvas 页面时用它 · geometry · component L1 · Apache-2.0
 - `photoswipe` — 需要对技术截图或高分辨率图片做移动端手势缩放、惯性平移与全屏逐张检查时用它 · tabular · component L1 · MIT
+- `pixelmatch` — 已从 canvas 拿到两张同尺寸图的 RGBA ImageData(两次渲染/截图),要极快算像素… · pixel-buffer · headless-primitive · ISC
+- `pricing-table` — 需要让读者一眼比较 2–4 个套餐的价格、计费周期和核心权益时用它 · comparison-matrix · component L1 · MIT
+- `product-cards` — 需要把少量商品、套餐或内容条目做成可扫读的媒体卡片网格，并同时展示图片、标题、价格、标签和评分时用它 · records · component L1 · MIT
+- `pros-cons` — 需要把一个方案的支持理由与反对理由并排审视时用它 · key-value · component L1 · MIT
+- `rating-display` — 需要突出一个汇总评分、量尺与评价数量时用它 · scalar · component L1 · MIT
 - `react-chrono` — 需要把行程、历史或版本事件排成可键盘浏览的 vertical、horizontal 或 altern… · interval-set · component L1 · MIT
-- `react-diff-viewer-continued` — 需要在 React 中把两个字符串直接渲成 GitHub 风格 split/unified、词级高亮… · text-span · component L1 · MIT
+- `react-diff-viewer-continued` — 需要在 React 中把两个字符串直接渲成 GitHub 风格 split/unified、词级高亮与折叠视图时用它 · text-span · component L1 · MIT
+- `resemblejs` — 要「给两张图片(data URL/File/URL/ArrayBuffer),直接得到差异分析 + … · bitmap · headless-primitive · MIT
 - `rough-notation` — 需要让下划线、圈选、框选或高亮跨多行文字并在布局变化后仍贴住目标时用它 · text-span · component L1 · MIT
+- `scorecard-bars` — 需要把 2–6 个候选方案在同一组归一化指标上的强弱和总分同时展示时用它 · matrix · component L1 · MIT
+- `spec-sheet` — 需要清晰交付某一个产品、设备、方案或文件的成组规格时用它 · key-value · component L1 · MIT
 - `split-js` — 需要把原文/译文或 A/B 条款做成用户可拖拽调宽的双栏或多栏对照时用它 · key-value · component L1 · MIT
+- `status-pills` — 需要把一小组状态、分类或筛选结果以紧凑的只读标签快速扫读时用它 · tag-list · component L1 · MIT
 - `swiper` — 需要移动端嵌套滑动、触控阻尼、断点多卡与键盘/分页导航的内容轨道时用它 · tabular · component L1 · MIT
+- `tier-list` — 需要把一组对象按 S／A／B／C 等少量等级直观分层时用它 · ranking · component L1 · MIT
 - `tippy-js` — 需要让批注、术语解释或富内容 popover 锚定任意元素并自动避开视口边缘时用它 · key-value · component L1 · MIT
 - `tocbot` — 需要从长文标题自动生成层级目录并随滚动高亮当前章节时用它 · hierarchy · component L1 · MIT
+- `verdict-summary` — 已经比较完多个方案，需要把“谁赢、为什么、最适合谁、代价是什么”压缩成一个决策结论时用它 · key-value · component L1 · MIT
 - `virtua` — 需要在 React 中虚拟化大量变高行、长段落或动态尺寸卡片时用它 · tabular · component L1 · MIT
-- `zero-md` — 需要把 AI 原生 Markdown 字符串直接渲成带一致排版、代码高亮、公式和 Mermaid 的… · notation-string · component L1 · ISC
+- `zero-md` — 需要把 AI 原生 Markdown 字符串直接渲成带一致排版、代码高亮、公式和 Mermaid 的隔离长文时用它 · notation-string · component L1 · ISC

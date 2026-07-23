@@ -4,10 +4,30 @@
   "name": "gchessboard",
   "when_to_use": "需要把一个 FEN 盘面渲成可读、可交互(可选拖子)的棋盘时用它,而非 ASCII/unicode 棋盘——纯文本棋盘是全网嘲笑的经典失败场景,piece sprite + 坐标 + 高亮徒手表达力为零。规则/合法走子/复盘树不在本条,配 peer chess.js。",
   "why_valuable": "AI 只能输出 unicode 棋盘或 FEN 文本,交互零能力;静态 HTML table 勉强 60% 但无拖子/高亮/动画。FEN 是 AI 原生记法,一步命中。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to render a FEN position as a readable, interactive chessboard with optional piece dragging instead of an ASCII/unicode board. Plain-text boards are a classic failure case; hand-building piece sprites, coordinates, and highlights has no expressive value. Rules, legal move validation, and game trees are outside this entry; pair it with peer chess.js.",
+      "why_valuable": "AI can only output a unicode board or FEN text, with no interaction. A static HTML table is perhaps 60% usable but lacks dragging, highlighting, and animation. FEN is AI-native notation, so the input is direct.",
+      "data_in": {
+        "schema": {
+          "fen": "string - FEN piece-placement field (the first FEN field); may be a complete six-field FEN or only the placement field. In boot, fen.split(' ')[0] consistently extracts the placement field, which is all gchessboard reads. The literals 'start' (initial position) and 'empty' are also accepted",
+          "orientation?": "'white' | 'black' - viewpoint, default white",
+          "interactive?": "boolean - whether pieces may be dragged, default false (omitting it gives a display-only board; when true, pair with peer chess.js to validate legal moves or users can drag into illegal positions)"
+        }
+      },
+      "spec": {
+        "note": "The board is a 1:1 square; its size follows the container width and height remains equal automatically. Give the container or element a width or max-width such as 480px; do not pass vh (hard rule 3)."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
-  "upstream": { "npm": "gchessboard", "version": "1.4.0", "github": "mganjoo/gchessboard" },
+  "upstream": {
+    "npm": "gchessboard",
+    "version": "1.4.0",
+    "github": "mganjoo/gchessboard"
+  },
   "license": "MIT",
   "license_note": "MIT——刻意规避 Chessground/pgn-viewer 家族的 GPL-3.0 传染(那几条虽生产级但合并作品受 copyleft,收录须重 flag)。同类 MIT 备选:cm-chessboard。",
   "data_in": {
@@ -36,5 +56,11 @@
     "artifact": "inferred-not-tested",
     "widget": "supported:custom element 自带 shadow、样式自封闭 = 天然零足迹;经 JS createElement 挂载(铁律 4)",
     "codex": "supported"
+  },
+  "example": {
+    "minimal": {
+      "fen": "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 3 3",
+      "orientation": "white"
+    }
   }
 }

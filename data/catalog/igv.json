@@ -1,0 +1,96 @@
+{
+  "entry_version": "thin-1",
+  "id": "igv",
+  "name": "igv",
+  "when_to_use": "需要在一个 locus 上探索基因组数据——read pileup/coverage(BAM/CRAM)、变异(VCF)、bigWig 信号、基因模型——多条 track 坐标锁定堆叠、可 pan/zoom 并支持 locus 搜索时用它;提供 genome id + 各 track 的 url/数据对象。它是重型 component,只在真需要一个 genome browser 时用;静态基因示意图用 seqviz(单序列)/ideogram(染色体总览)。",
+  "why_valuable": "一个可嵌入的完整 genome browser:参考序列 + 坐标锁定的多 track 堆叠、read pileup、coverage、跨 track 坐标滚动,是应用级 notation;原生 AI 无法手写坐标换算、pileup 排布与多 track 同步,徒手只能画静态基因框。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "igv",
+    "version": "3.8.4",
+    "github": "igvteam/igv.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "genomic-track",
+    "note": "这是 igv 原生 config:genome 是 genome-id 字符串(如 'hg38')或参考对象;每个 track 必须给 url;type/format 缺省按扩展名推断,BAM/CRAM/tabix 类需 indexURL。",
+    "schema": {
+      "genome": "string —— genome id,如 'hg38'/'hg19'/'mm10';或 { id, fastaURL, indexURL } 参考对象",
+      "locus?": "string —— 初始定位,如 'chr8:127,736,588-127,739,371';默认基因组起点",
+      "tracks": [
+        {
+          "url": "string —— 数据文件 URL(必填,除非用自定义 reader)",
+          "name?": "string —— track 显示名",
+          "indexURL?": "string —— BAM/CRAM/VCF-tabix 的索引 URL",
+          "type?": "string —— 'alignment' | 'variant' | 'wig' | 'annotation' | 'seg' | 'interact' ...;默认按 format 推断",
+          "format?": "string —— 'bam' | 'cram' | 'vcf' | 'bigwig' | 'bed' | 'gff3' ...;默认按扩展名推断",
+          "height?": "number —— track 像素高"
+        }
+      ]
+    }
+  },
+  "spec": {
+    "height": null,
+    "note": "igv 读取容器 width 自建可滚动 browser 布局、随 track 数自管内部高度;容器只需给 width(如 100%),禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:igv 自身把 CSS 注入 document.head(document 上下文可用)\nimport igv from 'https://cdn.jsdelivr.net/npm/igv@3.8.4/dist/igv.esm.min.js';\nconst el = document.getElementById('igv'); el.style.width = '100%';\nconst browser = await igv.createBrowser(el, { genome: data.genome, locus: data.locus, tracks: data.tracks });",
+    "widget": "// caveat:igv 把样式注入 document.head,不跨 shadow 边界——widget 内会渲成无样式,除非把注入样式一并 adopt 进 shadow;document 载体(artifact/codex)才是自然归宿\nimport igv from 'https://cdn.jsdelivr.net/npm/igv@3.8.4/dist/igv.esm.min.js';\nconst el = document.createElement('div'); el.style.width = '100%'; shadowRoot.appendChild(el);\nconst browser = await igv.createBrowser(el, { genome: data.genome, locus: data.locus, tracks: data.tracks });",
+    "codex": "import igv from 'https://cdn.jsdelivr.net/npm/igv@3.8.4/dist/igv.esm.min.js';\nconst el = document.getElementById('igv'); el.style.width = '100%';\nconst browser = await igv.createBrowser(el, { genome: data.genome, locus: data.locus, tracks: data.tracks });"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:document 上下文中 igv 自注 CSS 到 head 可正常工作",
+    "widget": "conditional:igv 自注 CSS 到 document.head,不跨 shadow 边界,widget 内会失样式——非首选载体",
+    "codex": "supported:ESM 默认导出 + createBrowser,无 worker/wasm 硬依赖(远端数据经 fetch)"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "API correct: dist/igv.esm.min.js exports single default (V9 as default); README pins `import igv from '.../dist/igv.esm.min.js'` and `igv.createBrowser(parentDiv, config)` returns a Promise<Browser> (grep of esm confirms `createBrowser(parentDiv, config)`); config genome/locus/tracks are the documented shape. globalStyleInjection=yes: esm contains document.head (x3) + createElement('style') (x2) + adoptedStyleSheets (x1) + document.styleSheets (x1) — igv self-injects its stylesheet into the top document, so a shadow-hosted instance renders unstyled. globalDomMutation=yes: builds a large browser DOM inside the container plus popovers. globalEvents=yes: resize/pointer listeners for pan/zoom. shadowCompatible=conditional: renders into the provided container, but the head-injected CSS does not cross the shadow boundary — artifact/codex (document context) are the clean carriers. Heavy component. confidence medium.",
+    "confidence": "medium"
+  },
+  "example": {
+    "minimal": {
+      "genome": "hg38",
+      "locus": "chr8:127,736,588-127,739,371",
+      "tracks": [
+        {
+          "name": "HG00103",
+          "url": "https://s3.amazonaws.com/1000genomes/data/HG00103/alignment/HG00103.alt_bwamem_GRCh38DH.20150718.GBR.low_coverage.cram",
+          "indexURL": "https://s3.amazonaws.com/1000genomes/data/HG00103/alignment/HG00103.alt_bwamem_GRCh38DH.20150718.GBR.low_coverage.cram.crai",
+          "format": "cram"
+        }
+      ]
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to explore genomic data at a locus, including read pileup/coverage (BAM/CRAM), variants (VCF), bigWig signals, and gene models, with coordinate-locked stacked tracks, pan/zoom, and locus search. Provide a genome id plus each track's url/data object. It is a heavy component, so use it only when you truly need a genome browser; for a static genomic diagram use seqviz for a single sequence or ideogram for a chromosome overview.",
+      "why_valuable": "This is a complete embeddable genome browser: reference sequence, coordinate-locked stacked tracks, read pileup, coverage, and coordinate scrolling synchronized across tracks. It is application-level notation; AI cannot handwrite coordinate transforms, pileup layout, or multi-track synchronization and can only draw static gene boxes.",
+      "data_in": {
+        "note": "This is native igv config: genome is a genome-id string such as 'hg38' or a reference object; every track must provide url. type/format is inferred from the extension when omitted, and BAM/CRAM/tabix formats require indexURL.",
+        "schema": {
+          "genome": "string -- Genome id such as 'hg38'/'hg19'/'mm10', or a { id, fastaURL, indexURL } reference object",
+          "locus?": "string -- Initial location such as 'chr8:127,736,588-127,739,371'; defaults to the start of the genome",
+          "tracks": [
+            {
+              "url": "string -- Data-file URL (required unless using a custom reader)",
+              "name?": "string -- Track display name",
+              "indexURL?": "string -- Index URL for BAM/CRAM/VCF-tabix",
+              "type?": "string -- 'alignment' | 'variant' | 'wig' | 'annotation' | 'seg' | 'interact' ...; inferred from format by default",
+              "format?": "string -- 'bam' | 'cram' | 'vcf' | 'bigwig' | 'bed' | 'gff3' ...; inferred from the extension by default",
+              "height?": "number -- Track height in pixels"
+            }
+          ]
+        }
+      },
+      "spec": {
+        "note": "igv reads container width and creates a scrollable browser layout, managing internal height according to track count. The container only needs a width such as 100%; vh and percentage heights are forbidden."
+      }
+    }
+  }
+}

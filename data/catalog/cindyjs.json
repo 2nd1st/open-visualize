@@ -2,6 +2,42 @@
   "entry_version": "thin-1",
   "id": "cindyjs",
   "name": "CindyJS",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when projective-geometry constraints must remain valid after dragging, or when CindyScript should drive parameterized math or physics demonstrations, instead of hand-written canvas, which fails to keep dependent points, intersections, and degenerate positions consistent. Do not use it for ordinary statistical charts.",
+      "why_valuable": "AI can normally draw only static geometry. It cannot keep projective constructions valid while dragging or reliably handle dependency propagation and degeneracies. CindyJS delegates these problems to a long-tested geometry kernel.",
+      "data_in": {
+        "note": "This is a trimmed native CindyJS({...}) configuration. Point coordinates in geometry use homogeneous coordinates [x,y,z], and dependent objects refer to one another by name strings.",
+        "schema": {
+          "geometry": [
+            {
+              "name": "string -- unique within the construction",
+              "kind?": "'P' | 'L' | 'C' | 'S' -- inferred from type by default",
+              "type": "string -- native construction algorithm, such as 'Free', 'Join', or 'CircleMP'",
+              "args?": "string[] -- names of dependency objects; zero-argument constructions default to []",
+              "pos?": "[number, number, number] -- required when type='Free'; omitted by default for other types",
+              "labeled?": "boolean -- defaults to false",
+              "visible?": "boolean -- defaults to true",
+              "color?": "[number, number, number] -- 0..1 RGB; defaults to the built-in color for the geometry type",
+              "size?": "number -- defaults to the built-in size for the geometry type"
+            }
+          ],
+          "scripts?": {
+            "init?": "string -- CindyScript; defaults to ''",
+            "draw?": "string -- CindyScript; defaults to ''",
+            "tick?": "string -- CindyScript; defaults to ''"
+          },
+          "visibleRect?": "[left, top, right, bottom] -- defaults to CindyJS's internal coordinate transform",
+          "grid?": "number -- grid spacing; defaults to 0 (hidden)",
+          "axes?": "boolean -- defaults to false",
+          "snap?": "boolean -- defaults to false"
+        }
+      },
+      "spec": {
+        "note": "The canvas width/height attributes must be explicit pixel values, defaulting to 640x400; iron rule 3 forbids vh and percentage heights. visibleRect defines the mathematical coordinate range, not the CSS size."
+      }
+    }
+  },
   "when_to_use": "需要拖拽后仍保持射影几何约束、用 CindyScript 驱动参数化数学或物理演示时用它而非手写,因为原生 canvas 在依赖点、交点和退化位置的一致性上会失败；非做普通统计图。",
   "why_valuable": "AI 默认只能画静态几何示意,无法实现拖拽时持续成立的射影几何构造、依赖传播和退化处理；CindyJS 把这些交给长期验证的几何内核。",
   "supply_form": "component",
@@ -109,7 +145,6 @@
     "globalDomMutation": "unknown",
     "globalEvents": "unknown",
     "evidence": "Loader is broken (default export is not the CindyJS function), so runtime side effects could not be exercised/verified. Static hints of global pollution: +esm assigns `window.ClipperLib=` and `window.cindyDontWait=`. CindyJS is a heavy framework distributed as a global-namespace UMD (ref/createCindy.md: 'exports a single object into the global namespace, CindyJS') and ships CindyJS.css; a real shadow-DOM run needs live H0 verification. Marked unknown, not assumed.",
-    "confidence": "low",
-    "audited": "2026-07-23"
+    "confidence": "low"
   }
 }

@@ -1,32 +1,54 @@
-# bonus:装饰/横切效果(scene: ambient-viral,28 条)
+# 装饰/横切效果(scene: bonus,50 条)
 
 每条:`id` — 何时用 · 数据形态 · supply_form · license。选中读 `data/catalog/<id>.json`。
 
-- `2048` — 应用态 · grid · app-needs-fork · MIT ⚠blocked(需fork)
+- `2048` — 应用态 · ? · app-needs-fork · MIT ⚠blocked(需fork)
+- `achievement-badges` — 需要把一个总进度标量和若干“已获得/待解锁”成就做成可扫读奖章墙时用它 · scalar · component L1 · MIT
 - `animejs` — 需要多属性补间、错峰队列或可暂停/倒放的 DOM/SVG 时间线时用它 · key-value · headless-primitive · MIT
+- `aos` — 分块滚动进入视口时的进场/揭示动画(落地页、scroll-telling)时用它 · config · component L1 · MIT
 - `canvas-confetti` — 需要产品级纸屑爆发、emoji/自定义形状或多炮位序列时用它 · key-value · component L1 · ISC
 - `canvas-nest-js` — 需要极小体积的游动点阵、近邻连线与鼠标吸附背景时用它 · key-value · component L1 · MIT
+- `chat-transcript` — 需要把一段对话作为交付物、案例或教学素材原样呈现时用它 · sequence · component L1 · MIT
 - `countup-js` — 需要让 KPI、里程碑或最终结果以精确终值的数字滚动揭晓时用它 · scalar · component L1 · MIT
 - `cursor-effects` — 需要复古 fairy-dust、emoji、彩虹、时钟或跟随点等有成熟手感的鼠标尾迹时用它 · key-value · component L1 · MIT
 - `dom-confetti` — 需要从某个按钮、徽章或坐标锚点爆出轻量 DOM 彩屑且不想引入 canvas 时用它 · key-value · component L1 · MIT
 - `emoji-blast` — 需要把对话语义绑定成一束有重力、旋转和可抓取手感的 emoji 礼花时用它 · key-value · component L1 · MIT
 - `fireworks-js` — 需要火箭升空、空中爆裂、拖尾与连续放映的节庆烟花时用它 · key-value · component L1 · MIT
-- `floppybird` — 应用态 · geometry · app-needs-fork · Apache-2.0 ⚠blocked(需fork)
+- `floppybird` — 应用态 · ? · app-needs-fork · Apache-2.0 ⚠blocked(需fork)
+- `flubber` — 教『A 形→B 形』连续形变(图标/地图/字形/数据形状 morph 动画)时用:它解顶点对应与拓扑… · path-strings · headless-primitive · MIT
+- `formkit-auto-animate` — 需要在列表/网格/DOM 内容发生增删改序时自动平滑过渡(筛选、排序、增删项、展开折叠)时用它 · dom-target · component L1 · MIT
+- `granim` — 需要在 canvas 上做流动、可交互、多状态互相过渡的渐变背景(hero/loading/氛围装饰)时用它 · gradient · component L1 · MIT
 - `js-confetti` — 需要零配置全幅纸屑或按对话语境换成 emoji 粒子时用它 · key-value · component L1 · MIT
 - `kaplay` — 需要在几十行内做出带碰撞、重力、键盘输入和游戏循环的 2D 可玩 demo 时用它 · geometry · component L1 · MIT
-- `lottie-web` — 已有 Bodymovin/Lottie JSON 资产 · geometry · component L1 · MIT
+- `ldrs` — 任何 pending/loading/skeleton 状态想要一个精致的 inline spinner 时用它 · config · component L1 · MIT
+- `leaderboard` — 需要把参与者、团队、产品或模型按一个主分数排序，并快速看出前 3 名、相对差距和名次趋势时用它 · ranking · component L1 · MIT
+- `lottie-web` — 已有 Bodymovin/Lottie JSON 资产,需要原样播放设计师级加载、庆祝或表情动画时用它 · geometry · component L1 · MIT
 - `lucky-canvas` — 需要大转盘、九宫格跑马灯或老虎机三种抽奖形态之一时用它 · tabular · component L1 · Apache-2.0
 - `magic-snowflakes` — 需要在限定容器内得到有层次、风向、旋转和自动尺寸响应的持续飘雪时用它 · key-value · component L1 · MIT
+- `mark-js` — 需要在已渲染好的 DOM 文档/搜索结果里安全高亮任意关键词/正则/词组并逐个跳转命中时用它 · dom-text · component L1 · MIT
 - `mojs-core` — 需要点赞爆裂、点击涟漪、图标变形或多段 stagger 微动效时用它 · key-value · component L1 · MIT
+- `nprogress` — 不确定时长的整页/路由/fetch 加载指示(YouTube/GitHub 那条顶部细条)时用它 · config · component L1 · MIT
+- `odometer` — 需要老式里程表/老虎机式逐位滚动的数字过渡(每个数位列独立滚动)时用它 · number · component L1 · MIT
 - `party-js` — 需要从某个按钮、答案或文字元素的实际几何位置发射 confetti/sparkles 时用它 · key-value · component L1 · MIT
 - `phaser` — 需要在对话里现写有场景、输入、碰撞、相机和游戏循环的 2D 小游戏时用它 · geometry · component L1 · MIT
 - `pixi-js` — 需要大量 2D 精灵、粒子、滤镜或稳定逐帧 WebGL 画面时用它 · geometry · component L1 · MIT
+- `powerglitch` — 需要把某个已有元素(标题/logo/图片/div)做成可配置的赛博朋克 glitch(切片错位 + … · dom-target · component L1 · MIT
 - `react-custom-roulette` — 需要在 React 交付物里做带权扇区、指针和减速停靠的抽奖轮盘时用它 · tabular · component L1 · MIT
+- `rellax` — hero/分层背景/装饰元素随滚动做连续深度视差时用它 · config · component L1 · MIT
+- `roughjs` — 需要让图示/白板/线框读起来像手绘草图时用它 · geometry · component L1 · MIT
 - `sakura-js` — 需要自然旋转、横向吹拂且可换渐变色的春季花瓣雨时用它 · key-value · component L1 · MIT
 - `spin-wheel` — 需要可拖拽甩动、带减速手感且能精确停到指定项的决定轮盘时用它 · tabular · component L1 · MIT
-- `t-rex-runner` — 应用态 · geometry · app-needs-fork · BSD-3-Clause ⚠blocked(需fork)
+- `splitting` — 把元素文本拆成 word/char/line 的 span 并给每个填 CSS 变量(--char-… · text · component L1 · MIT
+- `t-rex-runner` — 应用态 · ? · app-needs-fork · BSD-3-Clause ⚠blocked(需fork)
+- `tier-list` — 需要把一组对象按 S／A／B／C 等少量等级直观分层时用它 · ranking · component L1 · MIT
+- `trianglify` — 需要一张彩色低多边形(Delaunay 三角化渐变网格)背景/封面/占位图时用它 · generative-config · component L1 · GPL-3.0
 - `tsparticles-confetti` — 需要一次性礼花、炮筒、坠落或 emoji/card 等异形彩屑且还要精确控制发射物理时用它 · key-value · component L1 · MIT
+- `vanilla-tilt` — 卡片/商品格/头像/图片上的交互式 3D 悬停倾斜带视差 glare 时用它 · config · component L1 · MIT
 - `vanta` — 需要给 hero、封面或演示页铺一层可随指针响应的 WebGL 波浪背景时用它 · key-value · component L1 · MIT
-- `wheel-fortune` — 已有轮盘 DOM/图片 · tabular · component L1 · MIT
+- `vivus` — 把已有 SVG(logo/图标/插画/签名/图表)做手绘/线描揭示(stroke-dashoffset)时用它 · svg · component L1 · MIT
+- `weather-card` — 需要在回答中紧凑展示一个地点的当前天气和未来几天趋势时用它 · key-value · component L1 · MIT
+- `webgl-fluid` — 教流体/GPU 模拟/向量场直觉,或做可交互流体背景时用;要严谨 CFD 数值分析不适合。 · config · component L1 · MIT
+- `wheel-fortune` — 已有轮盘 DOM/图片,只缺轻量的 Web Animations API 旋转、回摆和按序停角时用它 · tabular · component L1 · MIT
 - `winwheel` — 需要图片扇区、丰富文字方向或预计算停点的老牌 canvas 奖轮时用它 · tabular · component L1 · ISC
+- `wired-gauge` — 需要把一个有上下界的数值画成手绘感模拟仪表时用它 · proportion · component L1 · MIT
 - `zdog` — 需要圆头、扁平着色、可拖拽旋转的伪 3D 小雕塑或概念模型时用它 · geometry · component L1 · MIT

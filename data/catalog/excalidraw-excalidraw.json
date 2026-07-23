@@ -4,6 +4,42 @@
   "name": "Excalidraw",
   "when_to_use": "需要用户自由画形状、箭头、文字并保留可读场景 JSON 的白板共创时用它而非手写 canvas,因为原生在自由绘制、变换手柄、框选、吸附和完整场景状态上失败。非做 AI 一次生成的静态示意图。",
   "why_valuable": "AI 默认只能生成静态 SVG/图片;默认完全做不到自由笔迹、对象框选与缩放旋转、连线绑定、多对象场景编辑和可继续回放的几何 JSON。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for collaborative whiteboarding where users freely draw shapes, arrows, and text while retaining readable scene JSON instead of hand-writing a canvas. Native implementations fail on freehand drawing, transform handles, marquee selection, snapping, and complete scene state. It is not for a static diagram generated once by AI.",
+      "why_valuable": "AI can only generate a static SVG or image by default. It cannot provide freehand strokes, object selection with scale and rotation, connector binding, multi-object scene editing, or reusable geometry JSON.",
+      "data_in": {
+        "note": "boot first uses upstream convertToExcalidrawElements to expand trimmed element skeletons into complete ExcalidrawElement objects, then passes them as initialData.elements. This is more reliable than requiring AI to fill internal fields such as seed/versionNonce. It covers only common shapes and text, not complete Excalidraw file import.",
+        "schema": {
+          "scene": {
+            "elements?": [
+              {
+                "id?": "string - generated upstream by default",
+                "type": "'rectangle'|'ellipse'|'diamond'|'text'",
+                "x": "number",
+                "y": "number",
+                "width?": "number >= 0 - default 0 for shapes; provide explicitly for a visible shape",
+                "height?": "number >= 0 - default 0 for shapes; provide explicitly for a visible shape",
+                "text?": "string - required when type='text'; omitted by default for other types",
+                "strokeColor?": "CSS color string - default '#1b1b1f'",
+                "backgroundColor?": "CSS color string - default 'transparent'",
+                "fillStyle?": "'hachure'|'solid'|'cross-hatch' - default 'hachure'",
+                "roughness?": "0 | 1 | 2 - default 1"
+              }
+            ],
+            "appState?": {
+              "viewBackgroundColor?": "CSS color string - default '#ffffff'",
+              "theme?": "'light'|'dark' - default 'light'"
+            }
+          },
+          "viewOnly?": "boolean - whether the scene is read-only, default false"
+        }
+      },
+      "spec": {
+        "note": "Excalidraw fills the width and height of its parent. The parent defaults to height 520px; AI may override it with another explicit pixel value. Do not use vh or percentage heights (hard rule 3)."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -46,9 +82,9 @@
     "note": "Excalidraw 自身占满父容器的宽高;父容器默认 height 520px,AI 可覆盖为其他明确像素值,禁用 vh/百分比高(铁律 3)。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:React peer 必须与 jsDelivr 生成模块一致\nimport React from 'https://cdn.jsdelivr.net/npm/react@19.2.5/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19.2.5/client/+esm';\nimport { Excalidraw, convertToExcalidrawElements } from 'https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0/dist/prod/index.css' }); document.head.appendChild(css);\nconst el = document.getElementById('whiteboard'); el.style.height = `${spec.height ?? 520}px`;\nconst elements = convertToExcalidrawElements(data.scene.elements ?? [], { regenerateIds: false });\ncreateRoot(el).render(React.createElement(Excalidraw, { initialData: { elements, appState: data.scene.appState ?? {} }, viewModeEnabled: data.viewOnly ?? false }));",
-    "widget": "// React 根、官方 CSS 与白板都落 shadowRoot\nimport React from 'https://cdn.jsdelivr.net/npm/react@19.2.5/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19.2.5/client/+esm';\nimport { Excalidraw, convertToExcalidrawElements } from 'https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0/dist/prod/index.css' });\nconst el = document.createElement('div'); el.style.height = `${spec.height ?? 520}px`; shadowRoot.append(css, el);\nconst elements = convertToExcalidrawElements(data.scene.elements ?? [], { regenerateIds: false });\ncreateRoot(el).render(React.createElement(Excalidraw, { initialData: { elements, appState: data.scene.appState ?? {} }, viewModeEnabled: data.viewOnly ?? false }));",
-    "codex": "// sandbox iframe 内用 React.createElement,不依赖 JSX 编译\nimport React from 'https://cdn.jsdelivr.net/npm/react@19.2.5/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19.2.5/client/+esm';\nimport { Excalidraw, convertToExcalidrawElements } from 'https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0/dist/prod/index.css' }); document.head.appendChild(css);\nconst el = document.getElementById('whiteboard'); el.style.height = `${spec.height ?? 520}px`;\nconst elements = convertToExcalidrawElements(data.scene.elements ?? [], { regenerateIds: false });\ncreateRoot(el).render(React.createElement(Excalidraw, { initialData: { elements, appState: data.scene.appState ?? {} }, viewModeEnabled: data.viewOnly ?? false }));"
+    "artifact": "// 0.18.1 包根 +esm 混入不兼容 React peer；0.17.6 development 子入口自带一致依赖图并暴露完整编辑器\nconst el = document.getElementById('whiteboard'); el.style.height = `${spec.height ?? 520}px`; el.textContent = 'Loading whiteboard…';\nconst [ReactModule, { createRoot }, { default: ExcalidrawLib }] = await Promise.all([import('https://cdn.jsdelivr.net/npm/react@18.2.0/+esm'), import('https://cdn.jsdelivr.net/npm/react-dom@18.2.0/client/+esm'), import('https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0.17.6/dist/excalidraw.development.js/+esm')]);\nconst React = ReactModule.default, { Excalidraw, convertToExcalidrawElements } = ExcalidrawLib;\nconst elements = convertToExcalidrawElements(data.scene.elements ?? [], { regenerateIds: false });\nel.textContent = ''; createRoot(el).render(React.createElement(Excalidraw, { initialData: { elements, appState: data.scene.appState ?? {} }, viewModeEnabled: data.viewOnly ?? false }));",
+    "widget": "// 同包官方 SVG 导出不依赖 React dispatcher，结果完整落在 shadowRoot\nconst el = document.createElement('div'); el.style.height = `${spec.height ?? 520}px`; const loading = document.createElement('div'); loading.textContent = 'Loading whiteboard…'; el.appendChild(loading); shadowRoot.appendChild(el);\nconst { convertToExcalidrawElements, exportToSvg } = await import('https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0.18.1/+esm');\nconst elements = convertToExcalidrawElements(data.scene.elements ?? [], { regenerateIds: false });\nconst svg = await exportToSvg({ elements, appState: { ...(data.scene.appState ?? {}), exportBackground: true }, files: {}, exportPadding: 24 });\nsvg.style.width = '100%'; svg.style.height = '100%'; svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', 'Excalidraw scene'); loading.replaceWith(svg);",
+    "codex": "const el = document.getElementById('whiteboard'); el.style.height = `${spec.height ?? 520}px`; el.textContent = 'Loading whiteboard…';\nconst [ReactModule, { createRoot }, { default: ExcalidrawLib }] = await Promise.all([import('https://cdn.jsdelivr.net/npm/react@18.2.0/+esm'), import('https://cdn.jsdelivr.net/npm/react-dom@18.2.0/client/+esm'), import('https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0.17.6/dist/excalidraw.development.js/+esm')]);\nconst React = ReactModule.default, { Excalidraw, convertToExcalidrawElements } = ExcalidrawLib;\nconst elements = convertToExcalidrawElements(data.scene.elements ?? [], { regenerateIds: false });\nel.textContent = ''; createRoot(el).render(React.createElement(Excalidraw, { initialData: { elements, appState: data.scene.appState ?? {} }, viewModeEnabled: data.viewOnly ?? false }));"
   },
   "example": {
     "_why": "完整场景元素字段极深;使用官方 skeleton 转换器后仍需 type 与几何字段配对,minimal 用最小可见图形钉死输入。",
@@ -104,7 +140,6 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "+esm grep: `createPortal` x1 + `document.body` x17 → dialogs/context-menus/tooltips portal to document.body and ESCAPE the shadow root (not mitigated by boot). `addEventListener('keydown')` x10, `pointermove` x6, `pointerup` x8, `resize` x1 → heavy global keyboard/pointer/resize listeners. Runtime CSS hint (`type='text/css'` + appendChild) plus 13 `excalidraw.com` refs → loads fonts/assets from an external CDN (CSP + font-src concern). Main React root + index.css work inside shadow, but portaled overlays + external fonts make it conditional; entry's 'conditional' widget/codex marking is correct.",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

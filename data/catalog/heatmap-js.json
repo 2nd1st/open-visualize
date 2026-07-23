@@ -1,0 +1,130 @@
+{
+  "entry_version": "thin-1",
+  "id": "heatmap-js",
+  "name": "heatmap.js",
+  "when_to_use": "有一堆带强度的 (x,y) 像素点、想看『哪里热』(点击、眼动、人流、信号强度)且底图是任意图片/平面时用它,而非手写渐变;日历格热力用 cal-heatmap,地理大规模用 deck.gl HeatmapLayer。augment 边界:它只在你给的 container 内建一张 canvas 热力层,底图/定位/坐标换算由消费 AI 自己排。",
+  "why_valuable": "AI 徒手写高斯核密度叠加 + 渐变着色 + 性能几乎不可能跑对;heatmap.js 用 radius/blur/gradient 固定核密度渲染,setData 直接吃 {x,y,value} 点,零依赖、不注入任何全局样式或监听。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you have intensity-weighted (x,y) pixel points and want to see where activity is concentrated (clicks, eye tracking, foot traffic, or signal strength) over any image or plane instead of hand-writing gradients; use cal-heatmap for calendar-cell heatmaps and deck.gl HeatmapLayer for large geographic data. Augmentation boundary: it creates only a canvas heat layer inside the supplied container; the consuming AI owns the basemap, positioning, and coordinate conversion.",
+      "why_valuable": "AI is extremely unlikely to hand-write Gaussian kernel-density accumulation, gradient coloring, and performance correctly; heatmap.js fixes kernel-density rendering through radius/blur/gradient, and setData directly consumes {x,y,value} points with no dependencies, global style injection, or global listeners.",
+      "data_in": {
+        "note": "x/y are integer pixel coordinates relative to the container's top-left corner; value is intensity. max/min control color-band normalization; when max is omitted, the consuming AI must take the peak points.value.",
+        "schema": {
+          "_defaults": {
+            "config": "{}",
+            "config.radius": "40",
+            "config.maxOpacity": "1",
+            "config.minOpacity": "0",
+            "config.blur": "0.85"
+          },
+          "points": [
+            {
+              "x": "number -- pixel X inside the container (integer)",
+              "y": "number -- pixel Y inside the container (integer)",
+              "value": "number -- intensity at this point"
+            }
+          ],
+          "max": "number -- setData intensity upper bound (for color-band normalization); the consuming AI must use the peak points.value by default",
+          "min?": "number -- intensity lower bound, default 0",
+          "config?": {
+            "radius?": "number -- Gaussian kernel radius in px, default 40",
+            "maxOpacity?": "number -- 0..1, default 1",
+            "minOpacity?": "number -- 0..1, default 0",
+            "blur?": "number -- 0..1, default 0.85",
+            "gradient?": "{ '<0..1 stop>': 'css color' } -- default blue->green->yellow->red"
+          }
+        }
+      },
+      "spec": {
+        "note": "The container needs explicit px width and height (offsetWidth/Height are read synchronously during create); do not use vh or percentage heights. The rendered canvas fills the container."
+      }
+    }
+  },
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "heatmap.js",
+    "version": "2.0.5",
+    "github": "pa7/heatmap.js"
+  },
+  "license": "MIT (源码头声明 dual MIT/Beerware;npm package.json 缺 license 字段)",
+  "data_in": {
+    "shape": "points",
+    "note": "x/y 是相对 container 左上角的像素坐标(整数);value 是强度。max/min 决定色带归一化,不给 max 须由消费 AI 取 points.value 峰值。",
+    "schema": {
+      "_defaults": {
+        "config": "{}",
+        "config.radius": "40",
+        "config.maxOpacity": "1",
+        "config.minOpacity": "0",
+        "config.blur": "0.85"
+      },
+      "points": [
+        {
+          "x": "number —— 容器内像素 X(整数)",
+          "y": "number —— 容器内像素 Y(整数)",
+          "value": "number —— 该点强度"
+        }
+      ],
+      "max": "number —— setData 强度上界(色带归一化用);默认须由消费 AI 取 points.value 峰值",
+      "min?": "number —— 强度下界,默认 0",
+      "config?": {
+        "radius?": "number —— 高斯核半径 px,默认 40",
+        "maxOpacity?": "number —— 0..1,默认 1",
+        "minOpacity?": "number —— 0..1,默认 0",
+        "blur?": "number —— 0..1,默认 0.85",
+        "gradient?": "{ '<0..1 停靠点>': 'css 颜色' } —— 默认 蓝→绿→黄→红"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "container 须显式 px 宽高(create 时同步读取 offsetWidth/Height),禁 vh/百分比高;渲染的 canvas 铺满 container。"
+  },
+  "boot": {
+    "artifact": "// heatmap.js 2.0.5 在严格 ESM 中会给只读 ImageData.data 重新赋值;调用期间让 getImageData 返回可写 data 并立即恢复\nimport h337 from 'https://cdn.jsdelivr.net/npm/heatmap.js@2.0.5/+esm';\nconst el = document.getElementById('heatmap'); el.style.position = 'relative'; el.style.width = '600px'; el.style.height = '400px';\nconst hm = h337.create({ container: el, radius: data.config?.radius ?? 40, maxOpacity: data.config?.maxOpacity ?? 1, minOpacity: data.config?.minOpacity ?? 0, blur: data.config?.blur ?? 0.85, gradient: data.config?.gradient });\nconst originalGetImageData = CanvasRenderingContext2D.prototype.getImageData;\nCanvasRenderingContext2D.prototype.getImageData = function (...args) { const image = originalGetImageData.apply(this, args); const descriptor = Object.getOwnPropertyDescriptor(image, 'data'); if (descriptor && !descriptor.writable) Object.defineProperty(image, 'data', { ...descriptor, writable:true }); return image; };\ntry { hm.setData({ max: data.max ?? Math.max(...data.points.map(p => p.value)), min: data.min ?? 0, data: data.points }); }\nfinally { CanvasRenderingContext2D.prototype.getImageData = originalGetImageData; }",
+    "widget": "// container 建进 shadowRoot;heatmap.js 无 CSS/全局监听,canvas 只落在 container\nimport h337 from 'https://cdn.jsdelivr.net/npm/heatmap.js@2.0.5/+esm';\nconst el = document.createElement('div'); el.style.position = 'relative'; el.style.width = '600px'; el.style.height = '400px'; shadowRoot.appendChild(el);\nconst hm = h337.create({ container: el, radius: data.config?.radius ?? 40, gradient: data.config?.gradient });\nconst originalGetImageData = CanvasRenderingContext2D.prototype.getImageData;\nCanvasRenderingContext2D.prototype.getImageData = function (...args) { const image = originalGetImageData.apply(this, args); const descriptor = Object.getOwnPropertyDescriptor(image, 'data'); if (descriptor && !descriptor.writable) Object.defineProperty(image, 'data', { ...descriptor, writable:true }); return image; };\ntry { hm.setData({ max: data.max ?? Math.max(...data.points.map(p => p.value)), min: data.min ?? 0, data: data.points }); }\nfinally { CanvasRenderingContext2D.prototype.getImageData = originalGetImageData; }\n// 注:create 同步读 el.offsetWidth/Height,host 须已连接且 el 有显式 px 尺寸",
+    "codex": "import h337 from 'https://cdn.jsdelivr.net/npm/heatmap.js@2.0.5/+esm';\nconst el = document.getElementById('heatmap'); el.style.position = 'relative'; el.style.width = '600px'; el.style.height = '400px';\nconst hm = h337.create({ container: el, radius: data.config?.radius ?? 40, gradient: data.config?.gradient });\nconst originalGetImageData = CanvasRenderingContext2D.prototype.getImageData;\nCanvasRenderingContext2D.prototype.getImageData = function (...args) { const image = originalGetImageData.apply(this, args); const descriptor = Object.getOwnPropertyDescriptor(image, 'data'); if (descriptor && !descriptor.writable) Object.defineProperty(image, 'data', { ...descriptor, writable:true }); return image; };\ntry { hm.setData({ max: data.max ?? Math.max(...data.points.map(p => p.value)), min: data.min ?? 0, data: data.points }); }\nfinally { CanvasRenderingContext2D.prototype.getImageData = originalGetImageData; }"
+  },
+  "example": {
+    "_why": "钉死 heatmap.js 的点字段 x/y/value 与像素坐标语义。",
+    "minimal": {
+      "points": [
+        {
+          "x": 100,
+          "y": 80,
+          "value": 50
+        },
+        {
+          "x": 220,
+          "y": 160,
+          "value": 90
+        }
+      ],
+      "max": 100,
+      "config": {
+        "radius": 40
+      }
+    },
+    "empty": {
+      "points": [],
+      "max": 1
+    }
+  },
+  "uplink": "display/local-interact 默认不上行;getValueAt({x,y})/getDataURL() 等查询由消费 AI 直接接原生 API。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:container 建在 shadowRoot,heatmap.js 只在 container 内建 canvas、零 CSS 注入、零全局监听;container 须先连接且有显式 px 尺寸",
+    "codex": "supported:ESM + canvas2d,无 worker/wasm/uplink 硬依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "build/heatmap.js@2.0.5(+esm default export = h337 对象,含 .create,已核 create:function)。grep build/heatmap.js:仅有的 DOM 操作是 createElement('canvas')(x4:主图 + 离屏/shadow 缓冲)与 container.appendChild(canvas)——零 document.head、零 document.body、零 window.addEventListener、零 createElement('style')。h337.create({container}) 把 canvas 严格建在传入的 container 内;setData({max,min,data:[{x,y,value}]}) 源码已核。shadowCompatible=yes:container 可在 shadowRoot(create 同步读 container.offsetWidth/Height,故 host 须已连接且有尺寸再 create)。license:源码头声明 dual MIT/Beerware,npm package.json 缺该字段。",
+    "confidence": "high"
+  }
+}

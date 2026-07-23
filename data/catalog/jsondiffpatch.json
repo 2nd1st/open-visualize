@@ -4,6 +4,20 @@
   "name": "jsondiffpatch",
   "when_to_use": "需要把两个嵌套 JSON 值按对象键和数组身份对齐后渲成增删改树时用它而非手写递归对照,因为原生在深层路径、数组 LCS 与移动识别上失败;非做纯文本逐行 diff。",
   "why_valuable": "AI 默认只能手写浅层 JSON 对照,做不到对未知深对象、大数组和元素换位稳定计算 delta 并生成一致的 HTML 视图。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a hand-written recursive comparison when you need to align two nested JSON values by object keys and array identity and render an addition/deletion/change tree, because native implementations fail at deep paths, array LCS, and move detection; not for a line-by-line plain-text diff.",
+      "why_valuable": "AI can normally only hand-write a shallow JSON comparison; it cannot reliably compute a delta for unknown deep objects, large arrays, and reordered elements and then generate a consistent HTML view.",
+      "data_in": {
+        "note": "shape remains text-span to match picks, but the component's exact inputs are two JSONValue values; arrayIdentityKey safely constructs objectHash from a data field without placing a function in JSON.",
+        "schema": {
+          "left": "JSONValue -- baseline object/array/scalar",
+          "right": "JSONValue -- comparison object/array/scalar",
+          "arrayIdentityKey?": "string -- use this field to match object identities stably in arrays; omitted by default, comparing by position"
+        }
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -38,7 +52,38 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "grep of formatters/html/+esm (8.9KB): zero createElement('style')/head.appendChild/insertRule/addEventListener/onclick. Only 1 document.body reference, and it lives in the unused showUnchanged/hideUnchanged helpers (default node param) which the boot never calls. format(delta,left) returns an inert HTML string set via innerHTML into a shadow div; CSS is a separate file adopted into the shadow. Fully self-contained.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "left": {
+        "name": "Alice",
+        "age": 30,
+        "email": "alice@example.com",
+        "roles": [
+          "user",
+          "editor"
+        ],
+        "active": true,
+        "profile": {
+          "city": "Paris",
+          "verified": false
+        }
+      },
+      "right": {
+        "name": "Alice",
+        "age": 31,
+        "phone": "555-0142",
+        "roles": [
+          "user",
+          "admin"
+        ],
+        "active": false,
+        "profile": {
+          "city": "Berlin",
+          "verified": true
+        }
+      }
+    }
   }
 }

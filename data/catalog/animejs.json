@@ -81,7 +81,30 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "headless。+esm:无 document.head/body、无 createElement('style');engine 向 document 注册一次 `visibilitychange`(全局但单例、标准做法,标签隐藏时暂停时钟)。mouse/touch/scroll/selectstart 监听属 Draggable/ScrollObserver 模块,animate() 路径不触发。驱动的是消费侧传入的元素(含 shadow 内 Element),entry note 已正确要求传 shadowRoot 实际元素而非全局 selector。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need multi-property tweening, staggered sequences, or a DOM/SVG timeline that can pause and reverse, instead of handwritten CSS keyframes and requestAnimationFrame, which fail at synchronized timing, consistent easing, and instance control. Not for physics simulations or a complete game loop.",
+      "why_valuable": "AI defaults can only produce isolated transition/keyframes and cannot provide one clock across DOM/SVG/JS properties, stagger orchestration, timeline positioning, and reliable pause/resume; anime.js keeps these drift-prone states in a controllable instance.",
+      "data_in": {
+        "note": "data_in.parameters maps exactly to the second argument of anime.js v4 animate(targets, parameters); animated properties and duration/ease live in the same object, and the v4 field name is ease, not the easing commonly seen in v3 tutorials.",
+        "schema": {
+          "targets": "CSS selector string | Element | Element[] -- Targets to drive; inside a widget, prefer Elements from the shadow root to avoid a global selector",
+          "parameters": {
+            "x?": "number | string | [from,to] -- translateX; preserves the target's current value by default",
+            "y?": "number | string | [from,to] -- translateY; preserves the target's current value by default",
+            "rotate?": "number | string | [from,to] -- Rotation; preserves the target's current value by default",
+            "scale?": "number | [from,to] -- Scale; preserves the target's current value by default",
+            "opacity?": "number | [from,to] -- Opacity; preserves the target's current value by default",
+            "duration?": "number(ms) -- Entry default 1000",
+            "delay?": "number(ms) | stagger() result -- Default 0",
+            "ease?": "string -- Entry default 'out(2)'",
+            "loop?": "boolean | integer -- Default false",
+            "autoplay?": "boolean -- Default true"
+          }
+        }
+      }
+    }
   }
 }

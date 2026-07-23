@@ -2,6 +2,19 @@
   "entry_version": "thin-1",
   "id": "tangle",
   "name": "Tangle",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing DOM bindings when you need to turn numbers in explanatory prose into draggable parameters and recompute the full text in sync, because native implementations easily miss updates across multiple numeric dependencies, drag gestures, and formatting synchronization.",
+      "why_valuable": "AI can generate only static formulas or a one-off slider by default; it cannot reliably synchronize multiple variable markers, dragged parameters, and derived text in both directions within prose. Tangle closes the explorable-explanation loop with a tiny model.",
+      "data_in": {
+        "note": "The input maps exactly to new Tangle(root, model): mark variables inside root with data-var, and use upstream initialize/update lifecycle functions in model. update here is the fixed upstream API name, not the platform's six-verb event contract.",
+        "schema": {
+          "root": "HTMLElement -- root prose node already containing [data-var] markers, required",
+          "model": "object -- must implement initialize():void (assign initial values to source variables) and the fixed upstream lifecycle method update():void (calculate derived variables only); this is the Tangle model state in both methods"
+        }
+      }
+    }
+  },
   "when_to_use": "需要把讲解文字中的数字变成可拖动参数并让全文同步重算时用它,而非手写 DOM 绑定——原生在多处数值依赖、拖动手势与格式化同步上容易漏更新。",
   "why_valuable": "AI 默认只能生成静态公式或一次性 slider,做不到正文内多个变量标记、拖动调参与派生文本的稳定双向同步;Tangle 用极小模型把 explorable explanation 闭环。",
   "supply_form": "component",
@@ -22,9 +35,9 @@
     }
   },
   "boot": {
-    "artifact": "// inferred-not-tested:classic-script + TangleKit CSS;CSS 按铁律 2 进 head\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/TangleKit.css'; document.head.appendChild(css);\nfor (const file of ['mootools.js','sprintf.js','BVTouchable.js']) await new Promise((ok, fail) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/' + file; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });\nfor (const src of ['https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/Tangle.js','https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/TangleKit.js']) await new Promise((ok, fail) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });\ndocument.getElementById('tangle').appendChild(data.root);\nconst tangle = new Tangle(data.root, data.model);",
-    "widget": "// CSS 按铁律 2 落 shadow;classic JS 仍是页面全局,故 carrier 标 conditional\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/TangleKit.css'; shadowRoot.appendChild(css);\nfor (const file of ['mootools.js','sprintf.js','BVTouchable.js']) await new Promise((ok, fail) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/' + file; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });\nfor (const src of ['https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/Tangle.js','https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/TangleKit.js']) await new Promise((ok, fail) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });\nshadowRoot.appendChild(data.root);\nconst tangle = new Tangle(data.root, data.model);",
-    "codex": "const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/TangleKit.css'; document.head.appendChild(css);\nfor (const file of ['mootools.js','sprintf.js','BVTouchable.js']) await new Promise((ok, fail) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/' + file; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });\nfor (const src of ['https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/Tangle.js','https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/TangleKit.js']) await new Promise((ok, fail) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });\ndocument.getElementById('tangle').appendChild(data.root);\nconst tangle = new Tangle(data.root, data.model);"
+    "artifact": "// JSON harness 中 root/model 函数是字符串,先恢复成 Tangle 要求的 DOM 与函数\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/TangleKit.css'; document.head.appendChild(css);\nfor (const file of ['mootools.js','sprintf.js','BVTouchable.js']) await new Promise((ok, fail) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/' + file; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });\nfor (const src of ['https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/Tangle.js','https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/TangleKit.js']) await new Promise((ok, fail) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });\nconst host = document.getElementById('tangle');\nconst template = document.createElement('template'); template.innerHTML = String(data.root).trim();\nconst root = data.root instanceof Node ? data.root : template.content.firstElementChild;\nif (!root) throw new Error('Tangle root must contain one element');\nhost.appendChild(root);\nconst revive = value => typeof value === 'function' ? value : Function(`return (${value})`)();\nconst model = { ...data.model, initialize: revive(data.model.initialize), update: revive(data.model.update) };\nconst tangle = new globalThis.Tangle(root, model);",
+    "widget": "// CSS 按铁律 2 落 shadow;classic JS 仍是页面全局,故 carrier 标 conditional\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/TangleKit.css'; shadowRoot.appendChild(css);\nfor (const file of ['mootools.js','sprintf.js','BVTouchable.js']) await new Promise((ok, fail) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/' + file; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });\nfor (const src of ['https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/Tangle.js','https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/TangleKit.js']) await new Promise((ok, fail) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });\nconst template = document.createElement('template'); template.innerHTML = String(data.root).trim();\nconst root = data.root instanceof Node ? data.root : template.content.firstElementChild;\nif (!root) throw new Error('Tangle root must contain one element');\nshadowRoot.appendChild(root);\nconst revive = value => typeof value === 'function' ? value : Function(`return (${value})`)();\nconst model = { ...data.model, initialize: revive(data.model.initialize), update: revive(data.model.update) };\nconst tangle = new globalThis.Tangle(root, model);",
+    "codex": "const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/TangleKit.css'; document.head.appendChild(css);\nfor (const file of ['mootools.js','sprintf.js','BVTouchable.js']) await new Promise((ok, fail) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/' + file; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });\nfor (const src of ['https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/Tangle.js','https://cdn.jsdelivr.net/gh/worrydream/Tangle@master/TangleKit/TangleKit.js']) await new Promise((ok, fail) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });\nconst host = document.getElementById('tangle');\nconst template = document.createElement('template'); template.innerHTML = String(data.root).trim();\nconst root = data.root instanceof Node ? data.root : template.content.firstElementChild;\nif (!root) throw new Error('Tangle root must contain one element');\nhost.appendChild(root);\nconst revive = value => typeof value === 'function' ? value : Function(`return (${value})`)();\nconst model = { ...data.model, initialize: revive(data.model.initialize), update: revive(data.model.update) };\nconst tangle = new globalThis.Tangle(root, model);"
   },
   "carriers": {
     "artifact": "inferred-not-tested",
@@ -37,7 +50,15 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "Tangle.js 源码 grep 无 document.head/createElement('style')/document.body。TangleKit.js 有 addEvent('mousedown'/'mousemove') 拖拽监听(L158-159)且全库无 destroy() 清理→globalEvents=yes。TangleKit .inject() 目标是组件自身元素(spinner/箭头)非 body portal→globalDomMutation=no;CSS 为 opt-in TangleKit.css,widget boot 落 shadowRoot→globalStyleInjection=no。shadowCompatible=conditional:正文+CSS 可入 shadowRoot,但 5 个 classic script 经 boot 注入 document.head 注册页面级全局符号(window.Tangle/MooTools $),不可按 shadow 隔离,单页单实例,mootools 选择器引擎不跨 shadow 边界。",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
+  },
+  "example": {
+    "minimal": {
+      "root": "<p>When you eat <span class=\"TKAdjustableNumber\" data-var=\"cookies\">3</span> cookies, you consume <b><span data-var=\"calories\">150</span> calories</b>.</p>",
+      "model": {
+        "initialize": "function () { this.cookies = 3; }",
+        "update": "function () { this.calories = this.cookies * 50; }"
+      }
+    }
   }
 }

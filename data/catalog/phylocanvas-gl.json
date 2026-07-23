@@ -1,0 +1,87 @@
+{
+  "entry_version": "thin-1",
+  "id": "phylocanvas-gl",
+  "name": "@phylocanvas/phylocanvas.gl",
+  "when_to_use": "进化生物学/基因组流行病学/分类学:枝长(branch-length)树、带元数据环的放射 phylogram、大叶片数。喂 Newick/Nexus 字符串 + size{width,height}(px),type 选布局(TreeTypes)。当需要 phylogram 枝长、放射/环形布局或 >1000 叶的 GPU 速度时,替代目录里的 d3-hierarchy(通用 tidy tree)。依赖 WebGL;deck.gl peer 由 jsDelivr +esm 自动链式解析,无需手动引。",
+  "why_valuable": "WebGL 上的系统发育树:矩形、环形、放射、层级 dendrogram,带真实枝长、可折叠 clade、tip 元数据块,可扩展到数万叶。放射/环形 phylogram 布局(枝角数学、不重叠曲线枝、元数据环)超出 AI 可靠手写范围,而它直接解析 Newick/Nexus。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@phylocanvas/phylocanvas.gl",
+    "version": "1.64.1",
+    "github": "gitlab.com/cgps/phylocanvas/phylocanvas.gl"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tree",
+    "note": "new PhylocanvasGL(element, props)。source 是 Newick(或 Nexus)字符串;size{width,height} 像素必填(WebGL canvas);type 用 TreeTypes 常量。deck.gl/luma.gl 由 +esm 从 jsDelivr 自动链式解析。",
+    "schema": {
+      "source": "string —— Newick/Nexus,如 '((A:0.1,B:0.2):0.3,C:0.4);'",
+      "size": "{ width: number, height: number } —— 必填像素尺寸",
+      "type?": "TreeTypes 值:Rectangular('rc') | Circular('cr') | Radial('rd') | Hierarchical('hr') | Diagonal('dg') —— 默认 Rectangular",
+      "showLabels?": "boolean —— 默认 true",
+      "showLeafLabels?": "boolean —— 默认 true",
+      "interactive?": "boolean —— 默认 true",
+      "nodeSize?": "number",
+      "fontSize?": "number"
+    }
+  },
+  "spec": {
+    "height": 500,
+    "note": "size.{width,height} 必须是像素数值(WebGL canvas 尺寸);容器同样给 px。禁 vh。"
+  },
+  "boot": {
+    "artifact": "// +esm 会混装 luma.gl 9.3.5/9.3.6；隔离 iframe 内固定 deck.gl 8.8.12 UMD peer\nconst el = document.getElementById('tree'); el.style.height = '500px';\nconst frame = document.createElement('iframe'); frame.title = 'Phylogenetic tree'; frame.style.cssText = 'width:100%;height:500px;border:0;display:block'; frame.name = JSON.stringify(data); el.appendChild(frame);\nconst closeScript = '<' + '/script>';\nconst setup = `window['@deck.gl/layers']=window.deck;window['@deck.gl/core']=window.deck;window['@luma.gl/core']=window.luma;window['@luma.gl/constants']=window.luma;`;\nconst mount = `const data=JSON.parse(window.name);window.name='';const el=document.getElementById('root');el.textContent='';const size=data.size??{width:el.clientWidth||600,height:500};const NS=window.phylocanvas;new NS.PhylocanvasGL(el,{source:data.source,size,type:data.type??NS.TreeTypes.Rectangular,showLabels:data.showLabels??true,showLeafLabels:data.showLeafLabels??true,interactive:data.interactive??true});`;\nframe.srcdoc = '<!doctype html><meta charset=\"utf-8\"><style>html,body,#root{margin:0;width:100%;height:100%;overflow:hidden;position:relative}#root{font:14px system-ui}</style><div id=\"root\">Loading tree…</div><script src=\"https://cdn.jsdelivr.net/npm/deck.gl@8.8.12/dist.min.js\">' + closeScript + '<script>' + setup + closeScript + '<script src=\"https://cdn.jsdelivr.net/npm/@phylocanvas/phylocanvas.gl@1.64.1/dist/phylocanvas.js\">' + closeScript + '<script>' + mount + closeScript;",
+    "widget": "// WebGL 与 UMD globals 都留在 shadowRoot 内的隔离 iframe\nconst el = document.createElement('div'); el.style.height = '500px'; shadowRoot.appendChild(el);\nconst frame = document.createElement('iframe'); frame.title = 'Phylogenetic tree'; frame.style.cssText = 'width:100%;height:500px;border:0;display:block'; frame.name = JSON.stringify(data); el.appendChild(frame);\nconst closeScript = '<' + '/script>', setup = `window['@deck.gl/layers']=window.deck;window['@deck.gl/core']=window.deck;window['@luma.gl/core']=window.luma;window['@luma.gl/constants']=window.luma;`, mount = `const data=JSON.parse(window.name);window.name='';const el=document.getElementById('root');el.textContent='';const size=data.size??{width:el.clientWidth||600,height:500};const NS=window.phylocanvas;new NS.PhylocanvasGL(el,{source:data.source,size,type:data.type??NS.TreeTypes.Rectangular,showLabels:data.showLabels??true,showLeafLabels:data.showLeafLabels??true,interactive:data.interactive??true});`;\nframe.srcdoc = '<!doctype html><meta charset=\"utf-8\"><style>html,body,#root{margin:0;width:100%;height:100%;overflow:hidden;position:relative}</style><div id=\"root\">Loading tree…</div><script src=\"https://cdn.jsdelivr.net/npm/deck.gl@8.8.12/dist.min.js\">' + closeScript + '<script>' + setup + closeScript + '<script src=\"https://cdn.jsdelivr.net/npm/@phylocanvas/phylocanvas.gl@1.64.1/dist/phylocanvas.js\">' + closeScript + '<script>' + mount + closeScript;",
+    "codex": "// 同 artifact:固定 deck.gl 8.8.12 UMD peer 于隔离 iframe,避免 +esm 的 luma 版本冲突\nconst el = document.getElementById('tree'); el.style.height = '500px';\nconst frame = document.createElement('iframe'); frame.style.cssText = 'width:100%;height:500px;border:0'; frame.name = JSON.stringify(data); el.appendChild(frame); const closeScript = '<' + '/script>', setup = `window['@deck.gl/layers']=window.deck;window['@deck.gl/core']=window.deck;window['@luma.gl/core']=window.luma;window['@luma.gl/constants']=window.luma;`, mount = `const data=JSON.parse(window.name);window.name='';const el=document.getElementById('root'),NS=window.phylocanvas;el.textContent='';new NS.PhylocanvasGL(el,{source:data.source,size:data.size??{width:600,height:500},type:data.type??NS.TreeTypes.Rectangular,showLabels:data.showLabels??true,showLeafLabels:data.showLeafLabels??true,interactive:data.interactive??true});`; frame.srcdoc = '<style>html,body,#root{margin:0;width:100%;height:100%;overflow:hidden;position:relative}</style><div id=\"root\">Loading tree…</div><script src=\"https://cdn.jsdelivr.net/npm/deck.gl@8.8.12/dist.min.js\">' + closeScript + '<script>' + setup + closeScript + '<script src=\"https://cdn.jsdelivr.net/npm/@phylocanvas/phylocanvas.gl@1.64.1/dist/phylocanvas.js\">' + closeScript + '<script>' + mount + closeScript;"
+  },
+  "example": {
+    "_why": "source 是 Newick 字符串且 size 必填,minimal 钉死格式与像素尺寸。",
+    "minimal": {
+      "source": "((A:0.1,B:0.2):0.3,(C:0.15,D:0.25):0.35);",
+      "size": {
+        "width": 600,
+        "height": 500
+      },
+      "type": "rc",
+      "showLeafLabels": true
+    }
+  },
+  "uplink": "display/local-interact 默认不上行;节点/叶点击、hover 与折叠由消费 AI 接 PhylocanvasGL 原生回调(如 onNodeClick / props.on-* handlers)处理。",
+  "carriers": {
+    "artifact": "inferred-not-tested;需 WebGL",
+    "widget": "conditional:deck.gl WebGL canvas 落宿主 shadow 内的 div;事件在自身 canvas,不逃逸;需 WebGL 上下文",
+    "codex": "supported:sandbox iframe 需支持 WebGL;deck.gl/luma.gl 由 jsDelivr +esm 链式加载"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm exports PhylocanvasGL (class) + TreeTypes + Shapes + Angles + Newick + Utils + Defaults + plugins + default. Package ships NO .d.ts (jsDelivr flat list has zero *.d.ts); API from +esm exports + phylocanvas.gl docs: new PhylocanvasGL(element, props, plugins?) with props={source(Newick/Nexus string), size:{width,height} px required, type(TreeTypes value), showLabels?, showLeafLabels?, interactive?, nodeSize?, fontSize?}. TreeTypes values verified from bundle: {Circular:'cr', Diagonal:'dg', Hierarchical:'hr', Radial:'rd', Rectangular:'rc'}. +esm chains @deck.gl/layers, @deck.gl/core, @luma.gl/core, @luma.gl/constants from /npm/.../+esm — deck.gl peer (peerDependencies deck.gl ^8.8.12) auto-resolved by jsDelivr; WebGL required. globalDomMutation=no: the single document.body reference is the constructor's `arguments[0]!==void 0?arguments[0]:document.body` element-arg default (untouched when an element is passed). globalStyleInjection=no. globalEvents=no at document level (deck.gl attaches pointer handlers to its own canvas; grep createElement(\"canvas\") x2). shadowCompatible=conditional: deck.gl WebGL canvas renders into the provided element, including a shadow div. confidence medium: no shipped types (API inferred from exports+docs), and requires a WebGL context.",
+    "confidence": "medium"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for evolutionary biology, genomic epidemiology, or taxonomy: branch-length trees, radial phylograms with metadata rings, and large leaf counts. Provide a Newick/Nexus string plus size{width,height}(px), and choose a layout with type (TreeTypes). When you need phylogram branch lengths, radial/circular layouts, or GPU speed for >1000 leaves, use it instead of the catalog's d3-hierarchy (general tidy tree). It depends on WebGL; the deck.gl peer is resolved transitively by jsDelivr +esm and needs no manual import.",
+      "why_valuable": "It provides WebGL phylogenetic trees: rectangular, circular, radial, and hierarchical dendrograms with real branch lengths, collapsible clades, tip metadata blocks, and scaling to tens of thousands of leaves. Radial/circular phylogram layout (branch-angle math, non-overlapping curved branches, metadata rings) exceeds what AI can reliably hand-write, while this library parses Newick/Nexus directly.",
+      "data_in": {
+        "note": "new PhylocanvasGL(element, props). source is a Newick (or Nexus) string; size{width,height} in pixels is required for the WebGL canvas; type uses a TreeTypes constant. deck.gl/luma.gl dependencies resolve transitively through +esm on jsDelivr.",
+        "schema": {
+          "source": "string -- Newick/Nexus, for example '((A:0.1,B:0.2):0.3,C:0.4);'",
+          "size": "{ width: number, height: number } -- Required pixel dimensions",
+          "type?": "TreeTypes value: Rectangular('rc') | Circular('cr') | Radial('rd') | Hierarchical('hr') | Diagonal('dg') -- Default Rectangular",
+          "showLabels?": "boolean -- Default true",
+          "showLeafLabels?": "boolean -- Default true",
+          "interactive?": "boolean -- Default true",
+          "nodeSize?": "number",
+          "fontSize?": "number"
+        }
+      },
+      "spec": {
+        "note": "size.{width,height} must be pixel numbers (WebGL canvas dimensions); give the container px dimensions as well. vh is prohibited."
+      }
+    }
+  }
+}

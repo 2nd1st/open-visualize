@@ -2,6 +2,22 @@
   "entry_version": "thin-1",
   "id": "lit-labs-virtualizer",
   "name": "@lit-labs/virtualizer",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing a scrolling window when you need a standard custom element to virtualize many variable-height DOM items directly inside a shadow tree, because native implementations fail at element measurement, visible ranges, and scroll-position correction; not for sortable/filterable tables.",
+      "why_valuable": "AI creates all DOM nodes by default or incorrectly assumes a fixed row height; it cannot natively provide ResizeObserver-based natural-size measurement, viewport-range calculation, distant-index navigation, and DOM recycling.",
+      "data_in": {
+        "note": "import registers lit-virtualizer; items receives an array, and renderItem must return a Lit TemplateResult. This entry renders a single text column by default; the consuming AI may replace the rendering function, but the entry does not predefine an event outlet.",
+        "schema": {
+          "items": "JSONValue[] -- assigned to lit-virtualizer.items",
+          "itemTextField?": "string | null -- record field to display; default null, strings display directly and other values use JSON.stringify"
+        }
+      },
+      "spec": {
+        "note": "Scroller mode requires an explicit height; boot defaults to 400px, and AI may pass another explicit pixel value. Percentage and viewport units are prohibited."
+      }
+    }
+  },
   "when_to_use": "需要以标准 custom element 虚拟化大量变高 DOM 项并直接落入 shadow tree 时用它而非手写滚动窗口,因为原生手写在元素测量、可见范围和滚动位置修正上失败;非做排序筛选表格。",
   "why_valuable": "AI 默认会全量创建 DOM 或错误假设固定行高;默认做不到基于 ResizeObserver 的自然尺寸测量、视口范围计算、远端索引定位与 DOM 回收。",
   "supply_form": "component",
@@ -61,7 +77,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Lit custom element,渲染进自身 shadow root,无 document.head 注入、无 document.body 追加;内部用 DOM+ResizeObserver(测行高)+ scroller 自身 scroll 监听,不绑 document 全局。boot 以 JS createElement 建 <lit-virtualizer> 落 shadowRoot(铁律4)、显式定高 400px、无外部 CSS → 完全 shadow 内工作(与 entry supported 一致)。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

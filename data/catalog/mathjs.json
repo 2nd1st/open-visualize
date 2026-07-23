@@ -4,9 +4,19 @@
   "name": "math.js",
   "when_to_use": "把算术/表达式求值从 AI 手里拿走时用它:AI 只传表达式字符串 + 变量,求值/单位换算/精度/数值求导全在库内闭环,天然免疫算术幻觉。也是『任意 f(x) 字符串 → slider 驱动求值绘图』的引擎底座。",
   "why_valuable": "AI 徒手算表达式必然间歇幻觉;安全解析任意用户表达式 + 单位代数 + 数值求导徒手做不到。非渲染,是参数交互/计算场景的通用引擎。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to take arithmetic and expression evaluation away from AI: AI passes only an expression string plus variables, while evaluation, unit conversion, precision, and numerical differentiation stay inside the library, making arithmetic hallucinations impossible by construction. It is also the engine foundation for an arbitrary f(x) string evaluated and plotted from a slider.",
+      "why_valuable": "AI inevitably hallucinates intermittently when evaluating expressions by hand. Safely parsing arbitrary user expressions, unit algebra, and numerical differentiation cannot be implemented ad hoc. This is not a renderer; it is a general engine for parameter interaction and computation."
+    }
+  },
   "supply_form": "headless-primitive",
   "mode": "direct-import",
-  "upstream": { "npm": "mathjs", "version": "15.2.0", "github": "josdejong/mathjs" },
+  "upstream": {
+    "npm": "mathjs",
+    "version": "15.2.0",
+    "github": "josdejong/mathjs"
+  },
   "license": "Apache-2.0",
   "provides": {
     "shape": "compute-engine",
@@ -26,7 +36,10 @@
     "shared": "// 三载体一致(headless 无渲染/无 uplink/无 shadow 问题)\nimport { parse } from 'https://cdn.jsdelivr.net/npm/mathjs@15/+esm';\nconst f = parse(expr).compile();               // expr = 用户/AI 给的表达式字符串\nconst pts = [];\nfor (let x = -10; x <= 10; x += 0.1) pts.push([x, f.evaluate({ x })]);\n// pts 交给绘图组件的 data_in",
     "note": "唯一注意:bundle 偏大,能按需 import 子函数(parse/evaluate/derivative)就别整包 import。"
   },
-  "scenarios": ["local-tools", "teach-sim"],
+  "scenarios": [
+    "local-tools",
+    "teach-sim"
+  ],
   "owner": true,
   "owner_note": "math.js 同时归入两场景(teach-sim/visualize + local-tools/toolbox);本条为单一 owner 条目,两场景共用它、不各建一条。"
 }

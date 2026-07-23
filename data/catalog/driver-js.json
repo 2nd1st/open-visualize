@@ -35,6 +35,33 @@
       "allowClose?": "boolean —— 默认 true"
     }
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for element spotlights, scroll positioning, and step-by-step walkthroughs over an already rendered page instead of a handwritten overlay, which tends to fail at cutout geometry, popover collision avoidance, and focus management across steps.",
+      "why_valuable": "AI defaults to a numbered instruction list. It cannot reliably create a spotlight cutout that follows target size, automatically place popovers, scroll targets into view, and manage a keyboard-steppable state machine.",
+      "data_in": {
+        "note": "data_in maps directly to the common native configuration for driver({steps,...}). Upstream resolves element strings with document.querySelector, so targets must be in the current document.",
+        "schema": {
+          "steps": [
+            {
+              "element?": "string CSS selector | Element -- no target by default; displays the popover in the center of the page",
+              "popover?": {
+                "_default": "when omitted, no popover is shown and only the target is spotlighted",
+                "title?": "string -- no title by default",
+                "description?": "string -- no body text by default",
+                "side?": "'top'|'right'|'bottom'|'left' -- default bottom",
+                "align?": "'start'|'center'|'end' -- default start"
+              }
+            }
+          ],
+          "showProgress?": "boolean -- default false",
+          "animate?": "boolean -- default true",
+          "smoothScroll?": "boolean -- default false",
+          "allowClose?": "boolean -- default true"
+        }
+      }
+    }
+  },
   "boot": {
     "artifact": "// inferred-not-tested:overlay/popover 写入 document.body,CSS 进入 document.head\nimport { driver } from 'https://cdn.jsdelivr.net/npm/driver.js@1/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/driver.js@1/dist/driver.css' });\ndocument.head.appendChild(css);\nconst tour = driver({ animate: data.animate ?? true, showProgress: data.showProgress ?? false, smoothScroll: data.smoothScroll ?? false, allowClose: data.allowClose ?? true, steps: data.steps });\ntour.drive();",
     "widget": "unsupported:driver.js v1.8.0 把 overlay 与 popover 固定写入 document.body,且 element 字符串固定走 document.querySelector;上游无 shadow 容器参数,无法满足 widget 零足迹。",
@@ -72,7 +99,6 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "+esm grep: `document.body` x10, `appendChild` x13, `document.querySelector` x3 — overlay SVG and popover are appended to document.body and step targets resolved via document.querySelector (can't be scoped to a shadow root). d.ts State.__events = {onKeyup,onKeydown,onResize,onScroll,onClick} confirms global keyboard/resize/scroll/click listeners (destroy() holds refs to remove them). No runtime <style> injection (relies on external driver.css). Entry correctly marks widget 'unsupported'.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

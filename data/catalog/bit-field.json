@@ -1,0 +1,136 @@
+{
+  "entry_version": "thin-1",
+  "id": "bit-field",
+  "name": "bit-field",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to render a set of bit-field descriptions as a pixel-aligned SVG register, protocol-header, or instruction-encoding bit-field diagram instead of drawing one by hand, because native implementations fail at bit counting, field-boundary alignment, multiple lanes (32/64-bit wrapping), and attribute labels. It is the static bit-field companion to wavedrom in the catalog: bit-field draws a register's static bit layout, while wavedrom draws signal timing waveforms; not for timing waveforms or circuits.",
+      "why_valuable": "Hand-drawn bit-field SVG from AI will miscount bits, misalign boundaries, and wrap lanes unreliably. bit-field consumes a field-description array, deterministically emits a diagram with every bit boundary aligned and field names and attributes attached, then onml.stringify converts it to an SVG string.",
+      "data_in": {
+        "note": "fields are consumed from low to high bit (LSB->MSB); an anonymous { bits: N } is a reserved/gap segment. The sum of all segment bits should equal options.bits (default 32). render returns an onml JsonML array, which must then pass through onml.stringify (=onml.s) to become an SVG string--use both packages together.",
+        "schema": {
+          "fields": [
+            {
+              "bits": "number -- field width in bits (required)",
+              "name?": "string -- field name; none by default (anonymous gap segment)",
+              "attr?": "string | string[] | number -- attribute label (such as 'RO'/'RW'); none by default; arrays render on multiple lines",
+              "type?": "number -- color category (2..7 map to different fills); uncolored by default",
+              "rotate?": "number -- field-name rotation angle, default 0"
+            }
+          ],
+          "options?": {
+            "bits?": "number -- total bit width, default 32",
+            "lanes?": "number -- number of rectangular lane rows, default 2",
+            "hspace?": "number -- horizontal pixel width, default 640",
+            "vspace?": "number -- vertical pixel height per lane, default 80",
+            "fontsize?": "number -- default 14",
+            "compact?": "boolean -- compact format, default false",
+            "hflip?": "boolean -- default false",
+            "vflip?": "boolean -- default false"
+          }
+        }
+      },
+      "spec": {
+        "note": "SVG height is about vspace*lanes, and width grows with hspace/bit count. Give the carrier an explicit height (default lanes=2 and vspace=80 -> about 200px) with two-way scrolling; rule 3 prohibits vh/percentage height."
+      }
+    }
+  },
+  "when_to_use": "把一组 bit 字段描述渲成像素对齐的寄存器/协议头/指令编码位域图 SVG 时用它,而非手绘——原生在 bit 计数、字段边界对齐、多 lane(32/64 位换行)与属性标注上失败。它是目录里 wavedrom 的静态位域搭档:bit-field 画寄存器的静态 bit 布局,wavedrom 画信号时序波形;非做时序波形或电路。",
+  "why_valuable": "AI 手绘位域 SVG 会数错 bit、错位边界、无法可靠换行 lane。bit-field 吃一个字段描述数组,确定性输出每条 bit 边界都对齐、带字段名/属性的位域图,再由 onml.stringify 转成 SVG 字符串。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "bit-field",
+    "version": "1.9.0",
+    "github": "wavedrom/bitfield"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "field-array",
+    "note": "fields 按从低位到高位(LSB→MSB)顺序消费;匿名 { bits: N }=保留/空隙段;各段 bits 之和应等于 options.bits(默认 32)。render 返回 onml JsonML 数组,必须再经 onml.stringify(=onml.s)才成 SVG 字符串——两个包一起用。",
+    "schema": {
+      "fields": [
+        {
+          "bits": "number —— 该字段占的位宽(必填)",
+          "name?": "string —— 字段名,默认无(匿名空隙段)",
+          "attr?": "string | string[] | number —— 属性标注(如 'RO'/'RW'),默认无;数组则多行",
+          "type?": "number —— 着色类别(2..7 对应不同填充),默认无色",
+          "rotate?": "number —— 字段名旋转角度,默认 0"
+        }
+      ],
+      "options?": {
+        "bits?": "number —— 总位宽,默认 32",
+        "lanes?": "number —— 矩形 lane 行数,默认 2",
+        "hspace?": "number —— 水平像素宽,默认 640",
+        "vspace?": "number —— 每 lane 垂直像素高,默认 80",
+        "fontsize?": "number —— 默认 14",
+        "compact?": "boolean —— 紧凑格式,默认 false",
+        "hflip?": "boolean —— 默认 false",
+        "vflip?": "boolean —— 默认 false"
+      }
+    }
+  },
+  "spec": {
+    "height": 200,
+    "note": "SVG 高约 vspace×lanes,宽随 hspace/位数增长;承载区给显式高(默认 lanes=2、vspace=80→~200px)并双向滚动,禁 vh/百分比高(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// 纯函数 render→onml 数组→stringify→SVG 字符串;与目录里 wavedrom 同套 onml 路径\nimport { render } from 'https://cdn.jsdelivr.net/npm/bit-field@1/+esm';\nimport { stringify } from 'https://cdn.jsdelivr.net/npm/onml@2/+esm';\nconst el = document.getElementById('bitfield'); el.style.cssText = 'height:200px;overflow:auto';\nel.innerHTML = stringify(render(data.fields, data.options ?? {}));",
+    "widget": "// SVG 字符串只写入 shadow 内 host;render 无任何全局副作用\nimport { render } from 'https://cdn.jsdelivr.net/npm/bit-field@1/+esm';\nimport { stringify } from 'https://cdn.jsdelivr.net/npm/onml@2/+esm';\nconst el = document.createElement('div'); el.style.cssText = 'height:200px;overflow:auto'; shadowRoot.appendChild(el);\nel.innerHTML = stringify(render(data.fields, data.options ?? {}));",
+    "codex": "import { render } from 'https://cdn.jsdelivr.net/npm/bit-field@1/+esm';\nimport { stringify } from 'https://cdn.jsdelivr.net/npm/onml@2/+esm';\nconst el = document.getElementById('bitfield'); el.style.cssText = 'height:200px;overflow:auto';\nel.innerHTML = stringify(render(data.fields, data.options ?? {}));"
+  },
+  "example": {
+    "_why": "字段数组语义直白,minimal 取官方 README 例(含匿名空隙段 + type 着色 + attr)。",
+    "minimal": {
+      "fields": [
+        {
+          "name": "IPO",
+          "bits": 8,
+          "attr": "RO"
+        },
+        {
+          "bits": 7
+        },
+        {
+          "name": "BRK",
+          "bits": 5,
+          "attr": "RW",
+          "type": 4
+        },
+        {
+          "name": "CPK",
+          "bits": 1
+        },
+        {
+          "name": "Clear",
+          "bits": 3
+        },
+        {
+          "bits": 8
+        }
+      ],
+      "options": {
+        "bits": 32,
+        "lanes": 1,
+        "hspace": 888
+      }
+    },
+    "empty": {
+      "fields": []
+    }
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:纯 JS SVG 字符串,理论可用;lib/render 仅用 tspan/onml,Node deps(fs-extra/yargs)只在 CLI,未真机验证 +esm 树是否干净",
+    "widget": "supported:render 纯函数生成 onml→stringify SVG 写入 shadow host;无 CSS/head/font/worker 注入",
+    "codex": "supported:ESM CDN + SVG 字符串,无 worker/wasm/uplink"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "API verified vs bit-field@1.9.0: +esm exports `{B as default, it as render}`;README 与 lib/render.js 一致:`render(reg, options)` 返回 onml JsonML,再 `onml.stringify(jsonml)` 得 `<svg...>`。onml@2.1.0 +esm exports 含 `{V as stringify, U as s}`(stringify 命名导出可用)。render 全局副作用 grep = 0(无 document.*/Worker/WebAssembly/appendChild),纯函数返回数组。字段/选项(bits/name/attr/type/hspace/vspace/lanes/compact/hflip/vflip 等)为 render.js 真实消费的键。headless 风格但产出可视 SVG→按 component 收,与同作者、同 onml 套路的目录条目 wavedrom 一致。",
+    "confidence": "high"
+  }
+}

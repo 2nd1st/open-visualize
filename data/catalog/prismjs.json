@@ -30,6 +30,10 @@
     "empty": {
       "code": "",
       "language": "javascript"
+    },
+    "minimal": {
+      "code": "// Fibonacci sequence generator\nfunction fib(n) {\n  const seq = [0, 1];\n  for (let i = 2; i < n; i++) {\n    seq.push(seq[i - 1] + seq[i - 2]);\n  }\n  return seq;\n}\n\nconst msg = `First 10: ${fib(10).join(', ')}`;\nconsole.log(msg);",
+      "language": "javascript"
     }
   },
   "carriers": {
@@ -43,7 +47,19 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "STYLE=no:core 实测无 document.head/createElement(\"style\")注入,主题 CSS 为外置文件(boot 手动:artifact 进 head、widget fetch 进 shadow)。EVENTS=yes:import 时经 requestAnimationFrame / document DOMContentLoaded 调度 highlightAll(实测守卫存在且 ESM 下 manual=false),未清理。DOM=yes:该 highlightAll 会 querySelectorAll(document) 扫描并改写 light DOM 内 code.language-* 节点(不触及 shadow 内容,但属全局副作用)。shadowCompatible=conditional:highlight() 产出 span 与主题 CSS 在 shadow 内工作完好,唯 import 期自动 highlightAll 是未隔离的全局行为(可用 Prism.manual=true 抑制)。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need stable highlighting for long code, nested syntax, or multiple code blocks, instead of hand-writing token spans, because native implementations fail at nested strings/comments, escaping, and cross-language grammars. Not an editable code editor or code executor.",
+      "why_valuable": "AI can only hand-color short snippets to about 80% accuracy by default. Long code, multiple languages, and nested tokens are misclassified and themes are hard to keep consistent; Prism grammars deterministically produce classified spans.",
+      "data_in": {
+        "note": "The root entry guarantees only the built-in markup/css/clike/javascript grammars. Other languages require loading the corresponding components/prism-<lang> module separately; this entry does not assume they are loaded.",
+        "schema": {
+          "code": "string -- Raw source text; do not pre-escape HTML",
+          "language?": "'markup'|'css'|'clike'|'javascript' -- Default 'javascript'"
+        }
+      }
+    }
   }
 }

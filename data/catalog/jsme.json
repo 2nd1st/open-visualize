@@ -2,6 +2,22 @@
   "entry_version": "thin-1",
   "id": "jsme",
   "name": "JSME",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a hand-written SVG chemical editor when users need to draw or modify 2D molecules and read back SMILES/MOL -- native implementations fail on bonding rules, ring editing, and conversion between chemical notations. It is not for 3D molecular display or reaction-mechanism simulation.",
+      "why_valuable": "AI defaults can write SMILES text but cannot provide clickable atom/bond editing, valence hints, and reliable structure-to-SMILES readback; JSME supplies the input side that read-only smiles-drawer lacks.",
+      "data_in": {
+        "note": "boot passes notation verbatim to JSME readGenericMolecularInput; when the consumer needs the current result, call applet.smiles() or applet.molFile() directly. No upstream callback is prescribed.",
+        "schema": {
+          "notation": "string -- SMILES or V2000 MOL text; required",
+          "options?": "string -- comma-separated JSME option string; default ''"
+        }
+      },
+      "spec": {
+        "note": "The JSME constructor requires explicit width and height strings; default container width is 100% and height is 400px. Iron rule 3 forbids vh and percentage heights."
+      }
+    }
+  },
   "when_to_use": "需要让用户绘制或修改二维分子并读回 SMILES/MOL 时用它,而非手写 SVG 化学编辑器——原生在成键规则、环结构编辑与化学记法互转上会失败;非做三维分子展示或反应机理仿真。",
   "why_valuable": "AI 默认能写 SMILES 文本但做不到可点击的原子/键编辑、价态提示和结构到 SMILES 的稳定回读;JSME 补齐 smiles-drawer 只读不写的输入侧。",
   "supply_form": "component",
@@ -42,7 +58,12 @@
     "globalDomMutation": "yes",
     "globalEvents": "unknown",
     "evidence": "GWT 编译应用:jsme.nocache.js 为 GWT bootstrap,载入时向 document 追加隐藏 iframe/selectScript(domMutation=yes);JSApplet.JSME(id,w,h,opts) 按全局 document 的 element id 解析挂载点,无法可靠命中 shadowRoot(shadow=no,与 catalog widget:unsupported 一致)。dist 内有 jsa.css 但是否自动注入 head 未证(styleInject=unknown);GWT 是否挂 document 级监听未证(events=unknown)。",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
+  },
+  "example": {
+    "minimal": {
+      "notation": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+      "options": ""
+    }
   }
 }

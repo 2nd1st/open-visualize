@@ -4,6 +4,26 @@
   "name": "Fuse.js",
   "when_to_use": "需要在内联中小型记录集上做容错拼写、加权多字段与相关度排序时用它而非手写 includes/filter,因为原生在模糊距离、字段权重和稳定排名上失败。",
   "why_valuable": "AI 默认只能生成大小写归一后的 substring 过滤,做不到 Bitap 模糊匹配、字段长度归一、加权 key 与可解释命中区间;Fuse.js 直接产出带 score 的排名记录。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written includes/filter when you need typo tolerance, weighted multi-field search, and relevance ranking over an inline small-to-medium record set, because native implementations fail at fuzzy distance, field weights, and stable ranking.",
+      "why_valuable": "AI can normally only generate case-normalized substring filtering; it cannot provide Bitap fuzzy matching, field-length normalization, weighted keys, and explainable match ranges. Fuse.js directly returns ranked records with scores.",
+      "data_in": {
+        "note": "records is the array of objects to index, and keys points exactly to searchable field paths; each result item retains a reference to the original record, and scores closer to 0 are better matches.",
+        "schema": {
+          "records": "Record<string,unknown>[]",
+          "keys": "(string | {name:string,weight:positive number})[] -- string keys have weight 1 by default",
+          "query": "string",
+          "threshold?": "number,0..1 -- default 0.6",
+          "ignoreLocation?": "boolean -- default false",
+          "isCaseSensitive?": "boolean -- default false",
+          "minMatchCharLength?": "positive integer -- default 1",
+          "includeMatches?": "boolean -- default false",
+          "limit?": "positive integer -- returns all matches by default"
+        }
+      }
+    }
+  },
   "supply_form": "headless-primitive",
   "mode": "direct-import",
   "upstream": {
@@ -52,7 +72,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "headless-primitive 纯 JS 搜索,无渲染;fuse.d.ts 仅暴露算法/数据结构类型(IFuseOptions/FuseResult/Searcher),无任何 document/window/DOM API,可在任意上下文(含 shadow)内运行。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

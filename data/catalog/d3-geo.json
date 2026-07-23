@@ -4,6 +4,24 @@
   "name": "d3-geo",
   "when_to_use": "需要把 GeoJSON 做球面投影并生成无瓦片 SVG/Canvas 路径时用它而非手写投影数学,因为原生在经纬度变换、反经线切割、球面插值与自动适配视口上失败。",
   "why_valuable": "AI 默认做不到正确的球面投影、反经线裁切、球面面积/质心和稳定 path 生成;细微公式错误会让边界变形或错位,d3-geo 把 GeoJSON 精确变成投影坐标与 SVG path。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to project GeoJSON on a sphere and generate tile-free SVG/Canvas paths instead of hand-writing projection math. Native implementations fail on longitude/latitude transforms, antimeridian cutting, spherical interpolation, and automatic viewport fitting.",
+      "why_valuable": "AI cannot reliably produce correct spherical projections, antimeridian clipping, spherical area or centroid calculations, and stable path generation. Small formula errors deform or misalign boundaries; d3-geo converts GeoJSON precisely into projected coordinates and SVG paths.",
+      "data_in": {
+        "note": "Input must be a standard GeoJSON Geometry, Feature, or FeatureCollection. TopoJSON cannot be passed directly to geoPath and must first be decoded with topojson-client.feature. This entry is not for online map tiles, place-name search, or downloading administrative-boundary data.",
+        "schema": {
+          "geojson": "GeoJSON Geometry | Feature | FeatureCollection - coordinates use [longitude, latitude] order in degrees",
+          "viewport": {
+            "width": "number - output viewport width (px), must be > 0",
+            "height": "number - output viewport height (px), must be > 0",
+            "padding?": "number - padding on all four sides for fitExtent (px), default 8"
+          },
+          "projection?": "'equalEarth' | 'naturalEarth1' | 'mercator' | 'albersUsa' - default equalEarth; albersUsa is suitable only for the United States"
+        }
+      }
+    }
+  },
   "supply_form": "headless-primitive",
   "mode": "direct-import",
   "upstream": {
@@ -47,7 +65,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "+esm confirms named exports geoAlbersUsa/geoEqualEarth/geoMercator/geoNaturalEarth1/geoPath — boot's makers map and imports all match. projection.fitExtent([[x0,y0],[x1,y1]],object) then geoPath(projection) then path(geojson) are standard d3-geo v3 pure-math APIs producing SVG 'd' strings / canvas path commands; all four projections support fitExtent (albersUsa composite included). Zero DOM/CSS/event surface — headless primitive, shadow-irrelevant (safe).",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

@@ -1,0 +1,79 @@
+{
+  "entry_version": "thin-1",
+  "id": "xlsx",
+  "name": "SheetJS (xlsx)",
+  "when_to_use": "需要在浏览器里解析 .xlsx/.xls/.ods 二进制表格并取数据或转 HTML 表(sheet_to_html)以预览时用它,而非手写 Office 二进制解析。渲染交互大表格用 ag-grid/tabulator;只解析 CSV 用 papaparse;要产出带样式的 .xlsx 成品用 exceljs。",
+  "why_valuable": "AI 无法解压解析 Office 专有二进制(.xlsx=zip+OOXML,.xls=BIFF),这是「预览一个 Excel 文件」的前置解码能力;xlsx 以 read(bytes)→WorkBook + utils.sheet_to_html/sheet_to_json 把解码收敛成纯 JS 调用,产出数据或 HTML 表交由消费方渲染。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "xlsx",
+    "version": "0.18.5",
+    "github": "SheetJS/sheetjs"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "workbook",
+    "note": "诚实提示:SheetJS 已把新版迁到自有 CDN,公共 npm 冻结在 0.18.5;但 0.18.5 仍可经 jsDelivr /npm/ 加载。输入是表格文件字节,ArrayBuffer/Uint8Array 用 type:'array'。read 同步返回 WorkBook,渲染/取数走 utils。",
+    "schema": {
+      "_defaults": {
+        "opts": "{}"
+      },
+      "data": "ArrayBuffer | Uint8Array —— 表格文件二进制(File.arrayBuffer()/fetch().arrayBuffer());配 opts.type:'array'",
+      "opts?": {
+        "_default": "省略时按魔数/扩展自动识别",
+        "type?": "'array' | 'binary' | 'base64' | 'string' —— ArrayBuffer/Uint8Array 用 'array'",
+        "sheetRows?": "number —— 只解析前 N 行,默认 0(全部)",
+        "cellDates?": "boolean —— 日期解析为 Date,默认 false"
+      }
+    }
+  },
+  "provides": {
+    "shape": "workbook",
+    "_note": "headless-primitive:自身不渲染、无 L 级、无 carriers 矩阵;产出 WorkBook 对象,再用 utils 转 HTML 表或行数据交给消费方渲染。",
+    "outputs": "read(data,opts) → WorkBook { SheetNames:string[], Sheets:{[name]:WorkSheet} };utils.sheet_to_html(ws) → HTML <table> 字符串;utils.sheet_to_json(ws,{header:1}) → 二维行数组。",
+    "api_surface": {
+      "parse": "read(data, { type:'array' }) → WorkBook",
+      "pickSheet": "wb.Sheets[wb.SheetNames[0]] → WorkSheet",
+      "toHtml": "utils.sheet_to_html(worksheet, options?) → string",
+      "toJson": "utils.sheet_to_json(worksheet, { header:1 }?) → any[][] | Record<string,any>[]"
+    }
+  },
+  "peer": {
+    "id": "ag-grid-community",
+    "note": "本条只解码出 WorkBook/行数据;要交互渲染大表格(排序/筛选/虚拟滚动)把 sheet_to_json 结果喂给 ag-grid/tabulator,或直接把 sheet_to_html 字符串 innerHTML 到容器(widget 落 shadow)。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:xlsx 纯 JS 解析,零 DOM/head/window 足迹;渲染由消费方决定\nimport { read, utils } from 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm';\nconst wb = read(data.data, { type: 'array', ...(data.opts ?? {}) });\nconst ws = wb.Sheets[wb.SheetNames[0]];\nconst html = utils.sheet_to_html(ws);              // 预览:artifact/codex → getElementById('xlsx').innerHTML=html;widget → shadow 内容器.innerHTML=html\nconst rows = utils.sheet_to_json(ws, { header: 1 }); // 或取二维行数组喂给 grid;多 sheet 遍历 wb.SheetNames",
+    "note": "read 是同步返回。type 必须与 data 类型匹配(ArrayBuffer/Uint8Array→'array')。sheet_to_html 输出的 <table> 字符串内容来自源文件,innerHTML 前按宿主策略处理。公共 npm 版本止于 0.18.5,若需最新特性须改用 SheetJS 自有 CDN(超出本条 /npm/ 范围)。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "xlsx@0.18.5 +esm exports named `read`(tn), `utils`(Hw), `write`(nn), `writeFile`(Eo), `version`, `set_cptable`, `stream` etc — import {read,utils} correct. types/index.d.ts: read(data:any, opts?:ParsingOptions):WorkBook (L25); WorkBook { SheetNames:string[], Sheets:{[s]:WorkSheet} } (L269-277); utils.sheet_to_html(worksheet, options?:Sheet2HTMLOpts):string (L795); utils.sheet_to_json(worksheet, opts?):T[]/any[][] (L784-786) — all boot symbols check out. package.json browser field stubs node builtins (fs/buffer/crypto/stream/process:false) so the +esm browser build is pure in-memory parsing. Verified footprint of /tmp bundle: 0 document.head / createElement('style') / adoptedStyleSheets / window|document.addEventListener — read/utils are pure JS returning a WorkBook object / HTML string / row arrays with zero DOM/event/style footprint → trivially shadow-safe; consumer owns rendering. Honest caveat: SheetJS moved current releases to its own CDN; public npm is frozen at 0.18.5 (still loadable via jsDelivr /npm/).",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to parse .xlsx/.xls/.ods spreadsheet binary in the browser and extract data or convert a sheet to an HTML table with sheet_to_html for preview, instead of implementing Office binary parsing by hand. Render large interactive tables with ag-grid/tabulator; parse CSV only with papaparse; produce a finished styled .xlsx with exceljs.",
+      "why_valuable": "AI cannot unpack and parse proprietary Office binaries (.xlsx=zip+OOXML, .xls=BIFF). This is the prerequisite decoding layer for previewing an Excel file: xlsx reduces read(bytes) -> WorkBook plus utils.sheet_to_html/sheet_to_json to pure JS calls, producing data or an HTML table for the consumer to render.",
+      "data_in": {
+        "note": "Important: SheetJS moved current releases to its own CDN, and public npm is frozen at 0.18.5; version 0.18.5 still loads through jsDelivr /npm/. Input is spreadsheet-file bytes; use type:'array' for ArrayBuffer/Uint8Array. read synchronously returns a WorkBook, and rendering/extraction uses utils.",
+        "schema": {
+          "_defaults": {
+            "opts": "{}"
+          },
+          "data": "ArrayBuffer | Uint8Array -- Spreadsheet-file binary from File.arrayBuffer()/fetch().arrayBuffer(); use opts.type:'array'",
+          "opts?": {
+            "_default": "Infers format from magic bytes/extension when omitted",
+            "type?": "'array' | 'binary' | 'base64' | 'string' -- Use 'array' for ArrayBuffer/Uint8Array",
+            "sheetRows?": "number -- Parse only the first N rows; default 0 (all)",
+            "cellDates?": "boolean -- Parse dates as Date; default false"
+          }
+        }
+      }
+    }
+  }
+}

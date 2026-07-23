@@ -1,0 +1,67 @@
+{
+  "entry_version": "thin-1",
+  "id": "avr8js",
+  "name": "avr8js",
+  "when_to_use": "教 CPU 如何逐指令执行、寄存器/中断/定时器/引脚时序,或在浏览器里跑 Arduino Uno(ATmega328)程序做虚拟硬件时用。输入是一段已编译的机器码(Uint16Array),你驱动 run loop 读 CPU/引脚状态自绘;想可视化外设(LED/LCD/按钮)配 wokwi-elements。不需要指令级精度的普通动画别用它。",
+  "why_valuable": "逐周期精确的 8-bit AVR 指令集 + 外设(GPIO/定时器/UART/中断)时序,AI 无法徒手复现;它是 Wokwi 在线仿真平台的引擎,给出真实的引脚电平与时序行为。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "avr8js",
+    "version": "0.21.0",
+    "github": "wokwi/avr8js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "program-image",
+    "note": "data 是已编译机器码(Uint16Array),不是 Arduino 源码;avr8js 只是 CPU 核,不含编译器(真实 sketch 需外部 avr-gcc/Wokwi 编译成 .hex 再解析成 16-bit 字)。",
+    "schema": {
+      "program": "Uint16Array —— CPU 构造函数消费的已编译机器码(必需)",
+      "sramBytes?": "number —— CPU 第二参,SRAM 字节数,默认按型号",
+      "portConfig?": "portBConfig|portCConfig|portDConfig|… —— AVRIOPort 第二参,选哪组 GPIO 端口",
+      "timerConfig?": "timer0Config|timer1Config|timer2Config —— AVRTimer 第二参,启用定时器/PWM/millis"
+    }
+  },
+  "provides": {
+    "shape": "cpu-state",
+    "_note": "headless-primitive:纯 JS 数值 CPU 内核,无渲染;你驱动 run loop 后读状态自绘。",
+    "outputs": "逐周期 CPU/寄存器/SRAM/程序计数器状态,以及 GPIO 引脚电平、定时器、UART、中断行为——通过 run loop 逐步推进读取。",
+    "api_surface": {
+      "cpu": "new CPU(progMem: Uint16Array, sramBytes?); avrInstruction(cpu) 执行一条指令;cpu.tick() 处理时钟事件;cpu.cycles / cpu.pc",
+      "gpio": "new AVRIOPort(cpu, portBConfig); port.pinState(index):PinState; port.addListener(fn); port.setPin(index, bool) 驱动输入",
+      "peripherals": "new AVRTimer(cpu, timer0Config) / AVRUSART / AVRADC 等外设,构造即挂到 cpu",
+      "enums": "PinState { Low:0, High:1, Input:2, InputPullUp:3 }"
+    }
+  },
+  "peer": {
+    "id": "wokwi-elements",
+    "note": "avr8js 出引脚电平,wokwi-elements 把 LED/LCD/按钮等外设 web component 画出来——引擎 + 外设可视化,互补非替代。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS CPU 内核,无 DOM。data.program 是已编译的 Uint16Array 机器码;全部命名导出\nimport { CPU, avrInstruction, AVRIOPort, AVRTimer, portBConfig, timer0Config, PinState } from 'https://cdn.jsdelivr.net/npm/avr8js@0.21.0/+esm';\nconst cpu = new CPU(data.program);\nconst portB = new AVRIOPort(cpu, portBConfig);\nnew AVRTimer(cpu, timer0Config); // 定时器/PWM/millis 需要它\nportB.addListener(() => { const s = portB.pinState(5); /* s===PinState.High → 点亮 LED,自绘 */ });\n// run loop(每帧推进若干周期):\nfor (let i = 0; i < 50000; i++) { avrInstruction(cpu); cpu.tick(); }",
+    "note": "data 是已编译机器码(Uint16Array);avr8js 是 CPU 核不是编译器。驱动 run loop 后读 port.pinState(i) / cpu.data(寄存器/SRAM),渲染到自建 canvas/DOM(定高 px 禁 vh)。PinState:Low0/High1/Input2/InputPullUp3。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "API correct: dist/esm/index.d.ts exports named CPU, avrInstruction, avrInterrupt, AVRIOPort, PinState, portB/C/D…Config, AVRTimer, timer0/1/2Config, AVRUSART, AVRADC — all present in +esm export map (verified). cpu.d.ts: class CPU { constructor(progMem: Uint16Array, sramBytes?); tick(); cycles; pc }. gpio.d.ts: class AVRIOPort { constructor; pinState(index): PinState; addListener(GPIOListener); setPin(index, value) } and enum PinState { Low=0, High=1, Input=2, InputPullUp=3 }. Instruction executor avrInstruction(cpu) confirmed. Pure numeric simulator: no DOM nodes, no stylesheets, no window/document event listeners → shadow-safe by construction.",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to teach how a CPU executes instruction by instruction, register/interrupt/timer/pin timing, or to run an Arduino Uno (ATmega328) program as virtual hardware in the browser. Input is compiled machine code (Uint16Array); you drive the run loop, read CPU/pin state, and draw the UI yourself. Pair with wokwi-elements to visualize peripherals such as LEDs, LCDs, and buttons. Do not use it for ordinary animation that does not need instruction-level accuracy.",
+      "why_valuable": "Cycle-accurate 8-bit AVR instructions plus peripheral timing for GPIO, timers, UART, and interrupts cannot be recreated reliably by hand with AI; this is the engine behind the Wokwi online simulator and produces realistic pin levels and timing behavior.",
+      "data_in": {
+        "note": "data is compiled machine code (Uint16Array), not Arduino source; avr8js is only a CPU core and includes no compiler. A real sketch must be compiled externally with avr-gcc/Wokwi to .hex, then parsed into 16-bit words.",
+        "schema": {
+          "program": "Uint16Array -- Compiled machine code consumed by the CPU constructor (required)",
+          "sramBytes?": "number -- Second CPU argument, SRAM size in bytes; defaults by model",
+          "portConfig?": "portBConfig|portCConfig|portDConfig|... -- Second AVRIOPort argument; selects the GPIO port bank",
+          "timerConfig?": "timer0Config|timer1Config|timer2Config -- Second AVRTimer argument; enables timer/PWM/millis"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "entry_version": "thin-1",
+  "id": "splitting",
+  "name": "splitting",
+  "when_to_use": "把元素文本拆成 word/char/line 的 span 并给每个填 CSS 变量(--char-index/--char-percent/--line-index…),为错峰/逐字/逐行动画做准备时用它,再用 CSS 或 animejs(已在目录)驱动。它本身不产动画——只拆 DOM+写变量,动画归你的 CSS/JS。",
+  "why_valuable": "行检测与每项 index/percentage 变量很易错;AI 很难手工产出可用的分行或错峰索引。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "splitting",
+    "version": "1.1.0",
+    "github": "shshaw/splitting"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "text",
+    "note": "拆分对象的文本从 target.textContent 读;返回按元素分组的结果数组(每项含 .chars/.words/.lines 生成的 span 节点)。chars/words 只需你自写 CSS 用变量;lines/grid/cells 需 splitting.css 布局。",
+    "schema": {
+      "target": "string 选择器 | Element | NodeList —— 要拆分的元素",
+      "by?": "'chars' | 'words' | 'lines' | 'grid' | 'cells' —— 拆分维度,默认 'chars'",
+      "key?": "string —— CSS 变量/类前缀,默认无",
+      "whitespace?": "boolean —— 保留空白节点,默认 false",
+      "matching?": "string —— grid/cols 模式的子元素匹配选择器"
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to split an element's text into word/char/line spans and fill CSS variables on each (--char-index/--char-percent/--line-index...), preparing staggered, character-by-character, or line-by-line animation driven by CSS or animejs (already in the catalog). It does not animate by itself; it only splits DOM and writes variables, while animation remains in your CSS/JS.",
+      "why_valuable": "Line detection and per-item index/percentage variables are easy to get wrong. AI struggles to hand-produce useful line grouping or stagger indices.",
+      "data_in": {
+        "note": "Text is read from target.textContent. The result is an array grouped by element, with each item containing generated span nodes under .chars/.words/.lines. chars/words only require your own CSS using the variables; lines/grid/cells need splitting.css layout.",
+        "schema": {
+          "target": "string selector | Element | NodeList -- element(s) to split",
+          "by?": "'chars' | 'words' | 'lines' | 'grid' | 'cells' -- split dimension; default 'chars'",
+          "key?": "string -- CSS variable/class prefix; none by default",
+          "whitespace?": "boolean -- preserve whitespace nodes; default false",
+          "matching?": "string -- child-element match selector for grid/cols mode"
+        }
+      }
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested。Splitting 只把目标文本包成带 CSS 变量(--char-index/--char-percent/--line-index…)的 span 节点;动画用你自己的 CSS 读这些变量。\nimport Splitting from 'https://cdn.jsdelivr.net/npm/splitting@1.1.0/+esm';\nconst results = Splitting({ target: data.target ?? '[data-splitting]', by: data.by ?? 'chars' });\n// 用 by:'lines' 或 'cells' 时再外链 splitting.css(定位规则)",
+    "widget": "// Splitting 只改目标元素自身的子树 —— 完全 shadow-safe。传 shadow 节点。\nimport Splitting from 'https://cdn.jsdelivr.net/npm/splitting@1.1.0/+esm';\nconst results = Splitting({ target: shadowRoot.querySelector('.headline'), by: data.by ?? 'chars' });\n// 在 shadowRoot 内用你自己的 CSS 读 --char-index 驱动错峰;若用 'lines'/'cells',把 splitting.css 以 adoptedStyleSheets 采纳进 shadowRoot",
+    "codex": "import Splitting from 'https://cdn.jsdelivr.net/npm/splitting@1.1.0/+esm';\nconst results = Splitting({ target: data.target ?? '[data-splitting]', by: data.by ?? 'chars' });"
+  },
+  "example": {
+    "_why": "钉本库的 target+by 契约;by 值只在 chars/words/lines/grid/cells 里取。",
+    "minimal": {
+      "target": ".headline",
+      "by": "chars"
+    },
+    "empty": {
+      "target": "[data-splitting]"
+    }
+  },
+  "uplink": "纯 DOM-prep,无 uplink;生成的 span 节点数组由消费 AI 直接接下游动画。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:只改目标元素自身子树,传 shadow 节点即可;用 lines/cells 时把 splitting.css 采纳进 shadowRoot",
+    "codex": "supported:default export,纯 DOM 变换,无 worker/wasm"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "API correct: +esm default export(er as default)= Splitting({target, by, key, whitespace, matching});by-plugins chars/words/lines/grid/cells 均在;把 target.textContent 拆成带 CSS 变量/类的 span 节点、只作用于目标子树;返回按元素分组的结果数组。globalStyleInjection=no;globalDomMutation=no:只改传入 target 自身子树;grep 到 0 处 document.head、0 处 document.body、0 处 window.*、0 处 addEventListener。splitting.css/splitting-cells.css(assets 200)是 lines/cells 的外链布局规则,非库注入。shadowCompatible=yes。",
+    "confidence": "high"
+  }
+}

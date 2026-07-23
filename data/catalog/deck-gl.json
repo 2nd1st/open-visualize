@@ -1,0 +1,119 @@
+{
+  "entry_version": "thin-1",
+  "id": "deck-gl",
+  "name": "deck.gl",
+  "when_to_use": "需要在坐标(经纬度或任意 x/y)上叠加大规模数据层——OD 弧线、点密度六边形/网格聚合、轨迹路径——且不想要真地图瓦片时用它(可无底图,只画数据层);少量点用现有 Chart.js/Plotly 即可,不必上 deck。",
+  "why_valuable": "原生 AI 手写 SVG/Canvas 在几万点以上就卡死;deck.gl 用 WebGL/GPU 实例化渲染百万级点/线/多边形并支持 hover/pick 拾取,内置 HexagonLayer/HeatmapLayer/GridLayer/ArcLayer 做 GPU 空间聚合(海量坐标聚成六边形/网格再统计),这类 GPU 聚合+拾取原生根本写不动。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to overlay large-scale data layers on coordinates, whether longitude/latitude or arbitrary x/y, such as OD arcs, point-density hexagon/grid aggregation, or trajectory paths, without real map tiles. It can render only the data layers with no basemap. For a small number of points, existing Chart.js/Plotly is enough; deck is unnecessary.",
+      "why_valuable": "Hand-written SVG/Canvas from AI stalls above tens of thousands of points. deck.gl uses WebGL/GPU instancing to render millions of points, lines, or polygons with hover/pick support, and includes HexagonLayer/HeatmapLayer/GridLayer/ArcLayer for GPU spatial aggregation, such as grouping massive coordinate sets into hexagons or grids before summarizing them. Native AI cannot implement this combination of GPU aggregation and picking.",
+      "data_in": {
+        "note": "deck is accessor-driven: field names are determined by callbacks such as getPosition and getSourcePosition, so the schema fixes one conventional row shape. Crucially, new Deck attaches its canvas to parent||document.body, so parent must be supplied as a container div; in a widget, pass a container inside shadowRoot. Without a basemap, use initialViewState to provide the longitude/latitude or orthographic view directly.",
+        "schema": {
+          "_defaults": {
+            "controller": "true",
+            "layers": "[]"
+          },
+          "initialViewState": "{ longitude:number, latitude:number, zoom:number, pitch?:number, bearing?:number } - viewport; without a basemap, this can still position the data layers alone",
+          "points": "[{ position:[lng,lat] | [x,y], radius?:number, color?:[r,g,b], weight?:number }] - data for ScatterplotLayer/HexagonLayer/HeatmapLayer/GridLayer, with coordinates read by getPosition:d=>d.position",
+          "arcs?": "[{ from:[lng,lat], to:[lng,lat], color?:[r,g,b] }] - ArcLayer data, with endpoints read by getSourcePosition/getTargetPosition",
+          "layerType?": "'scatterplot'|'hexagon'|'heatmap'|'grid'|'arc'|'line'|'path'|'geojson' - select the layer, corresponding to the named *Layer exports"
+        }
+      },
+      "spec": {
+        "note": "deck absolutely positions its canvas inside the parent container. The container needs an explicit px height and position:relative; do not use vh or percentage heights. WebGL2 must be supported by the host."
+      }
+    }
+  },
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "deck.gl",
+    "version": "9.3.7",
+    "github": "visgl/deck.gl"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "geospatial",
+    "note": "deck 是 accessor 驱动:字段名由 getPosition/getSourcePosition 等回调决定,schema 只钉一套惯用行形。关键:new Deck 的 canvas 会挂到 parent||document.body——必须传 parent(容器 div,widget 内传 shadowRoot 内的容器)。无底图时用 initialViewState 直接给经纬度/正交视图。",
+    "schema": {
+      "_defaults": {
+        "controller": "true",
+        "layers": "[]"
+      },
+      "initialViewState": "{ longitude:number, latitude:number, zoom:number, pitch?:number, bearing?:number } —— 视口;无底图也可用此仅定位数据层",
+      "points": "[{ position:[lng,lat] | [x,y], radius?:number, color?:[r,g,b], weight?:number }] —— ScatterplotLayer/HexagonLayer/HeatmapLayer/GridLayer 的 data,由 getPosition:d=>d.position 取坐标",
+      "arcs?": "[{ from:[lng,lat], to:[lng,lat], color?:[r,g,b] }] —— ArcLayer,由 getSourcePosition/getTargetPosition 取端点",
+      "layerType?": "'scatterplot'|'hexagon'|'heatmap'|'grid'|'arc'|'line'|'path'|'geojson' —— 选层(对应 named 导出的 *Layer)"
+    }
+  },
+  "spec": {
+    "height": 500,
+    "note": "deck 绝对定位 canvas 于 parent 容器;容器须显式 px 高 + position:relative,禁用 vh/百分比高。WebGL2 需宿主支持。"
+  },
+  "boot": {
+    "artifact": "// +esm 的 luma.gl 传递依赖混入不同 patch；使用 deck.gl 官方自包含 browser bundle 保持单一运行时\nconst el = document.getElementById('deck'); el.style.cssText = 'height:500px;position:relative'; el.textContent = 'Loading WebGL view…';\nconst previousDeck = globalThis.deck; await new Promise((ok, bad) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/deck.gl@9.3.7/dist.min.js'; s.onload = () => { s.remove(); ok(); }; s.onerror = () => bad(new Error('failed to load deck.gl browser bundle')); el.appendChild(s); });\nconst { Deck, ScatterplotLayer } = globalThis.deck; if (previousDeck === undefined) delete globalThis.deck; else globalThis.deck = previousDeck; el.textContent = '';\nconst deck = new Deck({ parent: el, initialViewState: data.initialViewState, controller: true, layers: [ new ScatterplotLayer({ id:'pts', data: data.points, getPosition: d=>d.position, getRadius: d=>d.radius ?? 100, getFillColor: d=>d.color ?? [255,140,0] }) ] });",
+    "widget": "// canvas 必须落 shadow:parent 传 shadowRoot 内容器；自包含 browser bundle 避免 luma.gl 多版本\nconst el = document.createElement('div'); el.style.cssText = 'height:500px;position:relative'; el.textContent = 'Loading WebGL view…'; shadowRoot.appendChild(el);\nconst previousDeck = globalThis.deck; await new Promise((ok, bad) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/deck.gl@9.3.7/dist.min.js'; s.onload = () => { s.remove(); ok(); }; s.onerror = () => bad(new Error('failed to load deck.gl browser bundle')); shadowRoot.appendChild(s); });\nconst { Deck, ScatterplotLayer } = globalThis.deck; if (previousDeck === undefined) delete globalThis.deck; else globalThis.deck = previousDeck; el.textContent = '';\nconst deck = new Deck({ parent: el, initialViewState: data.initialViewState, controller: true, layers: [ new ScatterplotLayer({ id:'pts', data: data.points, getPosition: d=>d.position, getRadius: d=>d.radius ?? 100, getFillColor: d=>d.color ?? [255,140,0] }) ] });",
+    "codex": "const el = document.getElementById('deck'); el.style.cssText = 'height:500px;position:relative'; el.textContent = 'Loading WebGL view…';\nconst previousDeck = globalThis.deck; await new Promise((ok, bad) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/deck.gl@9.3.7/dist.min.js'; s.onload = () => { s.remove(); ok(); }; s.onerror = () => bad(new Error('failed to load deck.gl browser bundle')); el.appendChild(s); });\nconst { Deck, ScatterplotLayer } = globalThis.deck; if (previousDeck === undefined) delete globalThis.deck; else globalThis.deck = previousDeck; el.textContent = '';\nconst deck = new Deck({ parent: el, initialViewState: data.initialViewState, controller: true, layers: [ new ScatterplotLayer({ id:'pts', data: data.points, getPosition: d=>d.position, getRadius: d=>d.radius ?? 100, getFillColor: d=>d.color ?? [255,140,0] }) ] });"
+  },
+  "example": {
+    "_why": "deck 是 accessor 驱动,minimal 钉死 position:[lng,lat] 的行形与 getPosition:d=>d.position 的取法。",
+    "minimal": {
+      "initialViewState": {
+        "longitude": -122.4,
+        "latitude": 37.74,
+        "zoom": 11
+      },
+      "points": [
+        {
+          "position": [
+            -122.42,
+            37.78
+          ],
+          "radius": 120,
+          "color": [
+            255,
+            140,
+            0
+          ]
+        },
+        {
+          "position": [
+            -122.45,
+            37.75
+          ],
+          "radius": 80,
+          "color": [
+            0,
+            128,
+            255
+          ]
+        }
+      ]
+    },
+    "empty": {
+      "initialViewState": {
+        "longitude": 0,
+        "latitude": 0,
+        "zoom": 1
+      },
+      "points": []
+    }
+  },
+  "uplink": "display/local-interact 默认不上行;hover/pick 拾取信息若需外传,由消费 AI 直接接 Layer 的 onHover/onClick 或 Deck 的 getTooltip 回调并按载体处理。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:+esm,parent 传 shadowRoot 内容器把 WebGL canvas 收进 shadow;核心 Deck 不注入 head CSS(仅 @deck.gl/widgets 才注,默认不加载)",
+    "codex": "supported:ESM CDN + WebGL,无 worker/uplink 硬依赖(WebGL2 需宿主支持)"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "conditional",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "+esm 具名导出 {Deck,DeckGL,ScatterplotLayer,HexagonLayer,HeatmapLayer,GridLayer,ArcLayer,LineLayer,PathLayer,GeoJsonLayer,ColumnLayer,...} + default;standalone dist.min.js 为 UMD 暴露全局 'deck'。@deck.gl/core DeckProps:parent?:HTMLDivElement|null、canvas?:HTMLCanvasElement|string|null、initialViewState、controller、layers、getTooltip 均真实。globalDomMutation=yes:实测 core +esm 源码 '(t.parent||document.body).appendChild(e)'——不传 parent 则 canvas 挂 body,传 parent 收进容器(shadow 内容器即可)。globalStyleInjection=conditional:@deck.gl/core +esm grep document.head/insertRule/.css = 0(核心 Deck 不注样式);仅 @deck.gl/widgets(opt-in,默认不引)才注 widget CSS。globalEvents=yes:dist UMD grep addEventListener×12 / pointermove×6 / ResizeObserver×1(交互与自适应,挂 canvas/容器,finalize()/setProps 清理)。shadowCompatible=conditional:传 parent 进 shadow 即可将 canvas 与拾取全收进 shadow。",
+    "confidence": "high"
+  }
+}

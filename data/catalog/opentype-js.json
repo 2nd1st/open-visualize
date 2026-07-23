@@ -1,0 +1,69 @@
+{
+  "entry_version": "thin-1",
+  "id": "opentype-js",
+  "name": "opentype.js",
+  "when_to_use": "交付需要「文字转曲线」的成品(激光刻字路径、印厂要的转曲 SVG、字体无关 logo)或要读取/子集/生成 .otf 时用它,而非用 CSS 字体——普通网页文字直接用 CSS @font-face 即可,不需要它;它补的是把任意字体的字形抽成矢量轮廓路径这一层,渲染出的字形不依赖查看端装没装该字体。",
+  "why_valuable": "AI 默认拿不到真实字体的字形轮廓,只能靠内置字体渲染文字,一旦查看端缺字就串字或走样;把 text 转成字体无关的矢量 path(SVG d / <path>)需要解析 OTF/TTF 的 glyf/CFF 轮廓表并做 kerning/ligature 组字,徒手成功率为 0。opentype.js 把这条固化成命名函数。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for finished outputs that require text converted to outlines (laser-engraving paths, outlined SVG for print shops, or font-independent logos) or to read, subset, or generate .otf files, rather than CSS fonts. Ordinary web text should use CSS @font-face directly and does not need this package; it supplies the layer that extracts glyphs from any font into vector outlines, so rendered glyphs do not depend on whether the viewer has that font installed.",
+      "why_valuable": "AI normally cannot access real glyph outlines and can only render text through installed fonts, causing substitution or distortion when the viewer lacks a font. Converting text into font-independent vector paths (SVG d / <path>) requires parsing OTF/TTF glyf or CFF outline tables and applying kerning/ligature shaping, with a 0% hand-written success rate. opentype.js fixes this behind named functions.",
+      "data_in": {
+        "note": "Input is text plus a CORS-accessible font-file URL (.otf/.ttf/.woff). The v2 README deprecates callback-style load; use fetch->arrayBuffer->parse (synchronous). getPath y is the baseline coordinate, usually set to fontSize so glyphs land inside the 0..fontSize viewport.",
+        "schema": {
+          "fontUrl": "string -- font-file URL (.otf/.ttf/.woff); must be CORS-accessible and fetched as an ArrayBuffer before parse",
+          "text": "string -- text to convert to outlines",
+          "fontSize?": "number -- px, default 72",
+          "x?": "number -- starting horizontal coordinate, default 0",
+          "y?": "number -- baseline coordinate, default 0 (fontSize is recommended; otherwise glyphs above the viewport are clipped)"
+        }
+      }
+    }
+  },
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "opentype.js",
+    "version": "2.0.0",
+    "github": "opentypejs/opentype.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "text",
+    "note": "输入是文字 + 一个可 CORS 取到的字体文件 URL(.otf/.ttf/.woff)。v2 README 已弃用回调式 load,改 fetch→arrayBuffer→parse(同步)。getPath 的 y 是基线纵坐标,通常设为 fontSize 让字形落进 0..fontSize 视口。",
+    "schema": {
+      "fontUrl": "string —— 字体文件 URL(.otf/.ttf/.woff);须 CORS 可达,parse 前先 fetch 成 ArrayBuffer",
+      "text": "string —— 要转曲的文字",
+      "fontSize?": "number —— px,默认 72",
+      "x?": "number —— 起始横坐标,默认 0",
+      "y?": "number —— 基线纵坐标,默认 0(建议设为 fontSize,否则字形在视口上方被裁)"
+    }
+  },
+  "provides": {
+    "shape": "glyph-paths",
+    "_note": "headless-primitive:不挂视觉组件、无 L 级、无 carriers 矩阵;输出 SVG path 数据字符串,由消费 AI 注入原生 <svg> 渲染。",
+    "outputs": "SVG path 的 d 字符串 / <path> 片段 / 单字 Glyph 轮廓 / advanceWidth 度量;还能 font.toArrayBuffer() 生成/子集 .otf。",
+    "api_surface": {
+      "parse": "opentype.parse(arrayBuffer) → Font(同步;default 命名空间与 named 导出都提供 parse)",
+      "path": "Font.getPath(text, x, y, fontSize, options) → Path;Path.toPathData(decimals) → 'M..Z' d 字符串;Path.toSVG(decimals) → '<path d=..>' 片段",
+      "glyph": "Font.charToGlyph(char) → Glyph;glyph.getPath(x, y, fontSize) → Path;Font.stringToGlyphs(str)",
+      "metrics": "Font.getAdvanceWidth(text, fontSize, options) → number;Font.getKerningValue(left, right) → number"
+    }
+  },
+  "peer": {
+    "id": "none",
+    "note": "无需渲染库:把 toPathData() 的结果塞进原生 <svg><path d=..> 即可;要位图再交给 canvas 2d。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS 字符串输出,零 DOM/uplink/shadow 足迹\nimport * as opentype from 'https://cdn.jsdelivr.net/npm/opentype.js@2/+esm';\n// v2 推荐路径:fetch 成 ArrayBuffer 再同步 parse(opentype.js@2 的 +esm 是 named-only,无 default 导出,故用 * as 命名空间导入,opentype.parse 照常可用)\nconst buf = await fetch(data.fontUrl).then(r => r.arrayBuffer());\nconst font = opentype.parse(buf);\nconst path = font.getPath(data.text, data.x ?? 0, data.y ?? (data.fontSize ?? 72), data.fontSize ?? 72);\nconst d = path.toPathData(2);        // 供 <path d=...>\nconst svgFragment = path.toSVG(2);    // '<path d=...>' 片段\nconst advance = font.getAdvanceWidth(data.text, data.fontSize ?? 72);",
+    "note": "parse 吃 ArrayBuffer(同步返回 Font);start y 是基线,不是顶端。toPathData/toSVG 是纯字符串生成,不触 DOM;字体 URL 受宿主 CSP 约束(须同源或 CORS 开放)。也可 import { parse, Font, Path } 具名导入。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm 具名导出 {BoundingBox,Font,Glyph,Path,_parse,load,loadSync,parse} 且 default 是含 {parse,load,Font,Path,Glyph} 的命名空间对象(实测 dist/opentype.mjs 'default={parse:parse,...}')。parse→getPath→toPathData/toSVG 全链纯字符串:mjs grep 仅见 document.body.appendChild×1 与 removeChild×1 成对(字宽测量辅助,净零、且不在轮廓抽取路径上),document.createElement('canvas').getContext('2d') 为离屏测量(从不 append)。零全局样式/事件足迹 → 天然 shadow-safe(输出交消费 AI 注入 <svg>)。",
+    "confidence": "high"
+  }
+}

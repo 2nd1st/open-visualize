@@ -50,6 +50,9 @@
     "_why_no_minimal": "WaveJSON 是 AI 原生 JSON 记法；按模板不重复喂示例,仅保留空态 fixture。",
     "empty": {
       "wavejson": "{\"signal\":[]}"
+    },
+    "minimal": {
+      "wavejson": "{\"signal\":[{\"name\":\"clk\",\"wave\":\"p.....|...\"},{\"name\":\"data\",\"wave\":\"x.345x|=.x\",\"data\":[\"head\",\"body\",\"tail\",\"data\"]},{\"name\":\"req\",\"wave\":\"0.1..0|1.0\"},{},{\"name\":\"ack\",\"wave\":\"1.....|01.\",\"node\":\".....a|.b.\"}],\"edge\":[\"a~>b setup\"],\"head\":{\"text\":\"WaveDrom timing example\"}}"
     }
   },
   "carriers": {
@@ -63,7 +66,37 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Imports verified: +esm exports renderAny, waveSkin, onml (all named). renderAny source is function r(s,a,c,d) — a 4-arg pure builder (index, source, waveSkin, notFirst) returning an onml array with i[1].class='WaveDrom'; matches boot renderAny(0,source,waveSkin,false) then onml.stringify(...). schema wavejson->JSON.parse->{signal[].name/wave/data/phase/period/node, edge, head, foot, config} are the real WaveJSON fields consumed by renderSignal. The bundle DOES contain document.head.insertAdjacentHTML and a document.body.appendChild('Save as PNG/SVG' context menu), but both live in the ProcessAll/interactive-menu paths which the boot deliberately avoids (uses renderAny+onml.stringify, never processAll/eval). Boot path writes only an SVG string into the shadow host.innerHTML.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to render a WaveJSON signal description as an aligned digital timing SVG, instead of hand-writing lines and text, because native implementations fail at cycle alignment, bus states, edges, and cross-signal markers. Not a circuit simulator or logic verifier.",
+      "why_valuable": "AI can generate WaveJSON by default, but cannot reliably align multiple clocks, bus values, unknown states, and edges into a pixel-aligned SVG. WaveDrom deterministically converts its native JSON notation into an engineering-document-quality timing diagram.",
+      "data_in": {
+        "note": "wavejson must be a strict JSON string. After JSON.parse, boot calls renderAny/onml.stringify directly. It does not create a type=WaveDrom script tag or use ProcessAll, which would eval text.",
+        "schema": {
+          "wavejson": "string -- After JSON.parse, must produce the decoded structure below",
+          "decoded": {
+            "signal": [
+              {
+                "name?": "string -- Empty label by default",
+                "wave": "string -- One cycle state per character; common symbols: 0/1=preset level, x=unknown, z=high impedance, p/n=clock, .=continuation, = or 2..9=bus segment with data",
+                "data?": "string | (string|number)[] -- Labels =/2..9 bus segments in order; none by default",
+                "phase?": "number -- Cycle phase offset; default 0",
+                "period?": "positive number -- Cycle multiplier; default 1",
+                "node?": "string -- Per-cycle node markers; none by default"
+              }
+            ],
+            "edge?": "string[] -- Edge/arrow descriptions between nodes; default []",
+            "head?": "{text?:string,tick?:number,tock?:number} -- None by default",
+            "foot?": "{text?:string,tick?:number,tock?:number} -- None by default",
+            "config?": "{hscale?:positive integer,hbounds?:[number,number],marks?:boolean} -- hscale default 1, marks default true"
+          }
+        }
+      },
+      "spec": {
+        "note": "WaveDrom outputs SVG whose width grows with cycle count. boot gives the carrier an explicit height of 280px and two-dimensional scrolling rather than crushing the SVG. AI may override pixel height; vh/percentage height is prohibited."
+      }
+    }
   }
 }

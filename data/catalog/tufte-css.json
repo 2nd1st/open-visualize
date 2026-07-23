@@ -4,6 +4,19 @@
   "name": "Tufte CSS",
   "when_to_use": "需要带边注、旁注编号和紧凑图文节奏的研究简报或讲义时用它而非手写 CSS，因为原生在边注浮动、窄屏回流和 ET Book 字感的一致性上失败；非做通用应用 UI。",
   "why_valuable": "AI 默认只能仿出约 70% 的 Tufte 外观，做不到稳定复现 margin-toggle/sidenote 配对、边注编号、窄屏降级和字体度量；该 CSS 把这些易碎规则固化为可检索的语义 HTML 契约。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing CSS when you need a research brief or lecture note with sidenotes, numbered margin notes, and compact text-image rhythm, because native implementations fail at sidenote floats, narrow-screen reflow, and a consistent ET Book feel; not for general application UI.",
+      "why_valuable": "AI can normally imitate about 70% of the Tufte appearance but cannot reliably reproduce margin-toggle/sidenote pairing, sidenote numbering, narrow-screen fallback, and font metrics; this CSS fixes these fragile rules into a searchable semantic HTML contract.",
+      "data_in": {
+        "note": "Input is a trusted semantic HTML string; a sidenote must preserve label.margin-toggle + input.margin-toggle + span.sidenote/marginnote as siblings. The CSS does not parse Markdown.",
+        "schema": {
+          "html": "string -- semantic HTML; body content usually lives in article, and a sidenote-toggle label's for must equal the adjacent input.margin-toggle id",
+          "max_width?": "number -- root-container maximum width (px), default 1400"
+        }
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -47,7 +60,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "纯 CSS 无 JS 运行时,不自行注入任何位置;widget boot 把 <link> 落 shadowRoot(shadowRoot.append(css, el))而非 document.head→无全局注入=globalStyleInjection no。边注开关用 input.margin-toggle 复选框 + CSS :checked,无 JS→globalEvents no;仅 innerHTML 进 article,不动 body→globalDomMutation no。conditional 原因:tufte.min.css 含 html{font-size:15px}/body{width:87.5%} 等裸元素基样式,shadowRoot 内无 html/body 匹配→基准字号/宽度失效(.sidenote/.marginnote 类规则仍生效),widget 已如实标 conditional。警示:若误落 document.head,article/p/section/blockquote 等裸选择器会全局重排宿主页。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

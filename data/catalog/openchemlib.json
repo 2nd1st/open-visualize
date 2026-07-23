@@ -2,6 +2,21 @@
   "entry_version": "thin-1",
   "id": "openchemlib",
   "name": "OpenChemLib JS",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when SMILES or Molfile must be validated and depicted as a clean 2D chemical structure instead of hand-written SVG, which fails at bond types, aromatic rings, stereochemistry, and coordinate layout. Do not use it for 3D conformer viewing or a complete chemical editor.",
+      "why_valuable": "AI cannot reliably recover a 2D bond-line diagram with stereochemical information from linear chemical notation, or guarantee aromaticity and valence layout. OpenChemLib performs parsing, coordinate generation, and SVG depiction in pure JS.",
+      "data_in": {
+        "schema": {
+          "source": "string -- complete SMILES or MDL Molfile text; do not pass JSON that wraps it",
+          "format?": "'smiles' | 'molfile' -- defaults to 'smiles'"
+        }
+      },
+      "spec": {
+        "note": "toSVG must receive pixel width and height. Height defaults to 320px, while width comes from the container pixel width or defaults to 480px. Do not use vh or percentage heights."
+      }
+    }
+  },
   "when_to_use": "需要把 SMILES 或 Molfile 校验并描绘成清晰 2D 化学结构时用它而非手写 SVG,因为原生在键型、芳香环、立体化学和坐标布局上失败;非做 3D 构象查看或完整化学编辑器。",
   "why_valuable": "AI 默认无法从线性化学记法可靠恢复带立体信息的 2D 键线图,也不能保证芳香性与价态布局;OpenChemLib 用纯 JS 完成解析、坐标生成和 SVG 描绘。",
   "supply_form": "component",
@@ -41,7 +56,12 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Molecule.toSVG returns a plain SVG string (dist/openchemlib.d.ts L666-671) — pure computation; boot writes it via el.innerHTML into the shadow container. No document.head/body writes, no listeners. registerCustomElement export exists but boot never calls it.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "source": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+      "format": "smiles"
+    }
   }
 }

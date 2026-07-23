@@ -2,6 +2,22 @@
   "entry_version": "thin-1",
   "id": "html-resume-mnjul",
   "name": "html-resume (mnjul)",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of writing the layout by hand when you need to fit completed single-page resume HTML into strict Letter paper geometry, two columns, and print-to-PDF styles, because native implementations fail on inch-based page geometry, timeline alignment, and browser print breaks. It is not a JSON Resume renderer.",
+      "why_valuable": "AI defaults can write resume content but cannot hit 8.5x11in geometry, a full-height sidebar, date decoration lines, and printed backgrounds in one attempt; this template fixes those fragile CSS constraints.",
+      "data_in": {
+        "note": "Upstream has no data API; the input is the HTML shape inside resume.html's body. You must preserve class names such as #main, #sidebar, .main-block, .blocks, .date, .decorator, and .details for the styles to match.",
+        "schema": {
+          "body_html": "string -- body fragment only; the root level must contain section#main and aside#sidebar, and experience entries use .blocks > .date + .decorator + .details",
+          "lang?": "string -- shell language tag; default 'en'"
+        }
+      },
+      "spec": {
+        "note": "Upstream is fixed to Letter portrait: 8.5in x 11in, or 816x1056px at 96 CSS px/in. Preview uses these explicit pixel dimensions. Do not use vh or percentage heights; A4 is not supported by this template."
+      }
+    }
+  },
   "when_to_use": "需要把已写好的单页简历 HTML 套进严格 Letter 纸张、左右栏与 print-to-PDF 样式时用它而非手写,因为原生在英寸级纸张几何、时间线对齐和浏览器打印断行上失败;非 JSON Resume 渲染器。",
   "why_valuable": "AI 默认能写简历内容但做不到一次命中 8.5×11in 几何、侧栏满高、日期装饰线与打印背景;该模板把这些易碎 CSS 约束固定下来。",
   "supply_form": "component",
@@ -42,7 +58,12 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "无运行时 JS,但 artifact/codex boot 把 normalize.css(全局 reset)+font-awesome+style.css 三个 <link> 追加进 document.head 且默认 media=all → 影响宿主整页;widget boot 已正确改落 shadowRoot。style.css 的 body{}(32行)与 @page{}(1行)为文档级规则,shadow 内不生效——#main/#sidebar 为 id 选择器+组件 class 可在 shadow 命中,widget boot 用内联 font-family/line-height 补偿 body 层排版,真实打印纸张几何(@page)仍需 artifact/codex 文档级。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "lang": "en",
+      "body_html": "<section id=\"main\"><header id=\"title\"><h1>Ada <strong>Lovelace</strong></h1><span class=\"subtitle\">Software Engineer &amp; Systems Analyst</span></header><section class=\"main-block\"><h2><i class=\"fa fa-suitcase\"></i> Experience</h2><section class=\"blocks\"><div class=\"date\"><span>2021</span><span>present</span></div><div class=\"decorator\"></div><div class=\"details\"><header><h3>Senior Backend Engineer</h3><span class=\"place\">Analytical Engines Inc.</span><span class=\"location\">London, UK</span></header><div><ul><li>Designed a distributed job scheduler handling 40M tasks per day</li><li>Cut p99 API latency by 62% through query and cache redesign</li></ul></div></div></section><section class=\"blocks\"><div class=\"date\"><span>2018</span><span>2021</span></div><div class=\"decorator\"></div><div class=\"details\"><header><h3>Software Engineer</h3><span class=\"place\">Babbage Systems</span><span class=\"location\">Remote</span></header><div><ul><li>Built the billing microservice powering 12k active subscriptions</li><li>Introduced a CI pipeline that cut release time from days to hours</li></ul></div></div></section></section><section class=\"main-block concise\"><h2><i class=\"fa fa-graduation-cap\"></i> Education</h2><section class=\"blocks\"><div class=\"date\"><span>2014</span><span>2018</span></div><div class=\"decorator\"></div><div class=\"details\"><header><h3>B.Sc. in Computer Science</h3><span class=\"place\">University of Cambridge</span><span class=\"location\">Cambridge, UK</span></header><div>First Class Honours &mdash; Dean's List</div></div></section></section></section><aside id=\"sidebar\"><div class=\"side-block\" id=\"contact\"><h1>Contact</h1><ul><li><i class=\"fa fa-globe\"></i> ada.dev</li><li><i class=\"fa fa-envelope\"></i> ada@ada.dev</li><li><i class=\"fa fa-phone\"></i> 800.000.1815</li></ul></div><div class=\"side-block\" id=\"skills\"><h1>Skills</h1><ul><li>Go &amp; Rust</li><li>Distributed Systems</li></ul><ul><li>PostgreSQL</li><li>Kubernetes</li></ul></div></aside>"
+    }
   }
 }

@@ -4,6 +4,20 @@
   "name": "JS-quantities",
   "when_to_use": "需要解析复合单位、做量纲一致性检查或换算 km/h、N·m、kWh 等带量纲数量时用它而非手写,因为原生在单位指数、复合量纲和不兼容运算上会失败。",
   "why_valuable": "AI 默认做不到可靠的复合单位代数,会把量纲不兼容的值直接相加并在指数单位中漏因子；该库能解析单位字符串、校验兼容性并保留量纲。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to parse compound units, check dimensional consistency, or convert dimensional quantities such as km/h, N*m, and kWh instead of hand-writing the logic. Native implementations fail on unit exponents, compound dimensions, and incompatible operations.",
+      "why_valuable": "AI cannot perform reliable compound-unit algebra by default; it adds dimensionally incompatible values and drops factors in exponentiated units. This library parses unit strings, validates compatibility, and preserves dimensions.",
+      "data_in": {
+        "note": "data_in constructs Qty(value, unit) exactly, then calls to with optional target_unit. unit uses native JS-quantities syntax: multiplication may use a space or *, and exponents may be written as m^2 or m2.",
+        "schema": {
+          "value": "number - scalar part of the quantity",
+          "unit": "string - native unit expression, for example 'km/h'|'m/s'|'N*m'|'kWh'|'m^2/s^2'",
+          "target_unit?": "string - target unit expression with compatible dimensions, omitted by default; when omitted, only parse and normalize the original unit"
+        }
+      }
+    }
+  },
   "supply_form": "headless-primitive",
   "mode": "direct-import",
   "upstream": {
@@ -52,7 +66,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "纯量纲代数,无任何 DOM;/esm/+esm 内唯一 window 引用为 Number.isFinite||window.isFinite 特性探测(只读,非写入);无 document/appendChild/addEventListener/createElement。完全 shadow/worker 无关(shadow=yes)。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

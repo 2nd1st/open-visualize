@@ -1,0 +1,93 @@
+{
+  "entry_version": "thin-1",
+  "id": "grapesjs",
+  "name": "grapesjs",
+  "when_to_use": "需要让用户可视化拖拽拼装/就地编辑一个页面、邮件或模板(builder UI)并导出 HTML/CSS 时用它,而非只渲染固定内容——block 管理、style 管理、图层树、撤销、设备预览是数千行工程;要自由白板画图用 excalidraw。注意:它向 document.head 注样式且画布是 iframe,不适合 widget/shadow 载体,走 artifact/codex 全页。",
+  "why_valuable": "一个无代码网页/页面/邮件构建器(拖 block 进画布、就地编辑、面板改样式、导出 HTML/CSS)是 block manager + style manager + 图层树 + undo + 设备预览的组合,远超 AI 单个 artifact 手写量。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when users need to visually drag, assemble, and edit a page, email, or template in place (a builder UI) and export HTML/CSS, rather than merely render fixed content; block management, style management, a layer tree, undo, and device previews are thousands of lines of engineering. Use excalidraw for a free-form drawing canvas. Note: it injects styles into document.head and its canvas is an iframe, so it does not suit widget/shadow carriers; use a full-page artifact/codex carrier.",
+      "why_valuable": "A no-code web/page/email builder (drag blocks onto a canvas, edit in place, change styles in panels, and export HTML/CSS) combines a block manager, style manager, layer tree, undo, and device previews, far beyond what AI can hand-write in one artifact.",
+      "data_in": {
+        "note": "Input is initial content (HTML/CSS) plus mount and behavior configuration; retrieve output with editor.getHtml() / editor.getCss(). storageManager:false is recommended to disable remote storage. The +esm build is heavy at about 1.16MB.",
+        "schema": {
+          "_defaults": {
+            "fromElement": "false",
+            "storageManager": "false",
+            "height": "'600px'",
+            "width": "'100%'"
+          },
+          "container": "HTMLElement -- required mount point (passed to init)",
+          "components?": "string(HTML) | object[] -- initial content, empty by default",
+          "style?": "string(CSS) | object[] -- initial styles, empty by default",
+          "fromElement?": "boolean -- parse initial content from container.innerHTML, default false",
+          "height?": "string -- for example '600px'; do not use vh",
+          "width?": "string -- default '100%'",
+          "storageManager?": "false | object -- false is recommended to disable remote storage",
+          "plugins?": "(string | function)[] -- default []"
+        }
+      },
+      "spec": {
+        "note": "The editor UI (panels plus iframe canvas) needs ample height; pass height as a string such as '600px'. Do not use vh or percentage heights."
+      }
+    }
+  },
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "grapesjs",
+    "version": "0.23.2",
+    "github": "GrapesJS/grapesjs"
+  },
+  "license": "BSD-3-Clause",
+  "data_in": {
+    "shape": "component-tree",
+    "note": "输入是初始内容(HTML/CSS)+ 挂载与行为配置;产物经 editor.getHtml() / editor.getCss() 取回。建议 storageManager:false 关闭远端存储。~1.16MB +esm,较重。",
+    "schema": {
+      "_defaults": {
+        "fromElement": "false",
+        "storageManager": "false",
+        "height": "'600px'",
+        "width": "'100%'"
+      },
+      "container": "HTMLElement —— 必填挂载点(init 传入)",
+      "components?": "string(HTML) | object[] —— 初始内容,默认空",
+      "style?": "string(CSS) | object[] —— 初始样式,默认空",
+      "fromElement?": "boolean —— 从 container.innerHTML 解析初始内容,默认 false",
+      "height?": "string —— 如 '600px',禁 vh",
+      "width?": "string —— 默认 '100%'",
+      "storageManager?": "false | object —— 建议 false 关闭远端存储",
+      "plugins?": "(string | function)[] —— 默认 []"
+    }
+  },
+  "spec": {
+    "height": 600,
+    "note": "编辑器 UI(面板 + iframe 画布)须要充足高度;height 配置传字符串如 '600px',禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested\nimport grapesjs from 'https://cdn.jsdelivr.net/npm/grapesjs@0.23.2/+esm';\nconst css = document.createElement('link'); css.rel='stylesheet'; css.href='https://cdn.jsdelivr.net/npm/grapesjs@0.23.2/dist/css/grapes.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('gjs'); el.style.height = '600px';\nconst editor = grapesjs.init({ container: el, height: '600px', fromElement: false, storageManager: false, components: data.components ?? '', style: data.style ?? '', plugins: data.plugins ?? [] });\n// 取产物: editor.getHtml(); editor.getCss();",
+    "widget": "// widget 不推荐:grapesjs 运行时向 document.head 注入样式且编辑画布是 <iframe>,无法满足 shadow 零足迹铁律。如必须嵌入,退回 artifact/codex 全页载体。",
+    "codex": "import grapesjs from 'https://cdn.jsdelivr.net/npm/grapesjs@0.23.2/+esm';\nconst css = document.createElement('link'); css.rel='stylesheet'; css.href='https://cdn.jsdelivr.net/npm/grapesjs@0.23.2/dist/css/grapes.min.css'; document.head.appendChild(css);\nconst el = document.getElementById('gjs'); el.style.height = '600px';\nconst editor = grapesjs.init({ container: el, height: '600px', storageManager: false, components: data.components ?? '', style: data.style ?? '' });\n// 取产物: editor.getHtml(); editor.getCss();"
+  },
+  "uplink": "编辑成品(HTML/CSS)由消费 AI 主动调 editor.getHtml()/getCss() 取回并按载体外传;不预设自动上行。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "not-recommended:运行时向 document.head 注样式 + iframe 画布,非 shadow-clean",
+    "codex": "supported:全页挂载 container,~1.16MB +esm 较重但可加载"
+  },
+  "isolation": {
+    "shadowCompatible": "no",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "+esm exports {default, grapesjs, usePlugin};default.init(config:EditorConfig):Editor 已验证(init@17418;EditorConfig.container/components/style/fromElement/height/width/storageManager/plugins 见 12646-12893;editor.getHtml()/getCss() 16857/16870)。globalStyleInjection=yes:运行时写 document.head(document.head ×3、head.appendChild ×1、querySelector('head') ×1),超出外链 dist/css/grapes.min.css。globalDomMutation=yes 且 shadowCompatible=no:编辑画布是真 <iframe>(createElement('iframe')),Backbone/Underscore 应用(~1.16MB +esm)在 document 作用域查询/测量,非 shadow-clean。artifact/codex 全页挂载 container 可用,getHtml()/getCss() 取成品。",
+    "confidence": "medium"
+  },
+  "example": {
+    "minimal": {
+      "components": "<section class=\"hero\"><h1>Build pages visually</h1><p>Drag, drop, and edit blocks — then export clean HTML &amp; CSS. No code required.</p><a class=\"btn\" href=\"#\">Get Started</a></section>",
+      "style": ".hero{padding:64px 32px;text-align:center;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-family:Arial,Helvetica,sans-serif}.hero h1{font-size:38px;margin:0 0 16px}.hero p{font-size:18px;margin:0 0 28px;opacity:.92}.btn{display:inline-block;padding:12px 30px;background:#fff;color:#6366f1;border-radius:8px;text-decoration:none;font-weight:700}"
+    }
+  }
+}

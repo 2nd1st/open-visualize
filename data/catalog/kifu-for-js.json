@@ -42,7 +42,29 @@
     "globalDomMutation": "unknown",
     "globalEvents": "unknown",
     "evidence": "src/index.tsx loadCommon() 用 `const container = document.getElementById(id)`(L76),load(options,id) 把 id 直喂 getElementById → shadow 内容器不可见,渲染必失败;包内置 React16 renderer(README 列 React/React DnD/MobX)。head 样式注入未在 +esm 命中(仅 'Material Symbols' 字体名引用),react-dnd HTML5 backend 通常绑 document 级 drag 监听但未活体确认,故 style/dom/events 标 unknown;shadow=no 有 getElementById 硬证据。",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
+  },
+  "example": {
+    "minimal": {
+      "kifu": "手合割：平手\n手数----指手---------消費時間--\n   1 ７六歩(77)\n   2 ３四歩(33)\n   3 ２六歩(27)\n   4 ８四歩(83)\n   5 ２五歩(26)\n   6 ８五歩(84)\n",
+      "ply": 6,
+      "maxWidth": 400
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to turn a Japanese shogi KIF/KI2 game record into a board that can replay each move, instead of hand-writing a 9x9 board player, because native implementations fail at notation parsing, pieces in hand, promotion, variations, and turn replay. Not for international chess or shogi AI search.",
+      "why_valuable": "AI can only restate Japanese game-record text or draw a static character board by default; it cannot advance legal KIF/KI2 state, display pieces in hand and promotion, select variations, or provide mobile replay controls. This Japanese upstream library integrates those capabilities.",
+      "data_in": {
+        "schema": {
+          "kifu": "string -- Complete KIF or KI2 game-record text, including opening information and move sequence",
+          "ply?": "integer >= 0 -- Initially displayed move number; default 0 (initial position)",
+          "maxWidth?": "positive number | null -- Maximum board width in CSS pixels; default 400; null means no maximum"
+        }
+      },
+      "spec": {
+        "note": "The player determines height from content automatically. maxWidth defaults to 400px and KifuStore controls board width. Do not give the container vh/percentage height or use a fixed height that clips replay controls."
+      }
+    }
   }
 }

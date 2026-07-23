@@ -2,6 +2,47 @@
   "entry_version": "thin-1",
   "id": "chartjs-chart-sankey",
   "name": "chartjs-chart-sankey",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written SVG when you need to quickly render {from,to,flow} flow edges as a Sankey for budget flows, conversion paths, or resource allocation, because native implementations fail at node layering, link widths, and low-crossing layout.",
+      "why_valuable": "AI cannot produce Sankey node hierarchy, flow-conserving link widths, and low-crossing layout by default, and mermaid/Markdown has no equivalent notation; this plugin reduces the input to the three fields from/to/flow.",
+      "data_in": {
+        "note": "data_in.config goes directly into Chart.js; type must be sankey, and every dataset.data item must be a directed weighted edge with exactly from/to/flow.",
+        "schema": {
+          "config": {
+            "type": "'sankey'",
+            "data": {
+              "datasets": [
+                {
+                  "label?": "string -- default empty string",
+                  "data": [
+                    {
+                      "from": "string",
+                      "to": "string",
+                      "flow": "number -- finite and >= 0"
+                    }
+                  ],
+                  "colorFrom?": "CSS color string -- default 'red'",
+                  "colorTo?": "CSS color string -- default 'green'",
+                  "colorMode?": "'from' | 'to' | 'gradient' -- default 'gradient'",
+                  "borderWidth?": "number -- default 1"
+                }
+              ]
+            },
+            "options?": {
+              "_default": "{}; boot additionally injects responsive:true and maintainAspectRatio:false",
+              "responsive?": "boolean -- boot default true",
+              "maintainAspectRatio?": "boolean -- boot default false",
+              "plugins?": "native Chart.js plugins configuration object -- uses upstream defaults by default"
+            }
+          }
+        }
+      },
+      "spec": {
+        "note": "The plugin lays out inside a canvas, so the parent container must have an explicit pixel height. boot defaults to 400px and disables aspect-ratio locking; rule 3 prohibits vh/percentage height."
+      }
+    }
+  },
   "when_to_use": "需要把 {from,to,flow} 流量边快速渲成预算流向、转化路径或资源分配 Sankey 时用它而非手写 SVG,因为原生手写在节点分层、链宽和交叉压缩布局上失败。",
   "why_valuable": "AI 默认做不到 Sankey 的节点层级、守恒链宽与低交叉布局,mermaid/Markdown 也没有等价表达;该插件把输入压到 from/to/flow 三字段。",
   "supply_form": "component",
@@ -53,9 +94,9 @@
     "note": "插件在 canvas 内布局,父容器必须有显式像素高度;boot 默认 400px并关闭纵横比锁定,铁律 3 禁 vh/百分比高。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:需同时注册 Chart.js 与 Sankey 控制器\nimport { Chart, registerables } from 'https://cdn.jsdelivr.net/npm/chart.js@4/+esm';\nimport { SankeyController, Flow } from 'https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0/+esm';\nChart.register(...registerables, SankeyController, Flow);\nconst host = document.getElementById('chart'); host.style.height = '400px'; const canvas = document.createElement('canvas'); host.appendChild(canvas);\nnew Chart(canvas, { ...data.config, options: { responsive: true, maintainAspectRatio: false, ...(data.config.options ?? {}) } });",
-    "widget": "import { Chart, registerables } from 'https://cdn.jsdelivr.net/npm/chart.js@4/+esm';\nimport { SankeyController, Flow } from 'https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0/+esm';\nChart.register(...registerables, SankeyController, Flow);\nconst host = document.createElement('div'); host.style.height = '400px'; const canvas = document.createElement('canvas'); host.appendChild(canvas); shadowRoot.appendChild(host);\nnew Chart(canvas, { ...data.config, options: { responsive: true, maintainAspectRatio: false, ...(data.config.options ?? {}) } });",
-    "codex": "import { Chart, registerables } from 'https://cdn.jsdelivr.net/npm/chart.js@4/+esm';\nimport { SankeyController, Flow } from 'https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0/+esm';\nChart.register(...registerables, SankeyController, Flow);\nconst host = document.getElementById('chart'); host.style.height = '400px'; const canvas = document.createElement('canvas'); host.appendChild(canvas);\nnew Chart(canvas, { ...data.config, options: { responsive: true, maintainAspectRatio: false, ...(data.config.options ?? {}) } });"
+    "artifact": "// Chart.js 与插件必须钉到同一模块 URL,否则各自持有不同 registry\nimport { Chart, registerables } from 'https://cdn.jsdelivr.net/npm/chart.js@4.5.1/+esm';\nimport { SankeyController, Flow } from 'https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0.15.0/+esm';\nChart.register(...registerables, SankeyController, Flow);\nconst host = document.getElementById('chart'); host.style.height = '400px'; const canvas = document.createElement('canvas'); host.appendChild(canvas);\nnew Chart(canvas, { ...data.config, options: { responsive: true, maintainAspectRatio: false, ...(data.config.options ?? {}) } });",
+    "widget": "import { Chart, registerables } from 'https://cdn.jsdelivr.net/npm/chart.js@4.5.1/+esm';\nimport { SankeyController, Flow } from 'https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0.15.0/+esm';\nChart.register(...registerables, SankeyController, Flow);\nconst host = document.createElement('div'); host.style.height = '400px'; const canvas = document.createElement('canvas'); host.appendChild(canvas); shadowRoot.appendChild(host);\nnew Chart(canvas, { ...data.config, options: { responsive: true, maintainAspectRatio: false, ...(data.config.options ?? {}) } });",
+    "codex": "import { Chart, registerables } from 'https://cdn.jsdelivr.net/npm/chart.js@4.5.1/+esm';\nimport { SankeyController, Flow } from 'https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0.15.0/+esm';\nChart.register(...registerables, SankeyController, Flow);\nconst host = document.getElementById('chart'); host.style.height = '400px'; const canvas = document.createElement('canvas'); host.appendChild(canvas);\nnew Chart(canvas, { ...data.config, options: { responsive: true, maintainAspectRatio: false, ...(data.config.options ?? {}) } });"
   },
   "example": {
     "_why": "Chart.js 插件需同时满足控制器注册、type 与 datasets 三处约束,附最小原生 config。",
@@ -111,7 +152,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "+esm exports `O as Flow, L as SankeyController` (named) — boot import {SankeyController, Flow} + Chart.register(...registerables, SankeyController, Flow) matches README lines 39/41. README data elements are {from,to,flow} (lines 96-99); schema colorFrom/colorTo default red/green and colorMode 'gradient' match +esm O.defaults exactly. Inherits chart.js canvas rendering; grep for head/body/style injection = ZERO hits.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

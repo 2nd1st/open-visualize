@@ -29,6 +29,26 @@
     "height": 400,
     "note": "虚拟滚动必须有确定视口;boot 给 clusterize-scroll 默认 400px 高,AI 可传其他明确像素值,禁止百分比或视口单位。行应近似等高,变高段落改用 virtua 或 Lit virtualizer。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to display thousands of equal-height HTML rows in vanilla DOM without mounting them all, instead of hand-writing a scroll window that tends to fail at scroll-height accounting, cluster transitions, and spacer-row calculation. It is not for sorting, filtering, or variable-height content.",
+      "why_valuable": "AI defaults to inserting every row into the DOM at once and freezing the iframe. It does not reliably produce a stable virtual window, top/bottom spacer heights, preserved scroll position, or consistent table-row parity.",
+      "data_in": {
+        "note": "Clusterize's native rows input is an array of complete, same-tag HTML strings. On the table path, each item must be one tr. Content must already be escaped or sanitized by the consumer; this library does not map record objects to cells.",
+        "schema": {
+          "rows": "string[] -- each item is one complete, trusted or sanitized same-tag HTML row; for tables, use <tr>...</tr>",
+          "rows_in_block?": "positive integer -- default 50",
+          "blocks_in_cluster?": "positive integer -- default 4",
+          "show_no_data_row?": "boolean -- default true",
+          "no_data_text?": "string -- default 'No data'",
+          "keep_parity?": "boolean -- default true"
+        }
+      },
+      "spec": {
+        "note": "Virtual scrolling requires a definite viewport. boot gives clusterize-scroll a default height of 400px; AI may supply another explicit pixel value, but not percentages or viewport units. Rows should be approximately equal height; for variable-height paragraphs, use virtua or Lit virtualizer."
+      }
+    }
+  },
   "boot": {
     "artifact": "// inferred-not-tested:Clusterize CSS 进入 document.head\nimport Clusterize from 'https://cdn.jsdelivr.net/npm/clusterize.js@1/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/clusterize.js@1/clusterize.css' }); document.head.appendChild(css);\nconst scroll = document.getElementById('rows'); scroll.className = 'clusterize-scroll'; scroll.style.height = `${spec.height ?? 400}px`;\nconst table = document.createElement('table'); const body = document.createElement('tbody'); body.className = 'clusterize-content'; table.appendChild(body); scroll.appendChild(table);\nconst cluster = new Clusterize({ rows: data.rows, scrollElem: scroll, contentElem: body, rows_in_block: data.rows_in_block ?? 50, blocks_in_cluster: data.blocks_in_cluster ?? 4, show_no_data_row: data.show_no_data_row ?? true, no_data_text: data.no_data_text ?? 'No data', keep_parity: data.keep_parity ?? true });",
     "widget": "// CSS 与元素引用都落 shadow 容器;使用 scrollElem/contentElem,不走 document id 查询\nimport Clusterize from 'https://cdn.jsdelivr.net/npm/clusterize.js@1/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/clusterize.js@1/clusterize.css' });\nconst scroll = document.createElement('div'); scroll.className = 'clusterize-scroll'; scroll.style.height = `${spec.height ?? 400}px`;\nconst table = document.createElement('table'); const body = document.createElement('tbody'); body.className = 'clusterize-content'; table.appendChild(body); scroll.appendChild(table); shadowRoot.append(css, scroll);\nconst cluster = new Clusterize({ rows: data.rows, scrollElem: scroll, contentElem: body, rows_in_block: data.rows_in_block ?? 50, blocks_in_cluster: data.blocks_in_cluster ?? 4, show_no_data_row: data.show_no_data_row ?? true, no_data_text: data.no_data_text ?? 'No data', keep_parity: data.keep_parity ?? true });",
@@ -61,7 +81,6 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "+esm `export{S as default}` — boot default import Clusterize correct. Source (clusterize.js l.49-52) resolves element options as `self[elem+'_elem'] = data[elem+'Id'] ? getElementById(...) : data[elem+'Elem']` i.e. it reads data.scrollElem/data.contentElem exactly as the boot passes; rows/rows_in_block/blocks_in_cluster/show_no_data_row/no_data_text/keep_parity merged via options loop. rows-as-full-HTML-<tr>-strings requirement is accurately documented. Library injects NO <style> to head (no document.head/createElement('style') in source; clusterize.css is external, boot puts it in shadowRoot for widget) and mutates only the provided scroll/content elems (no document.body). globalEvents=yes: registers `on('resize', window, resizeEv)` (l.101) but removes it in destroy `off('resize', window, resizeEv)` (l.106) — not a leak; scroll listener is bound to the (shadow) scroll_elem. Upstream natively supports element refs so it works entirely inside shadowRoot.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

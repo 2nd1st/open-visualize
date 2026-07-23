@@ -1,0 +1,114 @@
+{
+  "entry_version": "thin-1",
+  "id": "yaireo-tagify",
+  "name": "@yaireo/tagify",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to enter a sequence of discrete values with suggestions and validation (keywords, recipients, tags, skills); the mental model is to choose it for \"type a free-form chip or @mention,\" and use tom-select for \"pick from a dropdown/option list.\"",
+      "why_valuable": "Polished tag/token input (inline chips, dropdown autocomplete, paste splitting, validation, drag reordering, and mixed @mentions) requires complex caret/DOM and keyboard handling, and hand-written versions get the details wrong.",
+      "data_in": {
+        "note": "Tagify takes over a native <input>/<textarea>; retrieve output with tagify.value (an array of tag objects) or tagify.getCleanValue(). Inside shadow, set dropdown.appendTarget so the suggestion dropdown remains in shadow (by default it appends to body). The core is vanilla and default-exports the Tagify class; an optional /react entry also exists but is not used here.",
+        "schema": {
+          "_defaults": {
+            "enforceWhitelist": "false",
+            "maxTags": "Infinity",
+            "delimiters": "','"
+          },
+          "inputElement": "HTMLInputElement | HTMLTextAreaElement -- required first constructor argument",
+          "whitelist?": "(string | {value:string, ...})[] -- suggestion/autocomplete candidates, default []",
+          "enforceWhitelist?": "boolean -- allow only values in whitelist, default false",
+          "maxTags?": "number -- default Infinity",
+          "mode?": "'select' | 'mix' | null -- null = default multi-tag input; 'mix' supports inline @mentions",
+          "dropdown?": {
+            "enabled?": "number -- characters to type before showing suggestions, default 2",
+            "maxItems?": "number -- default 10",
+            "appendTarget?": "HTMLElement -- suggestion-dropdown mount point; set to a shadow container inside shadow"
+          },
+          "delimiters?": "string -- delimiter regex source, default ','",
+          "initialValue?": "string | array -- populate through tagify.addTags() or native input.value"
+        }
+      },
+      "spec": {
+        "note": "Tag input has intrinsic height and grows as tags wrap; no fixed height is needed, and vh is prohibited."
+      }
+    }
+  },
+  "when_to_use": "需要录入一串带建议与校验的离散值(关键词、收件人、标签、技能)时用它;心智模型是\"敲自由 chip 或 @提及\"时选它,是\"从下拉/选项列表里挑\"时用 tom-select。",
+  "why_valuable": "精致的 tags/token 输入(行内 chip、下拉自动完成、粘贴切分、校验、拖拽重排、@mention 混排)有繁复的 caret/DOM 与键盘处理,手写版本会在细节上出错。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@yaireo/tagify",
+    "version": "4.38.0",
+    "github": "yairEO/tagify"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tag-list",
+    "note": "Tagify 接管一个原生 <input>/<textarea>;产物用 tagify.value(标签对象数组)或 tagify.getCleanValue()。shadow 内须设 dropdown.appendTarget 使建议下拉留在 shadow(默认下拉 append 到 body)。核心为 vanilla,default 导出 Tagify 类;另有可选 /react 入口(本条不用)。",
+    "schema": {
+      "_defaults": {
+        "enforceWhitelist": "false",
+        "maxTags": "Infinity",
+        "delimiters": "','"
+      },
+      "inputElement": "HTMLInputElement | HTMLTextAreaElement —— 必填,构造第一参",
+      "whitelist?": "(string | {value:string, ...})[] —— 建议/自动完成候选,默认 []",
+      "enforceWhitelist?": "boolean —— 只允许 whitelist 内的值,默认 false",
+      "maxTags?": "number —— 默认 Infinity",
+      "mode?": "'select' | 'mix' | null —— null=默认多标签输入;'mix' 支持 @mention 混排",
+      "dropdown?": {
+        "enabled?": "number —— 输入几个字符后弹建议,默认 2",
+        "maxItems?": "number —— 默认 10",
+        "appendTarget?": "HTMLElement —— 建议下拉挂载点,shadow 内须设为 shadow 容器"
+      },
+      "delimiters?": "string —— 分隔符正则源,默认 ','",
+      "initialValue?": "string | array —— 经 tagify.addTags() 或原生 input.value 灌入"
+    }
+  },
+  "spec": {
+    "height": 40,
+    "note": "标签输入为内在高度,随标签换行增高;无需固定高,禁 vh。"
+  },
+  "boot": {
+    "artifact": "// harness 提供的是 div；在容器内建立 Tagify 所需的原生 input\nconst el = document.getElementById('tags'); const input = document.createElement('input'); input.setAttribute('aria-label', 'Tags'); el.appendChild(input);\nconst css = document.createElement('link'); css.rel='stylesheet'; css.href='https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.38.0/dist/tagify.css'; document.head.appendChild(css);\nconst { default: Tagify } = await import('https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.38.0/+esm');\nconst tagify = new Tagify(input, { whitelist: data.whitelist ?? [], enforceWhitelist: data.enforceWhitelist ?? false, maxTags: data.maxTags ?? Infinity, dropdown: { enabled: 1, maxItems: 20 } });\nif (data.initialValue) tagify.addTags(data.initialValue);\n// 取产物: tagify.value(数组) / tagify.getCleanValue()",
+    "widget": "import Tagify from 'https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.38.0/+esm';\nconst css = document.createElement('link'); css.rel='stylesheet'; css.href='https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.38.0/dist/tagify.css'; shadowRoot.appendChild(css);\nconst input = document.createElement('input'); shadowRoot.appendChild(input);\nconst host = document.createElement('div'); shadowRoot.appendChild(host);\n// appendTarget 让建议下拉留在 shadow(默认下拉 append 到 document.body,逃出 shadow 失去样式)\nconst tagify = new Tagify(input, { whitelist: data.whitelist ?? [], dropdown: { enabled: 1, appendTarget: host } });",
+    "codex": "const el = document.getElementById('tags'); const input = document.createElement('input'); input.setAttribute('aria-label', 'Tags'); el.appendChild(input);\nconst css = document.createElement('link'); css.rel='stylesheet'; css.href='https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.38.0/dist/tagify.css'; document.head.appendChild(css);\nconst { default: Tagify } = await import('https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.38.0/+esm');\nconst tagify = new Tagify(input, { whitelist: data.whitelist ?? [], enforceWhitelist: data.enforceWhitelist ?? false, maxTags: data.maxTags ?? Infinity, dropdown: { enabled: 1, maxItems: 20 } });\nif (data.initialValue) tagify.addTags(data.initialValue);\n// 取产物: tagify.value(数组) / tagify.getCleanValue()"
+  },
+  "uplink": "标签集合由消费 AI 读 tagify.value / getCleanValue() 取回;add/remove 回调由其接原生,不预设统一契约。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:tagify.css 落 shadow + dropdown.appendTarget 指向 shadow 容器,使建议下拉留在 shadow",
+    "codex": "supported:ESM CDN,无 worker/wasm/uplink 硬依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "no",
+    "evidence": "+esm default export Tagify(export{F as default});new Tagify(inputElement, settings) 与方法 addTags/removeAllTags/getCleanValue、属性 .value/.whitelist 已从源码验证;settings whitelist/enforceWhitelist/maxTags/mode/dropdown/delimiters 经 README + 源码确认。globalStyleInjection=no:基础 CSS 为外链 dist/tagify.css(200),document.head 写入 0。globalEvents=no:0 document/window addEventListener(绑在自有 input/wrapper)。globalDomMutation=yes:建议下拉默认 append 到 document.body(×6)——设 dropdown.appendTarget 为 shadow 容器即可留在 shadow。shadowCompatible=conditional 取决于把下拉导入 shadow;input/chips 本体在传入元素内渲染。",
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "whitelist": [
+        "JavaScript",
+        "TypeScript",
+        "Python",
+        "Rust",
+        "Go",
+        "React",
+        "Vue",
+        "Svelte",
+        "Node.js",
+        "Docker"
+      ],
+      "initialValue": [
+        "TypeScript",
+        "React",
+        "Rust"
+      ]
+    }
+  }
+}

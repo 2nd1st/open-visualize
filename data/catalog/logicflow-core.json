@@ -105,7 +105,41 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "esm (278KB) grep: zero document.head / createElement('style'/'link') / adoptedStyleSheets / insertRule — CSS is external dist/index.css (boot links into shadow). Renders SVG/DOM into `this.container` via preact `.render()` (4× this.container); `document.body` appears 4× but only as READS (no body.appendChild, no createPortal) — coordinate/bounds math during drag, not a portal. globalEvents=yes: registers `document.addEventListener` keydown/keyup (keyboard shortcuts) + pointermove/pointerup (drag) and `window.addEventListener('resize')`; however removeEventListener×9 confirms cleanup on drag-end/destroy (registered-but-cleaned, not a leak). shadowCompatible=yes: mount+CSS stay in the container/shadow and drag/keyboard function (clientX/Y are viewport-relative; document keydown fires regardless of shadow) — confidence med because document-level listeners + document.body coordinate reads weren't runtime-tested for drag accuracy inside a shadow root.",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for editable approval-flow/BPMN-style diagrams with connection validation and undo history instead of handwritten SVG, which fails at editing constraints, anchor connections, and history consistency. Not for process execution, automatic layout, or business-data persistence.",
+      "why_valuable": "AI cannot build a graph editor with undo history, connection rules, and extensible node models by default; LogicFlow core provides native canvas interaction and stable GraphData round-tripping through render/getGraphData.",
+      "data_in": {
+        "note": "data_in is the native GraphData accepted by lf.render() when adapterIn is not configured; node x/y are center coordinates, and edge endpoints use sourceNodeId/targetNodeId. Do not mix in React Flow's source/target.",
+        "schema": {
+          "nodes": [
+            {
+              "id": "string -- Unique across the graph",
+              "type": "'rect'|'circle'|'ellipse'|'polygon'|'diamond'|'text'|'html'|registered custom type",
+              "x": "number -- Node center",
+              "y": "number -- Node center",
+              "text?": "string | {value:string,x?:number,y?:number} -- Empty text by default; object x/y follows the node by default",
+              "properties?": "object -- Default {}; place width/height and other business/shape properties here"
+            }
+          ],
+          "edges": [
+            {
+              "id": "string -- Unique across the graph",
+              "type": "'polyline'|'line'|'bezier'|registered custom type",
+              "sourceNodeId": "string",
+              "targetNodeId": "string",
+              "text?": "string | {value:string,x?:number,y?:number} -- Empty text by default",
+              "properties?": "object -- Default {}",
+              "pointsList?": "{x:number,y:number}[] -- Calculated by the router by default"
+            }
+          ]
+        }
+      },
+      "spec": {
+        "note": "LogicFlow depends on measurable container dimensions; default explicit height is 420px. vh and percentage heights are forbidden by rule 3. Call lf.resize(width,height) after the container size changes."
+      }
+    }
   }
 }

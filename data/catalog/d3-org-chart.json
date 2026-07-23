@@ -1,0 +1,109 @@
+{
+  "entry_version": "thin-1",
+  "id": "d3-org-chart",
+  "name": "d3-org-chart",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for reporting lines, org charts, taxonomy trees, or folder trees when you need collapse/expand, zoom/pan, and focus on a node. Use sunburst-chart for proportional hierarchies and drawflow/xyflow for freely draggable flowcharts. A flat {id,parentId} array becomes a tree automatically (id/parentId are recognized by default) and must have exactly one root.",
+      "why_valuable": "An organization tree needs tidy-tree/flextree automatic layout (avoiding overlap and creating levels), collapse/expand, smooth links, and zoom/pan; AI almost always misplaces coordinates when calculating the tree by hand.",
+      "data_in": {
+        "note": "Use a flat array, not a nested one; defaults are nodeId=d.id and parentNodeId=d.parentId, as verified in source. There must be exactly one root (parentId is null/''/undefined), and every other node's parentId must reference an existing id.",
+        "schema": {
+          "nodes": [
+            {
+              "id": "string | number -- unique and required",
+              "parentId": "string | number | null -- references the parent node id; root uses null or ''",
+              "name?": "string -- node content (shown by the default card template; customize with .nodeContent(d=>html))"
+            }
+          ]
+        }
+      },
+      "spec": {
+        "note": "OrgChart creates a zoomable/pannable SVG viewport inside its container; give the container an explicit height (upstream default svgHeight=window.innerHeight-100, so this boot fixes .svgHeight(600)). svgWidth follows container width automatically; do not use vh."
+      }
+    }
+  },
+  "when_to_use": "画汇报线/组织架构/分类树/文件夹树并要折叠、缩放平移、聚焦某节点时用它;占比层级用 sunburst-chart,自由拖拽流程图用 drawflow/xyflow。喂扁平 {id,parentId} 数组即自动成树(默认按 id/parentId 识别),恰需一个根。",
+  "why_valuable": "组织树要 tidy-tree/flextree 自动布局(避重叠、自动分层)+ 折叠展开 + 平滑连线 + zoom/pan,AI 手算树坐标基本必错位。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "d3-org-chart",
+    "version": "3.1.1",
+    "github": "bumbeishvili/d3-organization-chart"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tree",
+    "note": "扁平数组,非嵌套;默认 nodeId=d.id、parentNodeId=d.parentId(源码已核实)。必须恰有一个根(parentId 为 null/''/undefined),其余节点的 parentId 必须引用某个存在的 id。",
+    "schema": {
+      "nodes": [
+        {
+          "id": "string | number —— 唯一,必填",
+          "parentId": "string | number | null —— 引用父节点 id;根节点为 null 或 ''",
+          "name?": "string —— 节点内容(默认卡片模板展示;可用 .nodeContent(d=>html) 自定义)"
+        }
+      ]
+    }
+  },
+  "spec": {
+    "height": 600,
+    "note": "OrgChart 在容器内自建可 zoom/pan 的 svg 视口;容器给显式 height(默认 svgHeight=window.innerHeight-100,故本条 boot 显式 .svgHeight(600) 固定),svgWidth 自动跟随容器宽,禁 vh。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested。命名导出 OrgChart;+esm 经嵌套 +esm 自解析全部 d3 子模块(d3-selection/array/hierarchy/zoom/flextree),无需先载 d3。扁平 {id,parentId},默认 nodeId=d.id、parentNodeId=d.parentId。\nimport { OrgChart } from 'https://cdn.jsdelivr.net/npm/d3-org-chart@3.1.1/+esm';\nconst el = document.getElementById('orgchart'); el.style.height = '600px';\nconst chart = new OrgChart().container(el).svgHeight(600).data(data.nodes).render();",
+    "widget": "// svg 落 shadow;container(element) 直传 shadow 内节点(接受 DOM 元素或选择器)。正常渲染不触 body(仅导出 <a download> 会)。\nimport { OrgChart } from 'https://cdn.jsdelivr.net/npm/d3-org-chart@3.1.1/+esm';\nconst el = document.createElement('div'); el.style.width = '100%'; el.style.height = '600px'; shadowRoot.appendChild(el);\nconst chart = new OrgChart().container(el).svgHeight(600).data(data.nodes).render();",
+    "codex": "import { OrgChart } from 'https://cdn.jsdelivr.net/npm/d3-org-chart@3.1.1/+esm';\nconst el = document.getElementById('orgchart'); el.style.height = '600px';\nconst chart = new OrgChart().container(el).svgHeight(600).data(data.nodes).render();"
+  },
+  "example": {
+    "_why": "钉死扁平 {id,parentId},根节点 parentId 为空。",
+    "minimal": {
+      "nodes": [
+        {
+          "id": "1",
+          "parentId": "",
+          "name": "CEO"
+        },
+        {
+          "id": "2",
+          "parentId": "1",
+          "name": "CTO"
+        },
+        {
+          "id": "3",
+          "parentId": "1",
+          "name": "CFO"
+        },
+        {
+          "id": "4",
+          "parentId": "2",
+          "name": "Eng Lead"
+        }
+      ]
+    },
+    "empty": {
+      "nodes": [
+        {
+          "id": "1",
+          "parentId": "",
+          "name": "root"
+        }
+      ]
+    }
+  },
+  "uplink": "display/local-interact 默认不上行;节点点击/展开/聚焦若需外传,由消费 AI 接 .onNodeClick(id) 原生回调并按载体处理。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:svg 落 shadow 容器,container(element) 直传 shadow 内节点;JS 无 head 注入,body 仅在导出(<a download>)路径触碰,正常渲染不触。",
+    "codex": "supported:ESM CDN,全部 d3 子模块经嵌套 +esm 自解析(无需先载 d3)。"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "conditional",
+    "globalEvents": "no",
+    "evidence": "命名导出 OrgChart(+esm: export{V as OrgChart})。+esm 把全部 d3 子模块外置为嵌套 import(d3-selection@3/d3-array@3.2.4/d3-hierarchy@3.1.2/d3-zoom@3/d3-flextree@2.1.2 的 /npm/*/+esm)——运行时自解析,无需先载 d3 global。链式 new OrgChart().container(el).data(nodes).render()(README)。默认访问器源码核实(src/d3-org-chart.js L49-50):nodeId: d=>d.nodeId||d.id、parentNodeId: d=>d.parentNodeId||d.parentId,故扁平 {id,parentId} 开箱即用;根判定 parentNodeId(obj)==null(L687)。.container 源码注释 \"either CSS style selector or DOM element\"(L45),内部 select(attrs.container) 接受节点,故可直传 shadow 内元素。svgWidth 自动设为容器宽(L541),svgHeight 默认 window.innerHeight-100(L44)——boot 显式 .svgHeight(600) 固定。globalStyleInjection=no。globalDomMutation=conditional:+esm 命中 document.body.appendChild 仅在导出下载路径(createElement(\"a\");v.download;body.appendChild;click),正常 render() 不触 body。globalEvents=no:d3-zoom 监听挂 svg,非 window。",
+    "confidence": "high"
+  }
+}

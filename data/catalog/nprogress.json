@@ -1,0 +1,83 @@
+{
+  "entry_version": "thin-1",
+  "id": "nprogress",
+  "name": "nprogress",
+  "when_to_use": "不确定时长的整页/路由/fetch 加载指示(YouTube/GitHub 那条顶部细条)时用它;整视图/路由级用它,组件内联转圈用 ldrs。进度由你在异步生命周期里调 start()/set(0..1)/inc()/done() 驱动,条与 trickle 归 nprogress。",
+  "why_valuable": "让未知时长加载显得'活着'的 trickle+缓动很难复刻;AI 手搓出静态或线性填充的假条。nprogress 是自足、零依赖的事实标准。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "nprogress",
+    "version": "0.2.0",
+    "github": "rstacruz/nprogress"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "config",
+    "note": "nprogress 是命令式:没有数据数组,靠 start()/set(0..1)/inc()/done() 驱动;configure 给外观与 trickle 参数。parent 是选择器,对 document 生效(条会落到 document.body)。",
+    "schema": {
+      "configure?": {
+        "minimum?": "number 0..1 —— 起始最小进度,默认 0.08",
+        "trickle?": "boolean —— 未知时长自动缓增,默认 true",
+        "trickleSpeed?": "number —— trickle 间隔 ms,默认 800",
+        "speed?": "number —— 条动画时长 ms,默认 200",
+        "easing?": "string —— CSS easing,默认 'ease'",
+        "showSpinner?": "boolean —— 右上角转圈,默认 true",
+        "parent?": "string —— 挂载容器选择器(document 域),默认 'body'"
+      },
+      "_lifecycle": "start() 开始 · set(n) 设定 0..1 · inc() 递增 · done() 收尾到 100%"
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested。nprogress 是文档级 fixed 条;按引导规范其外链 CSS 落 <head>。\nimport NProgress from 'https://cdn.jsdelivr.net/npm/nprogress@0.2.0/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.css'; document.head.appendChild(css);\nNProgress.configure(data.configure ?? { showSpinner: true, trickleSpeed: 800 });\nNProgress.start();            // 开始 trickle\n// NProgress.set(0.4); NProgress.inc();  // 可选:确定性推进\n// NProgress.done();          // 异步完成时收尾",
+    "widget": "// nprogress 本质是 PAGE 级 overlay:条挂到 document.querySelector(parent)(默认 'body'),CSS 也须在 document 域 —— 它 NOT 留在 shadowRoot(是有记录的 footprint 例外,仅当确实要顶部条时用)。\nimport NProgress from 'https://cdn.jsdelivr.net/npm/nprogress@0.2.0/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.css'; document.head.appendChild(css);\nNProgress.configure(data.configure ?? { showSpinner: false });\nNProgress.start();\n// NProgress.done();",
+    "codex": "import NProgress from 'https://cdn.jsdelivr.net/npm/nprogress@0.2.0/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.css'; document.head.appendChild(css);\nNProgress.configure(data.configure ?? { showSpinner: true, trickleSpeed: 800 });\nNProgress.start();\n// NProgress.done();"
+  },
+  "example": {
+    "_why": "无数据数组,示例即 configure 外观 + 生命周期约定。",
+    "minimal": {
+      "configure": {
+        "trickleSpeed": 800,
+        "showSpinner": true,
+        "minimum": 0.1
+      }
+    },
+    "empty": {}
+  },
+  "uplink": "纯 display,无 uplink;进度值由消费 AI 从自身异步进度调 set()/inc()/done() 单向下发。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:条渲染进 document.querySelector(parent)(默认 body)、CSS 须落 document 域,是页面级 fixed overlay,无法 shadow 内收敛(零足迹例外)",
+    "codex": "supported:default export + 外链 CSS,无 worker/wasm"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "no",
+    "evidence": "API correct: +esm default export(q as default)= NProgress 对象,方法 configure/start/set/inc/done;Settings.parent='body',document.querySelector(i.parent) 后 appendChild → #nprogress 条挂进 document.body(document 域,逃逸 shadow)。默认已实测:minimum .08、speed 200、trickleSpeed 800、trickle true、showSpinner true、easing 'ease'。globalStyleInjection=no:库不注入任何 CSS —— nprogress.css(asset 200)须由消费方在 document 域引入。globalDomMutation=yes:向 document.querySelector(parent) append #nprogress。globalEvents=no:grep 到 0 处 window/document addEventListener。shadowCompatible=conditional:本质是页面顶部 fixed 条,非 shadow 内收敛。",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for indeterminate whole-page, route, or fetch loading indicators, the thin top bar used by YouTube/GitHub. Use it for whole-view or route-level loading and ldrs for an inline component spinner. Drive progress from the async lifecycle with start()/set(0..1)/inc()/done(); nprogress owns the bar and trickle behavior.",
+      "why_valuable": "The trickle plus easing that makes unknown-duration loading feel alive is hard to reproduce; AI-written versions are usually static or linear fake bars. nprogress is the self-contained, dependency-free de facto standard.",
+      "data_in": {
+        "note": "nprogress is imperative: it has no data array and is driven by start()/set(0..1)/inc()/done(); configure controls appearance and trickle parameters. parent is a selector in the document scope, and the bar is inserted into document.body by default.",
+        "schema": {
+          "configure?": {
+            "minimum?": "number 0..1 -- Minimum starting progress; default 0.08",
+            "trickle?": "boolean -- Automatically increase during indeterminate work; default true",
+            "trickleSpeed?": "number -- Trickle interval in ms; default 800",
+            "speed?": "number -- Bar animation duration in ms; default 200",
+            "easing?": "string -- CSS easing; default 'ease'",
+            "showSpinner?": "boolean -- Top-right spinner; default true",
+            "parent?": "string -- Mount-container selector in document scope; default 'body'"
+          },
+          "_lifecycle": "start() begins; set(n) sets 0..1; inc() increments; done() finishes at 100%"
+        }
+      }
+    }
+  }
+}

@@ -2,6 +2,24 @@
   "entry_version": "thin-1",
   "id": "paper-css",
   "name": "paper-css",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when a set of semantic HTML pages must quickly become physical-paper previews and print pages in A3/A4/A5/Letter/Legal sizes instead of hand-written millimeter CSS, which fails at paper geometry, print-width correction, and consistency between screen preview and print.",
+      "why_valuable": "AI tends to mix px, mm, and browser margins and cannot reliably align physical paper sizes, landscape formats, and print scaling. paper-css removes these edge cases with a body paper-size class and .sheet contract.",
+      "data_in": {
+        "note": "boot wraps each pages_html item in a native .sheet. The paper size must be a real body class because that is the exact upstream CSS selector contract.",
+        "schema": {
+          "pages_html": "string[] -- each item is one trusted or sanitized HTML fragment page; an empty array displays the empty state",
+          "size?": "'A3' | 'A4' | 'A5' | 'letter' | 'legal' -- defaults to 'A4'",
+          "orientation?": "'portrait' | 'landscape' -- defaults to 'portrait'",
+          "padding_mm?": "0 | 10 | 15 | 20 | 25 -- defaults to 10; 0 adds no padding class"
+        }
+      },
+      "spec": {
+        "note": "The default portrait A4 .sheet is 210mm x 296mm, about 1119px high at 96dpi. The host preview reserves at least that explicit pixel height and scrolls; do not use vh or percentage heights. Other paper sizes follow the CSS millimeter geometry."
+      }
+    }
+  },
   "when_to_use": "需要把一组语义 HTML 快速摆成 A3/A4/A5/Letter/Legal 的实体纸张预览与打印页时用它而非手写毫米尺寸 CSS,因为原生手写在纸张几何、打印宽度修正和屏幕预览一致性上失败。",
   "why_valuable": "AI 默认会混用 px、mm 与浏览器页边距,无法稳定对齐实体纸张尺寸、横向纸型和打印缩放;paper-css 用 body 纸型类与 .sheet 契约消除这些边角差异。",
   "supply_form": "component",
@@ -44,7 +62,16 @@
     "globalDomMutation": "yes",
     "globalEvents": "no",
     "evidence": "By design: boot itself does document.head.append(link) to load paper.css, and the CSS keys off `body.A4 .sheet` plus `@page` rules (paper.css L1,L12-21) that only resolve against the real document/body. Boot also mutates document.body.className. mm/@page print geometry cannot be re-scoped into a shadowRoot — catalog widget=unsupported is correct.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "size": "A4",
+      "orientation": "portrait",
+      "padding_mm": 10,
+      "pages_html": [
+        "<h1 style='margin:0 0 4mm;font:600 26px system-ui,sans-serif;letter-spacing:1px'>INVOICE</h1><div style='font:13px system-ui,sans-serif;color:#555'>Acme Studio &middot; No. 2026-0042 &middot; 2026-07-23</div><hr style='border:none;border-top:1px solid #ddd;margin:6mm 0'><table style='width:100%;border-collapse:collapse;font:13px system-ui,sans-serif'><thead><tr style='text-align:left;border-bottom:2px solid #222'><th style='padding:6px 0'>Item</th><th style='padding:6px 0'>Qty</th><th style='padding:6px 0;text-align:right'>Amount</th></tr></thead><tbody><tr style='border-bottom:1px solid #eee'><td style='padding:6px 0'>Design consultation</td><td>2</td><td style='text-align:right'>$400.00</td></tr><tr style='border-bottom:1px solid #eee'><td style='padding:6px 0'>Prototype build</td><td>1</td><td style='text-align:right'>$1,200.00</td></tr><tr style='border-bottom:1px solid #eee'><td style='padding:6px 0'>Revision round</td><td>3</td><td style='text-align:right'>$300.00</td></tr></tbody></table><div style='text-align:right;margin-top:6mm;font:600 16px system-ui,sans-serif'>Total&nbsp;&nbsp;$1,900.00</div><p style='margin-top:8mm;font:12px system-ui,sans-serif;color:#777'>Payment due within 30 days. Thank you for your business.</p>"
+      ]
+    }
   }
 }

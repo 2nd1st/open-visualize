@@ -2,6 +2,19 @@
   "entry_version": "thin-1",
   "id": "ansi-up",
   "name": "ansi_up",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written regex when you need to statically convert SGR colors, 256 colors, and truecolor in CI/build logs into safe HTML, because native AI fails on nested style state, split sequences, and color spaces.",
+      "why_valuable": "AI defaults cover only the basic 8/16 colors and miss state carried across chunks, 256 colors, and truecolor; ansi_up preserves parser state and escapes plain text, producing span HTML that can be embedded in <pre> at very low cost.",
+      "data_in": {
+        "note": "text must be the raw JavaScript string that still contains ESC sequences; ansi_to_html returns escaped plain text wrapped in spans for ANSI styles, not a complete document.",
+        "schema": {
+          "text": "string -- ANSI SGR log text",
+          "useClasses?": "boolean -- when true, basic colors use classes instead of inline styles; default false"
+        }
+      }
+    }
+  },
   "when_to_use": "需要把 CI/build 日志中的 SGR 颜色、256 色与 truecolor 静态转成安全 HTML 时用它而非手写正则,因为原生 AI 在嵌套样式状态、分片序列和颜色空间上失败。",
   "why_valuable": "AI 默认只能覆盖基础 8/16 色且会漏掉跨片段状态、256 色与 truecolor;ansi_up 保持解析器状态并转义普通文本,以很小成本产出可嵌入 <pre> 的 span HTML。",
   "supply_form": "headless-primitive",
@@ -42,7 +55,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "纯 JS 字符串转换器,.d.ts 全为 class 方法/getter-setter,完全不碰 DOM/document.head/body/监听;`ansi_to_html` 返回 HTML fragment 由消费侧放入自备 <pre>。useClasses=true 时需消费方自备 ansi-*-fg/bg 调色板 CSS(非库注入,entry note 已注明)。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

@@ -1,0 +1,74 @@
+{
+  "entry_version": "thin-1",
+  "id": "dineug-erd-editor",
+  "name": "@dineug/erd-editor",
+  "when_to_use": "要一个可编辑/可交互的 ER 图(拖拽表、typed 列、PK/FK 关系带自动布线基数、自动布局、SQL/DBML 导入导出)时用它,而非静态图片。它是单个 framework-agnostic 自定义元素 <erd-editor>,能吃/吐 schema JSON、SQL DDL、DBML。静态-从文本用搭档 dbml-renderer;要交互画布用它。",
+  "why_valuable": "可编辑、关系感知的 ERD 画布是有状态的交互 app(拖拽表 + 自动布线 + DDL 往返),远超 AI 一次性可靠产出的范围。@dineug/erd-editor 把这整套封成一个自定义元素,并支持 setSchemaSQL 直接从 CREATE TABLE 建图。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@dineug/erd-editor",
+    "version": "3.3.0",
+    "github": "dineug/erd-editor"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "schema",
+    "note": "首选 schemaSQL:直接写 CREATE TABLE DDL,editor.setSchemaSQL(ddl) 解析建图(AI 友好)。value 是 editor 自有的导出 JSON(settings/doc/collections——含表/列/关系/备注),仅用于恢复上次导出的往返,不建议手写。import 该模块即注册 <erd-editor> 自定义元素(全局注册,重复注册会报错,boot 用 customElements.get 守卫)。",
+    "schema": {
+      "schemaSQL?": "string —— CREATE TABLE DDL,经 setSchemaSQL 导入(推荐;支持 MySQL/PostgreSQL/MSSQL/Oracle/SQLite/MariaDB 方言)",
+      "value?": "string —— erd-editor 原生导出 JSON 字符串,经 setInitialValue 载入(往返用)",
+      "readonly?": "boolean —— 只读展示模式,默认 false"
+    }
+  },
+  "spec": {
+    "height": 600,
+    "note": "编辑器画布需显式高度,给 :host/元素 width:100% + 定高(默认 600px);禁 vh/百分比高(铁律 3),但编辑器必须有确定像素高才渲染。"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need an editable, interactive ER diagram with draggable tables, typed columns, PK/FK relationships with automatically routed cardinalities, automatic layout, and SQL/DBML import/export, rather than a static image. It is a single framework-agnostic <erd-editor> custom element that reads and writes schema JSON, SQL DDL, and DBML. For static rendering from text, use the companion dbml-renderer; for an interactive canvas, use this.",
+      "why_valuable": "An editable, relationship-aware ERD canvas is a stateful interactive app (table dragging, automatic routing, and DDL round trips), far beyond what AI can reliably produce in one pass. @dineug/erd-editor packages the whole system as one custom element and supports setSchemaSQL to build a diagram directly from CREATE TABLE.",
+      "data_in": {
+        "note": "Prefer schemaSQL: write CREATE TABLE DDL directly, and editor.setSchemaSQL(ddl) parses it into a diagram (AI-friendly). value is the editor's own exported JSON (settings/doc/collections, including tables, columns, relationships, and notes); use it only to restore a previous export round trip, not as a hand-authored format. Importing the module registers the <erd-editor> custom element globally; duplicate registration throws, so boot guards with customElements.get.",
+        "schema": {
+          "schemaSQL?": "string -- CREATE TABLE DDL imported with setSchemaSQL (recommended; supports MySQL/PostgreSQL/MSSQL/Oracle/SQLite/MariaDB dialects)",
+          "value?": "string -- native erd-editor exported JSON string loaded with setInitialValue (for round trips)",
+          "readonly?": "boolean -- read-only display mode; default false"
+        }
+      },
+      "spec": {
+        "note": "The editor canvas needs an explicit height: give :host/the element width:100% plus a fixed height (default 600px). Rule 3 forbids vh or percentage heights; the editor needs a definite pixel height to render."
+      }
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:元素引擎含 blob Worker + SharedWorker(@dineug actor store),Claude artifact worker-src 全禁——若 worker 在 mount 即起则不可用,须探针确认是否 lazy(仅 getSharedStore 协作时才起)\nif (!customElements.get('erd-editor')) await import('https://cdn.jsdelivr.net/npm/@dineug/erd-editor@3/+esm');\nconst el = document.getElementById('erd');\nconst editor = document.createElement('erd-editor'); editor.style.cssText = 'width:100%;height:600px'; el.appendChild(editor);\nif (data.value) editor.setInitialValue(data.value); else if (data.schemaSQL) editor.setSchemaSQL(data.schemaSQL);\nif (data.readonly) editor.readonly = true;",
+    "widget": "// 元素自带 shadow(内部 adoptedStyleSheets),直接 append 进宿主 shadowRoot 即可;worker 在 widget 允许\nif (!customElements.get('erd-editor')) await import('https://cdn.jsdelivr.net/npm/@dineug/erd-editor@3/+esm');\nconst editor = document.createElement('erd-editor'); editor.style.cssText = 'width:100%;height:600px'; shadowRoot.appendChild(editor);\nif (data.value) editor.setInitialValue(data.value); else if (data.schemaSQL) editor.setSchemaSQL(data.schemaSQL);\nif (data.readonly) editor.readonly = true;",
+    "codex": "if (!customElements.get('erd-editor')) await import('https://cdn.jsdelivr.net/npm/@dineug/erd-editor@3/+esm');\nconst el = document.getElementById('erd');\nconst editor = document.createElement('erd-editor'); editor.style.cssText = 'width:100%;height:600px'; el.appendChild(editor);\nif (data.value) editor.setInitialValue(data.value); else if (data.schemaSQL) editor.setSchemaSQL(data.schemaSQL);\nif (data.readonly) editor.readonly = true;"
+  },
+  "example": {
+    "_why": "schemaSQL 是 AI 最易产出的输入,minimal 给两表 + 一条 FK。",
+    "minimal": {
+      "schemaSQL": "CREATE TABLE users (\n  id INT PRIMARY KEY,\n  name VARCHAR(50) NOT NULL,\n  email VARCHAR(120) UNIQUE\n);\n\nCREATE TABLE posts (\n  id INT PRIMARY KEY,\n  user_id INT,\n  title VARCHAR(200),\n  FOREIGN KEY (user_id) REFERENCES users(id)\n);"
+    },
+    "empty": {
+      "schemaSQL": ""
+    }
+  },
+  "uplink": "display/local-interact 默认不上行;编辑变更若需外传,由消费 AI 读 editor.value(原生 JSON)或接元素 change 事件,按载体处理,不预设统一事件契约。",
+  "carriers": {
+    "artifact": "inferred-not-tested:引擎用 blob Worker + SharedWorker(actor 模型),artifact worker-src 全禁——若 worker 非 lazy 则渲染不可用,须探针确认",
+    "widget": "supported:自定义元素自带 shadow(adoptedStyleSheets 内部);worker 在 widget 允许;直接 append 进宿主 shadow",
+    "codex": "supported:worker 三路全通;ESM 注册自定义元素后 createElement 挂载"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "API verified vs @dineug/erd-editor@3.3.0: +esm 顶层 exports 仅 `{setExportFileCallback, setGetShikiServiceCallback, setImportFileCallback}`,自定义元素靠 import 副作用注册(grep customElements.define ×1)。ErdEditor.d.ts:`declare global { HTMLElementTagNameMap['erd-editor']: ErdEditorElement }`;ErdEditorElement 方法 `value:string`(get/set)、`setInitialValue(value:string)`、`setSchemaSQL(value:string)`、`getSchemaSQL(vendor?)`、`readonly:boolean`、`focus/blur/clear/destroy`——schema schemaSQL/value/readonly 精确对应。globalStyleInjection=no:元素内部 shadow + adoptedStyleSheets(grep ×3),不注 document.head。globalDomMutation=yes:customElements.define 全局注册 + 瞬时 document.body 剪贴板 textarea(grep `r.value=e,document.body.appendChild` 后接 `document.body.removeChild` + setSelectionRange——经典 copy hack)+ 可能的菜单 portal 到 body。globalEvents=yes:键盘快捷键(setKeyBindingMap)挂 window/document。WORKER:grep `new Worker(createObjectURL(...))`(fallback `data:text/javascript` worker)+ `new SharedWorker('data:text/javascript,...')`——@dineug actor 引擎的 store worker;Claude artifact worker 全 BLOCKED,是否 mount 即起(vs 仅 getSharedStore 协作时懒起)未实测。shadowCompatible=yes(元素自成 shadow,可放进宿主 shadow)。confidence=medium:元素 API 确证,worker 是否阻断 artifact 及原生 value JSON 全貌未真机跑。",
+    "confidence": "medium"
+  }
+}

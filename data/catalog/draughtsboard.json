@@ -1,0 +1,77 @@
+{
+  "entry_version": "thin-1",
+  "id": "draughtsboard",
+  "name": "draughtsboard",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to render draughts/checkers positions, puzzles, or move replays (pair it with a rules engine such as draughts.js for legality): provide FEN/position plus orientation, with draggable pieces and move callbacks. Use it instead of rebuilding an 8x8 or 10x10 grid and piece sprites in raw SVG every time. The catalog already has chess, Go, shogi, and xiangqi boards; draughts is the missing board type.",
+      "why_valuable": "A chessboard.js-style board renderer for draughts/checkers with FEN positions, orientation, draggable pieces, and move events. Rebuilding legal positions with kings, correct placement on dark squares, and drag interactions is tedious, and this is exactly the board category missing from the catalog.",
+      "data_in": {
+        "note": "DraughtsBoard(target, config) is a FACTORY (do not use new). A string target id calls document.getElementById, which fails inside shadow DOM, so pass a DOM element there. draughtsboard.css must be linked externally. position accepts 'start' or FEN.",
+        "schema": {
+          "position": "string -- 'start' | FEN (for example 'W:W31-50:B1-20') | position map object; defaults to an empty board",
+          "orientation?": "string -- 'white' (default) | 'black'",
+          "draggable?": "boolean -- defaults to false; true enables dragging with document-level pointer events",
+          "onChange?": "function -- position-change callback",
+          "onDrop?": "function -- drop callback; may return 'snapback' to undo",
+          "pieceTheme?": "string -- piece-image path template; built in by default"
+        }
+      },
+      "spec": {
+        "note": "The board renders as a square from the container width, and height follows width. Provide a width; do not use vh or percentage heights."
+      }
+    }
+  },
+  "when_to_use": "渲染 draughts/checkers(国际跳棋/西洋跳棋)局面、习题或走子回放(合法性另配规则引擎如 draughts.js):喂 FEN/position + orientation,支持可拖拽棋子与走子回调。用它而不是每次用裸 SVG 重推 8x8/10x10 网格 + 棋子精灵。目录已有 chess/go/shogi/xiangqi 棋盘,唯独缺 draughts。",
+  "why_valuable": "chessboard.js 风格的 draughts/checkers 棋盘渲染器:FEN 局面、orientation、可拖拽棋子与走子事件——把带王的合法局面、深色格正确摆放和拖拽交互每次手搭都很琐碎,而它正是目录缺的那一类棋盘。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "draughtsboard",
+    "version": "0.2.0",
+    "github": "shubhendusaurabh/draughtsboardJS"
+  },
+  "license": "MPL-2.0",
+  "data_in": {
+    "shape": "board",
+    "note": "DraughtsBoard(target, config) 是 FACTORY(不用 new);target 传字符串 id 会走 document.getElementById(shadow 内失效)——shadow 里请传 DOM 元素。需外链 draughtsboard.css。position 支持 'start' 或 FEN。",
+    "schema": {
+      "position": "string —— 'start' | FEN(如 'W:W31-50:B1-20')| 位置映射对象;默认空板",
+      "orientation?": "string —— 'white'(默认) | 'black'",
+      "draggable?": "boolean —— 默认 false;true 时启用拖拽(绑 document 级 pointer 事件)",
+      "onChange?": "function —— 局面变化回调",
+      "onDrop?": "function —— 落子回调(可返回 'snapback' 撤销)",
+      "pieceTheme?": "string —— 棋子图片路径模板;默认内置"
+    }
+  },
+  "spec": {
+    "height": null,
+    "note": "棋盘按容器 width 渲成正方形,height 随 width;给 width,禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// draughtsboard@0.2.0 硬依赖 jQuery 全局 + 外链 CSS;先静态 import jQuery→设全局,再动态 import 棋盘(named 导出才是 factory,default 是对象)\nimport $ from 'https://cdn.jsdelivr.net/npm/jquery@3.7.1/+esm';\nglobalThis.$ = globalThis.jQuery = $;\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/draughtsboard@0.2.0/draughtsboard.css'; document.head.appendChild(css);\nconst { DraughtsBoard } = await import('https://cdn.jsdelivr.net/npm/draughtsboard@0.2.0/+esm');\nconst el = document.getElementById('board'); el.style.width = '100%';\nconst board = DraughtsBoard(el, { position: data.position ?? 'start', orientation: data.orientation ?? 'white', draggable: data.draggable ?? false });",
+    "widget": "// 传元素避开 document.getElementById;CSS 落进 shadow;draughtsboard 硬依赖 jQuery 全局\nimport $ from 'https://cdn.jsdelivr.net/npm/jquery@3.7.1/+esm';\nglobalThis.$ = globalThis.jQuery = $;\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/draughtsboard@0.2.0/draughtsboard.css'; shadowRoot.appendChild(css);\nconst { DraughtsBoard } = await import('https://cdn.jsdelivr.net/npm/draughtsboard@0.2.0/+esm');\nconst el = document.createElement('div'); el.style.width = '100%'; shadowRoot.appendChild(el);\nconst board = DraughtsBoard(el, { position: data.position ?? 'start', orientation: data.orientation ?? 'white', draggable: data.draggable ?? false });",
+    "codex": "import $ from 'https://cdn.jsdelivr.net/npm/jquery@3.7.1/+esm';\nglobalThis.$ = globalThis.jQuery = $;\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/draughtsboard@0.2.0/draughtsboard.css'; document.head.appendChild(css);\nconst { DraughtsBoard } = await import('https://cdn.jsdelivr.net/npm/draughtsboard@0.2.0/+esm');\nconst el = document.getElementById('board'); el.style.width = '100%';\nconst board = DraughtsBoard(el, { position: data.position ?? 'start', orientation: data.orientation ?? 'white', draggable: data.draggable ?? false });"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:ESM 默认导出 factory + 外链 CSS",
+    "widget": "conditional:传元素避开 getElementById、CSS 落 shadow 即可;lib 年轻低采用度,建议活体探针",
+    "codex": "supported:ESM CDN,纯 DOM/CSS,无 worker/wasm"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "conditional",
+    "globalEvents": "yes",
+    "evidence": "CORRECTED 2026-07-24 (audit-102 adversarial verify, 2 skeptics independently reproduced): +esm 尾部 `var pe=ze(),Qe=pe.DraughtsBoard;export{Qe as DraughtsBoard,pe as default}` —— default(pe)是 CJS module.exports 对象 `{DraughtsBoard:factory}`(不可调用),callable factory 仅在 NAMED 导出 `DraughtsBoard`(Qe)。故用 named 导入。更关键:draughtsboard@0.2.0 **硬依赖 jQuery 全局**(README 'Required: jQuery';bundle 内自由全局 `$` 用 18-31 次 + 'Error 1005: Unable to find a valid version of jQuery' 检查),原条目误标 'No jQuery refs / standalone' 是错的。boot 现已修:静态 import jquery→设 globalThis.$/jQuery,再动态 import 棋盘(确保 global 在 eval 前就位)。factory 签名 `function(containerElOrId, cfg, board)`,字符串 id 走 getElementById(shadow 内失效,故传 element)。globalEvents=yes(draggable 时 document 级 pointer)。confidence medium:jQuery 注入路径待 render-probe 实测。",
+    "confidence": "medium"
+  },
+  "example": {
+    "minimal": {
+      "position": "W:WK28,32,38,43:BK23,7,12,18",
+      "orientation": "white",
+      "draggable": false
+    }
+  }
+}

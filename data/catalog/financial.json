@@ -4,6 +4,39 @@
   "name": "financial",
   "when_to_use": "需要零依赖且对齐 numpy-financial 语义的贷款、净现值或收益率计算核时用它而非手写,因为原生在 IRR 收敛、付款时点和现金流符号约定上失败。",
   "why_valuable": "AI 默认会临时写 PMT 公式或脆弱的牛顿迭代,做不到稳定处理零利率、初期/末期付款、无正负混合现金流与不收敛返回值;financial 将这些边界收进测试过的纯函数。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written code when you need a zero-dependency calculation core for loans, net present value, or rate of return with numpy-financial semantics, because native implementations fail at IRR convergence, payment timing, and cash-flow sign conventions.",
+      "why_valuable": "AI normally writes an ad hoc PMT formula or a fragile Newton iteration; it cannot reliably handle zero rates, beginning/end payments, cash flows without both signs, and non-convergence return values. financial puts these edge cases into tested pure functions.",
+      "data_in": {
+        "note": "kind selects one narrowed native signature; rate is a per-period decimal, due maps to PaymentDueTime.Begin/End, and cash flows are ordered by time.",
+        "schema": {
+          "oneOf": {
+            "pmt": {
+              "kind": "'pmt'",
+              "rate": "number",
+              "periods": "number > 0",
+              "present_value": "number",
+              "future_value?": "number -- default 0",
+              "due?": "'begin'|'end' -- default 'end'"
+            },
+            "irr": {
+              "kind": "'irr'",
+              "cashflows": "number[] -- must contain both positive and negative values",
+              "guess?": "number -- default 0.1",
+              "tolerance?": "number > 0 -- default 0.000001",
+              "max_iterations?": "integer > 0 -- default 100"
+            },
+            "npv": {
+              "kind": "'npv'",
+              "rate": "number",
+              "cashflows": "number[] -- item 0 occurs at the present time; an empty array returns 0"
+            }
+          }
+        }
+      }
+    }
+  },
   "supply_form": "headless-primitive",
   "mode": "direct-import",
   "upstream": {
@@ -64,7 +97,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "dist/index.d.ts exposes only pure math functions (pmt/irr/npv/fv/pv/rate/mirr/ipmt/ppmt/nper) returning number; package has zero DOM/CSS/event surface — runs identically in any context including shadow.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

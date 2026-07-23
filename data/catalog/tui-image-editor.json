@@ -4,6 +4,27 @@
   "name": "Toast UI Image Editor",
   "when_to_use": "需要用户在浏览器内裁剪、旋转、涂鸦、加文字或滤镜后继续交付图片时用它,而非手写 canvas 编辑器——原生在对象选取、变换手柄、撤销栈与导出一致性上会失败;非做图像生成、视频编辑或 PSD 兼容。",
   "why_valuable": "AI 默认只能输出一张静态图片,做不到让用户在同一画布继续裁剪、绘制、排字、滤镜和导出;Toast UI Image Editor 把 Fabric 对象操作与完整工具栏封装成可消费编辑器。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when users need to crop, rotate, draw on, add text to, or filter an image in the browser before continuing delivery, instead of hand-writing a canvas editor. Native implementations fail on object selection, transform handles, undo stacks, and consistent export. It is not for image generation, video editing, or PSD compatibility.",
+      "why_valuable": "AI can only output one static image by default; it cannot let users continue cropping, drawing, typesetting, filtering, and exporting on the same canvas. Toast UI Image Editor packages Fabric object operations and a complete toolbar into a consumable editor.",
+      "data_in": {
+        "note": "boot maps source to upstream includeUI.loadImage.path/name. url must be a same-origin/blob/data URL allowed by the host or an image with CORS, otherwise canvas export becomes tainted. Defaults are documented for every optional field.",
+        "schema": {
+          "source?": {
+            "_default": "{} - use the built-in transparent 1024x768 SVG with the name 'image'",
+            "url?": "string - image URL/data URL/blob URL, default built-in transparent 1024x768 SVG data URL",
+            "name?": "string - image name, default 'image'"
+          },
+          "initMenu?": "'crop' | 'flip' | 'rotate' | 'draw' | 'shape' | 'icon' | 'text' | 'mask' | 'filter' - default 'draw'",
+          "menuBarPosition?": "'top' | 'bottom' | 'left' | 'right' - default 'bottom'"
+        }
+      },
+      "spec": {
+        "note": "The Fabric canvas and complete UI require an explicit pixel height. Defaults are 620px for the outer wrapper, cssMaxHeight 520px for the image area, and cssMaxWidth 900px. Hard rule 3 prohibits vh and percentage heights."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -59,7 +80,6 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "dist UMD (1.99MB): 16x `document.body` (Fabric.js appends a hidden IText edit textarea + measurement nodes to body); `document.addEventListener('keydown'|'mousemove'|'mouseup')` + `window.addEventListener('resize'|'orientationchange'|'load')`; 1x `head.appendChild` (identity unconfirmed — note the 2 required stylesheets are boot-loaded via <link>, not auto-injected, so this is a separate small footprint). Canvas renders inside the wrapper el, but Fabric's body-anchored text-editing textarea and document-offset coordinate math are known-fragile inside shadow DOM — needs a live probe before trusting widget.",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

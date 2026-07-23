@@ -2,6 +2,38 @@
   "entry_version": "thin-1",
   "id": "planck",
   "name": "Planck.js",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing a dynamics solver when you need Box2D-grade continuous collision, fixture/joint models, or demonstrations of linkages and vehicle mechanisms, because native implementations fail at high-speed tunneling, joint constraints, and stacking stability.",
+      "why_valuable": "AI has no default ability to implement Box2D-grade contacts, continuous collision, and joint-constraint solving; hand-written numerical simulations drift or tunnel. Planck.js provides deterministic World/Body/Fixture solvers and an interactive Testbed.",
+      "data_in": {
+        "note": "boot uses the native Planck v1 World/createBody/createFixture API. Box halfWidth/halfHeight are half sizes in physics-world units, not pixels; Testbed then scales them to canvas using viewbox.",
+        "schema": {
+          "gravity?": "{ x: number, y: number } -- default {x:0,y:-10}",
+          "bodies": [
+            {
+              "type?": "'static' | 'dynamic' | 'kinematic' -- default static",
+              "position": "{ x: number, y: number }",
+              "angle?": "number radians -- default 0",
+              "shape": {
+                "kind": "'box' | 'circle'",
+                "halfWidth?": "positive number -- box half-width, default 1",
+                "halfHeight?": "positive number -- box half-height, default 1",
+                "radius?": "positive number -- circle radius, default 1"
+              },
+              "density?": "number >= 0 -- dynamic default 1, others default 0",
+              "friction?": "number >= 0 -- default 0.2",
+              "restitution?": "number 0..1 -- default 0"
+            }
+          ],
+          "view?": "{ x?: number (default 0), y?: number (default -10), width?: positive number (default 80), height?: positive number (default 60) } -- Testbed world viewport; the whole object defaults to the parenthesized values"
+        }
+      },
+      "spec": {
+        "note": "Planck's native Testbed Stage canvas occupies its document viewport and mount does not accept a target container; artifact/codex must fix the carrier iframe/fragment to 400px high. vh/percentage height is prohibited. view.height is in physics-world units, not CSS height."
+      }
+    }
+  },
   "when_to_use": "需要 Box2D 级连续碰撞、fixture/joint 模型或连杆与车辆机构演示时用它,而非手写动力学求解器——原生实现在高速穿透、关节约束和堆叠稳定性上失败。",
   "why_valuable": "AI 默认零能力实现 Box2D 级接触、连续碰撞和 joint 约束求解,徒手数值模拟会漂移或穿透；Planck.js 提供确定的 World/Body/Fixture 求解器和可交互 Testbed。",
   "supply_form": "component",
@@ -103,7 +135,6 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "Confirmed in with-testbed bundle: Testbed/Stage does createElement('canvas') and appends it to global document.body (TestbedMountOptions has NO element/container parameter — the canvas cannot be scoped to a shadow root). Registers window keydown/keyup/blur + document mouseup. This exactly matches the catalog's widget:'unsupported' — the entry honestly refuses the widget carrier. (Boot itself also sets document.body.style.margin/height, only safe inside the prescribed iframe isolation.) Library does not inject to document.head.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

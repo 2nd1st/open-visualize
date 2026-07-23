@@ -114,7 +114,49 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "+esm:无 document.head/body 注入(样式走外链 annotorious.css,库运行时不注 head;grep 零 document.body);SVG 标注层渲入 img 父容器(entry 落 shadowRoot)。全局事件:`window.addEventListener('keydown',...)`(Shift 修饰键检测)+ initKeyboardCommands,均返回 cleanup 函数(destroy 清理);pointermove/多数 keydown 挂局部元素。widget 需把 CSS+img+SVG 三件套齐落 shadowRoot(entry 已做),故 conditional。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when users need to draw rectangular or polygonal regions on an image and receive W3C Web Annotation JSON, instead of hand-writing an SVG overlay, because native implementations fail at drawing gestures, zoom coordinate conversion, shape editing, and standardized serialization. Not for a regular image viewer or cropper.",
+      "why_valuable": "AI can only place predefined boxes on a static image by default; it cannot provide user-drawn polygons, control-point editing, responsive image-coordinate conversion, or round-trip W3C annotation JSON.",
+      "data_in": {
+        "note": "boot explicitly enables the upstream W3CImageFormat adapter, so annotations accepts W3CImageAnnotation rather than Annotorious internal geometry/bounds objects. Rectangles use a Media Fragments FragmentSelector and polygons use SvgSelector; target.source must equal image.src.",
+        "schema": {
+          "image": {
+            "src": "string URL",
+            "alt?": "string -- Empty string by default"
+          },
+          "annotations?": [
+            {
+              "@context": "'http://www.w3.org/ns/anno.jsonld'",
+              "type": "'Annotation'",
+              "id": "string",
+              "body": [
+                {
+                  "id": "string",
+                  "type": "string",
+                  "purpose": "string",
+                  "value": "string"
+                }
+              ],
+              "target": {
+                "source": "string -- Must equal image.src",
+                "selector": {
+                  "type": "'FragmentSelector'|'SvgSelector'",
+                  "conformsTo?": "'http://www.w3.org/TR/media-frags/' -- Required for FragmentSelector and omitted by default for SvgSelector",
+                  "value": "string -- For a rectangle, 'xywh=pixel:x,y,w,h'; for a polygon, SVG XML containing <polygon> or <path>"
+                }
+              }
+            }
+          ],
+          "drawingTool?": "'rectangle'|'polygon' -- Default 'rectangle'",
+          "drawingEnabled?": "boolean -- Default true"
+        }
+      },
+      "spec": {
+        "note": "Image-annotation geometry conversion requires the image to finish decoding before initialization. The visible image is capped at 420px high by default while retaining its original aspect ratio; vh/percentage heights are prohibited (Rule 3)."
+      }
+    }
   }
 }

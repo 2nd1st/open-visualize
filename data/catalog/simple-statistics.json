@@ -2,6 +2,20 @@
   "entry_version": "thin-1",
   "id": "simple-statistics",
   "name": "simple-statistics",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written formulas when you need a reproducible statistical kernel for quantiles, sample variance, correlation, or univariate regression, because native AI fails on sample/population denominators, quantile interpolation, ties, and empty-set boundaries.",
+      "why_valuable": "AI defaults can only provide plausible-looking statistical formulas and cannot reliably preserve sample/population semantics, quantile rules, and invalid-input handling; simple-statistics fixes these numeric conventions with zero-dependency named functions.",
+      "data_in": {
+        "note": "Descriptive statistics accepts number[]; univariate regression strictly accepts [x,y][]. Do not pass object rows directly to functions; project the columns first and filter out non-finite values.",
+        "schema": {
+          "values": "number[] -- descriptive-statistics sample; all values must be finite before calling",
+          "quantileP?": "number | number[] -- quantile probability from 0..1; default 0.5",
+          "points?": "[number, number][] -- simple linear-regression points; default [] (do not calculate regression)"
+        }
+      }
+    }
+  },
   "when_to_use": "需要百分位、样本方差、相关性或一元回归的可复算统计核时用它而非手写公式,因为原生 AI 在样本/总体分母、分位插值、ties 与空集边界上失败。",
   "why_valuable": "AI 默认只能给出看似正确的统计公式,无法稳定保持 sample/population 语义、分位规则和异常输入处理;simple-statistics 用零依赖命名函数固定这些数值口径。",
   "supply_form": "headless-primitive",
@@ -46,7 +60,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Verified vs jsDelivr simple-statistics@7.9.3: all named exports used by boot present in +esm (w as mean, W as median, A as quantile, I as sampleVariance, Or as linearRegression, Ur as linearRegressionLine; also fr as sampleCorrelation). Signatures from src/*.d.ts: linearRegression(data: number[][]) => {m,b}; linearRegressionLine(mb:{b,m}) => (x)=>number; sampleCorrelation(x:number[], y:number[]) => number; quantile(x:number[], p:number|number[]) => number|number[] — all match api_surface and schema (values/quantileP/points consumed exactly by boot). headless-primitive: pure-JS numeric layer, zero DOM/event/style footprint, so trivially shadow-safe (no carriers matrix needed by design).",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

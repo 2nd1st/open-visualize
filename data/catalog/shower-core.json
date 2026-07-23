@@ -4,6 +4,21 @@
   "name": "Shower",
   "when_to_use": "需要 HTML-first 的 list/full 双模式演示并兼顾浏览与打印时用它而非手写模式切换和键盘状态,因为原生手写在双模式布局、逐步内容与打印分页上失败;非做 Markdown 编译器或自由画布编辑器。",
   "why_valuable": "AI 默认能排静态 slide,但做不到稳定的 list/full 状态机、键盘与触摸导航、逐步内容、进度和打印模式协作;Shower core 把这些行为绑定到简洁的 .slide HTML。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing mode switching and keyboard state when you need an HTML-first presentation with list/full modes that supports browsing and printing, because native implementations fail at dual-mode layout, incremental content, and print pagination; not a Markdown compiler or free-form canvas editor.",
+      "why_valuable": "AI can normally lay out static slides but cannot reliably coordinate a list/full state machine, keyboard and touch navigation, incremental content, progress, and print mode; Shower core binds these behaviors to concise .slide HTML.",
+      "data_in": {
+        "note": "core includes no theme; boot supplies official Ribbon CSS. Shower.start finds its root with document.querySelector(containerSelector), so it can mount only in an exclusive document.",
+        "schema": {
+          "html": "string -- inner HTML of the .shower root; every slide must be a direct child <section class=\"slide\">, class=\"next\" marks incremental content within a slide, and it may contain <progress class=\"progress\">"
+        }
+      },
+      "spec": {
+        "note": "The Ribbon theme is designed around 1024x576 slide geometry; the host iframe defaults to an explicit 576px height and permits vertical scrolling in list mode. Do not use vh or percentage heights."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -26,9 +41,9 @@
     "note": "Ribbon 主题按 1024×576 幻灯几何设计;宿主 iframe 默认给明确 576px 高并允许 list 模式纵向滚动,禁止 vh/百分比高。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:包顶层 +esm 读取 document.currentScript,模块上下文不安全;保守直引上游原生 Shower 类\nimport Shower from 'https://cdn.jsdelivr.net/npm/@shower/core@3/lib/shower.js';\nconst theme=document.createElement('link'); theme.rel='stylesheet'; theme.href='https://cdn.jsdelivr.net/npm/@shower/ribbon@4/styles/index.css'; document.head.append(theme);\nconst root=document.getElementById('shower-deck'); root.className='shower list'; root.tabIndex=0; root.innerHTML=data.html;\nconst shower=new Shower({containerSelector:'#shower-deck'}); shower.start();",
+    "artifact": "// sandbox srcdoc 不允许 Shower location 模块写 /srcdoc；start 期间省略 URL 参数并立即恢复 History 方法\nimport Shower from 'https://cdn.jsdelivr.net/npm/@shower/core@3.6.0/lib/shower.js';\nconst theme=document.createElement('link'); theme.rel='stylesheet'; theme.href='https://cdn.jsdelivr.net/npm/@shower/ribbon@4/styles/index.css'; document.head.append(theme);\nconst root=document.getElementById('shower-deck'); root.className='shower list'; root.tabIndex=0; root.innerHTML=data.html;\nconst shower=new Shower({containerSelector:'#shower-deck'});\nconst originalReplaceState=history.replaceState, originalPushState=history.pushState;\nhistory.replaceState=(state,title)=>originalReplaceState.call(history,state,title); history.pushState=(state,title)=>originalPushState.call(history,state,title);\ntry { shower.start(); } finally { history.replaceState=originalReplaceState; history.pushState=originalPushState; }",
     "widget": "unsupported:Shower.start 固定从 document.querySelector 找容器,无法穿过 shadowRoot;主题还有 full/list/print 的 document 级选择器",
-    "codex": "// sandbox iframe 独占 document;采用原生类入口避开 document.currentScript\nimport Shower from 'https://cdn.jsdelivr.net/npm/@shower/core@3/lib/shower.js';\nconst theme=document.createElement('link'); theme.rel='stylesheet'; theme.href='https://cdn.jsdelivr.net/npm/@shower/ribbon@4/styles/index.css'; document.head.append(theme);\nconst root=document.getElementById('shower-deck'); root.className='shower list'; root.tabIndex=0; root.innerHTML=data.html;\nconst shower=new Shower({containerSelector:'#shower-deck'}); shower.start();"
+    "codex": "// sandbox iframe 独占 document;采用原生类入口并避开 srcdoc History URL 限制\nimport Shower from 'https://cdn.jsdelivr.net/npm/@shower/core@3.6.0/lib/shower.js';\nconst theme=document.createElement('link'); theme.rel='stylesheet'; theme.href='https://cdn.jsdelivr.net/npm/@shower/ribbon@4/styles/index.css'; document.head.append(theme);\nconst root=document.getElementById('shower-deck'); root.className='shower list'; root.tabIndex=0; root.innerHTML=data.html;\nconst shower=new Shower({containerSelector:'#shower-deck'});\nconst originalReplaceState=history.replaceState, originalPushState=history.pushState;\nhistory.replaceState=(state,title)=>originalReplaceState.call(history,state,title); history.pushState=(state,title)=>originalPushState.call(history,state,title);\ntry { shower.start(); } finally { history.replaceState=originalReplaceState; history.pushState=originalPushState; }"
   },
   "peer": {
     "npm": "@shower/ribbon",
@@ -45,7 +60,11 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "Verified vs jsDelivr @shower/core@3.6.0: boot correctly avoids the +esm entry (its export list is EMPTY — reads document.currentScript) and imports lib/shower.js which is `export default Shower` / `class Shower extends EventTarget { constructor(options) }`. `containerSelector` is a real default-options.js key (default '.shower'); `start()` exists and calls `document.querySelector(containerSelector)` (shower.js:42) — this is the concrete disqualifier for shadow DOM (container must live in the main document, unreachable inside shadowRoot), backing widget:unsupported. Isolation: core itself injects no style, but the deck REQUIRES an external theme — boot appends @shower/ribbon link to document.head, and Ribbon uses document-level .full/.list/.print selectors (globalStyleInjection yes). modules/location.js uses history.pushState/replaceState + window popstate listener + location.hash/href/pathname/search; modules/touch.js binds a document listener (globalEvents yes). keys/mouse bind to the container, not document. codex/artifact (own document) supported and honestly marked.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "html": "<header class=\"caption\">\n  <h1>Designing with Shower</h1>\n  <p>Slides that are just HTML</p>\n</header>\n\n<section class=\"slide\">\n  <h2 class=\"shout\">Designing with Shower</h2>\n</section>\n\n<section class=\"slide\">\n  <h2>Why HTML Slides?</h2>\n  <p>Every slide is a plain <code>&lt;section class=\"slide\"&gt;</code>. No proprietary format and no lock-in — your deck is just semantic markup.</p>\n  <p>The core handles list and full modes, keyboard and touch navigation, and print pagination for you.</p>\n  <p class=\"note\">Themes do the visual work; you write the content.</p>\n</section>\n\n<section class=\"slide\">\n  <h2>Reveal Step by Step</h2>\n  <ol>\n    <li>Write the content as ordinary HTML</li>\n    <li class=\"next\">Tag a line with <code>class=\"next\"</code></li>\n    <li class=\"next\">Press the arrow keys to reveal it</li>\n    <li class=\"next\">Print mode paginates automatically</li>\n  </ol>\n</section>\n\n<section class=\"slide\">\n  <h2 class=\"shout grow\">Thank You</h2>\n</section>\n\n<div class=\"progress\"></div>"
+    }
   }
 }

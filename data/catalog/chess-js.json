@@ -50,7 +50,22 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "+esm exports `As as Chess` (named) — boot import {Chess} correct. README confirms all consumed methods: .load(fen,{skipValidation}) (l.555), .loadPgn(pgn,{strict}) (l.576), .move(move,{strict}) (l.661,697,718), .moves({verbose}) (l.732), .inCheck (l.416), .isCheckmate (l.449), .isDraw (l.461), .isStalemate (l.514), .isGameOver (l.53), .fen()/.pgn(). Uses v1.x camelCase (loadPgn/isGameOver) matching 1.4.0. Headless rule engine, no DOM in bundle.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to parse FEN/PGN, generate legal moves, validate positions, or detect checkmate and draws instead of implementing the rules by hand, which fails on edge cases, castling, en passant, and repeated positions.",
+      "why_valuable": "AI can write FEN/PGN notation but cannot reliably enforce move legality, enumerate moves, or detect checkmate, stalemate, and threefold repetition; manual analysis intermittently produces illegal games.",
+      "data_in": {
+        "note": "When notation_type=fen, notation is passed to Chess.load. Prefer a complete six-field FEN: placement, side to move, castling, en passant, halfmove, and fullmove. Do not mistake the placement field alone for a complete position; load fills missing trailing fields with '- - 0 1' but does not supply the side to move. When notation_type=pgn, pass complete PGN text.",
+        "schema": {
+          "notation": "string -- FEN or PGN, selected by notation_type",
+          "notation_type?": "'fen'|'pgn' -- Default 'fen'",
+          "strict?": "boolean -- Enables strict PGN and SAN parsing; default false. FEN validation is always enabled by default",
+          "plies?": "Array<string | {from:string,to:string,promotion?:'q'|'r'|'b'|'n'}> -- SAN or coordinate moves to execute in order after loading the position/game; default []",
+          "verbose_moves?": "boolean -- Return detailed objects when listing legal moves; default false"
+        }
+      }
+    }
   }
 }

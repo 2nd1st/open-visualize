@@ -47,10 +47,47 @@
     "layout": "freeform-canvas",
     "note": "LGraphCanvas 使用 Canvas2D 像素尺寸,默认显式 height 420px 并把 canvas.height 设为 420;铁律 3 禁 vh/百分比高,容器变宽后消费 AI 应同步 canvas.width 并调用 view.resize()。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need an editable and executable Blueprint-style node graph with typed ports instead of hand-writing Canvas, which tends to fail at port semantics, graph execution scheduling, and complex canvas interaction. It is not for automatic DAG layout, business persistence, or collaborative editing.",
+      "why_valuable": "AI defaults to a static node diagram and cannot provide a port type system, node execution lifecycle, and editor-state serialization. LiteGraph natively combines the LGraph execution model, LGraphCanvas, and serialize/configure round trips.",
+      "data_in": {
+        "note": "data_in is the native graph object returned by graph.serialize(). node.type must be registered in the current build; configure cannot correctly instantiate unknown types.",
+        "schema": {
+          "last_node_id": "number",
+          "last_link_id": "number",
+          "nodes": [
+            {
+              "id": "number",
+              "type": "string -- registered node type, such as basic/const",
+              "pos": "[number, number]",
+              "size?": "[number, number] -- determined by the node type by default",
+              "flags?": "object -- default {}",
+              "order?": "number -- defaults to array order",
+              "mode?": "number -- defaults to the node type's execution mode",
+              "inputs?": "{name:string,type:string,link:number|null}[] -- created by the node type by default",
+              "outputs?": "{name:string,type:string,links:number[]|null}[] -- created by the node type by default",
+              "properties?": "object -- defaults to the node type's property object"
+            }
+          ],
+          "links": [
+            "[linkId:number, originNodeId:number, originSlot:number, targetNodeId:number, targetSlot:number, type:string]"
+          ],
+          "groups?": "array -- default []",
+          "config?": "object -- default {}",
+          "extra?": "object -- default {}",
+          "version?": "number -- defaults to the current serialization version"
+        }
+      },
+      "spec": {
+        "note": "LGraphCanvas uses Canvas2D pixel dimensions. The default explicitly sets height to 420px and canvas.height to 420. Rule 3 forbids vh or percentage heights; after the container widens, consuming AI should synchronize canvas.width and call view.resize()."
+      }
+    }
+  },
   "boot": {
-    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合\nimport { LGraph, LGraphCanvas } from 'https://cdn.jsdelivr.net/npm/litegraph.js@0/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/litegraph.js@0/css/litegraph.css'; document.head.appendChild(css);\nconst canvas = document.getElementById('graph'); canvas.width = canvas.parentElement.clientWidth || 800; canvas.height = 420;\nconst graph = new LGraph(); const view = new LGraphCanvas(canvas, graph);\ngraph.configure(data); graph.start();",
-    "widget": "import { LGraph, LGraphCanvas } from 'https://cdn.jsdelivr.net/npm/litegraph.js@0/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/litegraph.js@0/css/litegraph.css'; shadowRoot.appendChild(css);\nconst canvas = document.createElement('canvas'); canvas.height = 420; shadowRoot.appendChild(canvas); canvas.width = canvas.parentElement.clientWidth || 800;\nconst graph = new LGraph(); const view = new LGraphCanvas(canvas, graph);\ngraph.configure(data); graph.start(); // 右键菜单仍由上游挂到 document.body,见 carriers",
-    "codex": "import { LGraph, LGraphCanvas } from 'https://cdn.jsdelivr.net/npm/litegraph.js@0/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/litegraph.js@0/css/litegraph.css'; document.head.appendChild(css);\nconst canvas = document.getElementById('graph'); canvas.width = canvas.parentElement.clientWidth || 800; canvas.height = 420;\nconst graph = new LGraph(); const view = new LGraphCanvas(canvas, graph);\ngraph.configure(data); graph.start();"
+    "artifact": "// LGraphCanvas 必须接收真实 canvas；先挂载画布，再异步加载库\nconst el = document.getElementById('graph'); el.style.height = `${spec.height ?? 420}px`;\nconst canvas = document.createElement('canvas'); canvas.width = el.clientWidth || 800; canvas.height = spec.height ?? 420; canvas.style.display = 'block'; el.appendChild(canvas);\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/litegraph.js@0/css/litegraph.css'; document.head.appendChild(css);\nconst { LGraph, LGraphCanvas } = await import('https://cdn.jsdelivr.net/npm/litegraph.js@0/+esm');\nconst graph = new LGraph(); const view = new LGraphCanvas(canvas, graph);\ngraph.configure(data); graph.start();",
+    "widget": "const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/litegraph.js@0/css/litegraph.css'; shadowRoot.appendChild(css);\nconst canvas = document.createElement('canvas'); canvas.height = spec.height ?? 420; shadowRoot.appendChild(canvas); canvas.width = canvas.parentElement.clientWidth || 800;\nconst { LGraph, LGraphCanvas } = await import('https://cdn.jsdelivr.net/npm/litegraph.js@0/+esm');\nconst graph = new LGraph(); const view = new LGraphCanvas(canvas, graph);\ngraph.configure(data); graph.start(); // 右键菜单仍由上游挂到 document.body,见 carriers",
+    "codex": "const el = document.getElementById('graph'); el.style.height = `${spec.height ?? 420}px`;\nconst canvas = document.createElement('canvas'); canvas.width = el.clientWidth || 800; canvas.height = spec.height ?? 420; canvas.style.display = 'block'; el.appendChild(canvas);\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/litegraph.js@0/css/litegraph.css'; document.head.appendChild(css);\nconst { LGraph, LGraphCanvas } = await import('https://cdn.jsdelivr.net/npm/litegraph.js@0/+esm');\nconst graph = new LGraph(); const view = new LGraphCanvas(canvas, graph);\ngraph.configure(data); graph.start();"
   },
   "example": {
     "_why": "serialize 图含节点运行元数据与六元组 links,属于深 config;minimal 钉死一个可执行常量节点。",
@@ -118,7 +155,6 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "build/litegraph.js `document.body.appendChild` x6 → ContextMenu(右键菜单)与节点 search dialog 挂 document.body,逃逸 shadow 且丢失 shadow 内 CSS;库不自动注入样式表(build 未见 head.appendChild/createElement('style')/insertRule,故 boot 手动 link css/litegraph.css)。LGraphCanvas 经 ownerDocument(x3)绑拖拽/键盘事件,boot 无 destroy/unbindEvents。主 Canvas2D+CSS 可落 shadow → 主体 conditional,菜单层受限(与 entry conditional 一致)。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

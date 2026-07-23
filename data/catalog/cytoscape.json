@@ -70,5 +70,178 @@
     "artifact": "inferred-not-tested",
     "widget": "conditional:需先把显式像素高度的 div 落入 shadowRoot,再把该 div 传给 container;核心 canvas 渲染与内置布局无需额外 CDN 资产",
     "codex": "supported:ESM CDN + canvas,无 worker/wasm/字体或上行依赖"
+  },
+  "example": {
+    "minimal": {
+      "elements": {
+        "nodes": [
+          {
+            "data": {
+              "id": "browser",
+              "label": "Browser"
+            }
+          },
+          {
+            "data": {
+              "id": "gateway",
+              "label": "API Gateway"
+            }
+          },
+          {
+            "data": {
+              "id": "auth",
+              "label": "Auth Service"
+            }
+          },
+          {
+            "data": {
+              "id": "users",
+              "label": "User Service"
+            }
+          },
+          {
+            "data": {
+              "id": "cache",
+              "label": "Cache"
+            }
+          },
+          {
+            "data": {
+              "id": "db",
+              "label": "Database"
+            }
+          }
+        ],
+        "edges": [
+          {
+            "data": {
+              "id": "e1",
+              "source": "browser",
+              "target": "gateway"
+            }
+          },
+          {
+            "data": {
+              "id": "e2",
+              "source": "gateway",
+              "target": "auth"
+            }
+          },
+          {
+            "data": {
+              "id": "e3",
+              "source": "gateway",
+              "target": "users"
+            }
+          },
+          {
+            "data": {
+              "id": "e4",
+              "source": "auth",
+              "target": "db"
+            }
+          },
+          {
+            "data": {
+              "id": "e5",
+              "source": "users",
+              "target": "db"
+            }
+          },
+          {
+            "data": {
+              "id": "e6",
+              "source": "users",
+              "target": "cache"
+            }
+          }
+        ]
+      },
+      "style": [
+        {
+          "selector": "node",
+          "style": {
+            "label": "data(label)",
+            "background-color": "#4f46e5",
+            "color": "#ffffff",
+            "text-valign": "center",
+            "text-halign": "center",
+            "text-wrap": "wrap",
+            "text-max-width": "72px",
+            "font-size": "9px",
+            "width": 62,
+            "height": 62
+          }
+        },
+        {
+          "selector": "edge",
+          "style": {
+            "width": 2,
+            "line-color": "#94a3b8",
+            "target-arrow-color": "#94a3b8",
+            "target-arrow-shape": "triangle",
+            "curve-style": "bezier"
+          }
+        }
+      ],
+      "layout": {
+        "name": "breadthfirst",
+        "directed": true,
+        "padding": 24,
+        "spacingFactor": 1.15
+      }
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for relationship graphs, dependency graphs, or knowledge networks with dozens or more nodes when you need force-directed, hierarchical, or concentric layout, pan/zoom, data-driven styling, and neighborhood queries, instead of handwritten SVG or Mermaid, which fail at automatic layout, overlap control, and large-graph interaction. For a static graph with fewer than 10 nodes, use Mermaid directly.",
+      "why_valuable": "AI defaults can only write small static Mermaid diagrams and cannot provide stable layout, edge routing, pan/zoom, data-driven styling, and graph-algorithm queries for dozens of nodes; Cytoscape.js adds a layout engine, canvas interaction, and graph-theory API to shallow nodes/edges JSON.",
+      "data_in": {
+        "note": "The primary structure is graph; relational-ref can also be projected to nodes/edges first. The schema below is a focused subset of common Cytoscape.js input types, not a new data protocol; source/target must reference node ids.",
+        "schema": {
+          "elements": {
+            "nodes": [
+              {
+                "data": {
+                  "id": "string",
+                  "label?": "string",
+                  "其余字段?": "string | number | boolean"
+                },
+                "position?": {
+                  "x": "number",
+                  "y": "number"
+                },
+                "classes?": "string"
+              }
+            ],
+            "edges": [
+              {
+                "data": {
+                  "id?": "string",
+                  "source": "string",
+                  "target": "string",
+                  "label?": "string",
+                  "其余字段?": "string | number | boolean"
+                },
+                "classes?": "string"
+              }
+            ]
+          },
+          "layout?": {
+            "name": "'grid' | 'circle' | 'concentric' | 'breadthfirst' | 'cose' | 'random' | 'preset'",
+            "其余布局参数?": "string | number | boolean"
+          },
+          "style?": [
+            {
+              "selector": "string",
+              "style": "Record<string, string | number>"
+            }
+          ]
+        }
+      },
+      "spec": {
+        "note": "The canvas renderer requires the mount container to have explicit dimensions before initialization; default height is 420px. AI may provide another pixel value, but vh and percentage heights are forbidden (rule 3). Call cy.resize() after the container size changes."
+      }
+    }
   }
 }

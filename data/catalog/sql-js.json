@@ -4,6 +4,21 @@
   "name": "sql.js",
   "when_to_use": "需要在浏览器沙箱里打开真实 SQLite 字节库或对内联表执行标准 SQL 时用它而非手写数组过滤器,因为原生在 JOIN、聚合、NULL 语义与查询计划一致性上失败。",
   "why_valuable": "AI 默认只能把简单 WHERE/GROUP BY 模拟成易错 JavaScript,做不到完整 SQLite 解析、事务、JOIN 与类型/NULL 语义;sql.js 在 WASM 内运行真实 SQLite 并返回稳定结果集。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a hand-written array filter when you need to open real SQLite database bytes in a browser sandbox or run standard SQL over inline tables, because native implementations fail at JOIN, aggregation, NULL semantics, and query-plan consistency.",
+      "why_valuable": "AI can normally simulate only simple WHERE/GROUP BY operations in error-prone JavaScript; it cannot provide complete SQLite parsing, transactions, JOIN, and type/NULL semantics. sql.js runs real SQLite in WASM and returns stable result sets.",
+      "data_in": {
+        "note": "databaseBytes is the raw bytes of a SQLite file; setupSql runs first against an empty or loaded database, then query is passed to db.exec(), and only statements with result columns produce a ResultSet.",
+        "schema": {
+          "databaseBytes?": "integer[], each item 0..255 -- omitted by default, creating an empty in-memory database",
+          "setupSql?": "string -- omitted by default; no preset DDL/DML is executed",
+          "query": "string -- one or more SQL statements",
+          "params?": "(string|number|boolean|null|integer[])[] | Record<string,string|number|boolean|null|integer[]> -- omitted by default; no parameters are bound"
+        }
+      }
+    }
+  },
   "supply_form": "headless-primitive",
   "mode": "direct-import",
   "upstream": {
@@ -49,7 +64,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "headless-primitive: MODULARIZE emscripten factory (EXPORT_NAME=initSqlJs) returns a module object without leaking globals; pure WASM compute, no DOM/style/event footprint. Renders nothing → shadow-safe. Only external dependency is fetching the WASM (needs connect-src to pinned jsDelivr), or the codex carrier's inlined base64 wasmBinary variant to avoid the fetch.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

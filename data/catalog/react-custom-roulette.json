@@ -92,7 +92,49 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "package.json deps styled-components ^5.1.1 -> injects <style> into document.head at runtime (bundle shows 11x 'styled', 1x document.head, 1x createElement('style')). The wheel itself is drawn on <canvas> so it renders inside shadow, but the head-injected styled-components CSS does not cross the shadow boundary, so the styled wrapper/pointer layout is unstyled inside a shadow root (cosmetic, not a hard break). No document/window addEventListener found.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need a prize wheel with weighted segments, a pointer, and decelerating stop behavior in a React deliverable, instead of hand-writing canvas, because native implementations fail at angle mapping, prize-targeted stopping, and continuous animation.",
+      "why_valuable": "AI can only draw a static wheel by default; it cannot reliably handle segment weights, stopping at a specified prize, and multi-stage deceleration. This component reduces those problems to three inputs: data, prizeNumber, and mustStartSpinning.",
+      "data_in": {
+        "note": "data_in maps directly to Wheel props. data is the prize-row table, and prizeNumber is a zero-based index into data. Upstream marks all three core props as required; boot provides false/0 defaults only for a static initial frame.",
+        "schema": {
+          "data": [
+            {
+              "option?": "string -- Empty string by default",
+              "optionSize?": "positive integer -- Default 1; number of equal-width segments occupied by this prize",
+              "style?": {
+                "_default": "When omitted, inherits global colors and font",
+                "backgroundColor?": "CSS color -- Cycles through global backgroundColors by default",
+                "textColor?": "CSS color -- Cycles through global textColors by default",
+                "fontFamily?": "string -- Inherits global fontFamily by default",
+                "fontSize?": "number -- Inherits global fontSize by default",
+                "fontWeight?": "number|string -- Inherits global fontWeight by default",
+                "fontStyle?": "string -- Inherits global fontStyle by default"
+              },
+              "image?": {
+                "_default": "No image",
+                "uri": "string -- Image URL or path",
+                "offsetX?": "number -- Default 0",
+                "offsetY?": "number -- Default 0",
+                "sizeMultiplier?": "number -- Default 1",
+                "landscape?": "boolean -- Default false"
+              }
+            }
+          ],
+          "prizeNumber?": "integer,0 <= value < data.length -- boot default 0; must be valid when spinning starts",
+          "mustStartSpinning?": "boolean -- boot default false",
+          "backgroundColors?": "string[] -- Default ['darkgrey','lightgrey']",
+          "textColors?": "string[] -- Default ['black']",
+          "spinDuration?": "number >= 0.01 -- Default 1",
+          "disableInitialAnimation?": "boolean -- Default false"
+        }
+      },
+      "spec": {
+        "note": "The component draws an internal canvas. The host must have an explicit pixel height; boot defaults to 500px, and vh/percentage height is prohibited. The wheel scales to available width; narrow containers should also constrain maximum width."
+      }
+    }
   }
 }

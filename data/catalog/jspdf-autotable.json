@@ -1,0 +1,72 @@
+{
+  "entry_version": "thin-1",
+  "id": "jspdf-autotable",
+  "name": "jspdf-autotable",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it with jsPDF when delivering PDFs that contain tables (invoices, statements, data reports, grade sheets): automatic pagination, repeated headers across pages, adaptive column widths, conditional cell/row/column styles, row/column spans, and footer totals. For a free-form PDF without tables, use jsPDF directly.",
+      "why_valuable": "Tables in PDFs require manual calculation of every cell coordinate and page break, so AI-generated invoice/report tables misalign, run together, or overflow pages. autotable turns head/body two-dimensional arrays into a paginated styled table in one step and is the mainstream table plugin in the jsPDF ecosystem.",
+      "data_in": {
+        "note": "Call autoTable(doc, options) on a jsPDF document instance. head/body are two-dimensional arrays (rows x cells), and a cell may be a string/number or {content,styles,colSpan,rowSpan}. Output is that doc's PDF via doc.output('blob').",
+        "schema": {
+          "head": "RowInput[] -- header rows, usually [[ '列1','列2',... ]]",
+          "body": "RowInput[] -- data rows, [[ 'a','b' ], ...]; a cell may be string|number|boolean or {content,colSpan,rowSpan,styles}",
+          "foot?": "RowInput[] -- footer/total rows",
+          "startY?": "number | false -- starting y; continue after a previous table with doc.lastAutoTable.finalY",
+          "theme?": "'striped' | 'grid' | 'plain' -- defaults to 'striped'",
+          "styles?": "object -- global cell styles; also supports headStyles/bodyStyles/footStyles/columnStyles (by column index or key)",
+          "margin?": "number | { top?, right?, bottom?, left? }"
+        }
+      }
+    }
+  },
+  "when_to_use": "交付含表格的 PDF(发票、对账单、数据报表、成绩单)时配 jsPDF 用——自动分页、表头跨页重复、列宽自适应、单元格/行/列条件样式、跨行跨列、页脚合计;无表格的自由 PDF 直接用 jsPDF。",
+  "why_valuable": "PDF 里的表格要手算每格坐标+分页断点,原生 AI 出的发票/报表表格错位、串行、爆页;autotable 把 head/body 二维数组一步变成自动分页的样式化表格,是 jsPDF 生态最主流的表格插件。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "jspdf-autotable",
+    "version": "5.0.8",
+    "github": "simonbengtsson/jsPDF-AutoTable"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "在一个 jsPDF 文档实例上调用 autoTable(doc, options)。head/body 是二维数组(行×格),格可为字符串/数字或 {content,styles,colSpan,rowSpan}。产出 = 该 doc 的 PDF(doc.output('blob'))。",
+    "schema": {
+      "head": "RowInput[] —— 表头行,通常 [[ '列1','列2',... ]]",
+      "body": "RowInput[] —— 数据行,[[ 'a','b' ], ...];格可为 string|number|boolean 或 {content,colSpan,rowSpan,styles}",
+      "foot?": "RowInput[] —— 页脚/合计行",
+      "startY?": "number | false —— 起始 y;接续上一表用 doc.lastAutoTable.finalY",
+      "theme?": "'striped' | 'grid' | 'plain' —— 默认 'striped'",
+      "styles?": "object —— 全局单元格样式;另有 headStyles/bodyStyles/footStyles/columnStyles(按列索引或列 key)",
+      "margin?": "number | { top?, right?, bottom?, left? }"
+    }
+  },
+  "provides": {
+    "shape": "pdf-bytes",
+    "_note": "headless-primitive:就地把表格排进传入的 jsPDF 文档,产出 PDF 字节;无渲染组件、无 carriers 矩阵。",
+    "outputs": "调用后 doc.output('blob') → Blob / doc.output('arraybuffer') / doc.save(name);doc.lastAutoTable.finalY 供接续排版。",
+    "api_surface": {
+      "call": "autoTable(doc, options)(default 导入的函数式 API;doc 为 jsPDF 实例)",
+      "chain": "doc.lastAutoTable.finalY —— 上一表底部 y,用作下一表 startY 串联多表",
+      "hooks": "options.didDrawPage/didParseCell/willDrawCell 等回调可插自定义绘制(回调交消费 AI 直接接原生)"
+    }
+  },
+  "peer": {
+    "id": "jspdf",
+    "note": "autotable 不含 jsPDF(peerDependencies jspdf ^2||^3||^4);须先 import { jsPDF } from 'jspdf'(命名导出,latest 4.2.1,MIT),new jsPDF() 建 doc 再传入。"
+  },
+  "boot": {
+    "shared": "// 产 PDF 字节;需 jsPDF peer;零 DOM 足迹\nimport { jsPDF } from 'https://cdn.jsdelivr.net/npm/jspdf@4.2.1/+esm';\nimport autoTable from 'https://cdn.jsdelivr.net/npm/jspdf-autotable@5.0.8/+esm';\nconst doc = new jsPDF();\nautoTable(doc, {\n  head: data.head,\n  body: data.body,\n  foot: data.foot,\n  startY: data.startY,\n  theme: data.theme ?? 'striped',\n  styles: data.styles,\n  headStyles: data.headStyles,\n  columnStyles: data.columnStyles,\n  margin: data.margin\n});\nconst blob = doc.output('blob');",
+    "note": "autoTable 是 default 导出的函数式 API(autoTable(doc,opts),v5 签名 (d:jsPDFDocument, options:UserOptions):void);jsPDF 是命名导出。autotable 会给 jsPDF.API 挂 autoTable 方法(仅作用于 jsPDF 库对象,非 document 全局)。产字节无渲染,无 shadow/head 足迹。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr jspdf-autotable@5.0.8 +esm (31KB): exports {at as autoTable, at as default, nt as applyPlugin, A as Cell, z as Row, X as Column, Q as Table}. dist/index.d.ts line 318: `export declare function autoTable(d: jsPDFDocument, options: UserOptions): void`; UserOptions{ head?/body?/foot?:RowInput[]; startY?:number|false; theme?:'striped'|'grid'|'plain'; styles?/headStyles?/bodyStyles?/footStyles?/columnStyles?; margin? } — schema/boot match. npm peerDependencies {jspdf:'^2 || ^3 || ^4'}, no bundled dependencies; peer jspdf@4.2.1 (MIT) +esm exports named jsPDF (confirmed 'as jsPDF'). Global-footprint grep over autotable +esm: document.head 0, createElement 0, <style/insertRule/adoptedStyle 0, addEventListener 0. Its only 'global' is augmenting jsPDF.API.autoTable (the jsPDF library prototype — library-scoped, not the DOM/document); the functional autoTable(doc,opts) path used in boot is self-contained. Produces PDF bytes via jsPDF, renders nothing to the DOM — shadow-safe.",
+    "confidence": "high"
+  }
+}

@@ -1,26 +1,39 @@
-# 输入与共创(scene: input-cocreate,31 条)
+# 输入与共创(scene: input-cocreate,47 条)
 
 每条:`id` — 何时用 · 数据形态 · supply_form · license。选中读 `data/catalog/<id>.json`。
 
 - `annotorious-annotorious` — 需要用户在图片上画矩形/多边形区域并得到 W3C Web Annotation JSON 时用它 · geometry · component L1 · BSD-3-Clause
-- `antv-x6` — 需要 ER 图、流程图或 DAG 编辑器中的连接桩、框选、吸附对齐与可扩展 SVG/HTML 节点时… · graph · component L1 · MIT
+- `antv-x6` — 需要 ER 图、流程图或 DAG 编辑器中的连接桩、框选、吸附对齐与可扩展 SVG/HTML 节点时用它 · graph · component L1 · MIT
 - `blocknote-core` — 需要 Notion 风格的嵌套 block 编辑、拖拽与斜杠菜单并把文档保留为 JSON 时用它 · sequence · component L1 · MPL-2.0
 - `bpmn-io-form-js` — 需要把 bpmn.io form schema 稳定渲成带校验的 vanilla 输入面时用它 · key-value · component L1 · SEE LICENSE IN LICENSE
 - `cropperjs` — 需要让用户在图片上拖拽八向手柄并得到精确裁剪几何时用它 · geometry · component L1 · MIT
+- `dineug-erd-editor` — 要一个可编辑/可交互的 ER 图(拖拽表、typed 列、PK/FK 关系带自动布线基数、自动布局… · schema · component L1 · MIT
 - `drawflow` — 需要轻量、无框架的可拖拽节点流编辑器并把画布往返为紧凑 JSON 时用它 · geometry · component L1 · MIT
 - `editorjs-editorjs` — 需要把大纲或共创文档编辑成可直接交给 AI 的 block JSON 时用它 · sequence · component L1 · Apache-2.0
+- `emoji-picker-element` — 凡是用户要挑 emoji 处(反应、聊天、状态、标签)直接放它;它是框架无关的自定义元素——实例化后… · emoji-catalog · component L1 · Apache-2.0
 - `excalidraw-excalidraw` — 需要用户自由画形状、箭头、文字并保留可读场景 JSON 的白板共创时用它 · geometry · component L1 · MIT
 - `fabric` — 需要自定义可选中、缩放旋转、分组并可 JSON 回放的对象画布时用它 · geometry · component L1 · MIT
+- `flatpickr` — 需要范围选择、始终展开的内联日历、日期+时间、或要一致样式/本地化时用它 · date-range · component L1 · MIT
 - `formkit-drag-and-drop` — 需要把一个或多个列表做成 data-first 拖拽排序/跨列转移时用它 · sequence · component L1 · MIT
+- `fossflow` — 画云/基础设施/网络架构的流行等距(isometric)风格图时用它 · isometric-scene · component L1 · MIT
+- `grapesjs` — 需要让用户可视化拖拽拼装/就地编辑一个页面、邮件或模板(builder UI)并导出 HTML/CSS 时用它 · component-tree · component L1 · BSD-3-Clause
 - `gridstack` — 需要让用户拖拽、缩放并保存 dashboard/版面网格时用它 · grid · component L1 · MIT
+- `interactjs` — 需要让任意元素自由拖拽/从任意边缩放/旋转/多指捏合并带网格吸附、边界限制与惯性时用它 · dom-interaction · component L1 · MIT
+- `jaames-iro` — 需要 wheel/box 型表达式颜色选择器(带 alpha 滑块、hex/rgb/hsv 多格式… · color-value · component L1 · MPL-2.0
 - `jkanban` — 需要轻量 vanilla 看板的列/卡片拖拽和紧凑 boards JSON 初始化时用它 · hierarchy · component L1 · Apache-2.0
 - `json-editor-json-editor` — 需要由 JSON Schema 生成嵌套对象/数组表单并拿回结构化值时用它 · key-value · component L1 · MIT
+- `kekule` — 化学场景超出单个 2D 结构式时用它 · molecule · component L1 · MIT
+- `konva` — 要构建用户可选中/变换对象的交互式画布编辑器或图示(stage→layer→shape,内建 Tra… · scene-graph · component L1 · MIT
 - `leader-line` — 需要在两个既有 DOM 元素之间画会随布局定位的箭头或连线时用它 · geometry · component L1 · MIT
 - `litegraph-js` — 需要带端口类型、可编辑且可执行的 Blueprint 式节点图时用它 · graph · component L1 · MIT
 - `logicflow-core` — 需要面向审批流/BPMN 风格语义的可编辑流程图、连线校验和撤销历史时用它 · graph · component L1 · Apache-2.0
 - `mind-elixir` — 需要用户直接编辑、拖排并导出 JSON 思维导图时用它 · hierarchy · component L1 · MIT
+- `monaco-editor` — 需要 VS Code 保真度的代码查看(minimap、代码折叠、语法着色)或只读对比时用它 · code-text · app-needs-fork · MIT ⚠blocked(需fork)
 - `nouislider` — 需要多柄范围、柄间 margin/limit/padding 约束或非线性刻度时用它 · scalar · component L1 · MIT
+- `perfect-freehand` — 需要把原始 pointer 采样点变成自然、带压感锥形收尾的墨迹轮廓(画板/白板/签名的笔画几何)时用它 · stroke-points · headless-primitive · MIT
+- `quill` — 需要经典行内富文本编辑(粗体/列表/链接/图片/@提及)并要结构化产物(Delta 或语义 HTML)时用它 · rich-text-delta · component L1 · BSD-3-Clause
 - `quizdown-js` — 需要把 Markdown 式题目一次变成单选、多选、排序与本地判分测验时用它 · notation-string · component L1 · MIT
+- `react-arborist` — 需要交互式浏览一棵大的层级结构(文件树、目录树、嵌套 JSON、组织结构)且要折叠 + 虚拟滚动(可… · tree · component L1 · MIT
 - `recogito-text-annotator` — 需要用户在长文本中圈选原句并留下结构化批注时用它 · text-span · component L1 · BSD-3-Clause
 - `rete` — 需要让用户搭建带类型端口、可编辑连线且能继续接数据流执行引擎的节点管线时用它 · graph · component L1 · MIT
 - `seatchart` — 需要带类型、价格、保留态、过道和购物篮的座位网格时用它 · grid · component L1 · MIT
@@ -29,7 +42,10 @@
 - `simple-mind-map` — 需要多种布局、完整 JSON 回放和富功能大纲/思维导图编辑时用它 · hierarchy · component L1 · MIT
 - `sortablejs` — 需要触摸友好、带动画的列表重排或同一 shadow 内跨列表归类时用它 · sequence · component L1 · MIT
 - `survey-core` — 需要从题目 JSON 得到条件显隐、校验状态与紧凑答案对象时用它 · key-value · headless-primitive · MIT
+- `toast-ui-editor` — 当真源是 Markdown 但用户要 WYSIWYG 体验并能切回原文(文档/README/笔记)时用它 · markdown-string · component L1 · MIT
+- `tom-select` — 要把 <select> 升级成带搜索/多选/分组/输入新建的下拉(指派用户、分类、筛选)时用它 · option-list · component L1 · Apache-2.0
 - `tui-image-editor` — 需要用户在浏览器内裁剪、旋转、涂鸦、加文字或滤镜后继续交付图片时用它 · geometry · component L1 · MIT
 - `tweakpane` — 需要高密度参数面板处理数值、颜色、布尔、二维点与区间时用它 · key-value · component L1 · MIT
 - `x-data-spreadsheet` — 需要轻量 Excel 风格网格、单元格编辑与多工作表时用它 · grid · component L1 · MIT
 - `xyflow-react` — 需要 React 内生产级节点图、受控或非受控状态、缩放平移和可嵌任意 UI 的自定义节点时用它 · graph · component L1 · MIT
+- `yaireo-tagify` — 需要录入一串带建议与校验的离散值(关键词、收件人、标签、技能)时用它 · tag-list · component L1 · MIT

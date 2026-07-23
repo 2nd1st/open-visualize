@@ -1,0 +1,156 @@
+{
+  "entry_version": "thin-1",
+  "id": "tier-list",
+  "name": "Tier list",
+  "when_to_use": "需要把一组对象按 S／A／B／C 等少量等级直观分层时用它：适合工具推荐、候选方案排序、内容盘点和主观评测摘要。若必须表达精确名次或分数差距，应改用排名表或条形图；若需要拖拽重排并回传结果，则应使用可编辑排序组件。",
+  "why_valuable": "tier list 的信息主要来自空间分组和颜色标签；本模板把等级标签、解释与项目 chips 固定为清晰的横向层级，在项目数量不均和窄屏换行时仍能保持排序方向与阅读节奏。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "inline-template",
+  "upstream": {
+    "npm": null,
+    "version": null,
+    "github": null
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "ranking",
+    "note": "data.tiers 按从高到低的显示顺序提供；模板不根据 label 自动排序。每个 tier 用 label 表示等级、description 解释判定标准、tone 控制标签配色，items 以 chips 形式展示。tone 省略时会根据 label 的首字母识别 S／A／B／C，否则使用 neutral。items 可为空并显示 “No items yet”；项目 note 适合极短补充，不应承载长段说明。",
+    "schema": {
+      "title?": "string —— 排名主题；省略时显示 “Tier ranking”",
+      "subtitle?": "string —— 排名口径或上下文说明；省略时显示等级和项目数量摘要",
+      "tiers": "{label:string,description?:string,tone?:'s'|'a'|'b'|'c'|'d'|'neutral',items:{name:string,note?:string}[]}[] —— 从高到低排列的等级行",
+      "_tierFields": {
+        "label": "string —— 短等级标签，例如 S、A、B、C",
+        "description?": "string —— 该等级的判断标准或一句解释",
+        "tone?": "'s'|'a'|'b'|'c'|'d'|'neutral' —— 颜色语义；省略时尝试从 label 首字母推断",
+        "items": "{name:string,note?:string}[] —— 本等级中的项目 chips"
+      },
+      "_itemFields": {
+        "name": "string —— 项目名称",
+        "note?": "string —— chip 内的极短限定或类别"
+      }
+    }
+  },
+  "spec": {
+    "height": "auto",
+    "note": "按 tier 行数和 chips 换行自然增高；宽屏为等级标签加内容的双列行，窄屏把标签和说明置于 chips 上方。无内部滚动或载体尺寸测量。"
+  },
+  "boot": {
+    "artifact": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.meta{margin:7px 0 0;color:var(--_muted);font-size:13px;line-height:1.45}\n.rows{display:grid}\n.tier{display:grid;grid-template-columns:102px minmax(0,1fr);min-height:104px;border-bottom:1px solid var(--_line)}\n.tier:last-child{border-bottom:0}\n.rank{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:16px 12px;border-right:1px solid var(--_line);background:var(--_group)}\n.label{display:flex;width:52px;height:52px;align-items:center;justify-content:center;border:1px solid transparent;border-radius:14px;font-size:24px;font-weight:850;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums;box-shadow:0 5px 12px rgba(15,23,42,.08)}\n.rank-name{max-width:76px;color:var(--_muted);font-size:9px;font-weight:800;letter-spacing:.09em;text-align:center;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.tone-s .label{border-color:#fda4af;background:#ffe4e6;color:#9f1239}\n.tone-a .label{border-color:#fdba74;background:#ffedd5;color:#9a3412}\n.tone-b .label{border-color:#fcd34d;background:#fef3c7;color:#92400e}\n.tone-c .label{border-color:#86efac;background:#dcfce7;color:#166534}\n.tone-d .label{border-color:#93c5fd;background:#dbeafe;color:#1e40af}\n.tone-neutral .label{border-color:var(--_line);background:var(--_raised);color:var(--_text)}\n.content{display:flex;min-width:0;flex-direction:column;justify-content:center;gap:12px;padding:17px 20px;background:var(--_raised)}\n.description{margin:0;color:var(--_muted);font-size:12px;line-height:1.4}\n.chips{display:flex;flex-wrap:wrap;gap:8px}\n.chip{display:inline-flex;min-width:0;align-items:baseline;gap:6px;padding:8px 11px;border:1px solid var(--_line);border-radius:999px;background:var(--_soft);color:var(--_text);font-size:12px;font-weight:680;line-height:1.2;box-shadow:0 2px 5px rgba(15,23,42,.035)}\n.chip-note{color:var(--_muted);font-size:10px;font-weight:600}\n.empty-chip{color:var(--_muted);font-size:12px;font-style:italic}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:560px){.heading{padding:18px}.tier{grid-template-columns:1fr}.rank{flex-direction:row;justify-content:flex-start;padding:13px 16px;border-right:0;border-bottom:1px solid var(--_line)}.label{width:42px;height:42px;border-radius:12px;font-size:20px}.rank-name{max-width:none}.content{padding:15px 16px}.chip{max-width:100%;flex-wrap:wrap;border-radius:12px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}.tone-s .label{border-color:#9f1239;background:#4c1525;color:#fda4af}.tone-a .label{border-color:#9a3412;background:#492411;color:#fdba74}.tone-b .label{border-color:#92400e;background:#422f0c;color:#fcd34d}.tone-c .label{border-color:#166534;background:#123b27;color:#86efac}.tone-d .label{border-color:#1e40af;background:#162c59;color:#93c5fd}.chip{box-shadow:none}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst tiers=Array.isArray(data.tiers)?data.tiers:[];\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Tier ranking';\nconst itemCount=tiers.reduce((sum,tier)=>sum+(tier&&Array.isArray(tier.items)?tier.items.length:0),0);\nconst subtitle=typeof data.subtitle==='string'&&data.subtitle.trim()?data.subtitle.trim():tiers.length+' tiers · '+itemCount+' ranked item'+(itemCount===1?'':'s');\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title);\nconst heading=make('header','heading'); heading.appendChild(make('div','eyebrow','Tier list')); heading.appendChild(make('h2','',title)); heading.appendChild(make('p','meta',subtitle)); frame.appendChild(heading);\nif(!tiers.length){\n  frame.appendChild(make('div','empty','Add at least one tier to build the ranking.'));\n}else{\n  const rows=make('div','rows');\n  tiers.forEach((tier) => {\n    const label=tier&&tier.label!=null?String(tier.label):'—';\n    const inferred=/^[SABCD]$/i.test(label.trim())?label.trim().toLowerCase():'neutral';\n    const allowed=['s','a','b','c','d','neutral']; const tone=tier&&allowed.includes(tier.tone)?tier.tone:inferred;\n    const row=make('section','tier tone-'+tone); row.setAttribute('aria-label',label+' tier');\n    const rank=make('div','rank'); rank.appendChild(make('span','label',label)); rank.appendChild(make('span','rank-name',label+' tier')); row.appendChild(rank);\n    const content=make('div','content'); if(tier&&tier.description) content.appendChild(make('p','description',String(tier.description)));\n    const chips=make('div','chips'); const items=tier&&Array.isArray(tier.items)?tier.items:[];\n    if(!items.length) chips.appendChild(make('span','empty-chip','No items yet'));\n    items.forEach((item) => { const chip=make('span','chip'); chip.appendChild(make('span','',item&&item.name!=null?String(item.name):'Untitled')); if(item&&item.note) chip.appendChild(make('span','chip-note',String(item.note))); chips.appendChild(chip); });\n    content.appendChild(chips); row.appendChild(content); rows.appendChild(row);\n  });\n  frame.appendChild(rows);\n}\nroot.appendChild(frame);\nparent.appendChild(host);",
+    "widget": "const parent = shadowRoot;\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.meta{margin:7px 0 0;color:var(--_muted);font-size:13px;line-height:1.45}\n.rows{display:grid}\n.tier{display:grid;grid-template-columns:102px minmax(0,1fr);min-height:104px;border-bottom:1px solid var(--_line)}\n.tier:last-child{border-bottom:0}\n.rank{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:16px 12px;border-right:1px solid var(--_line);background:var(--_group)}\n.label{display:flex;width:52px;height:52px;align-items:center;justify-content:center;border:1px solid transparent;border-radius:14px;font-size:24px;font-weight:850;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums;box-shadow:0 5px 12px rgba(15,23,42,.08)}\n.rank-name{max-width:76px;color:var(--_muted);font-size:9px;font-weight:800;letter-spacing:.09em;text-align:center;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.tone-s .label{border-color:#fda4af;background:#ffe4e6;color:#9f1239}\n.tone-a .label{border-color:#fdba74;background:#ffedd5;color:#9a3412}\n.tone-b .label{border-color:#fcd34d;background:#fef3c7;color:#92400e}\n.tone-c .label{border-color:#86efac;background:#dcfce7;color:#166534}\n.tone-d .label{border-color:#93c5fd;background:#dbeafe;color:#1e40af}\n.tone-neutral .label{border-color:var(--_line);background:var(--_raised);color:var(--_text)}\n.content{display:flex;min-width:0;flex-direction:column;justify-content:center;gap:12px;padding:17px 20px;background:var(--_raised)}\n.description{margin:0;color:var(--_muted);font-size:12px;line-height:1.4}\n.chips{display:flex;flex-wrap:wrap;gap:8px}\n.chip{display:inline-flex;min-width:0;align-items:baseline;gap:6px;padding:8px 11px;border:1px solid var(--_line);border-radius:999px;background:var(--_soft);color:var(--_text);font-size:12px;font-weight:680;line-height:1.2;box-shadow:0 2px 5px rgba(15,23,42,.035)}\n.chip-note{color:var(--_muted);font-size:10px;font-weight:600}\n.empty-chip{color:var(--_muted);font-size:12px;font-style:italic}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:560px){.heading{padding:18px}.tier{grid-template-columns:1fr}.rank{flex-direction:row;justify-content:flex-start;padding:13px 16px;border-right:0;border-bottom:1px solid var(--_line)}.label{width:42px;height:42px;border-radius:12px;font-size:20px}.rank-name{max-width:none}.content{padding:15px 16px}.chip{max-width:100%;flex-wrap:wrap;border-radius:12px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}.tone-s .label{border-color:#9f1239;background:#4c1525;color:#fda4af}.tone-a .label{border-color:#9a3412;background:#492411;color:#fdba74}.tone-b .label{border-color:#92400e;background:#422f0c;color:#fcd34d}.tone-c .label{border-color:#166534;background:#123b27;color:#86efac}.tone-d .label{border-color:#1e40af;background:#162c59;color:#93c5fd}.chip{box-shadow:none}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst tiers=Array.isArray(data.tiers)?data.tiers:[];\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Tier ranking';\nconst itemCount=tiers.reduce((sum,tier)=>sum+(tier&&Array.isArray(tier.items)?tier.items.length:0),0);\nconst subtitle=typeof data.subtitle==='string'&&data.subtitle.trim()?data.subtitle.trim():tiers.length+' tiers · '+itemCount+' ranked item'+(itemCount===1?'':'s');\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title);\nconst heading=make('header','heading'); heading.appendChild(make('div','eyebrow','Tier list')); heading.appendChild(make('h2','',title)); heading.appendChild(make('p','meta',subtitle)); frame.appendChild(heading);\nif(!tiers.length){\n  frame.appendChild(make('div','empty','Add at least one tier to build the ranking.'));\n}else{\n  const rows=make('div','rows');\n  tiers.forEach((tier) => {\n    const label=tier&&tier.label!=null?String(tier.label):'—';\n    const inferred=/^[SABCD]$/i.test(label.trim())?label.trim().toLowerCase():'neutral';\n    const allowed=['s','a','b','c','d','neutral']; const tone=tier&&allowed.includes(tier.tone)?tier.tone:inferred;\n    const row=make('section','tier tone-'+tone); row.setAttribute('aria-label',label+' tier');\n    const rank=make('div','rank'); rank.appendChild(make('span','label',label)); rank.appendChild(make('span','rank-name',label+' tier')); row.appendChild(rank);\n    const content=make('div','content'); if(tier&&tier.description) content.appendChild(make('p','description',String(tier.description)));\n    const chips=make('div','chips'); const items=tier&&Array.isArray(tier.items)?tier.items:[];\n    if(!items.length) chips.appendChild(make('span','empty-chip','No items yet'));\n    items.forEach((item) => { const chip=make('span','chip'); chip.appendChild(make('span','',item&&item.name!=null?String(item.name):'Untitled')); if(item&&item.note) chip.appendChild(make('span','chip-note',String(item.note))); chips.appendChild(chip); });\n    content.appendChild(chips); row.appendChild(content); rows.appendChild(row);\n  });\n  frame.appendChild(rows);\n}\nroot.appendChild(frame);\nparent.appendChild(host);",
+    "codex": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.meta{margin:7px 0 0;color:var(--_muted);font-size:13px;line-height:1.45}\n.rows{display:grid}\n.tier{display:grid;grid-template-columns:102px minmax(0,1fr);min-height:104px;border-bottom:1px solid var(--_line)}\n.tier:last-child{border-bottom:0}\n.rank{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:16px 12px;border-right:1px solid var(--_line);background:var(--_group)}\n.label{display:flex;width:52px;height:52px;align-items:center;justify-content:center;border:1px solid transparent;border-radius:14px;font-size:24px;font-weight:850;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums;box-shadow:0 5px 12px rgba(15,23,42,.08)}\n.rank-name{max-width:76px;color:var(--_muted);font-size:9px;font-weight:800;letter-spacing:.09em;text-align:center;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.tone-s .label{border-color:#fda4af;background:#ffe4e6;color:#9f1239}\n.tone-a .label{border-color:#fdba74;background:#ffedd5;color:#9a3412}\n.tone-b .label{border-color:#fcd34d;background:#fef3c7;color:#92400e}\n.tone-c .label{border-color:#86efac;background:#dcfce7;color:#166534}\n.tone-d .label{border-color:#93c5fd;background:#dbeafe;color:#1e40af}\n.tone-neutral .label{border-color:var(--_line);background:var(--_raised);color:var(--_text)}\n.content{display:flex;min-width:0;flex-direction:column;justify-content:center;gap:12px;padding:17px 20px;background:var(--_raised)}\n.description{margin:0;color:var(--_muted);font-size:12px;line-height:1.4}\n.chips{display:flex;flex-wrap:wrap;gap:8px}\n.chip{display:inline-flex;min-width:0;align-items:baseline;gap:6px;padding:8px 11px;border:1px solid var(--_line);border-radius:999px;background:var(--_soft);color:var(--_text);font-size:12px;font-weight:680;line-height:1.2;box-shadow:0 2px 5px rgba(15,23,42,.035)}\n.chip-note{color:var(--_muted);font-size:10px;font-weight:600}\n.empty-chip{color:var(--_muted);font-size:12px;font-style:italic}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:560px){.heading{padding:18px}.tier{grid-template-columns:1fr}.rank{flex-direction:row;justify-content:flex-start;padding:13px 16px;border-right:0;border-bottom:1px solid var(--_line)}.label{width:42px;height:42px;border-radius:12px;font-size:20px}.rank-name{max-width:none}.content{padding:15px 16px}.chip{max-width:100%;flex-wrap:wrap;border-radius:12px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}.tone-s .label{border-color:#9f1239;background:#4c1525;color:#fda4af}.tone-a .label{border-color:#9a3412;background:#492411;color:#fdba74}.tone-b .label{border-color:#92400e;background:#422f0c;color:#fcd34d}.tone-c .label{border-color:#166534;background:#123b27;color:#86efac}.tone-d .label{border-color:#1e40af;background:#162c59;color:#93c5fd}.chip{box-shadow:none}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst tiers=Array.isArray(data.tiers)?data.tiers:[];\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Tier ranking';\nconst itemCount=tiers.reduce((sum,tier)=>sum+(tier&&Array.isArray(tier.items)?tier.items.length:0),0);\nconst subtitle=typeof data.subtitle==='string'&&data.subtitle.trim()?data.subtitle.trim():tiers.length+' tiers · '+itemCount+' ranked item'+(itemCount===1?'':'s');\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title);\nconst heading=make('header','heading'); heading.appendChild(make('div','eyebrow','Tier list')); heading.appendChild(make('h2','',title)); heading.appendChild(make('p','meta',subtitle)); frame.appendChild(heading);\nif(!tiers.length){\n  frame.appendChild(make('div','empty','Add at least one tier to build the ranking.'));\n}else{\n  const rows=make('div','rows');\n  tiers.forEach((tier) => {\n    const label=tier&&tier.label!=null?String(tier.label):'—';\n    const inferred=/^[SABCD]$/i.test(label.trim())?label.trim().toLowerCase():'neutral';\n    const allowed=['s','a','b','c','d','neutral']; const tone=tier&&allowed.includes(tier.tone)?tier.tone:inferred;\n    const row=make('section','tier tone-'+tone); row.setAttribute('aria-label',label+' tier');\n    const rank=make('div','rank'); rank.appendChild(make('span','label',label)); rank.appendChild(make('span','rank-name',label+' tier')); row.appendChild(rank);\n    const content=make('div','content'); if(tier&&tier.description) content.appendChild(make('p','description',String(tier.description)));\n    const chips=make('div','chips'); const items=tier&&Array.isArray(tier.items)?tier.items:[];\n    if(!items.length) chips.appendChild(make('span','empty-chip','No items yet'));\n    items.forEach((item) => { const chip=make('span','chip'); chip.appendChild(make('span','',item&&item.name!=null?String(item.name):'Untitled')); if(item&&item.note) chip.appendChild(make('span','chip-note',String(item.note))); chips.appendChild(chip); });\n    content.appendChild(chips); row.appendChild(content); rows.appendChild(row);\n  });\n  frame.appendChild(rows);\n}\nroot.appendChild(frame);\nparent.appendChild(host);"
+  },
+  "example": {
+    "_why": "S／A／B／C 四个常见等级配合不均匀的项目数量、说明文字和带 note 的 chips，可检验排名方向、等级色、换行密度与移动端结构。",
+    "minimal": {
+      "title": "Desk setup upgrades",
+      "subtitle": "Ranked by daily comfort gained per dollar spent.",
+      "tiers": [
+        {
+          "label": "S",
+          "description": "Transformative — notice the difference every day",
+          "items": [
+            {
+              "name": "Monitor arm",
+              "note": "ergonomics"
+            },
+            {
+              "name": "Supportive chair",
+              "note": "all-day"
+            },
+            {
+              "name": "Task lighting"
+            }
+          ]
+        },
+        {
+          "label": "A",
+          "description": "High impact for most desks",
+          "items": [
+            {
+              "name": "External keyboard"
+            },
+            {
+              "name": "Laptop stand"
+            },
+            {
+              "name": "Large desk mat"
+            },
+            {
+              "name": "Footrest"
+            }
+          ]
+        },
+        {
+          "label": "B",
+          "description": "Useful, but depends on your workflow",
+          "items": [
+            {
+              "name": "Webcam light"
+            },
+            {
+              "name": "USB-C dock"
+            },
+            {
+              "name": "Headphone hook"
+            }
+          ]
+        },
+        {
+          "label": "C",
+          "description": "Nice finishing touches",
+          "items": [
+            {
+              "name": "Cable sleeves"
+            },
+            {
+              "name": "Desk plant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "uplink": "纯 display，无 uplink；等级与 chips 仅按输入顺序展示，不支持拖拽或回传排序。",
+  "carriers": {
+    "artifact": "supported:boot.artifact 已在 sandboxed iframe 中以 example.minimal 原样渲染验证；CSS 与 DOM 全部位于自有 shadow root",
+    "widget": "supported:与 artifact 同一零依赖模板，仅 parent 改为 shadowRoot；可在载体 shadow 内再挂自有 shadow",
+    "codex": "supported:与已验证的 artifact boot 相同，document.getElementById('viz') 为唯一载体挂载点"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "self-authored inline-template, owns its shadow, zero global footprint; rendered-verified",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to visually group a set of items into a few tiers such as S/A/B/C. It suits tool recommendations, candidate ranking, content inventory, and subjective review summaries. If you must show exact ranks or score gaps, use a ranking table or bar chart instead. If users need to drag to reorder and report the result, use an editable ranking component.",
+      "why_valuable": "A tier list communicates mainly through spatial grouping and color labels. This template fixes tier labels, explanations, and item chips into clear horizontal levels, preserving rank direction and reading rhythm even with uneven item counts and narrow-screen wrapping.",
+      "data_in": {
+        "note": "Provide data.tiers in display order from highest to lowest; the template does not sort by label automatically. Each tier uses label for the rank, description for its criterion, tone for label color, and items for chips. When tone is omitted, the first letter of label identifies S/A/B/C; otherwise neutral is used. items may be empty and displays \"No items yet\". An item note should be extremely short, not a long explanation.",
+        "schema": {
+          "title?": "string -- Ranking subject; shows \"Tier ranking\" when omitted",
+          "subtitle?": "string -- Ranking criteria or context; when omitted, shows a summary of tier and item counts",
+          "tiers": "{label:string,description?:string,tone?:'s'|'a'|'b'|'c'|'d'|'neutral',items:{name:string,note?:string}[]}[] -- Tier rows ordered from highest to lowest",
+          "_tierFields": {
+            "label": "string -- Short tier label, for example S, A, B, C",
+            "description?": "string -- Tier criterion or one-line explanation",
+            "tone?": "'s'|'a'|'b'|'c'|'d'|'neutral' -- Color semantics; when omitted, attempts to infer from the first letter of label",
+            "items": "{name:string,note?:string}[] -- Item chips in this tier"
+          },
+          "_itemFields": {
+            "name": "string -- Item name",
+            "note?": "string -- Very short qualifier or category inside the chip"
+          }
+        }
+      },
+      "spec": {
+        "note": "Height grows naturally with tier rows and chip wrapping. Wide screens use two-column rows with tier label plus content; narrow screens place label and description above chips. No internal scrolling or carrier-size measurement."
+      }
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "entry_version": "thin-1",
+  "id": "cannon-es",
+  "name": "cannon-es",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to calculate physics when teaching 3D mechanics, collisions, pendulums, inclines, stacking, joints, or vehicles, copying body.position/quaternion to a three.js mesh each frame for rendering; use matter-js/planck instead for purely 2D scenes. Augmentation boundary: cannon only solves physics and performs no rendering, so it must be paired with three.js (already in the catalog).",
+      "why_valuable": "Hand-writing 3D rigid-body physics (broadphase collision detection, constraint solvers, and numerical integration) is almost certain to be wrong or numerically unstable for AI; cannon-es is a mature 3D engine with multiple shapes, constraints/joints/springs, and vehicles, providing stable interactive mechanics simulations in dependency-free pure JS.",
+      "data_in": {
+        "note": "This is a scene description that the consuming AI assembles item by item through the API, not one JSON object passed directly to a function. Y is up; gravity is commonly (0,-9.82,0). mass>0 is dynamic, while 0 or type='static' is static.",
+        "schema": {
+          "_defaults": {
+            "gravity": "[0,-9.82,0]",
+            "body.type": "determined by mass (>0 is dynamic)"
+          },
+          "gravity?": "[x,y,z] -- gravity, default [0,-9.82,0]",
+          "bodies": [
+            {
+              "mass": "number -- >0 is dynamic; 0 or type='static' is static",
+              "position": "[x,y,z] -- initial position",
+              "type?": "'dynamic' | 'static' | 'kinematic' -- maps to BODY_TYPES(DYNAMIC=1/STATIC=2/KINEMATIC=4)",
+              "shape": "{ kind:'box', halfExtents:[hx,hy,hz] } | { kind:'sphere', radius } | { kind:'plane' } | { kind:'cylinder', radiusTop, radiusBottom, height, segments }",
+              "velocity?": "[x,y,z] -- initial velocity",
+              "material?": "{ friction?, restitution? } -- applied through ContactMaterial"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "when_to_use": "教 3D 力学/碰撞/摆/斜面/堆叠/关节/车辆时用它算物理,每帧把 body.position/quaternion 拷给 three.js mesh 渲染;纯 2D 场景用 matter-js/planck、不要用它。augment 边界:cannon 只做物理求解、零渲染,必须配 three.js(目录已有)。",
+  "why_valuable": "AI 徒手写 3D 刚体物理(broadphase 碰撞检测、约束求解器、数值积分)几乎必错或数值爆炸;cannon-es 是成熟 3D 引擎(多 shape + 约束/关节/弹簧 + 车辆),给稳定可交互的力学模拟,纯 JS 零依赖。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "cannon-es",
+    "version": "0.20.0",
+    "github": "pmndrs/cannon-es"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "scene",
+    "note": "这是消费 AI 用 API 逐条组装的场景描述,不是单个 JSON 直接喂给某函数。坐标 Y 朝上,gravity 常 (0,-9.82,0);mass>0 为动态,0 或 type='static' 为静态。",
+    "schema": {
+      "_defaults": {
+        "gravity": "[0,-9.82,0]",
+        "body.type": "按 mass 判定(>0 动态)"
+      },
+      "gravity?": "[x,y,z] —— 重力,默认 [0,-9.82,0]",
+      "bodies": [
+        {
+          "mass": "number —— >0 动态;0 或 type='static' 为静态",
+          "position": "[x,y,z] —— 初始位置",
+          "type?": "'dynamic' | 'static' | 'kinematic' —— 映射 BODY_TYPES(DYNAMIC=1/STATIC=2/KINEMATIC=4)",
+          "shape": "{ kind:'box', halfExtents:[hx,hy,hz] } | { kind:'sphere', radius } | { kind:'plane' } | { kind:'cylinder', radiusTop, radiusBottom, height, segments }",
+          "velocity?": "[x,y,z] —— 初速度",
+          "material?": "{ friction?, restitution? } —— 经 ContactMaterial 生效"
+        }
+      ]
+    }
+  },
+  "provides": {
+    "shape": "rigid-bodies-3d",
+    "_note": "headless-primitive:纯 JS 3D 物理求解、零渲染、无 L 级、无 carriers 矩阵;每帧读 body.position/quaternion 驱动 three.js。",
+    "outputs": "world.step()/fixedStep() 后每个 Body 的 position:Vec3 与 quaternion:Quaternion 被就地更新,消费 AI 拷给对应 three.js mesh.position/quaternion。",
+    "api_surface": {
+      "world": "new World({gravity:Vec3, allowSleep?}); world.addBody(b); world.step(dt, timeSinceLast?, maxSubSteps?) 或 world.fixedStep()",
+      "body": "new Body({mass, position:Vec3, shape:Shape, type:BODY_TYPES.DYNAMIC|STATIC|KINEMATIC, velocity?}); body.applyImpulse/applyForce",
+      "shapes": "new Box(new Vec3(hx,hy,hz)); new Sphere(r); new Plane(); Cylinder(rt,rb,h,seg); Trimesh; Heightfield",
+      "constraints": "HingeConstraint/PointToPointConstraint/DistanceConstraint/LockConstraint/Spring; RaycastVehicle/RigidVehicle"
+    }
+  },
+  "peer": {
+    "id": "three",
+    "note": "cannon 只算物理;three.js 渲染 3D 场景,循环里每帧 world.fixedStep() 后把 body.position/body.quaternion 拷给对应 mesh。"
+  },
+  "boot": {
+    "shared": "import { World, Body, Box, Sphere, Plane, Vec3, BODY_TYPES } from 'https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/+esm';\nconst world = new World({ gravity: new Vec3(...(data.gravity ?? [0, -9.82, 0])) });\nfor (const b of data.bodies) {\n  const s = b.shape.kind === 'sphere' ? new Sphere(b.shape.radius)\n    : b.shape.kind === 'plane' ? new Plane()\n    : new Box(new Vec3(...b.shape.halfExtents));\n  const body = new Body({ mass: b.mass ?? 0, position: new Vec3(...b.position), shape: s, type: b.type === 'static' ? BODY_TYPES.STATIC : b.type === 'kinematic' ? BODY_TYPES.KINEMATIC : BODY_TYPES.DYNAMIC });\n  world.addBody(body);\n}\n// 每帧:world.fixedStep(); 再把每个 body.position / body.quaternion 拷给对应 three.js mesh",
+    "note": "cannon-es 零渲染,必须配 three.js(目录已有):循环里 world.fixedStep() 推进,读 body.position(Vec3)/body.quaternion(Quaternion) 同步 mesh.position/quaternion。库本身无 DOM 足迹,故三载体行为一致。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm named exports 含 World, Body, Box, Sphere, Plane, Cylinder, Vec3, Quaternion, BODY_TYPES, HingeConstraint, RaycastVehicle 等(无 default export)已核。签名取自 dist/cannon-es.d.ts:new World({gravity?:Vec3, allowSleep?...}); world.addBody(Body); world.step(dt, timeSinceLastCalled?, maxSubSteps?) 与 world.fixedStep(dt?, maxSubSteps?); new Body({mass?, position?:Vec3, shape?:Shape, type?:BodyType, velocity?...}); BODY_TYPES.DYNAMIC=1/STATIC=2/KINEMATIC=4(亦 Body.DYNAMIC 静态); new Box(Vec3 halfExtents)/new Sphere(radius)/new Plane()。纯 JS 模拟、零渲染——step 后读 body.position/body.quaternion 驱动 three.js mesh。DOM 足迹:+esm 里唯一的 document.* 是一处 document.createElement('canvas'),落在一个受限 helper(heightfield/数据纹理路径)内,World/Body/step 正常用法从不触及;无 window 监听、无 head/style。headless-primitive,trivially shadow-safe。",
+    "confidence": "high"
+  }
+}

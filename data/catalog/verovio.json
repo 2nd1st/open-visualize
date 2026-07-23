@@ -2,6 +2,21 @@
   "entry_version": "thin-1",
   "id": "verovio",
   "name": "Verovio",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when MEI, MusicXML, ABC, or PAE must be engraved as publication-quality scalable SVG sheet music instead of hand-written SVG, which fails at complex symbols, pagination, font metrics, and scholarly notation details. It is not an interactive score editor.",
+      "why_valuable": "AI can write parts of music notation but cannot produce publication-quality scores; success on complex pagination and glyph alignment is near 0%. Verovio uses a WASM engraving engine to convert several text notations reliably into SVG.",
+      "data_in": {
+        "schema": {
+          "notation": "string -- one complete, self-identifying MEI XML, MusicXML XML, ABC text (X: header), or PAE text (@ header); do not mix formats or pass a fragment detached from its document header",
+          "scale?": "number -- Verovio engraving scale percentage; this entry defaults to 40"
+        }
+      },
+      "spec": {
+        "note": "boot gives the scroll container a fixed height of 600px and renders page 1; do not use vh or percentage heights. For multiple pages, the consuming AI calls getPageCount() and renderToSVG(page) for each page or adds its own pagination. This entry does not prescribe an event contract."
+      }
+    }
+  },
   "when_to_use": "需要把 MEI、MusicXML、ABC 或 PAE 刻成出版级可缩放 SVG 乐谱时用它,而非手写 SVG——原生手写在复杂符号、分页、字体度量与学术记谱细节上失败;它非做交互谱面编辑器。",
   "why_valuable": "AI 默认能写部分音乐记法,但无法产出出版级谱面,复杂分页与 glyph 对齐成功率接近 0%;Verovio 用 WASM 刻版引擎把多种文本记法稳定转成 SVG。",
   "supply_form": "component",
@@ -42,7 +57,12 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Import names verified correct: dist/verovio-module.mjs ends with 'export default createVerovioModule' (default) and dist/verovio.mjs 'export { ...,VerovioToolkit,... }' (named) — matches boot. README confirms new VerovioToolkit(module) + loadData + renderToSVG(1); setOptions{scale,adjustPageHeight} and getPageCount() are real verovio API; schema fields notation(->loadData)/scale(->setOptions) match consumption. Grep of BOTH bundles incl the 6.6MB WASM glue module.mjs: 0 document.head, 0 createElement('style'), 0 document.body.append, 0 document/window addEventListener. renderToSVG returns an SVG string the consumer writes into the shadow container — zero global footprint.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "notation": "X:1\nT:Ode to Joy\nC:Beethoven\nM:4/4\nL:1/4\nK:D\nFF GA | AG FE | DD EF | F3/2 E1/2 E2 |\nFF GA | AG FE | DD EF | E3/2 D1/2 D2 |",
+      "scale": 40
+    }
   }
 }

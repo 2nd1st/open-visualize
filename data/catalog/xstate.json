@@ -101,7 +101,34 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Headless primitive — pure JS state-machine engine with zero DOM surface (declared supply_form: headless-primitive, no carriers matrix). It touches no document, no window, no styles; it only produces actor snapshots. Trivially shadow-safe because there is nothing to place in the DOM.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to actually execute a statechart with guards, nested states, and an event sequence, instead of only drawing a state diagram, because native static diagrams fail at transition decisions, context changes, and replayable snapshots.",
+      "why_valuable": "AI can only describe or draw a state machine by default; it cannot reliably execute guards, nested/parallel states, and event sequences, and it guesses the state after a rejected transition. XState produces deterministic actor snapshots and transition traces.",
+      "data_in": {
+        "note": "data_in.machine passes directly to XState v5 createMachine. Event objects must contain at least a type string; other fields are domain payload, with no predefined universal event vocabulary.",
+        "schema": {
+          "machine": {
+            "id?": "string -- Machine id; default '(machine)'",
+            "initial": "string -- Must match a top-level key in states",
+            "context?": "object -- Initial context; default {}",
+            "states": {
+              "<state key>": {
+                "type?": "'atomic' | 'compound' | 'parallel' | 'final' | 'history' -- Inferred by default from whether child states exist; leaf nodes are atomic",
+                "initial?": "string -- Initial child state; none when there are no child states, and required for compound states with child states",
+                "states?": "same-level states map -- Child states; none by default",
+                "on?": {
+                  "<event type>": "target string | { target?: string (no target by default), guard?: string|function (none by default), actions?: string|function|(string|function)[] (default []) }"
+                }
+              }
+            }
+          },
+          "implementations?": "{ guards?: Record<string,function> (default {}), actions?: Record<string,function> (default {}), actors?: Record<string,actorLogic> (default {}), delays?: Record<string,number|function> (default {}) } -- Second createMachine argument; overall default {}",
+          "events?": "{ type: string, [key: string]: unknown }[] -- Replayed in order; default []"
+        }
+      }
+    }
   }
 }

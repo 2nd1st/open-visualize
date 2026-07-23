@@ -5,6 +5,35 @@
   "when_to_use": "需要按真实终端帧时序回放 CLI 教程、支持 seek/倍速/主题与复制时用它而非 CSS 打字动画,因为原生手写在 VT 状态、帧时钟和随机定位上失败;非做可执行 shell 或实时 PTY。",
   "why_valuable": "AI 默认只能输出静态代码块或逐字动画,做不到终端控制序列状态机、精确帧时序、任意时间 seek 与长录像闲时压缩;asciicast 把 AI 可生成的文本事件序列直接变成真终端回放。",
   "supply_form": "component",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a CSS typing animation when you need to replay a CLI tutorial with real terminal-frame timing, seek, speed, themes, and copying, because hand-written implementations fail at VT state, frame clocks, and random access; not for an executable shell or live PTY.",
+      "why_valuable": "AI can normally only produce a static code block or character-by-character animation; it cannot handle a terminal control-sequence state machine, precise frame timing, seeking to any time, and idle-time compression for long recordings. asciicast turns an AI-generatable sequence of text events directly into real terminal playback.",
+      "data_in": {
+        "note": "The primary input is strictly the logical NDJSON structure of asciicast v2: a header on the first line, followed by one [time,code,payload] event per line. boot serializes it into a Blob URL; do not pass an ordinary JSON array directly to create.",
+        "schema": {
+          "header": {
+            "version": "2 -- must be the numeric literal 2",
+            "width": "integer > 0 -- terminal columns",
+            "height": "integer > 0 -- terminal rows"
+          },
+          "events": "[number, 'o'|'i'|'m'|'r', string][] -- time is non-decreasing seconds starting at 0; o/i is terminal text, m is a marker, and r is a '<cols>x<rows>' size string",
+          "options?": {
+            "_default": "{} -- empty object by default; each option uses the default below",
+            "autoplay?": "boolean -- default false",
+            "speed?": "number > 0 -- default 1",
+            "loop?": "boolean | integer -- default false",
+            "controls?": "boolean | 'auto' -- default 'auto'",
+            "fit?": "'width'|'height'|'both'|'none'|false -- this entry defaults to 'both' (upstream default is 'width')",
+            "idleTimeLimit?": "number -- maximum idle seconds, omitted by default (use the header value or no limit)"
+          }
+        }
+      },
+      "spec": {
+        "note": "The terminal player uses geometric layout, so its container needs an explicit pixel height; default 420px, overridable by AI. Rule 3 forbids vh or percentage heights. boot defaults to fit='both' to use the fixed width and height together."
+      }
+    }
+  },
   "level": "L1",
   "mode": "direct-import",
   "upstream": {
@@ -46,10 +75,22 @@
   "example": {
     "_why": "asciicast 是时序 NDJSON 且 header/event 层级高歧义;minimal 校准首行对象、三元事件与终端换行。",
     "minimal": {
-      "header": { "version": 2, "width": 80, "height": 24 },
+      "header": {
+        "version": 2,
+        "width": 80,
+        "height": 24
+      },
       "events": [
-        [0, "o", "$ echo hello\r\n"],
-        [0.4, "o", "hello\r\n"]
+        [
+          0,
+          "o",
+          "$ echo hello\r\n"
+        ],
+        [
+          0.4,
+          "o",
+          "hello\r\n"
+        ]
       ],
       "options": {
         "autoplay": false,
@@ -60,7 +101,11 @@
       }
     },
     "empty": {
-      "header": { "version": 2, "width": 80, "height": 24 },
+      "header": {
+        "version": 2,
+        "width": 80,
+        "height": 24
+      },
       "events": []
     }
   },
@@ -75,7 +120,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "+esm 真实导出 ng as create → import {create} 正确(README 的 AsciinemaPlayer.create 只是 UMD 全局名)。create(src,el,{cols,rows,autoplay,speed,loop,controls,fit,idleTimeLimit}):fit/idleTimeLimit 见 README、其余标准选项;header.width→cols/height→rows 映射正确;CSS dist/bundle/asciinema-player.css 存在;asciicast v2 header{version,width,height}+events[time,'o'|'i'|'m'|'r',payload] 正确。隔离:bundle 内 0 document.body、0 document.head 注入、0 window/document 全局监听(控件监听绑自身可聚焦元素)。shadowCompatible=conditional:组件渲进 shadow 可行,但需 CSP 放行内联 WebAssembly + blob: URL。",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

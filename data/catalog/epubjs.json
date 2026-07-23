@@ -1,0 +1,76 @@
+{
+  "entry_version": "thin-1",
+  "id": "epubjs",
+  "name": "epubjs",
+  "when_to_use": "要在浏览器里渲染/翻页一本 EPUB 电子书(分页或滚动流、目录跳转、CFI 定位、进度记忆)时用它。PDF 用目录里的 pdfjs-dist;Word 用 mammoth/docx-preview。容器需固定像素高,widget 建议先用 probes/ 活验 shadow。",
+  "why_valuable": "EPUB 是 zip+XHTML+CSS 复合电子书格式,原生 AI 无法解压、解析 spine/manifest、分页重排、在沙箱 iframe 里渲染章节;想「翻开一本 .epub 来读」纯手写不可能。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "epubjs",
+    "version": "0.3.93",
+    "github": "futurepress/epub.js"
+  },
+  "license": "BSD-2-Clause",
+  "data_in": {
+    "shape": "epub-document",
+    "note": "default export 是 ePub 工厂:ePub(url|ArrayBuffer) → Book;book.renderTo(el, options) → Rendition;rendition.display(cfi?)。url 需可跨域取;内容在沙箱 iframe 里渲染,容器需固定像素高。",
+    "schema": {
+      "url": "string | ArrayBuffer —— .epub 文件地址或已加载的二进制",
+      "flow?": "'paginated' | 'scrolled' | 'scrolled-doc' —— 翻页 or 滚动流,默认 'paginated'",
+      "spread?": "'none' | 'auto' | 'always' —— 双页展开,默认 'auto'",
+      "height?": "number —— 阅读器高度 px(禁 vh),默认 600",
+      "startCfi?": "string —— 起始 EpubCFI 定位(进度记忆),默认书首"
+    }
+  },
+  "spec": {
+    "height": 600,
+    "note": "iframe 阅读器需固定像素高;flow:'paginated' 按容器尺寸分页,:host 撑高、禁 vh/百分比高。"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to render and page through an EPUB ebook in the browser (paginated or scrolling flow, table-of-contents navigation, CFI positioning, progress memory). For PDFs, use pdfjs-dist from the catalog; for Word, use mammoth/docx-preview. The container needs a fixed pixel height; for widgets, live-test shadow support under probes/ first.",
+      "why_valuable": "EPUB is a composite zip+XHTML+CSS ebook format. Native AI cannot unpack it, parse the spine/manifest, reflow pagination, and render chapters in a sandboxed iframe. Hand-writing an experience that opens and reads an .epub is not practical.",
+      "data_in": {
+        "note": "The default export is the ePub factory: ePub(url|ArrayBuffer) -> Book; book.renderTo(el, options) -> Rendition; rendition.display(cfi?). url must be fetchable cross-origin. Content renders inside a sandboxed iframe, and the container needs a fixed pixel height.",
+        "schema": {
+          "url": "string | ArrayBuffer -- .epub file URL or already loaded binary data",
+          "flow?": "'paginated' | 'scrolled' | 'scrolled-doc' -- page-turning or scrolling flow; default 'paginated'",
+          "spread?": "'none' | 'auto' | 'always' -- two-page spread; default 'auto'",
+          "height?": "number -- reader height in px (no vh); default 600",
+          "startCfi?": "string -- initial EpubCFI position (for progress memory); defaults to the beginning of the book"
+        }
+      },
+      "spec": {
+        "note": "The iframe reader needs a fixed pixel height. flow:'paginated' paginates from the container dimensions; let :host grow, and do not use vh or percentage heights."
+      }
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:epub.js 用沙箱 iframe 渲染书页,容器需固定像素高\nimport ePub from 'https://cdn.jsdelivr.net/npm/epubjs@0.3.93/+esm';\nconst el = document.getElementById('reader'); el.style.height = (data.height ?? 600) + 'px';\nconst book = ePub(data.url); // .epub 文件 URL 或 ArrayBuffer\nconst rendition = book.renderTo(el, { width: '100%', height: data.height ?? 600, flow: data.flow ?? 'paginated', spread: data.spread ?? 'auto', allowScriptedContent: false });\nrendition.display(data.startCfi);",
+    "widget": "// 容器落 shadow;iframe 内容自隔离。老库(0.3.93/2023)依赖 document,shadow 建议先 probes/ 活验\nimport ePub from 'https://cdn.jsdelivr.net/npm/epubjs@0.3.93/+esm';\nconst el = document.createElement('div'); el.style.height = (data.height ?? 600) + 'px'; shadowRoot.appendChild(el);\nconst book = ePub(data.url);\nconst rendition = book.renderTo(el, { width: '100%', height: data.height ?? 600, flow: data.flow ?? 'paginated', allowScriptedContent: false });\nrendition.display(data.startCfi);",
+    "codex": "import ePub from 'https://cdn.jsdelivr.net/npm/epubjs@0.3.93/+esm';\nconst el = document.getElementById('reader'); el.style.height = (data.height ?? 600) + 'px';\nconst book = ePub(data.url);\nconst rendition = book.renderTo(el, { width: '100%', height: data.height ?? 600, flow: data.flow ?? 'paginated', allowScriptedContent: false });\nrendition.display(data.startCfi);"
+  },
+  "uplink": "翻页/定位进度若需外传,由消费 AI 接 rendition.on('relocated'|'rendered') 原生事件(带 EpubCFI)并按载体处理,本条不预设事件契约。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional-unverified:iframe 渲染,老库依赖 document/head/body,shadow 未活验,widget 前先走 probes/",
+    "codex": "supported:ESM CDN,书页在沙箱 iframe 内自隔离"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "+esm 同时导出 default `ePub` 工厂与具名 Book/Rendition/EpubCFI/Layout/Contents(grep: 'W as default','dt as Book','lt as Rendition','ot as Contents','m as EpubCFI','St as Layout')。API ePub(url|ArrayBuffer) → Book;book.renderTo(element: Element|string, options?: RenditionOptions) → Rendition;rendition.display(target?) 见 types/book.d.ts + rendition.d.ts。RenditionOptions width/height/flow/spread/manager/minSpreadWidth/allowScriptedContent 均真实。重运行时:打包 jszip/localforage/lodash/@xmldom/xmldom/marks-pane/event-emitter(npm deps);+esm grep document.body=21、document.head=4——章节在构建于容器内的沙箱 <iframe> 里渲染(内容经 iframe 隔离,但 manager 为测量与 marks-pane 批注触及 body/head)。globalEvents=yes:window resize + iframe load 监听。shadowCompatible=conditional 且未活验:容器挂 shadow、iframe 内容自隔离理论可行,但 epub.js 偏老且倚重 document 引用,widget 上线前用 probes/ 验证。",
+    "confidence": "low"
+  },
+  "example": {
+    "minimal": {
+      "url": "https://react-reader.metabits.no/files/alice.epub",
+      "flow": "paginated",
+      "height": 600
+    }
+  }
+}

@@ -27,9 +27,9 @@
     "note": "分页预览会生成多张固定纸页;宿主默认 800px 高并滚动,禁止 vh/百分比高。纸张宽高由输入 CSS 的 @page size 决定,不是由宿主高度缩放。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:Paged.js 会生成分页 DOM 与配套样式,应在独占 document 运行\nimport { Previewer } from 'https://cdn.jsdelivr.net/npm/pagedjs@0/+esm';\nconst host=document.getElementById('pages'); host.style.cssText='height:800px;overflow:auto';\nconst paged=new Previewer();\nconst flow=await paged.preview(data.html,data.stylesheets ?? [],host);\n// flow.total 是实际页数",
+    "artifact": "// +esm 的 es5-ext 子路径当前在 jsDelivr 失效；使用包内自包含 browser bundle\nconst host = document.getElementById('pages'); host.style.cssText = 'height:800px;overflow:auto';\nconst status = document.createElement('div'); status.textContent = 'Paginating…'; host.appendChild(status);\nconst script = document.createElement('script'); script.src = 'https://cdn.jsdelivr.net/npm/pagedjs@0.4.3/dist/paged.js';\nawait new Promise((ok, fail) => { script.onload = ok; script.onerror = fail; document.head.appendChild(script); });\nconst { Previewer } = globalThis.Paged; delete globalThis.Paged; script.remove();\nconst paged = new Previewer();\nconst flow = await paged.preview(data.html, data.stylesheets ?? [], host); status.remove();\n// flow.total 是实际页数",
     "widget": "unsupported:Previewer/Polisher 的样式处理依赖 document CSSOM 与全局样式节点,生成规则不会安全穿入 shadowRoot",
-    "codex": "import { Previewer } from 'https://cdn.jsdelivr.net/npm/pagedjs@0/+esm';\nconst host=document.getElementById('pages'); host.style.cssText='height:800px;overflow:auto';\nconst paged=new Previewer();\nconst flow=await paged.preview(data.html,data.stylesheets ?? [],host);"
+    "codex": "const host = document.getElementById('pages'); host.style.cssText = 'height:800px;overflow:auto';\nconst status = document.createElement('div'); status.textContent = 'Paginating…'; host.appendChild(status);\nconst script = document.createElement('script'); script.src = 'https://cdn.jsdelivr.net/npm/pagedjs@0.4.3/dist/paged.js';\nawait new Promise((ok, fail) => { script.onload = ok; script.onerror = fail; document.head.appendChild(script); });\nconst { Previewer } = globalThis.Paged; delete globalThis.Paged; script.remove();\nconst paged = new Previewer();\nconst flow = await paged.preview(data.html, data.stylesheets ?? [], host); status.remove();"
   },
   "carriers": {
     "artifact": "inferred-not-tested",
@@ -42,7 +42,32 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "+esm bundle: document.head (x1) + createElement('style') (x2) + insertRule (x23) + styleEl (x4) → Polisher injects generated @page/paged stylesheets into document.head and manipulates the document CSSOM; addEventListener x3. Paginated DOM + head-scoped rules cannot be reproduced inside a shadowRoot — catalog widget=unsupported is correct.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "html": "<article lang=\"en\">\n  <header class=\"title-block\">\n    <p class=\"eyebrow\">Field Notes</p>\n    <h1>The Architecture of the Printed Page</h1>\n    <p class=\"byline\">by A. Compositor &middot; Vol. IV</p>\n  </header>\n  <p class=\"lead\">Paged media asks a different question than the screen: not how content scrolls, but how it settles into fixed sheets &mdash; each with its own margins, header, and number.</p>\n  <p>A page is a frame with rules. Text enters at the top of the content box and fills downward until the box is full, at which point the remainder breaks to a fresh sheet. The running title above and the folio below are painted into the page margins, outside the flow of the text itself.</p>\n  <p>Because the browser cannot natively compose these margin boxes, Paged.js reconstructs them: it slices the document into page-sized fragments, then draws the header, footer, and page number into the empty margins of every sheet it produces.</p>\n  <section class=\"chapter\">\n    <h2>On Breaking Well</h2>\n    <p>A good break falls between ideas, never through a heading and its first line. The fragmenter tracks widows and orphans, keeps figures beside their captions, and carries the running title forward so the reader never loses their place.</p>\n    <ul>\n      <li>Fixed sheets with real margins and folios.</li>\n      <li>Running headers drawn from the document&rsquo;s own titles.</li>\n      <li>Counters that know the whole, not merely the part.</li>\n    </ul>\n    <p>What remains on this second sheet proves the point directly: the header above and the page number below repeat, unbidden, on every page the flow generates.</p>\n  </section>\n</article>",
+      "stylesheets": [
+        {
+          "pagedjs-example.css": "@page {\n  size: A5;\n  margin: 20mm 18mm 22mm;\n  @top-center {\n    content: string(runningtitle);\n    font: italic 9pt/1 Georgia, 'Times New Roman', serif;\n    color: #8a7f72; letter-spacing: .03em; padding-bottom: 3mm;\n  }\n  @bottom-center {\n    content: 'Page ' counter(page) ' of ' counter(pages);\n    font: 9pt/1 Georgia, serif; color: #8a7f72; padding-top: 4mm;\n  }\n  @bottom-right {\n    content: 'Field Notes'; font: 8pt/1 Georgia, serif; color: #b7ad9f;\n  }\n}\n* { box-sizing: border-box; }\narticle { font-family: Georgia, 'Times New Roman', serif; color: #22201c; font-size: 11pt; line-height: 1.55; text-align: justify; hyphens: auto; -webkit-hyphens: auto; }\n.title-block { text-align: left; margin-bottom: 8mm; }\n.eyebrow { margin: 0; font-size: 8.5pt; letter-spacing: .22em; text-transform: uppercase; color: #b06a3b; }\nh1 { string-set: runningtitle content(text); font-size: 22pt; line-height: 1.12; font-weight: 600; margin: 2mm 0 3mm; }\n.byline { margin: 0; font-style: italic; font-size: 10pt; color: #6b645b; }\n.lead { font-size: 12.5pt; color: #3a352e; text-align: left; }\np { margin: 0 0 3mm; }\n.chapter { break-before: page; page-break-before: always; }\nh2 { font-size: 15pt; font-weight: 600; color: #2b2822; margin: 0 0 3mm; padding-bottom: 2mm; border-bottom: 1px solid #ddd3c4; }\nul { margin: 3mm 0; padding-left: 6mm; }\nli { margin: 0 0 1.5mm; }"
+        }
+      ]
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to lay out long HTML as printed pages with page breaks, page numbers, and running headers/footers through CSS Paged Media instead of handwritten print CSS, because browsers fail at margin boxes, cross-page counters, and complex fragmentation. Not for single-screen layouts or document editors.",
+      "why_valuable": "AI defaults can only rely on crude browser auto-pagination and cannot provide @page margin boxes, running content, cross-page counters, or stable fragmentation for long tables and mixed text/images; Paged.js fills the paged-media features browsers have not implemented.",
+      "data_in": {
+        "note": "The native call is Previewer.preview(content, stylesheets, renderTo); this entry narrows content to an HTML string and accepts only fetchable CSS URL arrays for stylesheets.",
+        "schema": {
+          "html": "string -- Complete trusted or sanitized HTML content to paginate",
+          "stylesheets?": "string[] -- CSS URLs passed to Previewer.preview; default []. Relative URLs resolve against the current document.baseURI"
+        }
+      },
+      "spec": {
+        "note": "The paginated preview generates multiple fixed paper pages; the host defaults to height 800px with scrolling, and vh/percentage heights are forbidden. Input CSS @page size determines paper width and height; host height does not scale the pages."
+      }
+    }
   }
 }

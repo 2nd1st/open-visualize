@@ -5,20 +5,77 @@
   "when_to_use": "需要 brush 联动筛选 / 下钻 / geo choropleth(registerMap 吃 GeoJSON,无瓦片)/ 大数据 dataZoom sampling 缩放,或 sankey·treemap·sunburst·parallel·candlestick 这类复合图时用它,而非手写 SVG——这几类是 AI 徒手 0% 成功区。静态柱线饼别用它(命中 taxonomy 避开列表,原生手写够用)。",
   "why_valuable": "brush 联动、下钻、geo choropleth、大数据 sampling、复合图(sankey/treemap/sunburst)是 AI 徒手 SVG 的 0% 区;单一 option JSON 覆盖 data-explore 多簇。AI 默认只能做到静态柱线饼 70-80%,交互/geo/大数据完全做不到。",
   "supply_form": "component",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written SVG when you need linked brush filtering, drill-down, a geo choropleth (registerMap consumes GeoJSON, with no tiles), large-data dataZoom sampling, or compound charts such as sankey, treemap, sunburst, parallel, or candlestick; these are 0% success areas for hand-written AI output. Do not use it for static bar, line, or pie charts (the taxonomy exclusion list applies; native hand-written output is sufficient).",
+      "why_valuable": "Linked brushing, drill-down, geo choropleths, large-data sampling, and compound charts (sankey/treemap/sunburst) are 0% areas for hand-written AI SVG; a single option JSON covers several data-exploration families. AI normally reaches only 70-80% on static bar, line, and pie charts and cannot deliver the interaction, geo, or large-data cases.",
+      "data_in": {
+        "note": "data_in is the ECharts option object itself, not a separate schema invented here. The paths below are a narrowed set of common options; deeply nested full options are especially error-prone for AI assembly, so an example is required (see below).",
+        "schema": {
+          "option": {
+            "title?": {
+              "text": "string"
+            },
+            "tooltip?": {
+              "trigger": "'axis' | 'item'"
+            },
+            "legend?": {},
+            "xAxis?": {
+              "type": "'category'|'value'|'time'|'log'",
+              "data": "string[] (when category)"
+            },
+            "yAxis?": {
+              "type": "'value'|'category'|'time'|'log'"
+            },
+            "series": [
+              {
+                "type": "'bar'|'line'|'pie'|'scatter'|'heatmap'|'sankey'|'treemap'|'sunburst'|'graph'|'parallel'|'candlestick'",
+                "data": "number[] | [x,y][] | {name,value}[] (varies by type)",
+                "name?": "string"
+              }
+            ],
+            "dataZoom?": [
+              {
+                "type": "'inside'|'slider'"
+              }
+            ],
+            "visualMap?": {},
+            "brush?": {}
+          }
+        }
+      },
+      "spec": {
+        "note": "echarts.init requires an explicitly sized container (rule 3 forbids vh or percentage heights); default height is 400px and AI may override it. Call chart.resize() after window or container changes."
+      }
+    }
+  },
   "level": "L1",
   "mode": "direct-import",
-  "upstream": { "npm": "echarts", "version": "6.1.0", "github": "apache/echarts" },
+  "upstream": {
+    "npm": "echarts",
+    "version": "6.1.0",
+    "github": "apache/echarts"
+  },
   "license": "Apache-2.0",
   "data_in": {
     "shape": "config-object",
     "note": "data_in 就是 ECharts 的 option 对象(不是我们另立的 schema)。下面是裁剪版高频路径;全量 option 深嵌套是 AI 拼装出错重灾区,故 example 必带(见下)。",
     "schema": {
       "option": {
-        "title?": { "text": "string" },
-        "tooltip?": { "trigger": "'axis' | 'item'" },
+        "title?": {
+          "text": "string"
+        },
+        "tooltip?": {
+          "trigger": "'axis' | 'item'"
+        },
         "legend?": {},
-        "xAxis?": { "type": "'category'|'value'|'time'|'log'", "data": "string[]（category 时）" },
-        "yAxis?": { "type": "'value'|'category'|'time'|'log'" },
+        "xAxis?": {
+          "type": "'category'|'value'|'time'|'log'",
+          "data": "string[]（category 时）"
+        },
+        "yAxis?": {
+          "type": "'value'|'category'|'time'|'log'"
+        },
         "series": [
           {
             "type": "'bar'|'line'|'pie'|'scatter'|'heatmap'|'sankey'|'treemap'|'sunburst'|'graph'|'parallel'|'candlestick'",
@@ -26,7 +83,11 @@
             "name?": "string"
           }
         ],
-        "dataZoom?": [ { "type": "'inside'|'slider'" } ],
+        "dataZoom?": [
+          {
+            "type": "'inside'|'slider'"
+          }
+        ],
         "visualMap?": {},
         "brush?": {}
       }
@@ -37,20 +98,42 @@
     "note": "echarts.init 需显式尺寸容器(铁律 3 禁 vh/百分比高);默认 height 400px,AI 可覆盖。窗口/容器变化须 chart.resize()。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合前按此推断写\nimport * as echarts from 'https://cdn.jsdelivr.net/npm/echarts@6/+esm';\nconst el = document.getElementById('chart'); el.style.height = '400px';\nconst chart = echarts.init(el);\nchart.setOption(option);          // option = data_in.option\nnew ResizeObserver(() => chart.resize()).observe(el);",
-    "widget": "// 落到 shadow 容器内(widget 零足迹)。ECharts 全渲染在容器内(canvas + tooltip 子 div),不注入 document.head → ZF 安全\nconst el = document.createElement('div'); el.style.height = '400px';\nshadowRoot.appendChild(el);\nconst chart = echarts.init(el);\nchart.setOption(option);\nnew ResizeObserver(() => chart.resize()).observe(el);",
+    "artifact": "// harness 只定义 data；ECharts option 位于 data.option\nimport * as echarts from 'https://cdn.jsdelivr.net/npm/echarts@6/+esm';\nconst el = document.getElementById('chart'); el.style.height = '400px';\nconst chart = echarts.init(el);\nchart.setOption(data.option);\nnew ResizeObserver(() => chart.resize()).observe(el);",
+    "widget": "// 落到 shadow 容器内(widget 零足迹)。ECharts 全渲染在容器内(canvas + tooltip 子 div),不注入 document.head → ZF 安全\nimport * as echarts from 'https://cdn.jsdelivr.net/npm/echarts@6/+esm';\nconst el = document.createElement('div'); el.style.height = '400px';\nshadowRoot.appendChild(el);\nconst chart = echarts.init(el);\nchart.setOption(data.option);\nnew ResizeObserver(() => chart.resize()).observe(el);",
     "codex": "同 artifact(sandbox iframe fragment):ESM import jsDelivr /npm/ + echarts.init + setOption。"
   },
   "example": {
     "_why": "深 config / 高歧义组件:裁剪 schema 往往欠定,minimal example 才是 AI 一次拼对的关键。",
     "minimal": {
       "option": {
-        "xAxis": { "type": "category", "data": ["Mon", "Tue", "Wed"] },
-        "yAxis": { "type": "value" },
-        "series": [ { "type": "bar", "data": [120, 200, 150] } ]
+        "xAxis": {
+          "type": "category",
+          "data": [
+            "Mon",
+            "Tue",
+            "Wed"
+          ]
+        },
+        "yAxis": {
+          "type": "value"
+        },
+        "series": [
+          {
+            "type": "bar",
+            "data": [
+              120,
+              200,
+              150
+            ]
+          }
+        ]
       }
     },
-    "empty": { "option": { "series": [] } }
+    "empty": {
+      "option": {
+        "series": []
+      }
+    }
   },
   "carriers": {
     "artifact": "inferred-not-tested",

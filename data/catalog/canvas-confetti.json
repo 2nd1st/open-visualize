@@ -39,6 +39,36 @@
     "height": 240,
     "note": "custom canvas 必须处于明确像素高的相对定位容器；boot 默认 240px、宽度跟随容器,库用 resize=true 同步 backing store。禁用 vh/百分比高度。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need production-grade confetti bursts, emoji/custom shapes, or multi-cannon sequences instead of handwritten canvas particles, which tend to fail at physics tuning, DPR handling, performance, and reduced-motion boundaries.",
+      "why_valuable": "AI defaults to a rough particle shower and cannot reliably combine velocity decay, gravitational drift, multiple launch angles, HiDPI sharpness, and performance degradation. canvas-confetti delivers a mature effect through a shallow options object.",
+      "data_in": {
+        "note": "options is passed unchanged to the custom canvas instance. boot fixes resize=true, useWorker=false, and disableForReducedMotion=true to avoid worker capability forks and respect the system motion preference.",
+        "schema": {
+          "options?": {
+            "particleCount?": "non-negative integer -- default 50",
+            "angle?": "number degrees -- default 90",
+            "spread?": "non-negative number degrees -- default 45",
+            "startVelocity?": "number -- default 45",
+            "decay?": "number 0..1 -- default 0.9",
+            "gravity?": "number -- default 1",
+            "drift?": "number -- default 0",
+            "ticks?": "positive integer -- default 200",
+            "origin?": "{x?:number 0..1,y?:number 0..1} -- x/y default to 0.5",
+            "colors?": "CSS hex string[] -- defaults to the upstream seven-color palette",
+            "shapes?": "('square'|'circle'|'star'|Shape)[] -- default ['square','circle']",
+            "scalar?": "positive number -- default 1",
+            "flat?": "boolean -- default false",
+            "zIndex?": "integer -- stacking is controlled by the host on the custom-canvas path, so this value is usually unnecessary"
+          }
+        }
+      },
+      "spec": {
+        "note": "The custom canvas must be inside a relatively positioned container with an explicit pixel height. boot defaults to 240px, width follows the container, and the library synchronizes the backing store with resize=true. Do not use vh or percentage heights."
+      }
+    }
+  },
   "boot": {
     "artifact": "// inferred-not-tested:使用自定义 canvas,不让默认实例写 document.body\nimport confetti from 'https://cdn.jsdelivr.net/npm/canvas-confetti@1/+esm';\nconst host = document.getElementById('confetti'); host.style.cssText = `position:relative;height:${spec.height ?? 240}px;overflow:hidden`;\nconst canvas = document.createElement('canvas'); canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%'; host.appendChild(canvas);\nconst fire = confetti.create(canvas, {resize:true, useWorker:false, disableForReducedMotion:true});\nawait fire(data.options ?? {});",
     "widget": "// custom canvas 与全部绘制落在 shadowRoot 容器\nimport confetti from 'https://cdn.jsdelivr.net/npm/canvas-confetti@1/+esm';\nconst host = document.createElement('div'); host.style.cssText = `position:relative;height:${spec.height ?? 240}px;overflow:hidden`; shadowRoot.appendChild(host);\nconst canvas = document.createElement('canvas'); canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%'; host.appendChild(canvas);\nconst fire = confetti.create(canvas, {resize:true, useWorker:false, disableForReducedMotion:true});\nawait fire(data.options ?? {});",
@@ -49,6 +79,26 @@
     "empty": {
       "options": {
         "particleCount": 0
+      }
+    },
+    "minimal": {
+      "options": {
+        "particleCount": 200,
+        "spread": 100,
+        "startVelocity": 45,
+        "origin": {
+          "x": 0.5,
+          "y": 0.65
+        },
+        "colors": [
+          "#ff595e",
+          "#ffca3a",
+          "#8ac926",
+          "#1982c4",
+          "#6a4c93"
+        ],
+        "scalar": 1.1,
+        "ticks": 300
       }
     }
   },
@@ -63,7 +113,6 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "+esm 导出 Mr as default + pr as create → import confetti + confetti.create 正确;README 确认 confetti.create(canvas,[globalOptions]) 的 resize/useWorker/disableForReducedMotion 三个 global option;fire(options) 的 particleCount/angle/spread/startVelocity/decay/gravity/drift/ticks/origin/colors/shapes/scalar/flat/zIndex 均真实参数;用自建 canvas(confetti.create),不走默认 confetti() 向 document.body 追加 canvas 的路径。隔离:无 CSS/head 注入(globalStyleInjection=no);canvas 落宿主/shadow 容器、无 body 突变(globalDomMutation=no);resize:true 挂 window 'resize' 监听以同步 canvas 尺寸(README 明述),实例 reset() 可清理、影响低且 shadow 安全(globalEvents=yes)。shadowCompatible=yes:自建 canvas 落 shadowRoot,useWorker=false 主线程渲染。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

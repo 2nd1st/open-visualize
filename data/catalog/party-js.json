@@ -26,10 +26,27 @@
     "height": 120,
     "note": "party-stage 默认显式 120px 高,供锚点完成布局后再采样几何。上游粒子根层固定挂 document.body 并覆盖 viewport,不受该高度裁剪；禁用 vh/百分比高度作为 stage 尺寸。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to emit confetti or sparkles from the actual geometry of a button, answer, or text element instead of calculating particle origins by hand, which tends to fail at element anchoring, variation ranges, and 3D transforms for DOM particles.",
+      "why_valuable": "AI can produce full-screen particles but cannot reliably sample an emission point from arbitrary DOM-element bounds and combine count, velocity, and size variation. party.js packages element anchoring and mature templates as native functions.",
+      "data_in": {
+        "note": "targetSelector is queried relative to party-stage and must match an HTMLElement. effect maps directly to upstream party.confetti/party.sparkles, and count uses party.variation.range.",
+        "schema": {
+          "targetSelector": "string -- CSS selector for a unique anchor inside party-stage",
+          "effect?": "'confetti' | 'sparkles' -- default 'confetti'",
+          "count?": "[non-negative number,non-negative number] -- random range; when omitted, uses upstream defaults: confetti 20..40, sparkles 10..20"
+        }
+      },
+      "spec": {
+        "note": "party-stage has an explicit default height of 120px so the anchor is laid out before its geometry is sampled. Upstream mounts its fixed particle root on document.body over the viewport, so it is not clipped by this height. Do not use vh or percentage heights for the stage."
+      }
+    }
+  },
   "boot": {
-    "artifact": "// inferred-not-tested:上游会把 #party-js-container 写入 document.body\nimport party from 'https://cdn.jsdelivr.net/npm/party-js@2/+esm';\nconst stage = document.getElementById('party-stage'); stage.style.height = `${spec.height ?? 120}px`;\nconst target = stage.querySelector(data.targetSelector); if (!(target instanceof HTMLElement)) throw new Error('party target not found');\nconst options = data.count ? {count:party.variation.range(data.count[0], data.count[1])} : {};\nconst emitter = (data.effect ?? 'confetti') === 'sparkles' ? party.sparkles(target, options) : party.confetti(target, options);",
+    "artifact": "// 上游会把 #party-js-container 写入 sandbox document.body；boot 在 stage 内建立可布局锚点\nconst stage = document.getElementById('party-stage'); stage.style.cssText = `height:${spec.height ?? 120}px;display:grid;place-items:center`;\nlet target = stage.querySelector(data.targetSelector); if (!(target instanceof HTMLElement)) { target = document.createElement('button'); const id = /^#([A-Za-z][\\w-]*)$/.exec(data.targetSelector ?? '')?.[1]; if (id) target.id = id; target.textContent = 'Celebrate'; target.style.cssText = 'padding:10px 18px;border:0;border-radius:999px;background:#6d5dfc;color:white;font:600 14px system-ui'; stage.appendChild(target); }\nconst { default: party } = await import('https://cdn.jsdelivr.net/npm/party-js@2.2.0/+esm');\nconst options = data.count ? {count:party.variation.range(data.count[0], data.count[1])} : {};\nconst emitter = (data.effect ?? 'confetti') === 'sparkles' ? party.sparkles(target, options) : party.confetti(target, options);",
     "widget": "unsupported:party.js 2.2.0 的公开 API 固定把全局 #party-js-container 挂到 document.body,无法把粒子根落入 widget shadowRoot；违反 widget 零足迹要求。",
-    "codex": "import party from 'https://cdn.jsdelivr.net/npm/party-js@2/+esm';\nconst stage = document.getElementById('party-stage'); stage.style.height = `${spec.height ?? 120}px`;\nconst target = stage.querySelector(data.targetSelector); if (!(target instanceof HTMLElement)) throw new Error('party target not found');\nconst options = data.count ? {count:party.variation.range(data.count[0], data.count[1])} : {};\nconst emitter = (data.effect ?? 'confetti') === 'sparkles' ? party.sparkles(target, options) : party.confetti(target, options);"
+    "codex": "const stage = document.getElementById('party-stage'); stage.style.cssText = `height:${spec.height ?? 120}px;display:grid;place-items:center`;\nlet target = stage.querySelector(data.targetSelector); if (!(target instanceof HTMLElement)) { target = document.createElement('button'); const id = /^#([A-Za-z][\\w-]*)$/.exec(data.targetSelector ?? '')?.[1]; if (id) target.id = id; target.textContent = 'Celebrate'; stage.appendChild(target); }\nconst { default: party } = await import('https://cdn.jsdelivr.net/npm/party-js@2.2.0/+esm');\nconst options = data.count ? {count:party.variation.range(data.count[0], data.count[1])} : {};\nconst emitter = (data.effect ?? 'confetti') === 'sparkles' ? party.sparkles(target, options) : party.confetti(target, options);"
   },
   "example": {
     "_why_no_minimal": "只有锚点、模板和数量范围三个浅字段,无需 minimal；空态把数量范围置零。",
@@ -39,6 +56,14 @@
       "count": [
         0,
         0
+      ]
+    },
+    "minimal": {
+      "targetSelector": "#celebrate",
+      "effect": "confetti",
+      "count": [
+        30,
+        40
       ]
     }
   },
@@ -53,7 +78,6 @@
     "globalDomMutation": "yes",
     "globalEvents": "no",
     "evidence": "Bundle appends its particle-root container to document.body (`...userSelect:'none',zIndex:...},document.body)` + appendChild x2; container id prefix `party-js`), corroborating catalog's #party-js-container claim. Styles are inline on that container (not a document.head <style>), so no head injection. No persistent window/document listener found (grep empty); it drives a global requestAnimationFrame loop instead. Particle root is fixed to document.body and cannot be redirected into a shadowRoot via the public API — catalog widget=unsupported is correct.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

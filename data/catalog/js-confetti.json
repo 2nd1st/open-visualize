@@ -31,6 +31,28 @@
     "height": 240,
     "note": "自定义 canvas 的 CSS width/height 与宿主区域都必须可计算；boot 默认明确 240px 高,库按 devicePixelRatio 更新 backing store。禁用 vh/百分比高度。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for zero-config full-width confetti, or to switch to emoji particles that match the conversation context, instead of hand-writing a canvas animation that tends to fail at emoji rotation, screen-width adaptation, DPR handling, and batch cleanup.",
+      "why_valuable": "AI defaults to a short-lived emoji-particle demo and cannot reliably calibrate velocity across screen widths, redraw for HiDPI, or manage batch completion. JS Confetti compresses emoji/color effects into a shallow options object.",
+      "data_in": {
+        "note": "boot always supplies its own canvas, avoiding the default new JSConfetti() behavior that injects a full-screen canvas into document.body. When origin is present, it uses upstream addConfettiAtPosition.",
+        "schema": {
+          "options?": {
+            "emojis?": "string[] -- default []; when non-empty, the default particle count is 40",
+            "emojiSize?": "positive number px -- default 80",
+            "confettiColors?": "CSS color string[] -- defaults to the upstream eight-color palette",
+            "confettiRadius?": "positive number px -- default 6",
+            "confettiNumber?": "non-negative integer -- default: 40 for emoji, 250 for regular confetti"
+          },
+          "origin?": "{x:number,y:number} -- viewport client coordinates; omitted by default, launching from both sides of the canvas"
+        }
+      },
+      "spec": {
+        "note": "The custom canvas's CSS width/height and host area must all be computable. boot defaults to an explicit height of 240px, and the library updates the backing store for devicePixelRatio. Do not use vh or percentage heights."
+      }
+    }
+  },
   "boot": {
     "artifact": "// inferred-not-tested:传 custom canvas,避免默认写 document.body\nimport JSConfetti from 'https://cdn.jsdelivr.net/npm/js-confetti@0/+esm';\nconst host = document.getElementById('confetti'); host.style.cssText = `position:relative;height:${spec.height ?? 240}px;overflow:hidden`;\nconst canvas = document.createElement('canvas'); canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%'; host.appendChild(canvas);\nconst fx = new JSConfetti({canvas});\nawait (data.origin ? fx.addConfettiAtPosition({...data.options, confettiDispatchPosition:data.origin}) : fx.addConfetti(data.options ?? {}));",
     "widget": "// custom canvas 与动画均留在 shadowRoot\nimport JSConfetti from 'https://cdn.jsdelivr.net/npm/js-confetti@0/+esm';\nconst host = document.createElement('div'); host.style.cssText = `position:relative;height:${spec.height ?? 240}px;overflow:hidden`; shadowRoot.appendChild(host);\nconst canvas = document.createElement('canvas'); canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%'; host.appendChild(canvas);\nconst fx = new JSConfetti({canvas});\nawait (data.origin ? fx.addConfettiAtPosition({...data.options, confettiDispatchPosition:data.origin}) : fx.addConfetti(data.options ?? {}));",
@@ -41,6 +63,20 @@
     "empty": {
       "options": {
         "confettiNumber": 0
+      }
+    },
+    "minimal": {
+      "options": {
+        "emojis": [
+          "🎉",
+          "🎊",
+          "🦄",
+          "⭐",
+          "💫",
+          "✨"
+        ],
+        "emojiSize": 55,
+        "confettiNumber": 80
       }
     }
   },
@@ -55,7 +91,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "+esm 仅 createElement(\"canvas\"),无 createElement(\"style\")/document.head(styleInject=no);默认(不传 canvas)路径 createElement(\"canvas\")+document.body+appendChild,但 boot 传 new JSConfetti({canvas}) 绕过 body 注入(domMutation=no);仅 6×requestAnimationFrame,零 addEventListener/onresize/matchMedia(events=no);custom canvas 挂 shadowRoot 内可正常工作(shadow=yes)。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

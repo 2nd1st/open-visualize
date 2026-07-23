@@ -5,6 +5,20 @@
   "when_to_use": "需要在长度、面积、质量、体积、温度、时间等单位间可靠换算时用它而非手写,因为原生在温度偏移、英美制差异和冷门缩写上会失败。",
   "why_valuable": "AI 默认只能稳定完成常见比例换算,对摄氏华氏的仿射转换、US/UK 容量差异与冷门单位常算错且不自知；库内换算表可重复执行。",
   "supply_form": "headless-primitive",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written conversion code when you need reliable conversion among units of length, area, mass, volume, temperature, time, and more, because native implementations fail at temperature offsets, US/UK customary differences, and uncommon abbreviations.",
+      "why_valuable": "AI can normally handle only common ratio conversions reliably, and often gets affine Celsius/Fahrenheit conversions, US/UK volume differences, and uncommon units wrong without noticing; the library's conversion table is repeatable.",
+      "data_in": {
+        "note": "data_in maps exactly to convert(value).from(from).to(to); from/to must be native, case-sensitive v2.3.4 abbreviations, and both must belong to the same measure.",
+        "schema": {
+          "value": "number -- value to convert",
+          "from": "string -- must match a native abbreviation returned by convert().possibilities(), such as 'mm'|'m'|'ft'|'kg'|'lb'|'ml'|'l'|'gal'|'C'|'F'",
+          "to": "string -- native abbreviation in the same measure; preflight with convert().from(from).possibilities()"
+        }
+      }
+    }
+  },
   "mode": "direct-import",
   "upstream": {
     "npm": "convert-units",
@@ -47,7 +61,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "convert-units@2.3.4 is a CJS package (package.json main:'lib', no types/module/exports); jsDelivr +esm wraps it to a single default export ('Hr as default') so 'import convert from ...' is correct. README ground truth: convert(1).from('l').to('ml') and convert().from('l').possibilities() — boot's convert(value).from(from).to(to) plus possibilities() precheck match exactly; measures()/describe() also present in bundle. data_in schema value/from/to map 1:1 onto the real call chain. Headless-primitive: pure numeric computation, no DOM/style/event APIs anywhere in the bundle — safe in any shadow root.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

@@ -4,6 +4,20 @@
   "name": "WGo.js",
   "when_to_use": "需要把 SGF 棋谱渲成可导航、带分支与讲评的围棋棋盘时用它而非手写 SVG/表格,因为原生在 19×19 坐标、落子序列、变例树和标记同步上失败;非做在线对弈服务器或 AI 复盘。",
   "why_valuable": "AI 默认能生成 SGF 文本却无法把它稳定呈现为带手数、分支和注释导航的棋盘;WGo.js 解析 SGF 并把棋局状态、SVG 棋盘与播放器 UI 闭环。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to render an SGF game record as a navigable Go board with branches and commentary instead of hand-writing SVG or a table. Native implementations fail on 19x19 coordinates, move sequences, variation trees, and synchronized markers. It is not an online game server or AI review engine.",
+      "why_valuable": "AI can generate SGF text by default but cannot reliably present it as a board with move numbers, branches, comments, and navigation. WGo.js parses SGF and closes the loop between game state, SVG board, and player UI.",
+      "data_in": {
+        "schema": {
+          "sgf": "string - complete SGF collection beginning with '(;'; do not pass a file URL"
+        }
+      },
+      "spec": {
+        "note": "The player includes the board, controls, comments, and game information. Give the host an explicit height of 620px and available width; do not use vh or percentage heights."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -41,7 +55,11 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "API correct: @3/+esm confirmed 404, @3.0.0-alpha.10/+esm returns 200 and exports named SimplePlayer (or) — catalog note accurate. dist/SimplePlayer/SimplePlayer.d.ts: constructor(elem:HTMLElement, config?) with config.sgf:string|null; dist/index.js constructor VERIFIED to auto-render: 'function SimplePlayer(elem,config){...this.element=elem;this.init();...}' — so new SimplePlayer(el,{sgf}) renders without a separate init() call (this was the key risk; cleared). globalStyleInjection=no: lib has 0 document.head / 0 createElement('style') (catalog links dist/style.css into shadow). globalEvents=yes: attaches keydown+keyup to document (enableKeys, default on) and resize to window; cleanable via PlayerDOM.clear()/destroy but active by default -> page-wide arrow-key capture. globalDomMutation=yes: 1 document.body.append site (transient) — main board/player UI renders into the provided container. shadowCompatible=conditional: SVG board + player render inside the shadow container fine, but global document key listeners leak; set enableKeys:false to contain.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "sgf": "(;GM[1]FF[4]CA[UTF-8]SZ[19]GN[Double Sanrensei]EV[Demo Game]PB[Black]BR[7d]PW[White]WR[7d]KM[6.5]DT[2026-07-23]RE[B+R]PL[B]AB[pd][pj][pp]AW[dd][dj][dp]CR[jj]C[Double sanrensei: Black holds the three right-side star points, White the left. The circle marks tengen (the center point). Black to play.];B[jj]C[Black takes tengen - the cosmic (Takemiya) style, building a whole-board moyo.];W[jd];B[jp];W[gc])"
+    }
   }
 }

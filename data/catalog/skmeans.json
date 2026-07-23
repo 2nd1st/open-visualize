@@ -1,0 +1,65 @@
+{
+  "entry_version": "thin-1",
+  "id": "skmeans",
+  "name": "skmeans",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when a one- or multi-dimensional point set must be partitioned automatically into a fixed k flat clusters, such as coloring a scatter plot by cluster. The catalog previously had no clustering primitive. For a bottom-up hierarchy tree (dendrogram), use ml-hclust; for dimensionality-reduction projection, use ml-pca. This library outputs a fixed-k partition, not a hierarchy.",
+      "why_valuable": "k-means is an iterative convergence algorithm that repeatedly assigns points and recomputes centroids. AI imagining the clustering by hand can only guess labels and cannot provide stable assignments or centroid coordinates. Give skmeans a point set plus k to get idxs for each point's cluster and centroids for rendering colored points and center markers.",
+      "data_in": {
+        "note": "data is number[] (one-dimensional) or number[][] (equal-length multidimensional points); do not mix in non-numeric values. k is the target number of clusters. initial optionally provides centroids or an initialization strategy.",
+        "schema": {
+          "data": "number[] | number[][] -- one-dimensional values or multidimensional points; multidimensional points must have equal lengths",
+          "k": "number -- target number of clusters; must be >=1 and <= the number of points",
+          "initial?": "number[][] | 'kmpp' | 'kmrand' -- initial centroids: an explicit array, 'kmpp' (k-means++), or 'kmrand' (random unique); library-selected by default",
+          "iterations?": "number -- maximum iteration count; uses the library limit by default"
+        }
+      }
+    }
+  },
+  "when_to_use": "有一维或多维点集想自动分成固定 k 个扁平簇、按簇染色画散点时用它;目录内此前零聚类原语。要自底向上的层次树(dendrogram)用 ml-hclust,要降维投影用 ml-pca——本库产出的是固定 k 的分区而非层次。",
+  "why_valuable": "k-means 是迭代收敛算法(反复分配点+重算质心),AI 徒手想象聚类结果只能瞎标,给不出稳定的簇分配与质心坐标。skmeans 输入点集+k 直接吐每点簇下标 idxs 与质心 centroids,供 AI 画分色散点与簇心标记。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "skmeans",
+    "version": "0.11.3",
+    "github": "solzimer/skmeans"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "data 是 number[](一维)或 number[][](多维点,每点等长);不要混入非数值。k 为目标簇数。initial 可选质心或初始化策略。",
+    "schema": {
+      "data": "number[] | number[][] —— 一维数值或多维点数组;多维时每点等长",
+      "k": "number —— 目标簇数,须 ≥1 且 ≤ 点数",
+      "initial?": "number[][] | 'kmpp' | 'kmrand' —— 初始质心:显式数组、'kmpp'(k-means++)或 'kmrand'(随机去重);默认由库自选",
+      "iterations?": "number —— 最大迭代次数,默认走库内上限"
+    }
+  },
+  "provides": {
+    "shape": "clustering",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;纯 JS 数值层。",
+    "outputs": "聚类结果 {idxs 每点簇下标, centroids 各簇质心, k, it 迭代次数, test(point) 判归属}。",
+    "api_surface": {
+      "run": "skmeans(data, k, initial?, iterations?, distanceFn?) → result",
+      "result": "result.idxs: number[](逐点簇下标) · result.centroids: number[] | number[][](质心) · result.it(迭代次数) · result.test(point) → 簇下标"
+    }
+  },
+  "peer": {
+    "id": "echarts",
+    "note": "本条只产簇下标与质心:按 result.idxs 给每点分配颜色画分色散点,叠加 result.centroids 作簇心标记。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS,无 DOM/uplink/shadow 足迹\nimport skmeans from 'https://cdn.jsdelivr.net/npm/skmeans@0/+esm';         // default 导出函数\nconst res = skmeans(data.data, data.k, data.initial ?? null, data.iterations);\n// res.idxs[i] = 第 i 点所属簇下标 · res.centroids[j] = 第 j 簇质心 · res.it = 迭代次数\nconst colored = data.data.map((p, i) => ({ point: p, cluster: res.idxs[i] }));  // 按簇染色画散点,叠加 res.centroids 作簇心",
+    "note": "data 可为一维 number[] 或多维 number[][](每点等长)。initial 传 null 让库自选,或 'kmpp'(k-means++)/'kmrand',或显式质心数组。k 须 ≥1 且不超过点数。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr skmeans@0.11.3 +esm: single default export (`export{or as default}`) — `import skmeans from '…'`; skmeans(data, k, [centroids], [iterations], [distance]). README confirms return {it, k, idxs, centroids, test}; the centroids arg accepts number[][] or the strategy strings 'kmpp'/'kmrand'; idxs is per-point cluster index and centroids is per-cluster center. Zero-dependency. grep of +esm for document.*/window.*/globalThis.*/appendChild/createElement/addEventListener/localStorage = 0 hits — pure numeric, shadow-safe.",
+    "confidence": "high"
+  }
+}

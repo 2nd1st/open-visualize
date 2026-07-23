@@ -1,0 +1,157 @@
+{
+  "entry_version": "thin-1",
+  "id": "netlistsvg",
+  "name": "netlistsvg",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to render a JSON netlist (such as Yosys output) as a digital logic/RTL schematic with standard gate symbols and automatic wire routing -- native implementations cannot correctly place gate symbols or route a netlist in flat SVG. Choose it when you need gate symbols plus net routing; use wavedrom for resulting timing and bit-field for register layouts. Note: elkjs layout starts a Web Worker, so it is unavailable in Claude artifact and works only in widget/Codex.",
+      "why_valuable": "A gate-level digital schematic is among the hardest diagrams to draw by hand -- AI cannot reliably place standard logic-gate symbols or correctly route nets in flat SVG. netlistsvg consumes a Yosys-style JSON netlist plus a symbol skin and uses ELK layout to deterministically render a schematic with standard symbols and automatic wiring.",
+      "data_in": {
+        "note": "netlist is Yosys JSON: { modules: { name: { ports: {port:{direction:'input'|'output', bits:number[]}}, cells: {cell:{type, port_directions, connections:{port:number[]}}} } } }; bits are numeric net ids, and the same net id appearing across ports/connections represents a connection. skin must be passed inline (embed netlistsvg lib/default.svg digital skin or lib/analog.svg analog skin, about 10.5KB, as a string in data) -- no carrier permits both a Web Worker (elkjs) and runtime CDN fetch, so the skin cannot be fetched at runtime.",
+        "schema": {
+          "skin": "string -- SVG symbol skin (inline netlistsvg lib/default.svg digital / lib/analog.svg analog); contains <s:properties> layout configuration and gate-symbol templates",
+          "netlist": {
+            "modules": {
+              "<moduleName>": {
+                "ports": {
+                  "<portName>": {
+                    "direction": "'input' | 'output'",
+                    "bits": "number[] -- net id list"
+                  }
+                },
+                "cells": {
+                  "<cellName>": {
+                    "type": "string -- cell type (for example $_AND_/$_MUX_)",
+                    "port_directions?": "{ <port>: 'input'|'output' }",
+                    "connections": "{ <port>: number[] -- connected net ids }"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "spec": {
+        "note": "The schematic SVG grows with circuit size; give the carrier an explicit 400px height with scrolling in both directions, and set svg.style.maxWidth to none to preserve intrinsic dimensions. Do not use vh or percentage heights (iron rule 3)."
+      }
+    }
+  },
+  "when_to_use": "把一个 JSON netlist(如 Yosys 输出)渲成带标准门符号与网线自动布线的数字逻辑/RTL 电路原理图时用它——原生根本无法在扁平 SVG 里正确摆门符号、布线网表。要门符号 + net 路由时选它;结果时序用 wavedrom,寄存器布局用 bit-field。注意:elkjs 布局起 Web Worker,Claude artifact 不可用,仅 widget/Codex。",
+  "why_valuable": "门级数字原理图是最难手绘的图之一——AI 无法可靠放置标准逻辑门符号、也无法在扁平 SVG 里正确路由 net。netlistsvg 吃 Yosys 风格 JSON netlist + 一个符号 skin,经 ELK 布局确定性渲出带标准符号、自动布线的原理图 SVG。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "netlistsvg",
+    "version": "1.0.2",
+    "github": "nturley/netlistsvg"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "netlist-json",
+    "note": "netlist 是 Yosys JSON:{ modules: { 名: { ports: {端口:{direction:'input'|'output', bits:number[]}}, cells: {单元:{type, port_directions, connections:{端口:number[]}}} } } };bits 是 net id(数字),同一 net id 在不同端口/connection 间出现即表示连线。skin 必须内联传入(把 netlistsvg lib/default.svg 数字 skin 或 lib/analog.svg 模拟 skin ~10.5KB 作为字符串嵌进 data)——因为没有任一载体同时允许 Web Worker(elkjs)与运行时 CDN fetch,不能运行时拉 skin。",
+    "schema": {
+      "skin": "string —— SVG 符号 skin(内联 netlistsvg lib/default.svg 数字 / lib/analog.svg 模拟);含 <s:properties> 布局配置与门符号模板",
+      "netlist": {
+        "modules": {
+          "<moduleName>": {
+            "ports": {
+              "<portName>": {
+                "direction": "'input' | 'output'",
+                "bits": "number[] —— net id 列表"
+              }
+            },
+            "cells": {
+              "<cellName>": {
+                "type": "string —— 单元类型(如 $_AND_/$_MUX_)",
+                "port_directions?": "{ <port>: 'input'|'output' }",
+                "connections": "{ <port>: number[] —— 连到的 net id }"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "原理图 SVG 随电路规模增长;承载区给显式 400px 高并双向滚动,svg.style.maxWidth 设 none 保 intrinsic 尺寸,禁 vh/百分比高(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// 包根 +esm 误选 Node worker 入口；先载入无 worker 的 ELK browser bundle，再动态载入 netlistsvg browser bundle\nconst el = document.getElementById('schematic'); el.style.cssText = 'height:400px;overflow:auto'; el.textContent = 'Rendering schematic…';\nconst { default: ELK } = await import('https://cdn.jsdelivr.net/npm/elkjs@0.3.0/lib/elk.bundled.js/+esm'); const previousELK = globalThis.ELK; globalThis.ELK = ELK;\nlet api; try { api = await import('https://cdn.jsdelivr.net/npm/netlistsvg@1.0.2/built/netlistsvg.bundle.js/+esm'); } finally { if (previousELK === undefined) delete globalThis.ELK; else globalThis.ELK = previousELK; }\nconst skin = data.skin?.trim().startsWith('<svg') ? data.skin : api.digitalSkin;\napi.render(skin, data.netlist, (err, svg) => { if (err) { el.textContent = String(err); return; } el.innerHTML = svg; const s = el.querySelector('svg'); if (s) s.style.maxWidth = 'none'; });",
+    "widget": "// ELK 与 netlistsvg 均走 browser bundle；最终 SVG 字符串只落 shadow 内 host\nconst el = document.createElement('div'); el.style.cssText = 'height:400px;overflow:auto'; el.textContent = 'Rendering schematic…'; shadowRoot.appendChild(el);\nconst { default: ELK } = await import('https://cdn.jsdelivr.net/npm/elkjs@0.3.0/lib/elk.bundled.js/+esm'); const previousELK = globalThis.ELK; globalThis.ELK = ELK;\nlet api; try { api = await import('https://cdn.jsdelivr.net/npm/netlistsvg@1.0.2/built/netlistsvg.bundle.js/+esm'); } finally { if (previousELK === undefined) delete globalThis.ELK; else globalThis.ELK = previousELK; }\nconst skin = data.skin?.trim().startsWith('<svg') ? data.skin : api.digitalSkin;\napi.render(skin, data.netlist, (err, svg) => { if (err) { el.textContent = String(err); return; } el.innerHTML = svg; const s = el.querySelector('svg'); if (s) s.style.maxWidth = 'none'; });",
+    "codex": "const el = document.getElementById('schematic'); el.style.cssText = 'height:400px;overflow:auto'; el.textContent = 'Rendering schematic…';\nconst { default: ELK } = await import('https://cdn.jsdelivr.net/npm/elkjs@0.3.0/lib/elk.bundled.js/+esm'); const previousELK = globalThis.ELK; globalThis.ELK = ELK;\nlet api; try { api = await import('https://cdn.jsdelivr.net/npm/netlistsvg@1.0.2/built/netlistsvg.bundle.js/+esm'); } finally { if (previousELK === undefined) delete globalThis.ELK; else globalThis.ELK = previousELK; }\nconst skin = data.skin?.trim().startsWith('<svg') ? data.skin : api.digitalSkin;\napi.render(skin, data.netlist, (err, svg) => { if (err) { el.textContent = String(err); return; } el.innerHTML = svg; const s = el.querySelector('svg'); if (s) s.style.maxWidth = 'none'; });"
+  },
+  "example": {
+    "_why": "netlist 结构强,minimal 给一个双输入 AND;skin 因体积(~10.5KB)不在此内联,占位提示消费 AI 嵌入 lib/default.svg。",
+    "minimal": {
+      "skin": "",
+      "netlist": {
+        "modules": {
+          "top": {
+            "ports": {
+              "a": {
+                "direction": "input",
+                "bits": [
+                  2
+                ]
+              },
+              "b": {
+                "direction": "input",
+                "bits": [
+                  3
+                ]
+              },
+              "y": {
+                "direction": "output",
+                "bits": [
+                  4
+                ]
+              }
+            },
+            "cells": {
+              "g1": {
+                "type": "$_AND_",
+                "port_directions": {
+                  "A": "input",
+                  "B": "input",
+                  "Y": "output"
+                },
+                "connections": {
+                  "A": [
+                    2
+                  ],
+                  "B": [
+                    3
+                  ],
+                  "Y": [
+                    4
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "empty": {
+      "skin": "",
+      "netlist": {
+        "modules": {}
+      }
+    }
+  },
+  "carriers": {
+    "artifact": "blocked:render 内部 new ELK() 生成 blob Web Worker,Claude artifact worker-src 全禁,不可用",
+    "widget": "supported:worker 在 widget 允许;skin 内联规避运行时 fetch;render 回调产 SVG 字符串落 shadow",
+    "codex": "supported:Codex worker 三路全通;skin 内联;ESM CDN + SVG 字符串"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "API verified vs netlistsvg@1.0.2: +esm exports `{Pt as render, bt as dumpLayout, W as default}`。built/index.js:`function render(skinData, yosysNetlist, done, elkData)`——`elk.layout(kgraph,...).then(g => drawModule(g, flatModule))`,回调 `done(null, output)` 且函数返回同一 promise(也可 `await render(skin, netlist)`)。built/drawModule.js:`return onml.s(ret); exports.default = drawModule`——输出为 onml.stringify 后的 SVG 字符串。输入字段(modules→ports{direction,bits}、cells{type,port_directions,connections})取自 test/digital/*.json 与 YosysModel。WORKER:netlistsvg 自身 +esm 仅 20KB、无 Worker/blob;`var elk = new ELK()` 经 +esm `import ELK from '/npm/elkjs/+esm'` 引入,elkjs(目录条目 headless-primitive)内联 blob worker→netlistsvg 传递性依赖 Web Worker。Claude artifact worker 全 BLOCKED→artifact 不可用;widget/Codex worker 通。netlistsvg 侧 grep:0 document.head/body(SVG 纯字符串输出)。skin 必须内联(default.svg 10739B,含 <s:properties>/门符号模板),因 artifact 才允许 jsDelivr fetch 却禁 worker、widget/Codex 允许 worker 却禁第三方 fetch,无载体同时满足→只能内联 skin。shadowCompatible=yes(SVG 字符串落 shadow)。confidence=medium:render/输入 API 确证,elkjs worker 传递链与 skin 内联为静态推断,未真机跑。",
+    "confidence": "medium"
+  }
+}

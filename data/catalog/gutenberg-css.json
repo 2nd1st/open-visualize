@@ -2,6 +2,22 @@
   "entry_version": "thin-1",
   "id": "gutenberg-css",
   "name": "Gutenberg",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when a report, handout, or article needs print typography, orphan control, repeated table headers, and page-break helper classes instead of a hand-written print stylesheet, which often omits orphans/widows, figure/table breaks, and link-expansion rules. Do not use it as a paper-pagination engine or for running headers/page counters.",
+      "why_valuable": "AI usually writes only basic @media print rules and cannot systematically cover heading cohesion, orphans and widows, repeating table headers, media breaks, and printed expansion of links and abbreviations. Gutenberg packages these stable rules into one CSS file.",
+      "data_in": {
+        "note": "html is the semantic content to print. break-before, break-after, avoid-break-inside, no-print, and no-reformat are native upstream classes. The base CSS must load together with the optional theme.",
+        "schema": {
+          "html": "string -- trusted or sanitized semantic HTML article; may use break-before, break-after, avoid-break-inside, no-print, and no-reformat",
+          "theme?": "'modern' | 'oldstyle' | 'none' -- defaults to 'modern'; none loads only dist/gutenberg.css"
+        }
+      },
+      "spec": {
+        "note": "This is a long, flowing print document rather than a fixed canvas. The host preview keeps an explicit 900px height and scrolls; do not use vh or percentage heights. Actual page geometry is controlled by the browser or Paged.js; Gutenberg handles only typography and break rules."
+      }
+    }
+  },
   "when_to_use": "需要给报告、讲义或文章补齐打印排版、孤行控制、表头复现和断页辅助类时用它而非手写 print stylesheet,因为原生手写常漏掉 orphans/widows、figure/table 断页与链接展开规则;非做纸张分页引擎或 running header/page counter。",
   "why_valuable": "AI 默认只会写基础 @media print,做不到系统覆盖标题粘连、孤行寡行、表头跨页、媒体断页、链接与缩写打印展开;Gutenberg 把这些稳定规则打包成一份 CSS。",
   "supply_form": "component",
@@ -42,7 +58,12 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "无运行时 JS,零自主副作用。artifact/codex boot 用 media=print 进 head(仅打印生效不污染屏幕),widget boot 采纳进 shadowRoot。但 gutenberg.css 含 body 页边距/@page/@media print 文档级规则,shadow 内 body/@page 不生效——通用 typography+辅助 class 可用,纸张页语义降级(carriers.widget=conditional)。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "theme": "modern",
+      "html": "<h1>The Printer's Grammar</h1>\n<p class=\"no-print\">Screen-only note — hidden when this article is sent to paper.</p>\n<p>Typography is the craft of giving human language a durable visual form. A good print stylesheet controls <strong>orphans</strong> and <strong>widows</strong>, keeps a heading welded to the text beneath it, and repeats table headers across every page.</p>\n<blockquote>\n  <p>Type is a beautiful group of letters, not a group of beautiful letters.</p>\n  <footer>— Matthew Carter</footer>\n</blockquote>\n<h2 class=\"break-before\">Measured Values</h2>\n<table class=\"avoid-break-inside\">\n  <thead>\n    <tr><th>Element</th><th>Rule</th><th>Lines</th></tr>\n  </thead>\n  <tbody>\n    <tr><td>Body text</td><td>orphans / widows</td><td>3</td></tr>\n    <tr><td>Heading</td><td>avoid break after</td><td>—</td></tr>\n    <tr><td>Figure</td><td>avoid break inside</td><td>—</td></tr>\n  </tbody>\n</table>\n<figure class=\"avoid-break-inside\">\n  <blockquote>Whitespace is to be regarded as an active element, not a passive background.</blockquote>\n  <figcaption>Figure 1 — Jan Tschichold on negative space.</figcaption>\n</figure>\n<p>Read the full specification at <a class=\"no-reformat\" href=\"https://example.org/spec\">example.org/spec</a>.</p>"
+    }
   }
 }

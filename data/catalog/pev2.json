@@ -4,6 +4,22 @@
   "name": "PEV2",
   "when_to_use": "需要把 PostgreSQL EXPLAIN 计划变成耗时热点、节点统计和可缩放执行树时用它而非手写,因为原生在计划解析、树布局和 buffer 指标联读上失败。",
   "why_valuable": "AI 默认只能逐段文字解读 EXPLAIN,做不到可靠解析多种文本/JSON 计划、绘制执行树、按实际耗时突出热点并联动节点统计。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a hand-written view when you need to turn a PostgreSQL EXPLAIN plan into timing hotspots, node statistics, and a zoomable execution tree, because native implementations fail at plan parsing, tree layout, and combined buffer-metric interpretation.",
+      "why_valuable": "AI can normally only explain EXPLAIN text section by section; it cannot reliably parse multiple text/JSON plan formats, draw an execution tree, highlight hotspots by actual time, and link node statistics.",
+      "data_in": {
+        "note": "The Plan component's planSource prop has the exact type string: pass EXPLAIN text from psql, or JSON.stringify the top-level array returned by EXPLAIN (FORMAT JSON); do not pass an object directly. planQuery is display-only context.",
+        "schema": {
+          "plan_source": "string -- PostgreSQL EXPLAIN/EXPLAIN ANALYZE text, or the JSON-stringified top-level FORMAT JSON array",
+          "plan_query?": "string -- matching SQL source, default ''"
+        }
+      },
+      "spec": {
+        "note": "PEV2's split panes, tree canvas, and statistics panel need an explicit pixel height; default 560px, overridable by AI. Do not use the vh-100 example from the upstream README or a percentage height."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -54,7 +70,6 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "Confirmed `document.body.appendChild(...)` with a `.destroy()` lifecycle (tooltip/popover teleport; 9 total document.body refs) — these escape the shadow root and will NOT receive the shadow-scoped pev2.css. Global listeners: window `hashchange` (1) + document `mousemove`/`touchstart/move/end` (splitpanes drag) + localStorage read/write (6) — matches catalog note. The lone `document.head` ref is a `parentNode!==document.head` comparison guard, NOT a style injection. Multi-instance needs manual Vue app.unmount().",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

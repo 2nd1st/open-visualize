@@ -2,19 +2,61 @@
   "entry_version": "thin-1",
   "id": "tabulator-tables",
   "name": "Tabulator",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when an interactive table needs multi-column sorting, header filters, grouping, frozen columns, pagination, conditional formatting, or virtual scrolling for large data instead of a hand-written DOM table, which fails at synchronized multi-column state, virtualization, and dense conditional formatting. For a static table, continue using Markdown.",
+      "why_valuable": "AI normally produces only static Markdown tables. Hand-written interactive tables succeed about 30% of the time and have brittle state management; multi-column sorting/filtering, virtualization, frozen regions, and conditional formatting are not reliable. Tabulator provides these capabilities from rows + columns JSON.",
+      "data_in": {
+        "note": "The primary shape term follows the picks value categorical, while the data is also tabular: rows is an array of homogeneous records and columns binds record keys through field. The schema below trims to common JSON configuration and excludes callbacks.",
+        "schema": {
+          "rows": [
+            {
+              "[field]": "string | number | boolean | null"
+            }
+          ],
+          "columns": [
+            {
+              "title": "string",
+              "field": "string -- record key in rows",
+              "sorter?": "'string'|'number'|'date'|'boolean'",
+              "headerFilter?": "boolean | 'input' | 'list' | 'number'",
+              "formatter?": "'plaintext'|'money'|'progress'|'tickCross'|'color'|'star'",
+              "frozen?": "boolean",
+              "width?": "number"
+            }
+          ],
+          "options?": {
+            "layout?": "'fitColumns'|'fitData'|'fitDataFill'|'fitDataStretch'",
+            "groupBy?": "string | string[]",
+            "pagination?": "boolean",
+            "paginationSize?": "number"
+          }
+        }
+      },
+      "spec": {
+        "note": "A table must have an explicit pixel height; iron rule 3 forbids vh and percentage heights. The default is 400px and AI may override it. Tabulator needs height to calculate the viewport reliably and enable its vertical virtual DOM."
+      }
+    }
+  },
   "when_to_use": "需要多列排序、表头筛选、分组、冻结列、分页、条件格式或大数据虚拟滚动的交互表格时用它,而非手写 DOM 表格——AI 原生在多列状态同步、虚拟化与密集条件格式上失败;仅静态表继续用 markdown 即可。",
   "why_valuable": "AI 默认只能做静态 markdown 表;手写交互表约 30% 且状态管理易碎,多列排序/筛选、虚拟化、冻结区域与条件格式默认做不到。Tabulator 用 rows + columns JSON 一次提供这些能力。",
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
-  "upstream": { "npm": "tabulator-tables", "version": "6.5.2", "github": "olifolkerd/tabulator" },
+  "upstream": {
+    "npm": "tabulator-tables",
+    "version": "6.5.2",
+    "github": "olifolkerd/tabulator"
+  },
   "license": "MIT",
   "data_in": {
     "shape": "categorical",
     "note": "主结构词取 picks 的 categorical;同时是 tabular 数据:rows 为同构记录数组,columns 用 field 绑定记录键。下面只裁剪高频 JSON 配置,不包含回调。",
     "schema": {
       "rows": [
-        { "[field]": "string | number | boolean | null" }
+        {
+          "[field]": "string | number | boolean | null"
+        }
       ],
       "columns": [
         {
@@ -48,24 +90,54 @@
     "_why": "表格 columns 配置高歧义:field 绑定、sorter、headerFilter、formatter 需 minimal example 才能一次拼对。",
     "minimal": {
       "rows": [
-        { "item": "Alpha", "priority": "High", "progress": 72 },
-        { "item": "Beta", "priority": "Low", "progress": 35 }
+        {
+          "item": "Alpha",
+          "priority": "High",
+          "progress": 72
+        },
+        {
+          "item": "Beta",
+          "priority": "Low",
+          "progress": 35
+        }
       ],
       "columns": [
-        { "title": "Item", "field": "item", "headerFilter": true, "frozen": true },
-        { "title": "Priority", "field": "priority", "headerFilter": "list" },
-        { "title": "Progress", "field": "progress", "sorter": "number", "formatter": "progress" }
+        {
+          "title": "Item",
+          "field": "item",
+          "headerFilter": true,
+          "frozen": true
+        },
+        {
+          "title": "Priority",
+          "field": "priority",
+          "headerFilter": "list"
+        },
+        {
+          "title": "Progress",
+          "field": "progress",
+          "sorter": "number",
+          "formatter": "progress"
+        }
       ],
-      "options": { "layout": "fitColumns" }
+      "options": {
+        "layout": "fitColumns"
+      }
     },
-    "empty": { "rows": [], "columns": [] }
+    "empty": {
+      "rows": [],
+      "columns": []
+    }
   },
   "carriers": {
     "artifact": "inferred-not-tested",
     "widget": "conditional:需把 Tabulator CSS link 与容器一起落入 shadowRoot;原生 DOM 表格渲染无需 canvas/worker/wasm/uplink",
     "codex": "supported:ESM CDN + DOM/CSS,无 uplink 需求"
   },
-  "scenarios": ["data-explore", "input-cocreate"],
+  "scenarios": [
+    "data-explore",
+    "input-cocreate"
+  ],
   "owner": true,
   "owner_note": "pick 为 data-explore / input-cocreate 双场景合并;本条以 data-explore 为 owner,两场景共用同一 Tabulator 条目、不重复建档。"
 }

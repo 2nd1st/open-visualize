@@ -1,0 +1,125 @@
+{
+  "entry_version": "thin-1",
+  "id": "profile-cards",
+  "name": "Profile cards",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it in a deliverable to introduce team members, speakers, reviewers, or contacts with scannable avatars, names, roles, bios, and links. If organizational hierarchy is the focus, use an org chart; for dozens of filterable employee records, use a data table or directory.",
+      "why_valuable": "Ad hoc AI-written people cards often have inconsistent avatar proportions, unsafe links, and cramped mobile layouts. This template provides a responsive grid, consistent avatar placeholders, stable text hierarchy, and accepts only data:image inline avatars plus http/https/mailto links.",
+      "data_in": {
+        "note": "data.people contains person records. avatar may be up to 4 characters/emoji or an inline data URL beginning with data:image/. When omitted, up to two initials are generated from the name. links renders only http, https, or mailto protocols; external links open in a new tab with noopener noreferrer.",
+        "schema": {
+          "title?": "string -- people-group heading; displays \"Meet the team\" when omitted",
+          "subtitle?": "string -- team or project description in the heading area",
+          "people": "{name:string,role:string,bio?:string,avatar?:string,links?:{label:string,href:string}[]}[] -- person cards; avatar is short text/emoji or a data:image URL"
+        }
+      },
+      "spec": {
+        "note": "The card grid adapts its column count to available width and grows with the number of records. Minimum card width is about 230px, with one column on narrow screens and no vh or percentage heights."
+      }
+    }
+  },
+  "when_to_use": "需要在交付物中介绍团队成员、讲者、评审人或联系人，并让头像、姓名、角色、简介和链接一眼可扫时用它。若重点是组织层级，用组织图；若是几十条可筛选员工记录，用数据表或目录。",
+  "why_valuable": "AI 临时拼出的人员卡常出现头像比例不一、链接不安全和移动端挤压；本模板提供自适应网格、统一头像占位、稳定文本层级，并只接受 data:image 内联头像及 http/https/mailto 链接。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "inline-template",
+  "upstream": {
+    "npm": null,
+    "version": null,
+    "github": null
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "records",
+    "note": "data.people 是人员记录。avatar 可为最多 4 个字符/emoji，或 data:image/ 开头的内联数据 URL；省略时从姓名生成最多两字母缩写。links 只渲染 http、https 或 mailto 协议，外部链接在新标签打开并加 noopener noreferrer。",
+    "schema": {
+      "title?": "string —— 人员组标题；省略时显示 “Meet the team”",
+      "subtitle?": "string —— 标题区的团队或项目说明",
+      "people": "{name:string,role:string,bio?:string,avatar?:string,links?:{label:string,href:string}[]}[] —— 人员卡；avatar 为短文本/emoji 或 data:image URL"
+    }
+  },
+  "spec": {
+    "height": "auto",
+    "note": "卡片网格按可用宽度自适应列数并随记录数量增高；最小卡宽约 230px，窄屏单列，无 vh/百分比高度。"
+  },
+  "boot": {
+    "artifact": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.meta{margin-top:7px;color:var(--_muted);font-size:13px;line-height:1.45}\n.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:14px;padding:18px}\n.card{min-width:0;padding:18px;border:1px solid var(--_line);border-radius:15px;background:var(--_raised);transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}\n.card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--_accent) 35%,var(--_line));box-shadow:0 10px 24px rgba(15,23,42,.08)}\n.top{display:flex;gap:13px;align-items:center}\n.avatar{display:flex;flex:0 0 auto;width:54px;height:54px;align-items:center;justify-content:center;overflow:hidden;border:1px solid color-mix(in srgb,var(--_accent) 25%,var(--_line));border-radius:16px;background:var(--_accent-soft);color:var(--_accent);font-size:18px;font-weight:850;letter-spacing:-.02em}\n.avatar img{width:100%;height:100%;object-fit:cover}\n.identity{min-width:0}\n.name{overflow:hidden;color:var(--_text);font-size:16px;font-weight:780;line-height:1.25;text-overflow:ellipsis;white-space:nowrap}\n.role{margin-top:3px;color:var(--_accent);font-size:11px;font-weight:750;line-height:1.35}\n.bio{margin:14px 0 0;color:var(--_muted);font-size:12px;line-height:1.55}\n.links{display:flex;flex-wrap:wrap;gap:7px;margin-top:15px}\n.link{display:inline-flex;align-items:center;gap:5px;min-height:27px;padding:0 9px;border:1px solid var(--_line);border-radius:999px;background:var(--_soft);color:var(--_text);font-size:10px;font-weight:750;text-decoration:none}\n.link:hover{border-color:var(--_accent);color:var(--_accent)}\n.link::after{content:'↗';color:var(--_muted);font-size:10px}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:520px){.heading{padding:18px}.grid{padding:14px}.card{padding:16px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}.card:hover{box-shadow:0 12px 26px rgba(0,0,0,.25)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst safeHref=(value)=>{ if(typeof value!=='string') return null; try{ const url=new URL(value,document.baseURI); return ['http:','https:','mailto:'].includes(url.protocol)?value:null; }catch{return null;} };\nconst initials=(name)=>String(name||'?').trim().split(/\\s+/).slice(0,2).map((part)=>part[0]||'').join('').toUpperCase()||'?';\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Meet the team'; const people=Array.isArray(data.people)?data.people:[];\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title); const heading=make('header','heading');\nheading.appendChild(make('div','eyebrow','People')); heading.appendChild(make('h2','',title));\nheading.appendChild(make('div','meta',people.length+' profile'+(people.length===1?'':'s')+(data.subtitle?' · '+String(data.subtitle):''))); frame.appendChild(heading);\nif(!people.length){ frame.appendChild(make('div','empty','Add people records to build a profile grid.')); }\nelse{\n  const grid=make('div','grid');\n  people.forEach((person)=>{\n    const card=make('article','card'); const top=make('div','top'); const avatar=make('div','avatar');\n    const avatarValue=person&&typeof person.avatar==='string'?person.avatar:'';\n    if(avatarValue.startsWith('data:image/')){ const image=make('img'); image.src=avatarValue; image.alt=''; avatar.appendChild(image); }\n    else avatar.textContent=avatarValue&&avatarValue.length<=4?avatarValue:initials(person&&person.name);\n    top.appendChild(avatar); const identity=make('div','identity'); identity.appendChild(make('div','name',person&&person.name!=null?String(person.name):'Unnamed'));\n    identity.appendChild(make('div','role',person&&person.role!=null?String(person.role):'Team member')); top.appendChild(identity); card.appendChild(top);\n    if(person&&person.bio) card.appendChild(make('p','bio',String(person.bio)));\n    const links=person&&Array.isArray(person.links)?person.links:[]; if(links.length){ const row=make('div','links');\n      links.forEach((link)=>{ const href=safeHref(link&&link.href); if(!href) return; const anchor=make('a','link',link&&link.label!=null?String(link.label):'Link'); anchor.href=href; if(!href.startsWith('mailto:')){anchor.target='_blank';anchor.rel='noopener noreferrer';} row.appendChild(anchor); });\n      if(row.childElementCount) card.appendChild(row);\n    }\n    grid.appendChild(card);\n  });\n  frame.appendChild(grid);\n}\nroot.appendChild(frame);\nparent.appendChild(host);",
+    "widget": "const parent = shadowRoot;\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.meta{margin-top:7px;color:var(--_muted);font-size:13px;line-height:1.45}\n.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:14px;padding:18px}\n.card{min-width:0;padding:18px;border:1px solid var(--_line);border-radius:15px;background:var(--_raised);transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}\n.card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--_accent) 35%,var(--_line));box-shadow:0 10px 24px rgba(15,23,42,.08)}\n.top{display:flex;gap:13px;align-items:center}\n.avatar{display:flex;flex:0 0 auto;width:54px;height:54px;align-items:center;justify-content:center;overflow:hidden;border:1px solid color-mix(in srgb,var(--_accent) 25%,var(--_line));border-radius:16px;background:var(--_accent-soft);color:var(--_accent);font-size:18px;font-weight:850;letter-spacing:-.02em}\n.avatar img{width:100%;height:100%;object-fit:cover}\n.identity{min-width:0}\n.name{overflow:hidden;color:var(--_text);font-size:16px;font-weight:780;line-height:1.25;text-overflow:ellipsis;white-space:nowrap}\n.role{margin-top:3px;color:var(--_accent);font-size:11px;font-weight:750;line-height:1.35}\n.bio{margin:14px 0 0;color:var(--_muted);font-size:12px;line-height:1.55}\n.links{display:flex;flex-wrap:wrap;gap:7px;margin-top:15px}\n.link{display:inline-flex;align-items:center;gap:5px;min-height:27px;padding:0 9px;border:1px solid var(--_line);border-radius:999px;background:var(--_soft);color:var(--_text);font-size:10px;font-weight:750;text-decoration:none}\n.link:hover{border-color:var(--_accent);color:var(--_accent)}\n.link::after{content:'↗';color:var(--_muted);font-size:10px}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:520px){.heading{padding:18px}.grid{padding:14px}.card{padding:16px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}.card:hover{box-shadow:0 12px 26px rgba(0,0,0,.25)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst safeHref=(value)=>{ if(typeof value!=='string') return null; try{ const url=new URL(value,document.baseURI); return ['http:','https:','mailto:'].includes(url.protocol)?value:null; }catch{return null;} };\nconst initials=(name)=>String(name||'?').trim().split(/\\s+/).slice(0,2).map((part)=>part[0]||'').join('').toUpperCase()||'?';\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Meet the team'; const people=Array.isArray(data.people)?data.people:[];\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title); const heading=make('header','heading');\nheading.appendChild(make('div','eyebrow','People')); heading.appendChild(make('h2','',title));\nheading.appendChild(make('div','meta',people.length+' profile'+(people.length===1?'':'s')+(data.subtitle?' · '+String(data.subtitle):''))); frame.appendChild(heading);\nif(!people.length){ frame.appendChild(make('div','empty','Add people records to build a profile grid.')); }\nelse{\n  const grid=make('div','grid');\n  people.forEach((person)=>{\n    const card=make('article','card'); const top=make('div','top'); const avatar=make('div','avatar');\n    const avatarValue=person&&typeof person.avatar==='string'?person.avatar:'';\n    if(avatarValue.startsWith('data:image/')){ const image=make('img'); image.src=avatarValue; image.alt=''; avatar.appendChild(image); }\n    else avatar.textContent=avatarValue&&avatarValue.length<=4?avatarValue:initials(person&&person.name);\n    top.appendChild(avatar); const identity=make('div','identity'); identity.appendChild(make('div','name',person&&person.name!=null?String(person.name):'Unnamed'));\n    identity.appendChild(make('div','role',person&&person.role!=null?String(person.role):'Team member')); top.appendChild(identity); card.appendChild(top);\n    if(person&&person.bio) card.appendChild(make('p','bio',String(person.bio)));\n    const links=person&&Array.isArray(person.links)?person.links:[]; if(links.length){ const row=make('div','links');\n      links.forEach((link)=>{ const href=safeHref(link&&link.href); if(!href) return; const anchor=make('a','link',link&&link.label!=null?String(link.label):'Link'); anchor.href=href; if(!href.startsWith('mailto:')){anchor.target='_blank';anchor.rel='noopener noreferrer';} row.appendChild(anchor); });\n      if(row.childElementCount) card.appendChild(row);\n    }\n    grid.appendChild(card);\n  });\n  frame.appendChild(grid);\n}\nroot.appendChild(frame);\nparent.appendChild(host);",
+    "codex": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.meta{margin-top:7px;color:var(--_muted);font-size:13px;line-height:1.45}\n.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:14px;padding:18px}\n.card{min-width:0;padding:18px;border:1px solid var(--_line);border-radius:15px;background:var(--_raised);transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}\n.card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--_accent) 35%,var(--_line));box-shadow:0 10px 24px rgba(15,23,42,.08)}\n.top{display:flex;gap:13px;align-items:center}\n.avatar{display:flex;flex:0 0 auto;width:54px;height:54px;align-items:center;justify-content:center;overflow:hidden;border:1px solid color-mix(in srgb,var(--_accent) 25%,var(--_line));border-radius:16px;background:var(--_accent-soft);color:var(--_accent);font-size:18px;font-weight:850;letter-spacing:-.02em}\n.avatar img{width:100%;height:100%;object-fit:cover}\n.identity{min-width:0}\n.name{overflow:hidden;color:var(--_text);font-size:16px;font-weight:780;line-height:1.25;text-overflow:ellipsis;white-space:nowrap}\n.role{margin-top:3px;color:var(--_accent);font-size:11px;font-weight:750;line-height:1.35}\n.bio{margin:14px 0 0;color:var(--_muted);font-size:12px;line-height:1.55}\n.links{display:flex;flex-wrap:wrap;gap:7px;margin-top:15px}\n.link{display:inline-flex;align-items:center;gap:5px;min-height:27px;padding:0 9px;border:1px solid var(--_line);border-radius:999px;background:var(--_soft);color:var(--_text);font-size:10px;font-weight:750;text-decoration:none}\n.link:hover{border-color:var(--_accent);color:var(--_accent)}\n.link::after{content:'↗';color:var(--_muted);font-size:10px}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:520px){.heading{padding:18px}.grid{padding:14px}.card{padding:16px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}.card:hover{box-shadow:0 12px 26px rgba(0,0,0,.25)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst safeHref=(value)=>{ if(typeof value!=='string') return null; try{ const url=new URL(value,document.baseURI); return ['http:','https:','mailto:'].includes(url.protocol)?value:null; }catch{return null;} };\nconst initials=(name)=>String(name||'?').trim().split(/\\s+/).slice(0,2).map((part)=>part[0]||'').join('').toUpperCase()||'?';\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Meet the team'; const people=Array.isArray(data.people)?data.people:[];\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title); const heading=make('header','heading');\nheading.appendChild(make('div','eyebrow','People')); heading.appendChild(make('h2','',title));\nheading.appendChild(make('div','meta',people.length+' profile'+(people.length===1?'':'s')+(data.subtitle?' · '+String(data.subtitle):''))); frame.appendChild(heading);\nif(!people.length){ frame.appendChild(make('div','empty','Add people records to build a profile grid.')); }\nelse{\n  const grid=make('div','grid');\n  people.forEach((person)=>{\n    const card=make('article','card'); const top=make('div','top'); const avatar=make('div','avatar');\n    const avatarValue=person&&typeof person.avatar==='string'?person.avatar:'';\n    if(avatarValue.startsWith('data:image/')){ const image=make('img'); image.src=avatarValue; image.alt=''; avatar.appendChild(image); }\n    else avatar.textContent=avatarValue&&avatarValue.length<=4?avatarValue:initials(person&&person.name);\n    top.appendChild(avatar); const identity=make('div','identity'); identity.appendChild(make('div','name',person&&person.name!=null?String(person.name):'Unnamed'));\n    identity.appendChild(make('div','role',person&&person.role!=null?String(person.role):'Team member')); top.appendChild(identity); card.appendChild(top);\n    if(person&&person.bio) card.appendChild(make('p','bio',String(person.bio)));\n    const links=person&&Array.isArray(person.links)?person.links:[]; if(links.length){ const row=make('div','links');\n      links.forEach((link)=>{ const href=safeHref(link&&link.href); if(!href) return; const anchor=make('a','link',link&&link.label!=null?String(link.label):'Link'); anchor.href=href; if(!href.startsWith('mailto:')){anchor.target='_blank';anchor.rel='noopener noreferrer';} row.appendChild(anchor); });\n      if(row.childElementCount) card.appendChild(row);\n    }\n    grid.appendChild(card);\n  });\n  frame.appendChild(grid);\n}\nroot.appendChild(frame);\nparent.appendChild(host);"
+  },
+  "example": {
+    "_why": "四个跨职能产品团队成员带不同头像占位、简短履历和安全链接，能验证网格换列、信息层级、链接过滤和缺省头像行为。",
+    "minimal": {
+      "title": "Launch team",
+      "subtitle": "The people behind Atlas Workspace",
+      "people": [
+        {
+          "name": "Maya Chen",
+          "role": "Product lead",
+          "avatar": "MC",
+          "bio": "Shapes the roadmap and keeps customer outcomes connected to every launch decision.",
+          "links": [
+            {
+              "label": "Email",
+              "href": "mailto:maya@example.com"
+            },
+            {
+              "label": "Profile",
+              "href": "https://example.com/maya"
+            }
+          ]
+        },
+        {
+          "name": "Noah Williams",
+          "role": "Design systems",
+          "avatar": "✦",
+          "bio": "Builds the component language and accessible interaction patterns used across Atlas.",
+          "links": [
+            {
+              "label": "Portfolio",
+              "href": "https://example.com/noah"
+            }
+          ]
+        },
+        {
+          "name": "Priya Raman",
+          "role": "Platform engineering",
+          "avatar": "PR",
+          "bio": "Owns reliability, deployment tooling, and the services that keep collaboration fast.",
+          "links": [
+            {
+              "label": "Profile",
+              "href": "https://example.com/priya"
+            }
+          ]
+        },
+        {
+          "name": "Luis Ortega",
+          "role": "Customer success",
+          "bio": "Turns beta feedback into rollout guidance for teams moving their work into Atlas.",
+          "links": [
+            {
+              "label": "Email",
+              "href": "mailto:luis@example.com"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "uplink": "none: 纯展示组件；所有悬停、滚动、原生链接或其他局部交互都只发生在自有 shadow 内，不向 AI 或宿主回传数据。",
+  "carriers": {
+    "artifact": "supported:boot.artifact 已在 sandboxed iframe 中以 example.minimal 原样渲染验证；CSS 与 DOM 全部位于自有 shadow root",
+    "widget": "supported:与 artifact 同一零依赖模板，仅 parent 改为 shadowRoot；可在载体 shadow 内再挂自有 shadow",
+    "codex": "supported:与已验证的 artifact boot 相同，document.getElementById('viz') 为唯一载体挂载点"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "self-authored inline-template, owns its shadow, zero global footprint; rendered-verified",
+    "confidence": "high"
+  }
+}

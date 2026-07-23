@@ -49,6 +49,46 @@
     "height": 400,
     "note": "canvas 必须有显式像素尺寸;boot 默认 width 640、height 400,同时允许 CSS 宽度随容器缩放。禁用 vh/百分比高(铁律 3);若 illustration.resize=true,Zdog 会按显示尺寸重设 canvas。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need a rounded, flat-shaded, drag-rotatable pseudo-3D miniature or concept model instead of hand-written SVG/CSS perspective, which consistently fails at three-axis composition, occlusion sorting, and uniform rounded strokes. It is not for photorealistic 3D, material lighting, or large meshes.",
+      "why_valuable": "AI defaults to flat SVG or an unstable CSS cube and cannot reliably build a set of rotatable pseudo-3D shapes with consistent occlusion order. Zdog renders with 2D canvas/SVG to supply spatial transforms and a polished designer aesthetic.",
+      "data_in": {
+        "note": "data_in maps to one Zdog.Illustration and a set of upstream Shape constructors. boot injects element/addTo. shape.type must be a real allowlisted constructor name, while options remains native upstream geometry fields.",
+        "schema": {
+          "illustration?": {
+            "_default": "default {}",
+            "zoom?": "number -- default 1",
+            "centered?": "boolean -- default true",
+            "dragRotate?": "boolean -- default false",
+            "resize?": "boolean -- default false"
+          },
+          "shapes": [
+            {
+              "type": "'Shape'|'Ellipse'|'Rect'|'RoundedRect'|'Polygon'|'Hemisphere'|'Cylinder'|'Cone'|'Box'",
+              "options": {
+                "color": "CSS color string",
+                "stroke?": "number | boolean -- defaults to the upstream value for that constructor",
+                "fill?": "boolean -- default false",
+                "translate?": "{x?:number,y?:number,z?:number} -- every axis defaults to 0",
+                "rotate?": "{x?:number,y?:number,z?:number} -- every axis defaults to 0 (radians)",
+                "scale?": "number | {x?:number,y?:number,z?:number} -- default 1",
+                "path?": "({x?:number,y?:number,z?:number}|{arc:[point,point]}|{bezier:[point,point,point]})[] -- Shape defaults to a single point",
+                "diameter?": "number -- Ellipse default 1",
+                "width?": "number -- Rect/Box default 1",
+                "height?": "number -- Rect/Box default 1",
+                "depth?": "number -- Box default 1",
+                "sides?": "number -- Polygon default 3"
+              }
+            }
+          ]
+        }
+      },
+      "spec": {
+        "note": "The canvas needs explicit pixel dimensions. boot defaults to width 640 and height 400 while allowing CSS width to scale with the container. Rule 3 forbids vh or percentage heights. If illustration.resize=true, Zdog resets the canvas from its displayed dimensions."
+      }
+    }
+  },
   "boot": {
     "artifact": "// inferred-not-tested:原生 Illustration + 各 shape 构造器\nimport Zdog from 'https://cdn.jsdelivr.net/npm/zdog@1/+esm';\nconst canvas = document.createElement('canvas'); canvas.width = 640; canvas.height = 400;\ncanvas.style.cssText = 'display:block;width:100%;height:400px'; document.getElementById('zdog').appendChild(canvas);\nconst illo = new Zdog.Illustration({ ...data.illustration, element: canvas });\nfor (const s of data.shapes) new Zdog[s.type]({ ...s.options, addTo: illo });\n(function frame(){ illo.updateRenderGraph(); requestAnimationFrame(frame); })();",
     "widget": "// canvas 由 JS 创建并落 shadow 容器,无外部 CSS/head 注入\nimport Zdog from 'https://cdn.jsdelivr.net/npm/zdog@1/+esm';\nconst canvas = document.createElement('canvas'); canvas.width = 640; canvas.height = 400;\ncanvas.style.cssText = 'display:block;width:100%;height:400px'; shadowRoot.appendChild(canvas);\nconst illo = new Zdog.Illustration({ ...data.illustration, element: canvas });\nfor (const s of data.shapes) new Zdog[s.type]({ ...s.options, addTo: illo });\n(function frame(){ illo.updateRenderGraph(); requestAnimationFrame(frame); })();",
@@ -105,7 +145,6 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "styleInject=no: no document.head access anywhere in source; only inline styles on the caller's canvas (illustration.js setSizeCanvas `this.element.style.width`; dragger.js `element.style.touchAction='none'`). domMutation=no: renders into the caller's canvas 2D ctx, or appends `<path>` into the caller's SVG element (renderGraphSvg->this.element); never document.body. events=yes: dragger.js dragStart adds `window.addEventListener(move/up)` (self-removed on pointerup/dragEnd, per-gesture clean) and illustration.js setResize adds a PERSISTENT `window.addEventListener('resize')` with NO destroy() API (leaks) but only when illustration.resize=true (schema default false); the pointerdown listener is bound to the canvas element, not global. shadow=yes: canvas is JS-created into shadowRoot and drawn via getContext('2d'); pointerdown on the canvas element; drag uses window move/up + pointer.pageX/Y which work across shadow; no head/body dependency.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

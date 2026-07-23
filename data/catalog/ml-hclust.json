@@ -1,0 +1,64 @@
+{
+  "entry_version": "thin-1",
+  "id": "ml-hclust",
+  "name": "ml-hclust",
+  "when_to_use": "想画 dendrogram、展示样本自底向上如何逐级合并(基因/文档/相似度聚类)时用它,产出带合并高度的二叉树;要固定 k 个扁平簇改用 skmeans。注意 +esm 只暴露自底向上的 agnes(与 Cluster),自顶向下的 diana 未打进 bundle。",
+  "why_valuable": "树状聚类图要先算 linkage(single/complete/average/ward)得到带合并高度的二叉树,AI 徒手编不出正确的合并顺序与高度。ml-hclust 的 agnes 直接给出这棵可渲染的聚类树(children/height/index + cut/traverse/indices),交给树布局即可画 dendrogram。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you want to draw a dendrogram or show how samples merge bottom-up step by step, such as clustering genes, documents, or similarities. It produces a binary tree with merge heights. For a fixed k of flat clusters, use skmeans instead. Note that +esm exposes only the bottom-up agnes (and Cluster); the top-down diana is not included in the bundle.",
+      "why_valuable": "A dendrogram first needs linkage, such as single/complete/average/ward, to produce a binary tree with merge heights. AI cannot invent the correct merge order and heights by hand. ml-hclust's agnes directly returns a renderable cluster tree with children/height/index plus cut/traverse/indices, ready for a tree layout.",
+      "data_in": {
+        "note": "data is a number[][] point array by default, using Euclidean distance internally. If a symmetric distance matrix is already available, set isDistanceMatrix:true and pass that matrix directly. The output is a hierarchy; render a dendrogram with height on the vertical axis.",
+        "schema": {
+          "data": "number[][] - equal-length point vectors to cluster; or, when isDistanceMatrix=true, a symmetric distance matrix",
+          "method?": "'single'|'complete'|'average'|'ward'|'ward2'|'centroid'|'median'|'upgma'|'wpgma'|'wpgmc'|'upgmc' - linkage method, default 'complete'",
+          "isDistanceMatrix?": "boolean - whether data is already a distance matrix, default false (otherwise Euclidean distance is computed internally)"
+        }
+      }
+    }
+  },
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "ml-hclust",
+    "version": "4.0.0",
+    "github": "mljs/hclust"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "data 默认是 number[][] 点数组(内部按欧氏距离);若已算好对称距离矩阵则设 isDistanceMatrix:true 直接传矩阵。输出是层次树,渲染 dendrogram 用纵轴 = height。",
+    "schema": {
+      "data": "number[][] —— 待聚类的点数组(每点等长向量);或当 isDistanceMatrix=true 时传对称距离矩阵",
+      "method?": "'single'|'complete'|'average'|'ward'|'ward2'|'centroid'|'median'|'upgma'|'wpgma'|'wpgmc'|'upgmc' —— 连接法,默认 'complete'",
+      "isDistanceMatrix?": "boolean —— data 是否已是距离矩阵,默认 false(内部按欧氏距离计算)"
+    }
+  },
+  "provides": {
+    "shape": "hierarchy",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;纯 JS 数值层。产出是层次树数据,交由树/dendrogram 渲染器画。",
+    "outputs": "可渲染二叉合并树 Cluster:{children, height 合并高度, index 叶子原始下标, size, isLeaf};附 cut(threshold)/group(n)/traverse(cb)/indices() 工具。",
+    "api_surface": {
+      "build": "agnes(data, { method?, distanceFunction?, isDistanceMatrix? }) → Cluster(注意 diana 不在 +esm)",
+      "tree": "cluster.children(子节点) · cluster.height(合并高度) · cluster.index(叶子原始下标) · cluster.size · cluster.isLeaf",
+      "ops": "cluster.cut(threshold) → Cluster[](按高度切扁平簇) · cluster.group(n) · cluster.traverse(cb)(深度优先) · cluster.indices() → 不交叉画树的叶子顺序"
+    }
+  },
+  "peer": {
+    "id": "d3-hierarchy",
+    "note": "本条只产聚类树数据:把 Cluster 的 children/height 喂给 d3-hierarchy 的 cluster/tree 布局,用 height 定纵轴、indices() 定叶子横序画 dendrogram。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS,无 DOM/uplink/shadow 足迹\nimport { agnes } from 'https://cdn.jsdelivr.net/npm/ml-hclust@4/+esm';     // 命名导出;diana 未进 +esm\nconst tree = agnes(data.data, { method: data.method ?? 'complete', isDistanceMatrix: data.isDistanceMatrix ?? false });\n// tree:{children:[], height 合并高度, index 叶子原始下标, size, isLeaf}\nconst order = tree.indices();                        // 不交叉画树的叶子顺序\ntree.traverse(n => { /* 遍历每个节点:用 n.height 定纵轴、n.children 连线 */ });\n// 交给 d3-hierarchy 之类树布局渲染 dendrogram;tree.cut(h) 可按高度切成扁平簇",
+    "note": "输入 data 为 number[][] 点数组(默认内部欧氏距离);若已是对称距离矩阵设 isDistanceMatrix:true。method 默认 'complete',ward/average/single 等见 api_surface。产出是层次树而非固定 k 分区。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr ml-hclust@4.0.0 +esm: named exports are exactly `{Cluster, agnes}` (`export{p as Cluster,$ as agnes}`); diana.js/diana.d.ts exist in the package but diana is NOT in the +esm bundle (0 'diana' refs), so boot uses agnes only. agnes.d.ts: agnes<T>(data:T[], options?:{ distanceFunction?, method?:AgglomerationMethod (default 'complete'), isDistanceMatrix? })→Cluster; AgglomerationMethod ∈ single|complete|average|upgma|wpgma|median|wpgmc|centroid|upgmc|ward|ward2. cluster.d.ts: Cluster{ children:Cluster[]; height; size; index; isLeaf; cut(threshold)→Cluster[]; group(groups); traverse(cb); indices()→number[] }. Deps ml-matrix/heap/ml-distance-*; grep of +esm for document.*/window.*/globalThis.*/appendChild/createElement/addEventListener/localStorage = 0 hits — pure numeric, shadow-safe.",
+    "confidence": "high"
+  }
+}

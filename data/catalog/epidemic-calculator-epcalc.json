@@ -1,21 +1,24 @@
 {
- "entry_version": "thin-1",
- "id": "epidemic-calculator-epcalc",
- "name": "Epidemic Calculator (epcalc)",
- "supply_form": "app-needs-fork",
- "status": "blocked-until-forked",
- "upstream": {
-  "github": "gabgoh/epcalc"
- },
- "license": null,
- "scenarios": [
-  "local-tools"
- ],
- "fork_note": "应用态,需 fork+改造+发 npm 才过白名单;不作可消费条目上架。one_liner: Gabriel Goh 的 SEIR 传染病计算器:滑块调 R0/潜伏期,曲线实时联动,Svelte 编译",
- "data_in": {
-  "shapes": [
-   "expression",
-   "quantitative"
-  ]
- }
+  "entry_version": "thin-1",
+  "id": "epidemic-calculator-epcalc",
+  "name": "Epidemic Calculator (epcalc)",
+  "i18n": {
+    "en": {}
+  },
+  "supply_form": "app-needs-fork",
+  "status": "blocked-until-forked",
+  "upstream": {
+    "github": "gabgoh/epcalc"
+  },
+  "license": null,
+  "scenarios": [
+    "local-tools"
+  ],
+  "fork_note": "应用态,需 fork+改造+发 npm 才过白名单;不作可消费条目上架。one_liner: Gabriel Goh 的 SEIR 传染病计算器:滑块调 R0/潜伏期,曲线实时联动,Svelte 编译",
+  "data_in": {
+    "shapes": [
+      "expression",
+      "quantitative"
+    ]
+  }
 }

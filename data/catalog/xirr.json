@@ -1,0 +1,62 @@
+{
+  "entry_version": "thin-1",
+  "id": "xirr",
+  "name": "xirr",
+  "when_to_use": "现金流发生在不等间隔的真实日期上(定投、房贷提前还款、PE 出资),要算真年化内部收益率时用它——即 Excel 的 XIRR;目录里的 financejs/financial 只有等周期 irr、tvm-financejs 是等额时间价值,都不按日贴现。",
+  "why_valuable": "带具体日期的不规则现金流 IRR 要对贴现方程做 Newton 迭代求根,AI 徒手迭代常不收敛或收敛到错根。xirr 输入 {amount, when}[](字段是 when、Date 类型,不是 date)直接吐年化收益率,并对全同号/少于两笔/同日/不收敛显式抛错,数值口径与 Excel XIRR 对齐。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when cash flows occur on real, unevenly spaced dates, such as recurring investments, early mortgage repayments, or PE capital calls, and you need the true annualized internal rate of return: Excel's XIRR. The catalog's financejs/financial entries provide only equal-period irr, while tvm-financejs handles equal-period time value; none discounts by day.",
+      "why_valuable": "IRR for irregular dated cash flows requires Newton root-finding on the discount equation, and AI iterations often fail to converge or converge to the wrong root. xirr takes {amount, when}[], where the field is when and the type is Date, not date, and returns the annualized rate directly. It explicitly throws for all-same-sign values, fewer than two transactions, all transactions on one date, or non-convergence, with numeric conventions aligned to Excel XIRR.",
+      "data_in": {
+        "note": "Each transaction is {amount, when}, and when must be a Date object; the field name is not date. Amounts must include both signs, with investments negative and redemption/current value positive. At least two transactions are required and they cannot all share one date, or an error is thrown.",
+        "schema": {
+          "transactions": "{ amount: number, when: Date }[] - cash flows; outflows are negative and inflows/current value positive; when is a Date object; at least two transactions are required and amounts cannot all have the same sign",
+          "guess?": "number - initial value for Newton iteration; adjust when convergence fails, especially when the solution is near -1; chosen by the library by default"
+        }
+      }
+    }
+  },
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "xirr",
+    "version": "1.1.0",
+    "github": "RayDeCampo/nodejs-xirr"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "transactions 每笔是 {amount, when},when 必须是 Date 对象(字段名不是 date);金额须正负混合(投入为负、赎回/现值为正),至少两笔、不能全同日,否则抛错。",
+    "schema": {
+      "transactions": "{ amount: number, when: Date }[] —— 现金流;流出为负、流入/现值为正;when 是 Date 对象;至少两笔且金额不能全同号",
+      "guess?": "number —— Newton 迭代初值;不收敛(尤其解接近 -1)时可调,默认由库自选"
+    }
+  },
+  "provides": {
+    "shape": "scalar",
+    "_note": "headless-primitive:不直接渲染、无 L 级、无 carriers 矩阵;纯 JS 数值层。输出单标量。",
+    "outputs": "单个年化内部收益率(小数,∈[-1,∞)),不规则日期现金流的 IRR。",
+    "api_surface": {
+      "compute": "xirr(transactions, { guess? }) → number(年化 IRR 小数,如 0.25 = 25%)",
+      "input": "transactions: { amount:number, when:Date }[](字段名是 when,不是 date)",
+      "errors": "金额全同号 / 少于两笔 / 全同日 / Newton 不收敛 → 抛 Error,消费 AI 须 try/catch"
+    }
+  },
+  "peer": {
+    "id": "echarts",
+    "note": "本条只产单个收益率标量:要可视化可在多个假设下反复调用画 IRR 敏感度曲线,或把 transactions 按 when 排布画现金流时间轴,由图表组件渲染。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS,无 DOM/uplink/shadow 足迹\nimport xirr from 'https://cdn.jsdelivr.net/npm/xirr@1/+esm';               // default 导出函数\n// 字段是 when(Date)不是 date;金额须正负混合(流出为负、现值/流入为正)\nconst txns = data.transactions.map(t => ({ amount: t.amount, when: new Date(t.when) }));\nlet rate;\ntry { rate = xirr(txns, data.guess != null ? { guess: data.guess } : undefined); }\ncatch (e) { rate = null; /* 全同号/少于两笔/同日/不收敛都会抛错 */ }\n// rate = 年化 IRR 小数(如 0.25 = 25%)",
+    "note": "交易字段名是 when 且必须是 Date 对象(不是字符串/date);至少两笔且金额不能全同号,否则抛错。不收敛(尤其解接近 -1)时传 options.guess 换初值。返回单个年化收益率小数。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr xirr@1.1.0 +esm + xirr.js source + README: single default export (`export{A as default}`) — `import xirr from '…'`; xirr(transactions, options?). Transaction field is `when` (a Date), NOT `date` — README API section and source both read datum.when / datum.amount (candidate draft's {amount,date} was WRONG). options.guess seeds Newton (source line 112–116). Returns annualized IRR decimal ∈[-1,∞); throws when all amounts share a sign, fewer than two transactions, all transactions on the same day, or newton-raphson-method fails to converge (README 'Throws'). Depends on newton-raphson-method. grep of +esm for document.*/window.*/globalThis.*/appendChild/createElement/addEventListener/localStorage = 0 hits — pure numeric, shadow-safe.",
+    "confidence": "high"
+  }
+}

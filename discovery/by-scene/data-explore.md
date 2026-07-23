@@ -1,40 +1,76 @@
-# 数据展示与探索(scene: data-explore,36 条)
+# 数据展示与探索(scene: data-explore,72 条)
 
 每条:`id` — 何时用 · 数据形态 · supply_form · license。选中读 `data/catalog/<id>.json`。
 
+- `3d-force-graph` — 网络规模大到 2D 铺不开、或要 3D 空间叙事(知识图谱、依赖网络、社群结构)时用它 · graph · component L1 · MIT
+- `activity-feed` — 需要回答“最近发生了什么”并把多人对项目、文档、部署或审批的动作按新到旧展示时用它 · sequence · component L1 · MIT
 - `ag-grid-community` — 需要十万行级虚拟滚动、列固定、客户端排序筛选与自定义单元格的数据网格时用它 · tabular · component L1 · MIT
 - `alenaksu-json-viewer` — 需要折叠展开、按路径或正则过滤搜索深嵌套 JSON 时用它 · key-value · component L1 · MIT
 - `antv-s2` — 需要多层行列维度树、交叉汇总、冻结表头与海量单元格虚拟滚动时用它 · tabular · component L1 · MIT
+- `before-after-metrics` — 需要用一组同口径指标说明改版、迁移、优化或实验前后的变化时用它 · tabular · component L1 · MIT
 - `cal-heatmap` — 需要把每日习惯、活跃度或提交量压成 GitHub contribution 风格的日历格网时用它 · grid · component L1 · MIT
 - `chart-js` — 需要轻量的混合系列、hover 命中、tooltip/legend 与容器自适应图表时用它 · sequence · component L1 · MIT
-- `chartjs-chart-sankey` — 需要把 {from · graph · component L1 · MIT
-- `cytoscape` — 需要几十个以上节点的关系图、依赖图或知识网络 · graph · component L1 · MIT
+- `chartjs-chart-sankey` — 需要把 {from,to,flow} 流量边快速渲成预算流向、转化路径或资源分配 Sankey 时用它 · graph · component L1 · MIT
+- `crossfilter2` — 做"一份数据、多张图联动、刷哪儿全联动过滤"的探索仪表盘时,用它当过滤/聚合引擎,把 group()… · tabular · headless-primitive · Apache-2.0
+- `cytoscape` — 需要几十个以上节点的关系图、依赖图或知识网络,并要 force/层次/同心圆布局、pan/zoom… · graph · component L1 · MIT
 - `d3-celestial` — 需要可缩放旋转的全天星图、星座线、银河、深空天体或指定时地的天空投影时用它 · geometry · component L1 · BSD-3-Clause
+- `d3-chord` — 有一个方阵(N×N 流量/共现/迁移矩阵)想在圆环上用弧带看两两强度时用它 · matrix · headless-primitive · ISC
+- `d3-contour` — 有标量场/热力网格要等值线(marching squares),或有 2D 点云要密度等值带时用它 · grid · headless-primitive · ISC
+- `d3-delaunay` — 给一组 2D 点要 Voronoi 单元/Delaunay 三角网/凸包/最近邻查询时用它 · points · headless-primitive · ISC
 - `d3-flame-graph` — 需要把性能剖析的层级耗时 JSON 渲成可下钻、缩放和搜索高亮的火焰图时用它 · hierarchy · component L1 · Apache-2.0
+- `d3-force` — 要自定义力学布局(粒子/弹簧-质点/聚类/蜂群/圆填充,乃至非图的力模拟)时用这个底层求解器,每帧读… · nodes-links · headless-primitive · ISC
 - `d3-geo` — 需要把 GeoJSON 做球面投影并生成无瓦片 SVG/Canvas 路径时用它 · geometry · headless-primitive · ISC
-- `d3-graphviz` — AI 已能给出 DOT · graph · component L1 · BSD-3-Clause
+- `d3-graphviz` — AI 已能给出 DOT,但需要在浏览器内把 cluster、rank 与复杂边路由稳定渲成可缩放 SVG 时用它 · graph · component L1 · BSD-3-Clause
 - `d3-hierarchy` — 需要从嵌套数据计算 tidy tree、cluster、treemap、pack 或 partiti… · hierarchy · headless-primitive · ISC
+- `d3-org-chart` — 画汇报线/组织架构/分类树/文件夹树并要折叠、缩放平移、聚焦某节点时用它 · tree · component L1 · MIT
 - `d3-sankey` — 已有 nodes/links 加权图且需要可自定义渲染的 Sankey 几何时用它 · graph · headless-primitive · BSD-3-Clause
+- `deck-gl` — 需要在坐标(经纬度或任意 x/y)上叠加大规模数据层——OD 弧线、点密度六边形/网格聚合、轨迹路径… · geospatial · component L1 · MIT
 - `echarts` — 需要 brush 联动筛选 / 下钻 / geo choropleth(registerMap 吃 … · config-object · component L1 · Apache-2.0
 - `elkjs` — 需要为依赖图、流程图或端口图计算分层、正交、端口感知坐标时用它 · graph · headless-primitive · EPL-2.0 OR GPL-3.0-or-later
 - `finos-perspective` — 需要在浏览器本地对大表做交互式分组、拆列、聚合、筛选并在数据网格与图形插件间切换时用它 · tabular · component L1 · Apache-2.0
-- `force-graph` — 需要用最浅的 nodes/links 契约快速得到可缩放、可拖拽的中等规模 canvas 力导向图时… · graph · component L1 · MIT
+- `flame-chart-js` — 把带时间轴的 span/调用数据渲成可缩放、可平移的时间型 flame chart / 性能时间线时用它 · timeline-tree · component L1 · MIT
+- `force-graph` — 需要用最浅的 nodes/links 契约快速得到可缩放、可拖拽的中等规模 canvas 力导向图时用它 · graph · component L1 · MIT
 - `frappe-gantt` — 需要任务区间、完成度、依赖箭头与日/周/月视图的交互甘特图时用它 · interval-set · component L1 · MIT
-- `fullcalendar-core` — 需要月/周/日多视图、重叠事件布局和日程拖拽几何时本应使用 FullCalendar · interval-set · app-needs-fork · MIT ⚠blocked(需fork)
+- `fullcalendar-core` — 需要月/周/日多视图、重叠事件布局和日程拖拽几何时本应使用 FullCalendar 而非手写,因为… · interval-set · app-needs-fork · MIT ⚠blocked(需fork)
+- `globe-gl` — 想用「旋转地球」叙事展示全球分布/连线(航线、网络、迁徙、发射事件)时用它 · globe · component L1 · MIT
 - `gridjs` — 需要轻量框架无关的本地搜索、排序和分页数据表时用它 · tabular · component L1 · MIT
+- `heatmap-js` — 有一堆带强度的 (x,y) 像素点、想看『哪里热』(点击、眼动、人流、信号强度)且底图是任意图片/平面时用它 · points · component L1 · MIT (源码头声明 dual MIT/Beerware;npm package.json 缺 license 字段)
+- `ideogram` — 遗传/基因组科普:某基因/SNP/CNV 在染色体上的位置、全基因组注释概览、核型图。 · genomic-annotations · component L1 · CC0-1.0
+- `igv` — 需要在一个 locus 上探索基因组数据——read pileup/coverage(BAM/CRA… · genomic-track · component L1 · MIT
+- `lightweight-charts` — 展示价格/OHLC 时间序列、蜡烛图、面积/基线图并要金融级交互(缩放、十字光标、多窗格同步、海量 … · ohlc · component L1 · Apache-2.0
 - `markmap-lib` — 需要把 Markdown 大纲变成可折叠、可缩放思维导图的数据树时用它 · hierarchy · headless-primitive · MIT
+- `masonry-grid` — 需要把高低不一的卡片、作品缩略图或交付物排成紧凑的砖墙时用它 · records · component L1 · MIT
+- `metric-delta` — 只需要突出一个 KPI 的 before→after、绝对 Δ 和百分比变化时用它 · scalar · component L1 · MIT
+- `milestone-tracker` — 需要按先后顺序展示一个交付计划已经完成、当前进行和未来待办的关键节点时用它 · sequence · component L1 · MIT
+- `nightingale-msa` — 比较基因组学/蛋白家族图:多序列比对(MSA)面板、保守性与 sequence-logo 视图。 · alignment · component L1 · MIT
+- `nightingale-track` — 蛋白注释图(UniProt/ProtVista 风格 domain 图)、序列坐标上的特征图。 · feature-track · component L1 · MIT
 - `observablehq-plot` — 需要对表格数据做分箱、堆叠、分面小倍数或多 mark 分层 EDA 时用它 · tabular · component L1 · ISC
+- `parcoord-es` — 一张表很多数值列、要同时看多维相关/聚类/异常并交互刷选(超参搜索、传感器多指标、产品多属性对比)时用它 · multidimensional · component L1 · MIT
+- `phylocanvas-gl` — 进化生物学/基因组流行病学/分类学:枝长(branch-length)树、带元数据环的放射 phyl… · tree · component L1 · MIT
 - `plotly-js-dist-min` — 需要 3D scatter/surface、等高线、科学统计图或带缩放悬停的多轴探索图时用它 · tabular · component L1 · MIT
+- `progress-dashboard` — 需要在一个快照里展示多个项目、目标或本地工具任务的完成度与健康状态时用它 · key-value · component L1 · MIT
+- `quadrant-2x2` — 需要按两个维度把少量项目放进四象限并直观看相对位置时用它 · points · component L1 · MIT
+- `radial-progress` — 需要突出一个单一完成比例、配额使用率或目标达成率时用它 · proportion · component L1 · MIT
+- `react-arborist` — 需要交互式浏览一棵大的层级结构(文件树、目录树、嵌套 JSON、组织结构)且要折叠 + 虚拟滚动(可… · tree · component L1 · MIT
+- `regl-scatterplot` — 几十万~百万点散点(embedding/t-SNE/UMAP、单细胞、聚类)要缩放/框选/lasso… · point-cloud · component L1 · MIT
 - `rough-viz` — 需要刻意手绘感、可悬停且版式稳定的探索图时用它 · tabular · component L1 · MIT
+- `seqviz` — 分子生物学/基因工程可视化:质粒图、克隆/构建设计、带注释基因序列。 · sequence · component L1 · MIT
 - `sigma` — 需要把已有坐标的千到万级关系图用 WebGL 流畅缩放、悬停和检索时用它 · graph · component L1 · MIT
+- `stat-cards` — 需要用一排 KPI 快速概括当前状态、环比变化和短期趋势时用它 · single-metric · component L1 · MIT
+- `status-pills` — 需要把一小组状态、分类或筛选结果以紧凑的只读标签快速扫读时用它 · tag-list · component L1 · MIT
+- `sunburst-chart` — 展示占比型层级(磁盘/预算/分类构成)并要点击逐层下钻 + 面包屑时用它 · hierarchy · component L1 · MIT
 - `tabulator-tables` — 需要多列排序、表头筛选、分组、冻结列、分页、条件格式或大数据虚拟滚动的交互表格时用它 · categorical · component L1 · MIT
 - `timelines-chart` — 需要按组/实体展示离散或连续状态区间、颜色图例并用 brush 缩放的泳道图时用它 · interval-set · component L1 · MIT
 - `toast-ui-calendar` — 需要视觉完整的月/周/日程表、重叠时段布局和本地日历交互时用它 · interval-set · component L1 · MIT
 - `topojson-client` — 需要把 atlas 类 TopoJSON 解码成 GeoJSON、提取共享边界或合并行政区时用它 · geometry · headless-primitive · ISC
 - `uplot` — 需要十万点级时序曲线、双轴、十字光标或带区时用它 · sequence · component L1 · MIT
+- `upsetjs-bundle` — 4 个以上集合的交集分析(feature/权限重叠、标签共现、多选问卷、gene-set 重叠):U… · set-membership · component L1 · (AGPL-3.0-only OR Commercial)
 - `us-atlas` — 需要美国州/县边界 choropleth 或全国轮廓时用它 · geometry · data-asset · ISC
 - `vega-lite` — 需要用声明式 JSON 做多视图刷选联动、交叉过滤、分面或复合统计图时用它 · tabular · component L1 · BSD-3-Clause
 - `vis-network` — 需要把 nodes/edges 两数组直接变成可拖拽、可缩放、可聚类的中小型物理网络图时用它 · graph · component L1 · (Apache-2.0 OR MIT)
 - `vis-timeline` — 需要在长时间跨度里探索点事件与区间、按 group 排成泳道并缩放平移时用它 · interval-set · component L1 · (Apache-2.0 OR MIT)
+- `wavesurfer-js` — 教信号/DSP/语音/音乐,需要可 scrub/缩放/标注/对齐的音频波形显示时用。 · audio-signal · component L1 · BSD-3-Clause
+- `wired-gauge` — 需要把一个有上下界的数值画成手绘感模拟仪表时用它 · proportion · component L1 · MIT
 - `wordcloud` — 需要把关键词权重排成支持中文、旋转与非矩形轮廓的词云时用它 · tabular · component L1 · MIT
 - `world-atlas` — 需要无瓦片的世界国家边界 choropleth 或陆地轮廓时用它 · geometry · data-asset · ISC
+- `xlsx` — 需要在浏览器里解析 .xlsx/.xls/.ods 二进制表格并取数据或转 HTML 表(sheet… · workbook · headless-primitive · Apache-2.0

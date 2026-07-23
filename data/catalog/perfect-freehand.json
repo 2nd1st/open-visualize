@@ -1,0 +1,126 @@
+{
+  "entry_version": "thin-1",
+  "id": "perfect-freehand",
+  "name": "perfect-freehand",
+  "when_to_use": "需要把原始 pointer 采样点变成自然、带压感锥形收尾的墨迹轮廓(画板/白板/签名的笔画几何)时用它:喂 points、拿回环绕轮廓顶点,自己渲染成 SVG path 或 canvas 填充。它是原语不是编辑器,须自配 canvas + pointer 采集;要现成签名板用 signature-pad,要草图几何用 roughjs。",
+  "why_valuable": "把离散 pointer 点变成自然变宽的墨迹轮廓需要非平凡的变宽多边形/样条算法(thinning、smoothing、taper、拐角处理),AI 徒手做出的是抖动的等宽折线、完全不像墨;perfect-freehand 是 Excalidraw/tldraw 背后的墨迹引擎,纯函数、零 DOM 足迹。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "perfect-freehand",
+    "version": "1.2.3",
+    "github": "steveruizok/perfect-freehand"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "stroke-points",
+    "note": "getStroke(points, options?) → number[][](环绕输入点的闭合多边形轮廓顶点),你把它转 SVG path 或用 Path2D 填充。点可为 [x,y] / [x,y,pressure] / {x,y,pressure?};无真实压力可开 simulatePressure 按速度模拟。",
+    "schema": {
+      "_defaults": {
+        "options": "{}"
+      },
+      "points": "Array<[number,number] | [number,number,number] | {x:number,y:number,pressure?:number}> —— 采样点;第三位/pressure 为可选压力 0..1",
+      "options?": {
+        "size?": "number —— 笔画基础直径,默认 16",
+        "thinning?": "number —— 压力对粗细的影响 -1..1,默认 0.5",
+        "smoothing?": "number —— 边缘柔化 0..1,默认 0.5",
+        "streamline?": "number —— 输入点抖动平滑 0..1,默认 0.5",
+        "simulatePressure?": "boolean —— 无真实压力时按速度模拟,默认 true",
+        "start?": "{ cap?: boolean, taper?: number|boolean } —— 起点锥形/端帽",
+        "end?": "{ cap?: boolean, taper?: number|boolean } —— 终点锥形/端帽",
+        "last?": "boolean —— 是否作为已完成笔画处理"
+      }
+    }
+  },
+  "provides": {
+    "shape": "stroke-outline",
+    "_note": "headless-primitive:不渲染、无 L 级、无 carriers 矩阵;返回几何顶点由你渲染。",
+    "outputs": "getStroke → 环绕输入点的闭合多边形轮廓顶点 number[][],可直接转 SVG path 或 canvas fill。",
+    "api_surface": {
+      "main": "getStroke(points, options?) => number[][]",
+      "steps": "getStrokePoints(points, options?) → StrokePoint[];getStrokeOutlinePoints(strokePoints, options?) → number[][](需要分步/自定义时用)",
+      "inputPoint": "[x,y] | [x,y,pressure] | {x,y,pressure?}"
+    }
+  },
+  "peer": {
+    "note": "本条只产轮廓顶点 number[][];渲染与 pointer 事件采集由你自建。常规做法:pointerdown/move 收集点 → getStroke → 拼成 SVG path 的 d(官方推荐 quadratic-smooth 拼法)塞进 <path>,或用 Path2D 填到 canvas。渲染载体与回调由消费 AI 按原生接。"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when raw pointer samples must become a natural ink outline with pressure-sensitive width and tapered endings (stroke geometry for a drawing board, whiteboard, or signature): feed it points, receive surrounding outline vertices, then render them as an SVG path or filled canvas shape. It is a primitive, not an editor, so supply your own canvas and pointer capture. For a ready-made signature pad, use signature-pad; for sketch geometry, use roughjs.",
+      "why_valuable": "Turning discrete pointer points into a naturally varying ink outline requires non-trivial variable-width polygon/spline work (thinning, smoothing, taper, and corner handling). AI-authored output is usually a jittery constant-width polyline that does not resemble ink. perfect-freehand is the ink engine behind Excalidraw/tldraw, with pure functions and no DOM footprint.",
+      "data_in": {
+        "note": "getStroke(points, options?) -> number[][] (vertices of a closed polygon surrounding the input points); convert it to an SVG path or fill it with Path2D. Points may be [x,y], [x,y,pressure], or {x,y,pressure?}. Without real pressure, enable simulatePressure to infer it from speed.",
+        "schema": {
+          "_defaults": {
+            "options": "{}"
+          },
+          "points": "Array<[number,number] | [number,number,number] | {x:number,y:number,pressure?:number}> -- sampled points; the third item/pressure is optional pressure 0..1",
+          "options?": {
+            "size?": "number -- base stroke diameter; default 16",
+            "thinning?": "number -- pressure effect on width, -1..1; default 0.5",
+            "smoothing?": "number -- edge smoothing, 0..1; default 0.5",
+            "streamline?": "number -- input-jitter smoothing, 0..1; default 0.5",
+            "simulatePressure?": "boolean -- infer pressure from speed when real pressure is unavailable; default true",
+            "start?": "{ cap?: boolean, taper?: number|boolean } -- start taper/cap",
+            "end?": "{ cap?: boolean, taper?: number|boolean } -- end taper/cap",
+            "last?": "boolean -- whether to treat the stroke as complete"
+          }
+        }
+      }
+    }
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯函数,无 DOM/CSS/uplink 足迹;你自己渲染返回的轮廓\nimport { getStroke } from 'https://cdn.jsdelivr.net/npm/perfect-freehand@1.2.3/+esm';\nconst outline = getStroke(data.points, data.options ?? {}); // number[][]\n// 官方推荐的 quadratic-smooth 拼成 SVG path d:\nconst d = outline.length ? outline.reduce((acc, [x0, y0], i, a) => { const [x1, y1] = a[(i + 1) % a.length]; acc.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2); return acc; }, ['M', ...outline[0], 'Q']).join(' ') + ' Z' : '';\n// 把 d 塞进 <path> 或用 new Path2D(d) 填到 canvas(render 由消费 AI 按载体接原生)",
+    "note": "空 points 返回空数组(须先判空);要压感须在点里带第三位 pressure 或开 simulatePressure。default import 等价于 getStroke(default===getStroke)。"
+  },
+  "example": {
+    "_why": "钉死点可带第三位压力、options 用真实字段名 size/thinning/smoothing。",
+    "minimal": {
+      "points": [
+        [
+          0,
+          0,
+          0.2
+        ],
+        [
+          10,
+          6,
+          0.5
+        ],
+        [
+          22,
+          9,
+          0.7
+        ],
+        [
+          34,
+          10,
+          0.6
+        ],
+        [
+          46,
+          8,
+          0.4
+        ]
+      ],
+      "options": {
+        "size": 18,
+        "thinning": 0.6,
+        "smoothing": 0.5,
+        "streamline": 0.5
+      }
+    },
+    "empty": {
+      "points": []
+    }
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm 导出 default getStroke(Bn) 及 named {getStroke, getStrokeOutlinePoints, getStrokePoints}。dist/types:getStroke(points: (number[] | {x,y,pressure?})[], options?: StrokeOptions) => number[][](Vec2[] 轮廓多边形);StrokeOptions={size, thinning, smoothing, streamline, easing, simulatePressure, start:{cap,taper}, end:{cap,taper}, last}。+esm 隔离扫描:document.head/body=0、createElement('style')=0、insertRule=0、监听=0 —— 纯数值变换、无 DOM。headless-primitive:返回轮廓由你渲染(SVG path/canvas),天然 shadow-safe。",
+    "confidence": "high"
+  }
+}

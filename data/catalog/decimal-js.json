@@ -37,6 +37,22 @@
   "peer": {
     "note": "本条只保证十进制计算;金额格式化可交给 currency-js,图形展示交给消费数据序列的组件。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for compound interest, installments, or chained high-precision decimal calculations instead of handwritten arithmetic, because native Number fails at decimal representation, per-period error accumulation, and explicit rounding modes.",
+      "why_valuable": "AI defaults to IEEE-754 Number and does not proactively fix precision and rounding mode, so money and iterative compounding drift. decimal.js provides configurable arbitrary-precision decimal results.",
+      "data_in": {
+        "note": "To avoid losing precision through Number first, high-precision inputs should be decimal strings. operations calls native Decimal methods in order.",
+        "schema": {
+          "value": "string | number",
+          "precision?": "integer >= 1 -- default 20",
+          "rounding?": "0|1|2|3|4|5|6|7|8 -- default 4 (ROUND_HALF_UP)",
+          "operations?": "{op:'plus'|'minus'|'times'|'dividedBy'|'pow',operand:string|number}[] -- default []",
+          "decimal_places?": "integer >= 0 -- omitted by default; does not additionally call toDecimalPlaces"
+        }
+      }
+    }
+  },
   "boot": {
     "shared": "// 三载体一致:纯 JS,clone 避免污染同页其他 Decimal 使用者\nimport Decimal from 'https://cdn.jsdelivr.net/npm/decimal.js@10/+esm';\nconst D = Decimal.clone({ precision: data.precision ?? 20, rounding: data.rounding ?? Decimal.ROUND_HALF_UP });\nlet result = new D(data.value);\nfor (const step of data.operations ?? []) result = result[step.op](step.operand);\nif (data.decimal_places !== undefined) result = result.toDecimalPlaces(data.decimal_places);\nconst output = result.toString();",
     "note": "step.op 必须按 schema 白名单校验后再作属性访问;舍入是领域规则,不要仅靠最终显示层 toFixed 掩盖中间误差。"
@@ -47,7 +63,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Verified: +esm exports `Pi as default` (default import correct). decimal.d.ts confirms `static readonly ROUND_HALF_UP: 4` (schema default rounding 4 accurate), `static clone(object?: Config)` with Config {precision?, rounding?} (boot's clone({precision,rounding}) correct), toDecimalPlaces(dp, rounding?) single-arg overload valid, and chain methods plus/minus/times/dividedBy/pow all present (boot's result[step.op] whitelist matches). Default precision 20 accurate. +esm bundle: 0 DOM/style/event APIs — pure decimal math.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

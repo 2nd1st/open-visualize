@@ -2,6 +2,34 @@
   "entry_version": "thin-1",
   "id": "pixi-js",
   "name": "PixiJS",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need many 2D sprites, particles, filters, or a stable frame-by-frame WebGL scene instead of hand-written canvas/WebGL, which fails at batching, texture lifecycles, GPU render loops, and interaction hit-testing. Do not use it for statistical charts, complete game rules, or 3D scenes.",
+      "why_valuable": "AI can normally draw only a small number of Canvas2D primitives. It cannot handle WebGL batching for hundreds or thousands of objects, texture caching, scene-tree transforms, and a unified ticker. PixiJS delegates the high-performance 2D rendering foundation to a stable upstream.",
+      "data_in": {
+        "note": "This is a high-frequency trimmed layer over PixiJS v8 Graphics: boot uses async Application.init, then maps every item directly to Graphics.rect/circle().fill(). For more complex Sprite/Assets/Filter scenes, the consuming AI extends the same native app/stage API.",
+        "schema": {
+          "background?": "CSS color string | number -- entry defaults to '#0b1020'",
+          "antialias?": "boolean -- defaults to true",
+          "shapes": [
+            {
+              "type": "'rectangle' | 'circle'",
+              "x": "number -- rectangle top-left x; circle center x",
+              "y": "number -- rectangle top-left y; circle center y",
+              "width?": "positive number -- rectangle width; defaults to 80",
+              "height?": "positive number -- rectangle height; defaults to 80",
+              "radius?": "positive number -- circle radius; defaults to 40",
+              "fill": "CSS color string | number -- fill color",
+              "alpha?": "number 0..1 -- defaults to 1"
+            }
+          ]
+        }
+      },
+      "spec": {
+        "note": "Application.init({resizeTo:el}) takes pixel dimensions from container clientWidth/clientHeight. boot explicitly fixes the container height at 400px; do not use vh or percentage heights. ResizePlugin tracks container-size changes."
+      }
+    }
+  },
   "when_to_use": "需要大量 2D 精灵、粒子、滤镜或稳定逐帧 WebGL 画面时用它,而非手写 canvas/WebGL——原生手写在批处理、纹理生命周期、GPU 渲染循环和交互命中上失败。非做统计图、完整游戏规则或 3D 场景。",
   "why_valuable": "AI 默认只能画少量 Canvas2D 图元,做不到成百上千对象的 WebGL batching、纹理缓存、场景树变换与统一 ticker；PixiJS 把高性能 2D 渲染底座交给稳定上游。",
   "supply_form": "component",
@@ -38,8 +66,8 @@
     "note": "Application.init({resizeTo:el}) 从容器 clientWidth/clientHeight 取像素尺寸；boot 把容器显式固定为 400px 高,禁止 vh/百分比高。ResizePlugin 会跟随容器尺寸变化。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:PixiJS v8 必须先 new Application 再 await init\nimport { Application, Graphics } from 'https://cdn.jsdelivr.net/npm/pixi.js@8/+esm';\nconst el = document.getElementById('pixi'); el.style.height = '400px';\nconst app = new Application(); await app.init({ resizeTo: el, background: data.background ?? '#0b1020', antialias: data.antialias ?? true });\napp.canvas.style.display = 'block'; el.appendChild(app.canvas);\nfor (const s of data.shapes) { const g = new Graphics(); if (s.type === 'circle') g.circle(s.x, s.y, s.radius ?? 40); else g.rect(s.x, s.y, s.width ?? 80, s.height ?? 80); g.fill({ color: s.fill, alpha: s.alpha ?? 1 }); app.stage.addChild(g); }",
-    "widget": "// canvas 与场景树全部落 shadow 内普通容器,无 CSS/head 注入\nimport { Application, Graphics } from 'https://cdn.jsdelivr.net/npm/pixi.js@8/+esm';\nconst el = document.createElement('div'); el.style.height = '400px'; shadowRoot.appendChild(el);\nconst app = new Application(); await app.init({ resizeTo: el, background: data.background ?? '#0b1020', antialias: data.antialias ?? true });\napp.canvas.style.display = 'block'; el.appendChild(app.canvas);\nfor (const s of data.shapes) { const g = new Graphics(); if (s.type === 'circle') g.circle(s.x, s.y, s.radius ?? 40); else g.rect(s.x, s.y, s.width ?? 80, s.height ?? 80); g.fill({ color: s.fill, alpha: s.alpha ?? 1 }); app.stage.addChild(g); }",
+    "artifact": "// PixiJS v8 可接收预建 canvas；先挂画布可避免异步 init 前容器为空\nconst el = document.getElementById('pixi'); el.style.height = `${spec.height ?? 400}px`;\nconst canvas = document.createElement('canvas'); canvas.style.cssText = `display:block;width:100%;height:100%;background:${data.background ?? '#0b1020'}`; el.appendChild(canvas);\nconst { Application, Graphics } = await import('https://cdn.jsdelivr.net/npm/pixi.js@8/+esm');\nconst app = new Application(); await app.init({ canvas, resizeTo: el, background: data.background ?? '#0b1020', antialias: data.antialias ?? true });\nfor (const s of data.shapes) { const g = new Graphics(); if (s.type === 'circle') g.circle(s.x, s.y, s.radius ?? 40); else g.rect(s.x, s.y, s.width ?? 80, s.height ?? 80); g.fill({ color: s.fill, alpha: s.alpha ?? 1 }); app.stage.addChild(g); }",
+    "widget": "// canvas 与场景树全部落 shadow 内普通容器,无 CSS/head 注入\nconst el = document.createElement('div'); el.style.height = `${spec.height ?? 400}px`; shadowRoot.appendChild(el);\nconst canvas = document.createElement('canvas'); canvas.style.cssText = `display:block;width:100%;height:100%;background:${data.background ?? '#0b1020'}`; el.appendChild(canvas);\nconst { Application, Graphics } = await import('https://cdn.jsdelivr.net/npm/pixi.js@8/+esm');\nconst app = new Application(); await app.init({ canvas, resizeTo: el, background: data.background ?? '#0b1020', antialias: data.antialias ?? true });\nfor (const s of data.shapes) { const g = new Graphics(); if (s.type === 'circle') g.circle(s.x, s.y, s.radius ?? 40); else g.rect(s.x, s.y, s.width ?? 80, s.height ?? 80); g.fill({ color: s.fill, alpha: s.alpha ?? 1 }); app.stage.addChild(g); }",
     "codex": "同 artifact(sandbox iframe):pixi.js@8/+esm 命名导入,await app.init({resizeTo:固定高容器}),挂 app.canvas 后向 app.stage 加 Graphics。"
   },
   "example": {
@@ -82,7 +110,6 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "NO document.head.appendChild/insertRule in the bundle (confirmed absent) — style-clean. Render path appends the canvas to the given (shadow) container. However the default AccessibilitySystem registers a globalThis `keydown` and, on Tab, appends its accessibility <div> to document.body; ResizePlugin adds a window `resize` (resizeTo is used); EventSystem adds pointer/mouse listeners; image-extract appends a temp <a> only on explicit call. These are lazy/opt-in, not in the basic draw path — so the catalog's widget:'supported' is slightly optimistic; rendering is shadow-safe but accessibility adds a global keydown + body div ⇒ conditional. Cleaned on app.destroy().",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

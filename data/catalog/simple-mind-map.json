@@ -92,7 +92,33 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "Verified vs jsDelivr simple-mind-map@0.14.0-fix.3: `D as default` export matches `import MindMap from`. Constructor option keys all real in +esm: this.opt.el, this.opt.data, this.opt.layout, this.opt.readonly, this.opt.fit — matching boot `new MindMap({el,data:data.root,layout,readonly,fit:true})`; data.root is the single root node {data:{text},children} (note correctly warns against passing getData(true)). All 8 schema layout enum strings (logicalStructure/logicalStructureLeft/mindMap/organizationStructure/catalogOrganization/timeline/verticalTimeline/fishbone) found as literals in the bundle. Isolation confirms widget:unsupported: `document.head.appendChild(this.cssEl)` with `createElement('style')` (globalStyleInjection yes, cannot be redirected to shadowRoot via native API); `document.body.appendChild(this.noteEl)` tooltip + `document.body.appendChild(this.textEditNode)` edit overlay + document.body.style.cursor (globalDomMutation yes); 7 window.addEventListener + document.body click/mousedown listeners (globalEvents yes, partial removeEventListener cleanup).",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need multiple layouts, complete JSON replay, and rich outline/mind-map editing, instead of hand-writing SVG, because native implementations fail at complex automatic layout, node editing, view transforms, and consistent serialization. Not for a static outline or small read-only tree.",
+      "why_valuable": "AI can only generate a static tree or Mermaid by default; it cannot provide more than ten mind-map layouts, node-level editing, zoom/pan, history rollback, or full structure export including layout/theme/view.",
+      "data_in": {
+        "note": "The constructor's data parameter accepts a single root Node, so the catalog uses data.root to make the root boundary explicit. Do not pass the full object returned by getData(true) directly as data; its root is under the root field.",
+        "schema": {
+          "root": {
+            "data": {
+              "text": "string",
+              "expand?": "boolean -- Whether expanded; the root is fixed true and others default to true",
+              "note?": "string -- Omitted by default",
+              "hyperlink?": "string URL -- Omitted by default"
+            },
+            "children?": "Node[] -- Recursive same structure; default []"
+          },
+          "options?": {
+            "layout?": "'logicalStructure'|'logicalStructureLeft'|'mindMap'|'organizationStructure'|'catalogOrganization'|'timeline'|'verticalTimeline'|'fishbone' -- Default 'logicalStructure'",
+            "readonly?": "boolean -- Default false"
+          }
+        }
+      },
+      "spec": {
+        "note": "This SVG editor reads container width and height during construction. Default height is 500px; AI may override it with another explicit pixel value, and vh/percentage height is prohibited (Rule 3)."
+      }
+    }
   }
 }

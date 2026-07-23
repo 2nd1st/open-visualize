@@ -51,7 +51,26 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "+esm confirms named exports cluster/hierarchy/pack/partition/tree/treemap — boot imports all match. hierarchy(data).sum() + tree/cluster.size([w,h]) + treemap/pack.size().padding() + partition.size() are standard d3-hierarchy v3; outputs pure node geometry (tree/cluster x/y/depth/height, treemap/partition x0/y0/x1/y1, pack x/y/r) via .descendants()/.links(). Zero DOM/CSS/event API — headless primitive, shadow-irrelevant (safe).",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to calculate tidy tree, cluster, treemap, pack, or partition/sunburst geometry from nested data, instead of hand-writing a layout, because native implementations fail at area preservation, collision avoidance, compact packing, and hierarchical coordinate calculation.",
+      "why_valuable": "AI can only write nested lists by default; it cannot produce an area-correct treemap, non-overlapping circle pack, compact tidy tree, or partition coordinates. This primitive reliably converts a hierarchy into node geometry that downstream SVG/Canvas can draw.",
+      "data_in": {
+        "note": "root is a recursively nested object; omitted children indicates a leaf. treemap/pack/partition sum value and require non-negative values; tree/cluster use topology only. size maps exactly to each layout's .size([width,height]).",
+        "schema": {
+          "root": {
+            "name": "string",
+            "value?": "number >= 0 -- Leaf-node weight; default 0",
+            "children?": "nodes with the same structure[] -- Default []",
+            "其余业务字段?": "string | number | boolean | null -- No additional fields by default"
+          },
+          "layout": "'tree' | 'cluster' | 'treemap' | 'pack' | 'partition'",
+          "size": "[number, number] -- [width,height] for tree/cluster; layout canvas dimensions for treemap/pack/partition",
+          "padding?": "number(px) -- Node spacing for treemap/pack; default 1; ignored by other layouts"
+        }
+      }
+    }
   }
 }

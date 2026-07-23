@@ -1,0 +1,68 @@
+{
+  "entry_version": "thin-1",
+  "id": "pdfme-generator",
+  "name": "@pdfme/generator",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for bulk products from one fixed layout (the same certificate filled with 100 names, shipping labels, tickets, invoices): one JSON template defines each field's coordinates, and one inputs dataset produces pixel-aligned PDFs. For one-off free layout use pdf-lib/jspdf; to modify an existing PDF form use pdf-lib.",
+      "why_valuable": "A declarative template (each field's xywh coordinates and type) separates layout from data, fitting this project's \"AI assembles data -> mount\" model. For certificates, badges, and labels with fixed layouts, having native AI calculate coordinates through jspdf is both expensive and misaligned.",
+      "data_in": {
+        "note": "template.schemas is a two-dimensional array (pages x fields); inputs is an array of records where each record maps schema.name to a value, and record count equals the number of generated copies. generator includes text/checkbox/radioGroup without plugins; image/qrcode/barcode/table/line and others require plugins from @pdfme/schemas at call time or it throws 'Plugin or renderer for type X not found'. Units are mm.",
+        "schema": {
+          "template": {
+            "basePdf": "BlankPdf { width:number, height:number, padding:[t,r,b,l] } (units mm) | string(base64)/ArrayBuffer/Uint8Array existing PDF base",
+            "schemas": "Schema[][] -- each outer element is a page; each inner element is { name:string, type:string, position:{x:number,y:number}, width:number, height:number, rotate?:number, content?:string } (coordinates/dimensions in mm, with position origin at top left)"
+          },
+          "inputs": "Record<string,any>[] -- each record is { [schema.name]: value }; record count equals the number of generated copies"
+        }
+      }
+    }
+  },
+  "when_to_use": "批量套版式的成品(同一张证书填 100 个名字、快递标签、门票、发票)用它——一份 JSON template 定每字段坐标+一份 inputs 数据即出像素对齐的 PDF;一次性自由排版走 pdf-lib/jspdf,改现有 PDF 表单走 pdf-lib。",
+  "why_valuable": "声明式模板(每字段 xywh 坐标+类型)与数据解耦,正合本项目「AI 拼 data → mount」模型;证书/工牌/标签这类固定版式套数据,原生 AI 用 jspdf 手算坐标既贵又对不齐。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@pdfme/generator",
+    "version": "6.1.12",
+    "github": "pdfme/pdfme"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "template-schema",
+    "note": "template.schemas 是二维数组(页×字段);inputs 是记录数组,每条记录按 schema.name 映射到值,记录条数 = 产出份数。text/checkbox/radioGroup 类型 generator 内置无需 plugin;image/qrcode/barcode/table/line 等必须在调用时传 @pdfme/schemas 的 plugins,否则抛 'Plugin or renderer for type X not found'。单位 mm。",
+    "schema": {
+      "template": {
+        "basePdf": "BlankPdf { width:number, height:number, padding:[t,r,b,l] }(单位 mm) | string(base64)/ArrayBuffer/Uint8Array 现有 PDF 底版",
+        "schemas": "Schema[][] —— 外层每元素是一页,内层每元素 { name:string, type:string, position:{x:number,y:number}, width:number, height:number, rotate?:number, content?:string }(坐标/尺寸单位 mm,position 原点左上)"
+      },
+      "inputs": "Record<string,any>[] —— 每条记录 { [schema.name]: 值 };记录条数 = 产出的套版份数"
+    }
+  },
+  "provides": {
+    "shape": "pdf-bytes",
+    "_note": "headless-primitive:产出 Uint8Array;非渲染组件,无 carriers 矩阵。",
+    "outputs": "await generate(...) → Uint8Array;new Blob([pdf],{type:'application/pdf'}) 下载/预览。",
+    "api_surface": {
+      "generate": "generate({ template, inputs, plugins? }) → Promise<Uint8Array>",
+      "builtin_types": "text / checkbox / radioGroup(+ acro 表单)由 generator 自动注入,纯这些类型可省 plugins",
+      "extra_types": "image / qrcode / barcode / table / line / rectangle / svg 需 plugins,取自 @pdfme/schemas"
+    }
+  },
+  "peer": {
+    "id": "pdfme-schemas",
+    "note": "非纯 text 模板须显式传 plugins;从 @pdfme/schemas@6.1.12 import { text, image, table, line, rectangle, barcodes },qrcode 取 barcodes.qrcode。generator +esm 会自动子加载 @pdfme/schemas 与 @pdfme/pdf-lib(均 jsDelivr 200)。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:产 PDF 字节,零 DOM 足迹;非 text 类型需传 plugins\nimport { generate } from 'https://cdn.jsdelivr.net/npm/@pdfme/generator@6.1.12/+esm';\nimport { text, image, table, line, rectangle, barcodes } from 'https://cdn.jsdelivr.net/npm/@pdfme/schemas@6.1.12/+esm';\nconst plugins = { text, image, table, line, rectangle, qrcode: barcodes.qrcode };\nconst pdf = await generate({ template: data.template, inputs: data.inputs, plugins });\nconst blob = new Blob([pdf], { type: 'application/pdf' });",
+    "note": "generate 是命名导出(export{ae as generate})。坐标/尺寸单位 mm,position 原点左上。纯 text 模板可省 plugins(generator 内置 Text/Checkbox/RadioGroup);含 image/qrcode/table/line/rectangle 等其它类型漏传 plugins 会抛未知类型错。产字节,无 shadow/head 足迹(schemas 里的 style 注入仅 UI/Designer 路径,generate 的 pdf-render 路径不触及,详见 isolation)。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr @pdfme/generator@6.1.12 +esm: exports 'export{ae as generate,xt as generateForm}' (no default) — boot imports { generate } correctly. dist/generate.d.ts: generate(props:GenerateProps)→Promise<Uint8Array>. @pdfme/common@6.1.12 schema.d.ts: Template={basePdf,schemas}; SchemaPageArray=z.array(z.array(Schema)) confirms 2D page×field array; Schema={name,type,position:{x,y},width,height,rotate?,content?}; GenerateProps.inputs=z.array(z.record(string,any)); BasePdf=BlankPdf{width,height,padding:[4-tuple]}|base64/ArrayBuffer/Uint8Array — schema fields match exactly. Plugin logic read from +esm getPlugins helper (ht=(t={})=>{...v(e,me)||(e.Text=Le)...}): auto-adds Text/Checkbox/RadioGroup/Acro* when absent; unmatched types resolve via findByType(d) and throw '[@pdfme/generator] Plugin or renderer for type ${d} not found.' — confirms peer @pdfme/schemas needed for image/qrcode/table/etc (boot passes them). Footprint: generator +esm has no document.head/<style/createElement/addEventListener. The imported @pdfme/schemas@6.1.12 +esm contains ONE guarded idempotent style injector (fn Ld, createElement('style')→document.head, id 'pdfme-air-datepicker-styles') — but it lives in the date plugin's UI render path (air-datepicker preview CSS: '--adp-*'), NOT the pdf render path; generate() invokes only each plugin's .pdf renderer (confirmed by the findByType(d).pdf error guard), so PDF generation injects nothing to head. Produces Uint8Array, renders nothing — shadow-safe; globalStyleInjection=no for the generate path.",
+    "confidence": "high"
+  }
+}

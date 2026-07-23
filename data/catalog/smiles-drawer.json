@@ -2,6 +2,23 @@
   "entry_version": "thin-1",
   "id": "smiles-drawer",
   "name": "smiles-drawer",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of assembling canvas/SVG by hand when you need to render a SMILES string as a readable 2D molecular structure, because native drawing fails at ring layout, bond angles, aromaticity, element labels, and overlap resolution.",
+      "why_valuable": "AI can generate SMILES text by default but cannot produce trustworthy chemical-structure layout at all; hand-built molecule diagrams get bond angles, rings, and labels wrong. smiles-drawer closes the parsing, graph-layout, and canvas/SVG drawing loop in the browser.",
+      "data_in": {
+        "schema": {
+          "smiles": "string -- one molecule SMILES; this entry does not use the reaction SMILES branch",
+          "theme?": "'light' | 'dark' -- default light",
+          "width?": "positive integer CSS pixels -- default 480",
+          "height?": "positive integer CSS pixels -- default 320"
+        }
+      },
+      "spec": {
+        "note": "canvas defaults to 480x320px, with width and height written to both canvas attributes and Drawer options; vh/percentage height is prohibited. For responsive behavior, the consuming AI must draw again with new integer pixel dimensions."
+      }
+    }
+  },
   "when_to_use": "需要把 SMILES 字符串渲成可读的 2D 分子结构式时用它,而非手拼 canvas/SVG——原生绘制在环布局、键角、芳香性、元素标签和重叠消解上失败。",
   "why_valuable": "AI 默认能生成 SMILES 文本却完全做不到可信的化学结构布局,手拼分子图会画错键角、环和标签；smiles-drawer 把解析、图布局与 canvas/SVG 绘制闭环在浏览器内。",
   "supply_form": "component",
@@ -43,7 +60,14 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Verified vs jsDelivr smiles-drawer@2.4.1: `Jn as default` and `window.SmilesDrawer=Jn` — the default export is the SmilesDrawer namespace. dist/types/app.d.ts confirms `export default class SmilesDrawerNS` with static Drawer, static parse(smiles, successCallback, errorCallback?), Version, apply, clean, parseReaction — so `import SmilesDrawer from` then `new SmilesDrawer.Drawer(options)` and `SmilesDrawer.parse(...)` are correct. Drawer.d.ts: `constructor(options)` and `draw(data, target: string|HTMLCanvasElement, themeName?, infoOnly?, highlight_atoms?)` matches boot `drawer.draw(tree, canvas, theme ?? 'light', false)`. Schema smiles/theme/width/height consumed correctly. Isolation: +esm shows 0 document.head/body/createElement('style')/document.addEventListener/window.addEventListener — parse is pure JS, draw renders into the shadow-mounted HTMLCanvasElement. Only side effect is assigning window.SmilesDrawer/window.SmiDrawer globals (harmless namespace write, not a DOM/style/event footprint).",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "smiles": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+      "theme": "light",
+      "width": 480,
+      "height": 320
+    }
   }
 }

@@ -1,0 +1,180 @@
+{
+  "entry_version": "thin-1",
+  "id": "feature-matrix",
+  "name": "Feature matrix",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to scan quickly how several products or options support a grouped set of capabilities, such as plan differences, platform compatibility, vendor coverage, or release-scope comparisons. If cells are mainly prices, long text, or ratings, use comparison-table instead. If users must edit, filter, or return a selection, use a data grid.",
+      "why_valuable": "A Boolean feature table is valuable for visual scanning rather than text density. This template fixes a feature-major grouped structure with a sticky header and first column, and standardizes green check, red cross, and amber Partial semantics so a wide matrix preserves context while scrolling on narrow screens.",
+      "data_in": {
+        "note": "data is a nested, grouped feature-comparison matrix: columns defines options and stable ids; groups[].features defines rows; and features[].values stores true, false, or the string 'partial', keyed by column.id. Missing or unrecognized values display as an amber em dash. column.id should be unique; highlight:true should normally mark only one recommended option.",
+        "schema": {
+          "title?": "string -- matrix title; displays \"Feature coverage\" when omitted",
+          "columns": "{id:string,name:string,note?:string,highlight?:boolean}[] -- option columns; id is the values-map key, note is a short description, and highlight:true marks the recommended column",
+          "groups": "{label:string,features:{label:string,note?:string,values:Record<string,true|false|'partial'>}[]}[] -- grouped feature rows; each values key must match a columns[].id",
+          "_cellSemantics": {
+            "true": "green ✓ Supported",
+            "false": "red ✗ Not supported",
+            "partial": "amber Partial",
+            "missing": "amber em dash Unknown"
+          }
+        }
+      },
+      "spec": {
+        "note": "Height grows with groups and feature rows; after the table body reaches 640px it scrolls internally. The header and first column remain sticky in their respective directions. Narrow screens scroll horizontally, with no vh or percentage heights."
+      }
+    }
+  },
+  "when_to_use": "需要快速扫视多个产品或方案对一组分组能力的支持情况时用它，适合套餐差异、平台兼容性、供应商覆盖和发布范围对照。若单元格主要是价格、长文本或评分，应改用 comparison-table；若要编辑、筛选或回传选择，应改用数据网格。",
+  "why_valuable": "布尔功能表的价值来自视觉扫描而非文字密度；本模板固定 feature-major 分组结构、粘性表头和首列，并统一 ✓ 绿色、✗ 红色、Partial 琥珀色语义，让宽矩阵在窄屏滚动时仍能保持上下文。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "inline-template",
+  "upstream": {
+    "npm": null,
+    "version": null,
+    "github": null
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "comparison-matrix",
+    "note": "data 是嵌套分组的功能比较矩阵：columns 定义方案及稳定 id，groups[].features 定义行，features[].values 以 column.id 为键保存 true、false 或字符串 'partial'。未提供或无法识别的值显示为琥珀色 —。column.id 应唯一；highlight:true 通常只用于一个推荐方案。",
+    "schema": {
+      "title?": "string —— 矩阵标题；省略时显示 “Feature coverage”",
+      "columns": "{id:string,name:string,note?:string,highlight?:boolean}[] —— 方案列；id 是 values 映射键，note 为短说明，highlight:true 显示推荐列",
+      "groups": "{label:string,features:{label:string,note?:string,values:Record<string,true|false|'partial'>}[]}[] —— 分组功能行；values 的键必须对应 columns[].id",
+      "_cellSemantics": {
+        "true": "绿色 ✓ Supported",
+        "false": "红色 ✗ Not supported",
+        "partial": "琥珀色 Partial",
+        "missing": "琥珀色 — Unknown"
+      }
+    }
+  },
+  "spec": {
+    "height": "auto",
+    "note": "按分组与功能行增高，表体最高 640px 后内部滚动；表头和第一列在对应方向粘住。窄屏横向滚动，无 vh/百分比高度。"
+  },
+  "boot": {
+    "artifact": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.meta{margin-top:7px;color:var(--_muted);font-size:13px;line-height:1.45}\n.scroll{max-height:640px;overflow:auto;overscroll-behavior:contain;scrollbar-color:var(--_line) transparent}\ntable{width:100%;min-width:max-content;border-collapse:separate;border-spacing:0;font-size:14px;line-height:1.35}\n.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}\nth,td{min-width:144px;padding:13px 16px;border-right:1px solid var(--_line);border-bottom:1px solid var(--_line);background:var(--_bg);text-align:center;vertical-align:middle;font-variant-numeric:tabular-nums}\nth:last-child,td:last-child{border-right:0}\ntbody tr:last-child th,tbody tr:last-child td{border-bottom:0}\nthead th{position:sticky;top:0;z-index:3;padding-top:16px;padding-bottom:16px;background:var(--_raised);box-shadow:0 1px 0 var(--_line);vertical-align:top}\nthead .corner{left:0;z-index:5;min-width:230px;color:var(--_muted);font-size:11px;font-weight:800;letter-spacing:.08em;text-align:left;text-transform:uppercase}\n.column.recommended{z-index:4;background:var(--_accent-soft);box-shadow:inset 0 3px 0 var(--_accent),0 1px 0 var(--_line)}\n.column-name{display:block;color:var(--_text);font-size:15px;font-weight:750}\n.column-note{display:block;max-width:180px;margin:5px auto 0;color:var(--_muted);font-size:11px;font-weight:500;line-height:1.35}\n.badge{display:inline-flex;margin-bottom:7px;padding:3px 8px;border-radius:999px;background:var(--_accent);color:#fff;font-size:9px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}\n.feature{position:sticky;left:0;z-index:2;min-width:230px;max-width:300px;background:var(--_raised);text-align:left;box-shadow:1px 0 0 var(--_line)}\n.feature-name{display:block;color:var(--_text);font-weight:680}\n.feature-note{display:block;margin-top:3px;color:var(--_muted);font-size:11px;font-weight:500;line-height:1.35}\ntd.recommended{background:var(--_accent-soft)}\n.data-row:hover th,.data-row:hover td{background:var(--_hover)}\n.data-row:hover td.recommended{background:color-mix(in srgb,var(--_accent) 13%,var(--_bg))}\n.group-row th,.group-row td{padding-top:9px;padding-bottom:9px;background:var(--_group)}\n.group-label{position:sticky;left:0;z-index:2;min-width:230px;color:var(--_muted);font-size:10px;font-weight:850;letter-spacing:.12em;text-align:left;text-transform:uppercase;box-shadow:1px 0 0 var(--_line)}\n.mark{display:inline-flex;min-width:30px;height:30px;align-items:center;justify-content:center;border-radius:999px;font-size:16px;font-weight:850;line-height:1}\n.mark.yes{background:color-mix(in srgb,var(--_ok) 12%,var(--_bg));color:var(--_ok)}\n.mark.no{background:color-mix(in srgb,var(--_no) 11%,var(--_bg));color:var(--_no)}\n.mark.partial{min-width:auto;padding:0 10px;background:color-mix(in srgb,var(--_partial) 13%,var(--_bg));color:var(--_partial);font-size:11px;letter-spacing:.02em}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:520px){.heading{padding:18px 18px 16px}th,td{min-width:136px;padding:12px 13px}.feature,.group-label,thead .corner{min-width:184px;max-width:220px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Feature coverage';\nconst columns=Array.isArray(data.columns)?data.columns:[];\nconst groups=Array.isArray(data.groups)?data.groups:[];\nconst featureCount=groups.reduce((sum,group)=>sum+(group&&Array.isArray(group.features)?group.features.length:0),0);\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title);\nconst heading=make('header','heading');\nheading.appendChild(make('div','eyebrow','Feature matrix'));\nheading.appendChild(make('h2','',title));\nheading.appendChild(make('div','meta',columns.length+' option'+(columns.length===1?'':'s')+' · '+featureCount+' grouped features'));\nframe.appendChild(heading);\nif(!columns.length||!featureCount){\n  frame.appendChild(make('div','empty','Add columns and grouped features to build the matrix.'));\n}else{\n  const scroll=make('div','scroll'); const table=make('table'); table.appendChild(make('caption','sr-only',title));\n  const thead=make('thead'); const header=make('tr'); const corner=make('th','corner','Capability'); corner.scope='col'; header.appendChild(corner);\n  columns.forEach((column)=>{\n    const recommended=column&&column.highlight===true; const th=make('th','column'+(recommended?' recommended':'')); th.scope='col';\n    if(recommended) th.appendChild(make('span','badge','Recommended'));\n    th.appendChild(make('span','column-name',column&&column.name!=null?String(column.name):'Untitled'));\n    if(column&&column.note) th.appendChild(make('span','column-note',String(column.note)));\n    header.appendChild(th);\n  });\n  thead.appendChild(header); table.appendChild(thead); const tbody=make('tbody');\n  groups.forEach((group)=>{\n    const features=group&&Array.isArray(group.features)?group.features:[]; if(!features.length) return;\n    const groupRow=make('tr','group-row'); const groupLabel=make('th','group-label',group&&group.label!=null?String(group.label):'Features'); groupLabel.scope='rowgroup'; groupRow.appendChild(groupLabel);\n    const fill=make('td'); fill.colSpan=columns.length; fill.setAttribute('aria-hidden','true'); groupRow.appendChild(fill); tbody.appendChild(groupRow);\n    features.forEach((feature)=>{\n      const row=make('tr','data-row'); const th=make('th','feature'); th.scope='row';\n      th.appendChild(make('span','feature-name',feature&&feature.label!=null?String(feature.label):'Untitled feature'));\n      if(feature&&feature.note) th.appendChild(make('span','feature-note',String(feature.note))); row.appendChild(th);\n      const values=feature&&feature.values&&typeof feature.values==='object'?feature.values:{};\n      columns.forEach((column)=>{\n        const td=make('td',column&&column.highlight===true?'recommended':''); const value=column&&column.id!=null?values[String(column.id)]:undefined;\n        let mark;\n        if(value===true){ mark=make('span','mark yes','✓'); mark.setAttribute('aria-label','Supported'); }\n        else if(value===false){ mark=make('span','mark no','✗'); mark.setAttribute('aria-label','Not supported'); }\n        else if(value==='partial'){ mark=make('span','mark partial','Partial'); mark.setAttribute('aria-label','Partially supported'); }\n        else { mark=make('span','mark partial','—'); mark.setAttribute('aria-label','Unknown'); }\n        td.appendChild(mark); row.appendChild(td);\n      });\n      tbody.appendChild(row);\n    });\n  });\n  table.appendChild(tbody); scroll.appendChild(table); frame.appendChild(scroll);\n}\nroot.appendChild(frame);\nparent.appendChild(host);",
+    "widget": "const parent = shadowRoot;\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.meta{margin-top:7px;color:var(--_muted);font-size:13px;line-height:1.45}\n.scroll{max-height:640px;overflow:auto;overscroll-behavior:contain;scrollbar-color:var(--_line) transparent}\ntable{width:100%;min-width:max-content;border-collapse:separate;border-spacing:0;font-size:14px;line-height:1.35}\n.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}\nth,td{min-width:144px;padding:13px 16px;border-right:1px solid var(--_line);border-bottom:1px solid var(--_line);background:var(--_bg);text-align:center;vertical-align:middle;font-variant-numeric:tabular-nums}\nth:last-child,td:last-child{border-right:0}\ntbody tr:last-child th,tbody tr:last-child td{border-bottom:0}\nthead th{position:sticky;top:0;z-index:3;padding-top:16px;padding-bottom:16px;background:var(--_raised);box-shadow:0 1px 0 var(--_line);vertical-align:top}\nthead .corner{left:0;z-index:5;min-width:230px;color:var(--_muted);font-size:11px;font-weight:800;letter-spacing:.08em;text-align:left;text-transform:uppercase}\n.column.recommended{z-index:4;background:var(--_accent-soft);box-shadow:inset 0 3px 0 var(--_accent),0 1px 0 var(--_line)}\n.column-name{display:block;color:var(--_text);font-size:15px;font-weight:750}\n.column-note{display:block;max-width:180px;margin:5px auto 0;color:var(--_muted);font-size:11px;font-weight:500;line-height:1.35}\n.badge{display:inline-flex;margin-bottom:7px;padding:3px 8px;border-radius:999px;background:var(--_accent);color:#fff;font-size:9px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}\n.feature{position:sticky;left:0;z-index:2;min-width:230px;max-width:300px;background:var(--_raised);text-align:left;box-shadow:1px 0 0 var(--_line)}\n.feature-name{display:block;color:var(--_text);font-weight:680}\n.feature-note{display:block;margin-top:3px;color:var(--_muted);font-size:11px;font-weight:500;line-height:1.35}\ntd.recommended{background:var(--_accent-soft)}\n.data-row:hover th,.data-row:hover td{background:var(--_hover)}\n.data-row:hover td.recommended{background:color-mix(in srgb,var(--_accent) 13%,var(--_bg))}\n.group-row th,.group-row td{padding-top:9px;padding-bottom:9px;background:var(--_group)}\n.group-label{position:sticky;left:0;z-index:2;min-width:230px;color:var(--_muted);font-size:10px;font-weight:850;letter-spacing:.12em;text-align:left;text-transform:uppercase;box-shadow:1px 0 0 var(--_line)}\n.mark{display:inline-flex;min-width:30px;height:30px;align-items:center;justify-content:center;border-radius:999px;font-size:16px;font-weight:850;line-height:1}\n.mark.yes{background:color-mix(in srgb,var(--_ok) 12%,var(--_bg));color:var(--_ok)}\n.mark.no{background:color-mix(in srgb,var(--_no) 11%,var(--_bg));color:var(--_no)}\n.mark.partial{min-width:auto;padding:0 10px;background:color-mix(in srgb,var(--_partial) 13%,var(--_bg));color:var(--_partial);font-size:11px;letter-spacing:.02em}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:520px){.heading{padding:18px 18px 16px}th,td{min-width:136px;padding:12px 13px}.feature,.group-label,thead .corner{min-width:184px;max-width:220px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Feature coverage';\nconst columns=Array.isArray(data.columns)?data.columns:[];\nconst groups=Array.isArray(data.groups)?data.groups:[];\nconst featureCount=groups.reduce((sum,group)=>sum+(group&&Array.isArray(group.features)?group.features.length:0),0);\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title);\nconst heading=make('header','heading');\nheading.appendChild(make('div','eyebrow','Feature matrix'));\nheading.appendChild(make('h2','',title));\nheading.appendChild(make('div','meta',columns.length+' option'+(columns.length===1?'':'s')+' · '+featureCount+' grouped features'));\nframe.appendChild(heading);\nif(!columns.length||!featureCount){\n  frame.appendChild(make('div','empty','Add columns and grouped features to build the matrix.'));\n}else{\n  const scroll=make('div','scroll'); const table=make('table'); table.appendChild(make('caption','sr-only',title));\n  const thead=make('thead'); const header=make('tr'); const corner=make('th','corner','Capability'); corner.scope='col'; header.appendChild(corner);\n  columns.forEach((column)=>{\n    const recommended=column&&column.highlight===true; const th=make('th','column'+(recommended?' recommended':'')); th.scope='col';\n    if(recommended) th.appendChild(make('span','badge','Recommended'));\n    th.appendChild(make('span','column-name',column&&column.name!=null?String(column.name):'Untitled'));\n    if(column&&column.note) th.appendChild(make('span','column-note',String(column.note)));\n    header.appendChild(th);\n  });\n  thead.appendChild(header); table.appendChild(thead); const tbody=make('tbody');\n  groups.forEach((group)=>{\n    const features=group&&Array.isArray(group.features)?group.features:[]; if(!features.length) return;\n    const groupRow=make('tr','group-row'); const groupLabel=make('th','group-label',group&&group.label!=null?String(group.label):'Features'); groupLabel.scope='rowgroup'; groupRow.appendChild(groupLabel);\n    const fill=make('td'); fill.colSpan=columns.length; fill.setAttribute('aria-hidden','true'); groupRow.appendChild(fill); tbody.appendChild(groupRow);\n    features.forEach((feature)=>{\n      const row=make('tr','data-row'); const th=make('th','feature'); th.scope='row';\n      th.appendChild(make('span','feature-name',feature&&feature.label!=null?String(feature.label):'Untitled feature'));\n      if(feature&&feature.note) th.appendChild(make('span','feature-note',String(feature.note))); row.appendChild(th);\n      const values=feature&&feature.values&&typeof feature.values==='object'?feature.values:{};\n      columns.forEach((column)=>{\n        const td=make('td',column&&column.highlight===true?'recommended':''); const value=column&&column.id!=null?values[String(column.id)]:undefined;\n        let mark;\n        if(value===true){ mark=make('span','mark yes','✓'); mark.setAttribute('aria-label','Supported'); }\n        else if(value===false){ mark=make('span','mark no','✗'); mark.setAttribute('aria-label','Not supported'); }\n        else if(value==='partial'){ mark=make('span','mark partial','Partial'); mark.setAttribute('aria-label','Partially supported'); }\n        else { mark=make('span','mark partial','—'); mark.setAttribute('aria-label','Unknown'); }\n        td.appendChild(mark); row.appendChild(td);\n      });\n      tbody.appendChild(row);\n    });\n  });\n  table.appendChild(tbody); scroll.appendChild(table); frame.appendChild(scroll);\n}\nroot.appendChild(frame);\nparent.appendChild(host);",
+    "codex": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.meta{margin-top:7px;color:var(--_muted);font-size:13px;line-height:1.45}\n.scroll{max-height:640px;overflow:auto;overscroll-behavior:contain;scrollbar-color:var(--_line) transparent}\ntable{width:100%;min-width:max-content;border-collapse:separate;border-spacing:0;font-size:14px;line-height:1.35}\n.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}\nth,td{min-width:144px;padding:13px 16px;border-right:1px solid var(--_line);border-bottom:1px solid var(--_line);background:var(--_bg);text-align:center;vertical-align:middle;font-variant-numeric:tabular-nums}\nth:last-child,td:last-child{border-right:0}\ntbody tr:last-child th,tbody tr:last-child td{border-bottom:0}\nthead th{position:sticky;top:0;z-index:3;padding-top:16px;padding-bottom:16px;background:var(--_raised);box-shadow:0 1px 0 var(--_line);vertical-align:top}\nthead .corner{left:0;z-index:5;min-width:230px;color:var(--_muted);font-size:11px;font-weight:800;letter-spacing:.08em;text-align:left;text-transform:uppercase}\n.column.recommended{z-index:4;background:var(--_accent-soft);box-shadow:inset 0 3px 0 var(--_accent),0 1px 0 var(--_line)}\n.column-name{display:block;color:var(--_text);font-size:15px;font-weight:750}\n.column-note{display:block;max-width:180px;margin:5px auto 0;color:var(--_muted);font-size:11px;font-weight:500;line-height:1.35}\n.badge{display:inline-flex;margin-bottom:7px;padding:3px 8px;border-radius:999px;background:var(--_accent);color:#fff;font-size:9px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}\n.feature{position:sticky;left:0;z-index:2;min-width:230px;max-width:300px;background:var(--_raised);text-align:left;box-shadow:1px 0 0 var(--_line)}\n.feature-name{display:block;color:var(--_text);font-weight:680}\n.feature-note{display:block;margin-top:3px;color:var(--_muted);font-size:11px;font-weight:500;line-height:1.35}\ntd.recommended{background:var(--_accent-soft)}\n.data-row:hover th,.data-row:hover td{background:var(--_hover)}\n.data-row:hover td.recommended{background:color-mix(in srgb,var(--_accent) 13%,var(--_bg))}\n.group-row th,.group-row td{padding-top:9px;padding-bottom:9px;background:var(--_group)}\n.group-label{position:sticky;left:0;z-index:2;min-width:230px;color:var(--_muted);font-size:10px;font-weight:850;letter-spacing:.12em;text-align:left;text-transform:uppercase;box-shadow:1px 0 0 var(--_line)}\n.mark{display:inline-flex;min-width:30px;height:30px;align-items:center;justify-content:center;border-radius:999px;font-size:16px;font-weight:850;line-height:1}\n.mark.yes{background:color-mix(in srgb,var(--_ok) 12%,var(--_bg));color:var(--_ok)}\n.mark.no{background:color-mix(in srgb,var(--_no) 11%,var(--_bg));color:var(--_no)}\n.mark.partial{min-width:auto;padding:0 10px;background:color-mix(in srgb,var(--_partial) 13%,var(--_bg));color:var(--_partial);font-size:11px;letter-spacing:.02em}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:520px){.heading{padding:18px 18px 16px}th,td{min-width:136px;padding:12px 13px}.feature,.group-label,thead .corner{min-width:184px;max-width:220px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Feature coverage';\nconst columns=Array.isArray(data.columns)?data.columns:[];\nconst groups=Array.isArray(data.groups)?data.groups:[];\nconst featureCount=groups.reduce((sum,group)=>sum+(group&&Array.isArray(group.features)?group.features.length:0),0);\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title);\nconst heading=make('header','heading');\nheading.appendChild(make('div','eyebrow','Feature matrix'));\nheading.appendChild(make('h2','',title));\nheading.appendChild(make('div','meta',columns.length+' option'+(columns.length===1?'':'s')+' · '+featureCount+' grouped features'));\nframe.appendChild(heading);\nif(!columns.length||!featureCount){\n  frame.appendChild(make('div','empty','Add columns and grouped features to build the matrix.'));\n}else{\n  const scroll=make('div','scroll'); const table=make('table'); table.appendChild(make('caption','sr-only',title));\n  const thead=make('thead'); const header=make('tr'); const corner=make('th','corner','Capability'); corner.scope='col'; header.appendChild(corner);\n  columns.forEach((column)=>{\n    const recommended=column&&column.highlight===true; const th=make('th','column'+(recommended?' recommended':'')); th.scope='col';\n    if(recommended) th.appendChild(make('span','badge','Recommended'));\n    th.appendChild(make('span','column-name',column&&column.name!=null?String(column.name):'Untitled'));\n    if(column&&column.note) th.appendChild(make('span','column-note',String(column.note)));\n    header.appendChild(th);\n  });\n  thead.appendChild(header); table.appendChild(thead); const tbody=make('tbody');\n  groups.forEach((group)=>{\n    const features=group&&Array.isArray(group.features)?group.features:[]; if(!features.length) return;\n    const groupRow=make('tr','group-row'); const groupLabel=make('th','group-label',group&&group.label!=null?String(group.label):'Features'); groupLabel.scope='rowgroup'; groupRow.appendChild(groupLabel);\n    const fill=make('td'); fill.colSpan=columns.length; fill.setAttribute('aria-hidden','true'); groupRow.appendChild(fill); tbody.appendChild(groupRow);\n    features.forEach((feature)=>{\n      const row=make('tr','data-row'); const th=make('th','feature'); th.scope='row';\n      th.appendChild(make('span','feature-name',feature&&feature.label!=null?String(feature.label):'Untitled feature'));\n      if(feature&&feature.note) th.appendChild(make('span','feature-note',String(feature.note))); row.appendChild(th);\n      const values=feature&&feature.values&&typeof feature.values==='object'?feature.values:{};\n      columns.forEach((column)=>{\n        const td=make('td',column&&column.highlight===true?'recommended':''); const value=column&&column.id!=null?values[String(column.id)]:undefined;\n        let mark;\n        if(value===true){ mark=make('span','mark yes','✓'); mark.setAttribute('aria-label','Supported'); }\n        else if(value===false){ mark=make('span','mark no','✗'); mark.setAttribute('aria-label','Not supported'); }\n        else if(value==='partial'){ mark=make('span','mark partial','Partial'); mark.setAttribute('aria-label','Partially supported'); }\n        else { mark=make('span','mark partial','—'); mark.setAttribute('aria-label','Unknown'); }\n        td.appendChild(mark); row.appendChild(td);\n      });\n      tbody.appendChild(row);\n    });\n  });\n  table.appendChild(tbody); scroll.appendChild(table); frame.appendChild(scroll);\n}\nroot.appendChild(frame);\nparent.appendChild(host);"
+  },
+  "example": {
+    "_why": "三个可识别的工作区套餐、四个能力分组与混合支持状态，能同时验证推荐列、分组、三态 pill、粘性表头和首列。",
+    "minimal": {
+      "title": "Workspace platform coverage",
+      "columns": [
+        {
+          "id": "starter",
+          "name": "Starter",
+          "note": "Small teams"
+        },
+        {
+          "id": "growth",
+          "name": "Growth",
+          "note": "Scaling companies",
+          "highlight": true
+        },
+        {
+          "id": "enterprise",
+          "name": "Enterprise",
+          "note": "Complex organizations"
+        }
+      ],
+      "groups": [
+        {
+          "label": "Collaboration",
+          "features": [
+            {
+              "label": "Shared projects",
+              "values": {
+                "starter": true,
+                "growth": true,
+                "enterprise": true
+              }
+            },
+            {
+              "label": "External guests",
+              "note": "Invite people outside your workspace",
+              "values": {
+                "starter": "partial",
+                "growth": true,
+                "enterprise": true
+              }
+            }
+          ]
+        },
+        {
+          "label": "Automation",
+          "features": [
+            {
+              "label": "Workflow builder",
+              "values": {
+                "starter": false,
+                "growth": true,
+                "enterprise": true
+              }
+            },
+            {
+              "label": "Custom webhooks",
+              "values": {
+                "starter": false,
+                "growth": "partial",
+                "enterprise": true
+              }
+            }
+          ]
+        },
+        {
+          "label": "Security",
+          "features": [
+            {
+              "label": "Single sign-on",
+              "values": {
+                "starter": false,
+                "growth": false,
+                "enterprise": true
+              }
+            },
+            {
+              "label": "Audit log",
+              "values": {
+                "starter": false,
+                "growth": "partial",
+                "enterprise": true
+              }
+            }
+          ]
+        },
+        {
+          "label": "Support",
+          "features": [
+            {
+              "label": "Priority response",
+              "values": {
+                "starter": false,
+                "growth": true,
+                "enterprise": true
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "uplink": "none: 纯展示组件；所有悬停、滚动、原生链接或其他局部交互都只发生在自有 shadow 内，不向 AI 或宿主回传数据。",
+  "carriers": {
+    "artifact": "supported:boot.artifact 已在 sandboxed iframe 中以 example.minimal 原样渲染验证；CSS 与 DOM 全部位于自有 shadow root",
+    "widget": "supported:与 artifact 同一零依赖模板，仅 parent 改为 shadowRoot；可在载体 shadow 内再挂自有 shadow",
+    "codex": "supported:与已验证的 artifact boot 相同，document.getElementById('viz') 为唯一载体挂载点"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "self-authored inline-template, owns its shadow, zero global footprint; rendered-verified",
+    "confidence": "high"
+  }
+}

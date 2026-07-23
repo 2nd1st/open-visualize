@@ -2,12 +2,41 @@
   "entry_version": "thin-1",
   "id": "ag-grid-community",
   "name": "AG Grid Community",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a hand-written table when you need a data grid with virtual scrolling at the 100,000-row scale, pinned columns, client-side sorting and filtering, and custom cells -- native DOM fails on performance at high row counts and consistent column state. Do not use it for a static table with only a few dozen rows.",
+      "why_valuable": "AI defaults can only generate one-off small HTML/Markdown tables, not row and column virtualization, reliable pinned columns, or reuse during high-frequency scrolling; the success rate for hand-writing a 100,000-row data grid is 0%.",
+      "data_in": {
+        "note": "data_in maps directly to AG Grid rowData, columnDefs, and gridOptions; every column field name must resolve on each row object.",
+        "schema": {
+          "rowData": "Record<string, string | number | boolean | null>[]",
+          "columnDefs": [
+            {
+              "field": "string -- key in rowData",
+              "headerName?": "string -- defaults to field",
+              "sortable?": "boolean -- default false",
+              "filter?": "boolean | string -- default false",
+              "pinned?": "'left' | 'right' | null -- default null"
+            }
+          ],
+          "gridOptions?": "object -- trimmed entry point for other native GridOptions; default {}"
+        }
+      },
+      "spec": {
+        "note": "The grid requires an explicit pixel height; default 400px, which AI may override. Do not use vh or percentage heights. Width follows the container, and the grid's own layout observer handles container changes."
+      }
+    }
+  },
   "when_to_use": "需要十万行级虚拟滚动、列固定、客户端排序筛选与自定义单元格的数据网格时用它,而非手写 table——原生 DOM 在大行数性能和列状态一致性上失败;非做几十行以内的静态展示表。",
   "why_valuable": "AI 默认只能生成一次性 HTML/Markdown 小表,做不到行列虚拟化、稳定的固定列与高频滚动复用;十万行数据网格的手写成功率为 0%。",
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
-  "upstream": { "npm": "ag-grid-community", "version": "36.0.1", "github": "ag-grid/ag-grid" },
+  "upstream": {
+    "npm": "ag-grid-community",
+    "version": "36.0.1",
+    "github": "ag-grid/ag-grid"
+  },
   "license": "MIT",
   "data_in": {
     "shape": "tabular",
@@ -39,19 +68,38 @@
     "_why": "表格列定义与数据键必须一次对齐,minimal 固定原生字段名。",
     "minimal": {
       "rowData": [
-        { "country": "AU", "revenue": 120 },
-        { "country": "NZ", "revenue": 80 }
+        {
+          "country": "AU",
+          "revenue": 120
+        },
+        {
+          "country": "NZ",
+          "revenue": 80
+        }
       ],
       "columnDefs": [
-        { "field": "country", "headerName": "Country", "sortable": true, "filter": true },
-        { "field": "revenue", "headerName": "Revenue", "sortable": true }
+        {
+          "field": "country",
+          "headerName": "Country",
+          "sortable": true,
+          "filter": true
+        },
+        {
+          "field": "revenue",
+          "headerName": "Revenue",
+          "sortable": true
+        }
       ]
     },
     "empty": {
       "rowData": [],
       "columnDefs": [
-        { "field": "country" },
-        { "field": "revenue" }
+        {
+          "field": "country"
+        },
+        {
+          "field": "revenue"
+        }
       ]
     }
   },
@@ -67,7 +115,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "+esm 全量 grep:零 `document.head`、零 `document.body`、零 `document.addEventListener`、零 `window.addEventListener`、零 adoptedStyleSheets;存在 `_getRootNode`——v36 Theming API 把主题 <style> 注入 grid 元素的 getRootNode()(在 shadow 内即注入该 shadow root,不外泄 document.head);内部 doc 监听经 getDocument()/getRootNode() 作用域化并在 destroy 清理。widget boot 另设 popupParent:el。强支持 entry『supported』。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

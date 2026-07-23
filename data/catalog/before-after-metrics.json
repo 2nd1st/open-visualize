@@ -1,0 +1,127 @@
+{
+  "entry_version": "thin-1",
+  "id": "before-after-metrics",
+  "name": "Before / after metrics",
+  "when_to_use": "需要用一组同口径指标说明改版、迁移、优化或实验前后的变化时用它，适合效果复盘、数据探索结论和交付报告。若只有一个 KPI 应改用大数字卡；若有连续时间序列，应改用折线图而不是把多个时间点硬塞成 before/after。",
+  "why_valuable": "只列两列数字会迫使读者自行心算，也容易把“越低越好”的指标误判；本模板同时计算绝对 Δ 与百分比，保留单位和精度，并用 higherIsBetter 正确标记改善、回退与持平。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "inline-template",
+  "upstream": {
+    "npm": null,
+    "version": null,
+    "github": null
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tabular",
+    "note": "data.metrics 是逐行指标表。每行 before 与 after 必须是有限数字；模板计算 change=after-before，百分比按 change/abs(before) 计算，before=0 时百分比显示 —。prefix 与 unit 分别放在数字前后，precision 控制 0–6 位小数。higherIsBetter 默认为 true；设为 false 时数值下降会用绿色表示改善。",
+    "schema": {
+      "title?": "string —— 报告标题；省略时显示 “Before & after”",
+      "subtitle?": "string —— 对比范围、版本或时间窗口",
+      "metrics": "{label:string,before:number,after:number,prefix?:string,unit?:string,precision?:number,higherIsBetter?:boolean}[] —— 指标行数组",
+      "metrics[].label": "string —— 指标名称",
+      "metrics[].before": "number —— 变更前基线值",
+      "metrics[].after": "number —— 变更后结果值",
+      "metrics[].prefix?": "string —— 数字前缀，例如 $",
+      "metrics[].unit?": "string —— 数字后缀，例如 %、 ms、 s",
+      "metrics[].precision?": "number —— 显示小数位，整数 0–6；默认 1",
+      "metrics[].higherIsBetter?": "boolean —— true 表示上升为改善，false 表示下降为改善；默认 true"
+    }
+  },
+  "spec": {
+    "height": "auto",
+    "note": "按指标行数增高；表格最小宽度约 690px，窄载体内横向滚动以保持 before→after、绝对 Δ 与百分比同轴，不使用固定高度。"
+  },
+  "boot": {
+    "artifact": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.subtitle{margin:7px 0 0;color:var(--_muted);font-size:13px;line-height:1.45}\n.table{overflow:auto}\n.labels,.metric{display:grid;grid-template-columns:minmax(170px,1.35fr) minmax(108px,.7fr) 34px minmax(108px,.7fr) minmax(145px,.9fr);align-items:center;min-width:690px}\n.labels{padding:11px 22px;background:var(--_bg);border-bottom:1px solid var(--_line);color:var(--_muted);font-size:10px;font-weight:850;letter-spacing:.1em;text-transform:uppercase}\n.labels span:nth-child(n+2){text-align:right}.labels span:nth-child(3){text-align:center}\n.metric{padding:16px 22px;border-bottom:1px solid var(--_line);font-variant-numeric:tabular-nums}\n.metric:last-child{border-bottom:0}.metric:hover{background:var(--_hover)}\n.name{padding-right:16px;color:var(--_text);font-size:14px;font-weight:700}\n.value{color:var(--_text);font-size:16px;font-weight:760;text-align:right;white-space:nowrap}\n.before{color:var(--_muted);font-weight:650}.arrow{color:var(--_muted);font-size:17px;text-align:center}\n.delta{justify-self:end;display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap}\n.delta.good{background:color-mix(in srgb,var(--_ok) 12%,var(--_bg));color:var(--_ok)}\n.delta.bad{background:color-mix(in srgb,var(--_no) 11%,var(--_bg));color:var(--_no)}\n.delta.flat{background:color-mix(in srgb,var(--_partial) 12%,var(--_bg));color:var(--_partial)}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:520px){.heading{padding:18px}.labels,.metric{grid-template-columns:minmax(150px,1.2fr) 100px 30px 100px 135px}.metric{padding:14px 18px}.labels{padding-left:18px;padding-right:18px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make=(tag,className,text)=>{const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;};\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Before & after';\nconst metrics=Array.isArray(data.metrics)?data.metrics:[];\nconst number=(value)=>typeof value==='number'&&Number.isFinite(value)?value:null;\nconst format=(value,item,signed=false)=>{\n  if(value===null)return '—';\n  const precision=Number.isInteger(item.precision)?Math.max(0,Math.min(6,item.precision)):1;\n  const magnitude=Math.abs(value).toLocaleString(undefined,{minimumFractionDigits:precision,maximumFractionDigits:precision});\n  const sign=signed?(value>0?'+':value<0?'−':''):(value<0?'−':'');\n  return sign+(item.prefix?String(item.prefix):'')+magnitude+(item.unit?String(item.unit):'');\n};\nconst frame=make('section','frame');frame.setAttribute('aria-label',title);\nconst heading=make('header','heading');heading.appendChild(make('div','eyebrow','Impact report'));heading.appendChild(make('h2','',title));\nif(data.subtitle)heading.appendChild(make('p','subtitle',String(data.subtitle)));frame.appendChild(heading);\nif(!metrics.length){frame.appendChild(make('div','empty','Add metrics to compare their before and after values.'));}\nelse{\n  const table=make('div','table');table.setAttribute('role','table');table.setAttribute('aria-label',title);\n  const labels=make('div','labels');['Metric','Before','','After','Change'].forEach(label=>labels.appendChild(make('span','',label)));table.appendChild(labels);\n  metrics.forEach(item=>{\n    const before=number(item&&item.before);const after=number(item&&item.after);const change=before===null||after===null?null:after-before;\n    const percent=change===null||before===0?null:(change/Math.abs(before))*100;\n    const higherIsBetter=!item||item.higherIsBetter!==false;\n    const state=change===null||change===0?'flat':((change>0)===higherIsBetter?'good':'bad');\n    const row=make('div','metric');row.setAttribute('role','row');\n    row.appendChild(make('div','name',item&&item.label!=null?String(item.label):'Untitled metric'));\n    row.appendChild(make('div','value before',format(before,item||{})));\n    row.appendChild(make('div','arrow','→'));\n    row.appendChild(make('div','value',format(after,item||{})));\n    const icon=change===null||change===0?'•':change>0?'↑':'↓';\n    const deltaText=change===null?'No data':format(change,item||{},true)+' · '+(percent===null?'—':(percent>0?'+':percent<0?'−':'')+Math.abs(percent).toFixed(1)+'%');\n    const delta=make('div','delta '+state,icon+' '+deltaText);delta.setAttribute('aria-label','Change '+deltaText);row.appendChild(delta);\n    table.appendChild(row);\n  });\n  frame.appendChild(table);\n}\nroot.appendChild(frame);\nparent.appendChild(host);",
+    "widget": "const parent = shadowRoot;\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.subtitle{margin:7px 0 0;color:var(--_muted);font-size:13px;line-height:1.45}\n.table{overflow:auto}\n.labels,.metric{display:grid;grid-template-columns:minmax(170px,1.35fr) minmax(108px,.7fr) 34px minmax(108px,.7fr) minmax(145px,.9fr);align-items:center;min-width:690px}\n.labels{padding:11px 22px;background:var(--_bg);border-bottom:1px solid var(--_line);color:var(--_muted);font-size:10px;font-weight:850;letter-spacing:.1em;text-transform:uppercase}\n.labels span:nth-child(n+2){text-align:right}.labels span:nth-child(3){text-align:center}\n.metric{padding:16px 22px;border-bottom:1px solid var(--_line);font-variant-numeric:tabular-nums}\n.metric:last-child{border-bottom:0}.metric:hover{background:var(--_hover)}\n.name{padding-right:16px;color:var(--_text);font-size:14px;font-weight:700}\n.value{color:var(--_text);font-size:16px;font-weight:760;text-align:right;white-space:nowrap}\n.before{color:var(--_muted);font-weight:650}.arrow{color:var(--_muted);font-size:17px;text-align:center}\n.delta{justify-self:end;display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap}\n.delta.good{background:color-mix(in srgb,var(--_ok) 12%,var(--_bg));color:var(--_ok)}\n.delta.bad{background:color-mix(in srgb,var(--_no) 11%,var(--_bg));color:var(--_no)}\n.delta.flat{background:color-mix(in srgb,var(--_partial) 12%,var(--_bg));color:var(--_partial)}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:520px){.heading{padding:18px}.labels,.metric{grid-template-columns:minmax(150px,1.2fr) 100px 30px 100px 135px}.metric{padding:14px 18px}.labels{padding-left:18px;padding-right:18px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make=(tag,className,text)=>{const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;};\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Before & after';\nconst metrics=Array.isArray(data.metrics)?data.metrics:[];\nconst number=(value)=>typeof value==='number'&&Number.isFinite(value)?value:null;\nconst format=(value,item,signed=false)=>{\n  if(value===null)return '—';\n  const precision=Number.isInteger(item.precision)?Math.max(0,Math.min(6,item.precision)):1;\n  const magnitude=Math.abs(value).toLocaleString(undefined,{minimumFractionDigits:precision,maximumFractionDigits:precision});\n  const sign=signed?(value>0?'+':value<0?'−':''):(value<0?'−':'');\n  return sign+(item.prefix?String(item.prefix):'')+magnitude+(item.unit?String(item.unit):'');\n};\nconst frame=make('section','frame');frame.setAttribute('aria-label',title);\nconst heading=make('header','heading');heading.appendChild(make('div','eyebrow','Impact report'));heading.appendChild(make('h2','',title));\nif(data.subtitle)heading.appendChild(make('p','subtitle',String(data.subtitle)));frame.appendChild(heading);\nif(!metrics.length){frame.appendChild(make('div','empty','Add metrics to compare their before and after values.'));}\nelse{\n  const table=make('div','table');table.setAttribute('role','table');table.setAttribute('aria-label',title);\n  const labels=make('div','labels');['Metric','Before','','After','Change'].forEach(label=>labels.appendChild(make('span','',label)));table.appendChild(labels);\n  metrics.forEach(item=>{\n    const before=number(item&&item.before);const after=number(item&&item.after);const change=before===null||after===null?null:after-before;\n    const percent=change===null||before===0?null:(change/Math.abs(before))*100;\n    const higherIsBetter=!item||item.higherIsBetter!==false;\n    const state=change===null||change===0?'flat':((change>0)===higherIsBetter?'good':'bad');\n    const row=make('div','metric');row.setAttribute('role','row');\n    row.appendChild(make('div','name',item&&item.label!=null?String(item.label):'Untitled metric'));\n    row.appendChild(make('div','value before',format(before,item||{})));\n    row.appendChild(make('div','arrow','→'));\n    row.appendChild(make('div','value',format(after,item||{})));\n    const icon=change===null||change===0?'•':change>0?'↑':'↓';\n    const deltaText=change===null?'No data':format(change,item||{},true)+' · '+(percent===null?'—':(percent>0?'+':percent<0?'−':'')+Math.abs(percent).toFixed(1)+'%');\n    const delta=make('div','delta '+state,icon+' '+deltaText);delta.setAttribute('aria-label','Change '+deltaText);row.appendChild(delta);\n    table.appendChild(row);\n  });\n  frame.appendChild(table);\n}\nroot.appendChild(frame);\nparent.appendChild(host);",
+    "codex": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.subtitle{margin:7px 0 0;color:var(--_muted);font-size:13px;line-height:1.45}\n.table{overflow:auto}\n.labels,.metric{display:grid;grid-template-columns:minmax(170px,1.35fr) minmax(108px,.7fr) 34px minmax(108px,.7fr) minmax(145px,.9fr);align-items:center;min-width:690px}\n.labels{padding:11px 22px;background:var(--_bg);border-bottom:1px solid var(--_line);color:var(--_muted);font-size:10px;font-weight:850;letter-spacing:.1em;text-transform:uppercase}\n.labels span:nth-child(n+2){text-align:right}.labels span:nth-child(3){text-align:center}\n.metric{padding:16px 22px;border-bottom:1px solid var(--_line);font-variant-numeric:tabular-nums}\n.metric:last-child{border-bottom:0}.metric:hover{background:var(--_hover)}\n.name{padding-right:16px;color:var(--_text);font-size:14px;font-weight:700}\n.value{color:var(--_text);font-size:16px;font-weight:760;text-align:right;white-space:nowrap}\n.before{color:var(--_muted);font-weight:650}.arrow{color:var(--_muted);font-size:17px;text-align:center}\n.delta{justify-self:end;display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap}\n.delta.good{background:color-mix(in srgb,var(--_ok) 12%,var(--_bg));color:var(--_ok)}\n.delta.bad{background:color-mix(in srgb,var(--_no) 11%,var(--_bg));color:var(--_no)}\n.delta.flat{background:color-mix(in srgb,var(--_partial) 12%,var(--_bg));color:var(--_partial)}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:520px){.heading{padding:18px}.labels,.metric{grid-template-columns:minmax(150px,1.2fr) 100px 30px 100px 135px}.metric{padding:14px 18px}.labels{padding-left:18px;padding-right:18px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make=(tag,className,text)=>{const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;};\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Before & after';\nconst metrics=Array.isArray(data.metrics)?data.metrics:[];\nconst number=(value)=>typeof value==='number'&&Number.isFinite(value)?value:null;\nconst format=(value,item,signed=false)=>{\n  if(value===null)return '—';\n  const precision=Number.isInteger(item.precision)?Math.max(0,Math.min(6,item.precision)):1;\n  const magnitude=Math.abs(value).toLocaleString(undefined,{minimumFractionDigits:precision,maximumFractionDigits:precision});\n  const sign=signed?(value>0?'+':value<0?'−':''):(value<0?'−':'');\n  return sign+(item.prefix?String(item.prefix):'')+magnitude+(item.unit?String(item.unit):'');\n};\nconst frame=make('section','frame');frame.setAttribute('aria-label',title);\nconst heading=make('header','heading');heading.appendChild(make('div','eyebrow','Impact report'));heading.appendChild(make('h2','',title));\nif(data.subtitle)heading.appendChild(make('p','subtitle',String(data.subtitle)));frame.appendChild(heading);\nif(!metrics.length){frame.appendChild(make('div','empty','Add metrics to compare their before and after values.'));}\nelse{\n  const table=make('div','table');table.setAttribute('role','table');table.setAttribute('aria-label',title);\n  const labels=make('div','labels');['Metric','Before','','After','Change'].forEach(label=>labels.appendChild(make('span','',label)));table.appendChild(labels);\n  metrics.forEach(item=>{\n    const before=number(item&&item.before);const after=number(item&&item.after);const change=before===null||after===null?null:after-before;\n    const percent=change===null||before===0?null:(change/Math.abs(before))*100;\n    const higherIsBetter=!item||item.higherIsBetter!==false;\n    const state=change===null||change===0?'flat':((change>0)===higherIsBetter?'good':'bad');\n    const row=make('div','metric');row.setAttribute('role','row');\n    row.appendChild(make('div','name',item&&item.label!=null?String(item.label):'Untitled metric'));\n    row.appendChild(make('div','value before',format(before,item||{})));\n    row.appendChild(make('div','arrow','→'));\n    row.appendChild(make('div','value',format(after,item||{})));\n    const icon=change===null||change===0?'•':change>0?'↑':'↓';\n    const deltaText=change===null?'No data':format(change,item||{},true)+' · '+(percent===null?'—':(percent>0?'+':percent<0?'−':'')+Math.abs(percent).toFixed(1)+'%');\n    const delta=make('div','delta '+state,icon+' '+deltaText);delta.setAttribute('aria-label','Change '+deltaText);row.appendChild(delta);\n    table.appendChild(row);\n  });\n  frame.appendChild(table);\n}\nroot.appendChild(frame);\nparent.appendChild(host);"
+  },
+  "example": {
+    "_why": "同一产品发布的增长、速度、流失和质量指标同时包含“越高越好”与“越低越好”，能验证箭头、绝对差、百分比和语义颜色。",
+    "minimal": {
+      "title": "Checkout redesign impact",
+      "subtitle": "28-day windows before and after the April release",
+      "metrics": [
+        {
+          "label": "Conversion rate",
+          "before": 3.2,
+          "after": 4.7,
+          "unit": "%",
+          "precision": 1,
+          "higherIsBetter": true
+        },
+        {
+          "label": "Median checkout time",
+          "before": 58,
+          "after": 41,
+          "unit": " s",
+          "precision": 0,
+          "higherIsBetter": false
+        },
+        {
+          "label": "Cart abandonment",
+          "before": 46.5,
+          "after": 35.8,
+          "unit": "%",
+          "precision": 1,
+          "higherIsBetter": false
+        },
+        {
+          "label": "Support tickets / 1k orders",
+          "before": 31,
+          "after": 18,
+          "precision": 0,
+          "higherIsBetter": false
+        },
+        {
+          "label": "Average order value",
+          "before": 72.4,
+          "after": 76.9,
+          "prefix": "$",
+          "precision": 1,
+          "higherIsBetter": true
+        }
+      ]
+    }
+  },
+  "uplink": "纯 display-only 组件，无 uplink；渲染结果只在当前 shadow root 中展示，不向 AI 或宿主回传状态。",
+  "carriers": {
+    "artifact": "supported:boot.artifact 已在 sandboxed iframe 中以 example.minimal 原样渲染验证；CSS 与 DOM 全部位于自有 shadow root",
+    "widget": "supported:与 artifact 同一零依赖模板，仅 parent 改为 shadowRoot；可在载体 shadow 内再挂自有 shadow",
+    "codex": "supported:与已验证的 artifact boot 相同，document.getElementById('viz') 为唯一载体挂载点"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "self-authored inline-template, owns its shadow, zero global footprint; rendered-verified",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need a consistent set of metrics to explain changes before and after a redesign, migration, optimization, or experiment; it suits outcome reviews, data-exploration findings, and delivery reports. For a single KPI, use a big-number card instead. For a continuous time series, use a line chart rather than forcing multiple time points into before/after.",
+      "why_valuable": "Two columns of numbers force readers to calculate mentally and make lower-is-better metrics easy to misread. This template calculates absolute delta and percentage together, preserves units and precision, and uses higherIsBetter to label improvement, regression, and no change correctly.",
+      "data_in": {
+        "note": "data.metrics is a row-oriented metrics table. before and after must be finite numbers in every row. The template calculates change=after-before and percentage as change/abs(before); when before=0, percentage displays -. prefix and unit appear before and after the number respectively, and precision controls 0-6 decimal places. higherIsBetter defaults to true; when false, a lower value is shown in green as an improvement.",
+        "schema": {
+          "title?": "string -- Report title; shows \"Before & after\" when omitted",
+          "subtitle?": "string -- Comparison scope, version, or time window",
+          "metrics": "{label:string,before:number,after:number,prefix?:string,unit?:string,precision?:number,higherIsBetter?:boolean}[] -- Array of metric rows",
+          "metrics[].label": "string -- Metric name",
+          "metrics[].before": "number -- Baseline value before the change",
+          "metrics[].after": "number -- Result value after the change",
+          "metrics[].prefix?": "string -- Numeric prefix, for example $",
+          "metrics[].unit?": "string -- Numeric suffix, for example %, ms, or s",
+          "metrics[].precision?": "number -- Displayed decimal places, integer 0-6; default 1",
+          "metrics[].higherIsBetter?": "boolean -- true means an increase is an improvement; false means a decrease is an improvement; default true"
+        }
+      },
+      "spec": {
+        "note": "Height grows with metric rows. The table has a minimum width of about 690px and scrolls horizontally in narrow carriers to keep before -> after, absolute delta, and percentage aligned; it does not use a fixed height."
+      }
+    }
+  }
+}

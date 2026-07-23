@@ -4,6 +4,19 @@
   "name": "zero-md",
   "when_to_use": "需要把 AI 原生 Markdown 字符串直接渲成带一致排版、代码高亮、公式和 Mermaid 的隔离长文时用它而非手写 HTML,因为原生在 Markdown 解析、语法高亮与样式封装上失败。",
   "why_valuable": "AI 默认能写 Markdown 但只能不稳定地改写成 HTML,做不到解析器边界、代码语言高亮、KaTeX/Mermaid 按需加载与 Shadow DOM 样式隔离;zero-md 把一条 notation string 直接变成完整文档视图。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to render an AI-native Markdown string directly as an isolated long-form document with consistent typography, code highlighting, formulas, and Mermaid instead of hand-writing HTML. Native implementations fail on Markdown parsing, syntax highlighting, and style encapsulation.",
+      "why_valuable": "AI can write Markdown by default but can only rewrite it to HTML unreliably. It cannot provide parser boundaries, language-aware code highlighting, on-demand KaTeX/Mermaid loading, and Shadow DOM style isolation. zero-md turns one notation string directly into a complete document view.",
+      "data_in": {
+        "note": "markdown is raw Markdown text. boot feeds it to the component through a script[type='text/markdown'] child created in JS. raw HTML is preserved by the parser, so untrusted content must be sanitized first.",
+        "schema": {
+          "markdown": "string - complete Markdown document; empty string is valid",
+          "body_class?": "string - class appended to the internal markdown-body, default empty string"
+        }
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -39,7 +52,11 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Core verified clean (src/lib/*.js read in full). styleInject=no: all CSS -- `<link>` github-markdown-css@5 / @highlightjs/cdn-assets@11 / katex@0 + `<style>` HOST (presets.js) -- is stamped into `.markdown-styles` INSIDE the component's own shadow root (connectedCallback attachShadow + stamp()); nothing reaches document.head. domMutation=no: only this.root.prepend()/node.append() into the shadow root; no document.body writes. events=no: click listener bound to this.shadowRoot and removed in disconnectedCallback; MutationObserver observes `this` element and disconnect()s on disconnect -- zero window/document listeners. shadow=conditional: self-encapsulates in its own shadow root (designed for it) and nests cleanly in a widget shadow, BUT at runtime dynamically import()s marked/hljs/katex/mermaid AND fetches theme CSS `<link>` from jsDelivr, so the host CSP must allow those network fetches. CAVEAT: mermaid@11 is loaded on-demand ONLY for ```mermaid code blocks; its entry does createElement('style') and mermaid is documented to inject styles + measure via top-level DOM, but its lazy render chunks were not fully traced this session -- so styleInject/domMutation could flip to yes when the markdown contains mermaid diagrams.",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
+  },
+  "example": {
+    "minimal": {
+      "markdown": "# zero-md Demo\n\nA **Markdown string** rendered with *consistent typography*, syntax highlighting, and math — all inside a self-contained Shadow DOM.\n\n## Features\n\n- GitHub-flavored **tables** and lists\n- Syntax-highlighted `code` blocks via highlight.js\n- KaTeX formulas, inline and display\n\n| Feature    | Status |\n| ---------- | :----: |\n| Tables     | ✅ |\n| Code       | ✅ |\n| KaTeX math | ✅ |\n\n```js\nfunction greet(name) {\n  return `Hello, ${name}!`\n}\nconsole.log(greet('zero-md'))\n```\n\n> Everything on this page is a single Markdown string handed to `<zero-md>`.\n\nThe quadratic roots of $ax^2 + bx + c = 0$ are:\n\n$$x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$$"
+    }
   }
 }

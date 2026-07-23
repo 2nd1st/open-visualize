@@ -53,9 +53,9 @@
     "note": "Vega-Lite spec 的 height 省略时由 boot 注入 400px;只传数值像素,铁律 3 禁 vh/百分比高。组合/分面图的子视图尺寸仍由原生 spec 控制。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:使用 vega-embed 7 编译 Vega-Lite 6 spec\nimport embed from 'https://cdn.jsdelivr.net/npm/vega-embed@7/+esm';\nconst el = document.getElementById('vis');\nconst spec = { height: 400, ...data.spec };\nconst opts = { actions: false, renderer: 'svg', tooltip: false, ...(data.embed_options ?? {}) };\nawait embed(el, spec, opts);",
-    "widget": "import embed from 'https://cdn.jsdelivr.net/npm/vega-embed@7/+esm';\nconst el = document.createElement('div'); shadowRoot.appendChild(el);\nconst spec = { height: 400, ...data.spec };\nconst opts = { actions: false, renderer: 'svg', tooltip: false, ...(data.embed_options ?? {}) };\nawait embed(el, spec, opts);",
-    "codex": "import embed from 'https://cdn.jsdelivr.net/npm/vega-embed@7/+esm';\nconst el = document.getElementById('vis');\nconst spec = { height: 400, ...data.spec };\nconst opts = { actions: false, renderer: 'svg', tooltip: false, ...(data.embed_options ?? {}) };\nawait embed(el, spec, opts);"
+    "artifact": "// harness 已声明 const spec;局部改名 chartSpec 避免模块 parse-time redeclaration\nconst el = document.getElementById('vis'); el.style.minHeight = '400px'; el.textContent = 'Rendering chart…';\nconst { default:embed } = await import('https://cdn.jsdelivr.net/npm/vega-embed@7/+esm');\nconst chartSpec = { height:400, ...data.spec };\nconst opts = { actions:false, renderer:'svg', tooltip:false, ...(data.embed_options ?? {}) };\nawait embed(el, chartSpec, opts);",
+    "widget": "const el = document.createElement('div'); el.style.minHeight = '400px'; el.textContent = 'Rendering chart…'; shadowRoot.appendChild(el);\nconst { default:embed } = await import('https://cdn.jsdelivr.net/npm/vega-embed@7/+esm');\nconst chartSpec = { height:400, ...data.spec };\nconst opts = { actions:false, renderer:'svg', tooltip:false, ...(data.embed_options ?? {}) };\nawait embed(el, chartSpec, opts);",
+    "codex": "const el = document.getElementById('vis'); el.style.minHeight = '400px'; el.textContent = 'Rendering chart…';\nconst { default:embed } = await import('https://cdn.jsdelivr.net/npm/vega-embed@7/+esm');\nconst chartSpec = { height:400, ...data.spec };\nconst opts = { actions:false, renderer:'svg', tooltip:false, ...(data.embed_options ?? {}) };\nawait embed(el, chartSpec, opts);"
   },
   "example": {
     "_why": "Vega-Lite 是深 config / 高歧义图表语法,必须给可直接编译的最小 v6 spec。",
@@ -114,7 +114,49 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "vega-embed@7 +esm injects `<style id='vega-embed-style'>` (gated by `defaultStyle!==false`) BUT is shadow-aware: the internal root resolver returns `{root: shadowRoot, rootContainer: shadowRoot}` when `el.getRootNode()` is a ShadowRoot, else `document.head`. The widget boot appends el to shadowRoot BEFORE calling embed(), so the style scopes to shadow — no document.head footprint on that path (artifact/codex non-shadow paths do hit head). With actions:false the action menu renders inside the .vega-embed container; tooltip:false avoids the body `#vg-tooltip` element (only the head/body fallback ref is `document.head??document.body`). globalEvents=no is for the default self-contained config (view binds to its own scenegraph); not exhaustively byte-traced.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need declarative JSON for linked multi-view brushing, cross-filtering, faceting, or compound statistical charts, instead of hand-writing event-driven SVG, because native implementations fail at synchronizing signals, scales, and filter state across views. Not for a static single bar/line/pie chart.",
+      "why_valuable": "AI can only imitate static charts by default; it cannot provide multi-view brushing, cross-filtering, or consistent scales/signals. Vega-Lite packages that logic into a verifiable JSON spec, avoiding hand-written event code.",
+      "data_in": {
+        "note": "data_in.spec is a native Vega-Lite v6 JSON spec, compiled and mounted by vega-embed. It is not a Vega runtime spec or a custom chart schema.",
+        "schema": {
+          "spec": {
+            "$schema": "'https://vega.github.io/schema/vega-lite/v6.json'",
+            "data": {
+              "values": "Record<string, string | number | boolean | null>[]"
+            },
+            "mark?": "Vega-Lite Mark | MarkDef -- Required for a unit spec; a compound spec has no top-level mark by default",
+            "encoding?": {
+              "_default": "{}; channel mappings for a unit spec",
+              "x?": "FieldDef | DatumDef | ValueDef -- No x channel by default",
+              "y?": "FieldDef | DatumDef | ValueDef -- No y channel by default",
+              "color?": "FieldDef | DatumDef | ValueDef -- No color channel by default",
+              "size?": "FieldDef | DatumDef | ValueDef -- No size channel by default",
+              "tooltip?": "FieldDef | FieldDef[] | ValueDef -- No tooltip encoding by default"
+            },
+            "layer?": "Vega-Lite LayerSpec[] -- None by default; mutually exclusive with the mark unit branch",
+            "hconcat?": "Vega-Lite Spec[] -- None by default; horizontal multi-view branch",
+            "vconcat?": "Vega-Lite Spec[] -- None by default; vertical multi-view branch",
+            "transform?": "Vega-Lite Transform[] -- Default []",
+            "params?": "Vega-Lite Parameter[] -- Default []; select uses upstream native brush syntax, not a platform event contract",
+            "width?": "number | 'container' -- Inferred by Vega-Lite by default",
+            "height?": "number -- boot default 400",
+            "config?": "Vega-Lite Config -- Default {}"
+          },
+          "embed_options?": {
+            "_default": "{actions:false,renderer:'svg',tooltip:false}",
+            "actions?": "boolean -- boot default false",
+            "renderer?": "'svg' | 'canvas' -- boot default 'svg'",
+            "tooltip?": "boolean -- boot default false; enabling it creates a tooltip footprint outside shadow"
+          }
+        }
+      },
+      "spec": {
+        "note": "When height is omitted from the Vega-Lite spec, boot injects 400px. Pass numeric pixels only; Rule 3 prohibits vh/percentage height. Child-view sizes in compound/faceted charts remain controlled by the native spec."
+      }
+    }
   }
 }

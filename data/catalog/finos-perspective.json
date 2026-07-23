@@ -4,10 +4,40 @@
   "name": "Perspective",
   "when_to_use": "需要在浏览器本地对大表做交互式分组、拆列、聚合、筛选并在数据网格与图形插件间切换时用它,而非手写透视引擎——原生在 WASM 列式计算和持续重算上失败;非做静态摘要表或服务端数据仓库。",
   "why_valuable": "AI 默认做不到百万行级本地列式透视、流式增量计算与可序列化分析视图;手写 JavaScript 聚合在规模、类型稳定性和交互重算三处均为 0% 区。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need local in-browser interactive grouping, column splitting, aggregation, and filtering of large tables, with switching between a data grid and visualization plugins, instead of hand-writing a pivot engine. Native implementations fail on WASM columnar computation and continuous recomputation. It is not for static summary tables or server-side data warehouses.",
+      "why_valuable": "AI cannot provide local million-row columnar pivots, streaming incremental computation, or serializable analytic views by default. Hand-written JavaScript aggregation fails on scale, type stability, and interactive recomputation.",
+      "data_in": {
+        "note": "table is first passed to @finos/perspective worker.table, then the returned Table is passed to perspective-viewer.load. An empty state must use a typed schema object; [] alone is invalid.",
+        "schema": {
+          "_defaults": {
+            "config": "{} (the viewer uses its initial view)"
+          },
+          "table": "Record<string, string | number | boolean | null>[] | Record<string, 'string' | 'integer' | 'float' | 'boolean' | 'date' | 'datetime'> (the latter creates an empty table)",
+          "config?": {
+            "plugin?": "string - registered plugin name, defaulting to the first available plugin; this entry loads Datagrid",
+            "group_by?": "string[] - default []",
+            "split_by?": "string[] - default []",
+            "columns?": "string[] - show all columns by default",
+            "filter?": "[string, string, unknown][] - default []",
+            "sort?": "[string, 'asc' | 'desc' | 'col asc' | 'col desc'][] - default []"
+          }
+        }
+      },
+      "spec": {
+        "note": "perspective-viewer needs an explicit pixel height to draw its plugin area. The default is 400px and AI may override it; do not use vh or percentage heights."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
-  "upstream": { "npm": "@finos/perspective", "version": "3.8.0", "github": "finos/perspective" },
+  "upstream": {
+    "npm": "@finos/perspective",
+    "version": "3.8.0",
+    "github": "finos/perspective"
+  },
   "license": "Apache-2.0",
   "data_in": {
     "shape": "tabular",
@@ -32,21 +62,31 @@
     "note": "perspective-viewer 需要显式像素高度才能绘制插件区域;默认 400px,AI 可覆盖,禁用 vh/百分比高。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:需 H0 实测跨源 WASM + worker;CSS 放 document.head\nimport perspective from 'https://cdn.jsdelivr.net/npm/@finos/perspective@3/+esm';\nimport 'https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3/+esm'; import 'https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@3/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3.8.0/dist/css/themes.css'; document.head.appendChild(css);\nconst viewer = document.createElement('perspective-viewer'); viewer.style.height = '400px'; document.getElementById('view').appendChild(viewer);\nconst worker = await perspective.worker(); const table = await worker.table(data.table); await viewer.load(table); if (data.config) await viewer.restore(data.config);",
-    "widget": "// custom element 必须 JS createElement(铁律 4);主题 CSS 放 shadow(铁律 2)\nimport perspective from 'https://cdn.jsdelivr.net/npm/@finos/perspective@3/+esm';\nimport 'https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3/+esm'; import 'https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@3/+esm';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3.8.0/dist/css/themes.css'; shadowRoot.appendChild(css);\nconst viewer = document.createElement('perspective-viewer'); viewer.style.height = '400px'; shadowRoot.appendChild(viewer);\nconst worker = await perspective.worker(); const table = await worker.table(data.table); await viewer.load(table); if (data.config) await viewer.restore(data.config);",
-    "codex": "import perspective from 'https://cdn.jsdelivr.net/npm/@finos/perspective@3/+esm';\nimport 'https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3/+esm'; import 'https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@3/+esm';\nconst viewer = document.createElement('perspective-viewer'); viewer.style.height = '400px'; document.getElementById('view').appendChild(viewer);\nconst worker = await perspective.worker(); const table = await worker.table(data.table);\nawait viewer.load(table); if (data.config) await viewer.restore(data.config);"
+    "artifact": "// 显式初始化三个 Perspective WASM；+esm 不会自动定位这些二进制\nconst el = document.getElementById('view'); el.style.height = '400px'; el.textContent = 'Loading data grid…';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3.8.0/dist/css/themes.css'; document.head.appendChild(css);\nconst [perspectiveModule, viewerModule] = await Promise.all([\n  import('https://cdn.jsdelivr.net/npm/@finos/perspective@3.8.0/+esm'),\n  import('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3.8.0/+esm')\n]);\nawait Promise.all([\n  perspectiveModule.init_client(fetch('https://cdn.jsdelivr.net/npm/@finos/perspective@3.8.0/dist/wasm/perspective-js.wasm')),\n  perspectiveModule.init_server(fetch('https://cdn.jsdelivr.net/npm/@finos/perspective@3.8.0/dist/wasm/perspective-server.wasm')),\n  viewerModule.init_client(fetch('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3.8.0/dist/wasm/perspective-viewer.wasm'))\n]);\nawait import('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@3.8.0/+esm');\nel.textContent = '';\nconst viewer = document.createElement('perspective-viewer'); viewer.style.height = '400px'; el.appendChild(viewer);\nconst worker = await perspectiveModule.worker(); const table = await worker.table(data.table); await viewer.load(table); if (data.config) await viewer.restore(data.config);",
+    "widget": "// custom element 与主题都落 shadow；显式初始化三个 Perspective WASM\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3.8.0/dist/css/themes.css';\nconst el = document.createElement('div'); el.style.height = '400px'; el.textContent = 'Loading data grid…'; shadowRoot.append(css, el);\nconst [perspectiveModule, viewerModule] = await Promise.all([\n  import('https://cdn.jsdelivr.net/npm/@finos/perspective@3.8.0/+esm'),\n  import('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3.8.0/+esm')\n]);\nawait Promise.all([\n  perspectiveModule.init_client(fetch('https://cdn.jsdelivr.net/npm/@finos/perspective@3.8.0/dist/wasm/perspective-js.wasm')),\n  perspectiveModule.init_server(fetch('https://cdn.jsdelivr.net/npm/@finos/perspective@3.8.0/dist/wasm/perspective-server.wasm')),\n  viewerModule.init_client(fetch('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3.8.0/dist/wasm/perspective-viewer.wasm'))\n]);\nawait import('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@3.8.0/+esm');\nel.textContent = '';\nconst viewer = document.createElement('perspective-viewer'); viewer.style.height = '400px'; el.appendChild(viewer);\nconst worker = await perspectiveModule.worker(); const table = await worker.table(data.table); await viewer.load(table); if (data.config) await viewer.restore(data.config);",
+    "codex": "// sandbox iframe 内显式初始化三个 Perspective WASM\nconst el = document.getElementById('view'); el.style.height = '400px'; el.textContent = 'Loading data grid…';\nconst [perspectiveModule, viewerModule] = await Promise.all([\n  import('https://cdn.jsdelivr.net/npm/@finos/perspective@3.8.0/+esm'),\n  import('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3.8.0/+esm')\n]);\nawait Promise.all([\n  perspectiveModule.init_client(fetch('https://cdn.jsdelivr.net/npm/@finos/perspective@3.8.0/dist/wasm/perspective-js.wasm')),\n  perspectiveModule.init_server(fetch('https://cdn.jsdelivr.net/npm/@finos/perspective@3.8.0/dist/wasm/perspective-server.wasm')),\n  viewerModule.init_client(fetch('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3.8.0/dist/wasm/perspective-viewer.wasm'))\n]);\nawait import('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@3.8.0/+esm');\nel.textContent = '';\nconst viewer = document.createElement('perspective-viewer'); viewer.style.height = '400px'; el.appendChild(viewer);\nconst worker = await perspectiveModule.worker(); const table = await worker.table(data.table); await viewer.load(table); if (data.config) await viewer.restore(data.config);"
   },
   "example": {
     "_why": "worker 表类型与 viewer 深配置容易错配,minimal 固定 table→load→restore 所需字段。",
     "minimal": {
       "table": [
-        { "region": "East", "sales": 120 },
-        { "region": "West", "sales": 90 }
+        {
+          "region": "East",
+          "sales": 120
+        },
+        {
+          "region": "West",
+          "sales": 90
+        }
       ],
       "config": {
         "plugin": "Datagrid",
-        "group_by": ["region"],
-        "columns": ["sales"]
+        "group_by": [
+          "region"
+        ],
+        "columns": [
+          "sales"
+        ]
       }
     },
     "empty": {
@@ -56,7 +96,10 @@
       },
       "config": {
         "plugin": "Datagrid",
-        "columns": ["region", "sales"]
+        "columns": [
+          "region",
+          "sales"
+        ]
       }
     }
   },
@@ -72,7 +115,6 @@
     "globalDomMutation": "no",
     "globalEvents": "unknown",
     "evidence": "perspective-viewer@3.8.0 +esm (57KB) has no document.head or document.body references; it uses `new CSSStyleSheet` (adoptedStyleSheets) inside its own component shadow root plus customElements.define. No head/body footprint, but it requires WebAssembly + Web Worker + cross-origin ESM loading, so shadow use is gated on host capabilities; worker/event listeners not exhaustively traced and runtime not live-tested.",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

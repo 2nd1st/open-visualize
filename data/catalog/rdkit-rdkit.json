@@ -4,6 +4,20 @@
   "name": "RDKit.js",
   "when_to_use": "需要工业级校验、规范化、描述符或子结构能力并把 SMILES/Molfile 描绘成 2D 结构时用它而非手写解析器,因为原生在化学价态、立体化学和专业描绘上失败;非做轻量静态图时的首选。",
   "why_valuable": "AI 默认既不能证明 SMILES 有效,也不能可靠规范化、算描述符或做子结构匹配;RDKit.js 把成熟 C++ cheminformatics 的确定行为通过 WASM 带到浏览器。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a hand-written parser when you need industrial-grade validation, normalization, descriptors, or substructure capabilities and a 2D depiction from SMILES/Molfile, because native implementations fail at chemical valence, stereochemistry, and professional depiction; not the first choice for a lightweight static diagram.",
+      "why_valuable": "AI can neither prove that SMILES is valid nor reliably normalize it, calculate descriptors, or perform substructure matching; RDKit.js brings deterministic behavior from mature C++ cheminformatics into the browser through WASM.",
+      "data_in": {
+        "schema": {
+          "source": "string -- pass SMILES, SMARTS, Molfile, or RDKit JSON text directly; no additional wrapper field"
+        }
+      },
+      "spec": {
+        "note": "get_svg(width,height) uses explicit pixel dimensions; default height is 320px, and width is the container's pixel width or 480px. Do not use vh or percentage heights."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -25,8 +39,8 @@
     "note": "get_svg(width,height) 使用显式像素尺寸;默认 height 320px,width 取容器像素宽或 480px,禁用 vh/百分比高。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合;本版本为 prerelease,必须完整固定\nimport initRDKitModule from 'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2025.3.4-1.0.0/+esm';\nconst wasm = 'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2025.3.4-1.0.0/dist/RDKit_minimal.wasm';\nconst RDKit = await initRDKitModule({ locateFile: () => wasm });\nconst el = document.getElementById('molecule'); el.style.height = '320px';\nconst mol = RDKit.get_mol(data.source); if (!mol) throw new Error('RDKit 无法解析 source');\ntry { el.innerHTML = mol.get_svg(el.clientWidth || 480, 320); } finally { mol.delete(); }",
-    "widget": "// WASM 与 JS 固定同一完整版本;输出 SVG 落 shadow 容器\nimport initRDKitModule from 'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2025.3.4-1.0.0/+esm';\nconst RDKit = await initRDKitModule({ locateFile: () => 'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2025.3.4-1.0.0/dist/RDKit_minimal.wasm' });\nconst el = document.createElement('div'); el.style.height = '320px'; shadowRoot.appendChild(el);\nconst mol = RDKit.get_mol(data.source); if (!mol) throw new Error('RDKit 无法解析 source');\ntry { el.innerHTML = mol.get_svg(el.clientWidth || 480, 320); } finally { mol.delete(); }",
+    "artifact": "// WASM 与 JS 固定同一完整版本;先建立可见状态再异步初始化\nconst el = document.getElementById('molecule'); el.style.height = '320px'; el.textContent = 'Loading molecule…';\nconst { default:initRDKitModule } = await import('https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2025.3.4-1.0.0/+esm');\nconst wasm = 'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2025.3.4-1.0.0/dist/RDKit_minimal.wasm';\nconst RDKit = await initRDKitModule({ locateFile: () => wasm });\nconst mol = RDKit.get_mol(data.source); if (!mol) throw new Error('RDKit 无法解析 source');\ntry { el.innerHTML = mol.get_svg(el.clientWidth || 480, 320); } finally { mol.delete(); }",
+    "widget": "// WASM 与 JS 固定同一完整版本;输出 SVG 落 shadow 容器\nconst el = document.createElement('div'); el.style.height = '320px'; el.textContent = 'Loading molecule…'; shadowRoot.appendChild(el);\nconst { default:initRDKitModule } = await import('https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2025.3.4-1.0.0/+esm');\nconst RDKit = await initRDKitModule({ locateFile: () => 'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2025.3.4-1.0.0/dist/RDKit_minimal.wasm' });\nconst mol = RDKit.get_mol(data.source); if (!mol) throw new Error('RDKit 无法解析 source');\ntry { el.innerHTML = mol.get_svg(el.clientWidth || 480, 320); } finally { mol.delete(); }",
     "codex": "同 artifact(sandbox iframe):完整版本 ESM + 同版本 RDKit_minimal.wasm,await 初始化后 get_mol/get_svg,并在 finally 调原生 mol.delete() 释放 WASM 对象。",
     "note": "jsDelivr 的 @rdkit/rdkit@2025/+esm 实测为 404,不能机械使用主版本别名;固定 picks 完整版本是保守且可复现的路径。"
   },
@@ -41,7 +55,11 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "+esm 实测完全干净:无 document.head、无 document.body、无 addEventListener、无 window.onerror(grep 全空)。RDKit_minimal 为无显示的纯计算 WASM;get_svg(w,h) 返回 SVG 字符串,boot 以 el.innerHTML 落入 shadow 容器,mol.delete() 在 finally 释放 WASM 对象。shadowCompatible=yes:输出 SVG 完全 shadow 安全;唯一外部要求是宿主允许 WebAssembly 编译 + 跨源 fetch 固定 wasm(属 CSP/载体条件,非 shadow-DOM 隔离问题;与条目 widget=conditional 一致)。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "source": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
+    }
   }
 }

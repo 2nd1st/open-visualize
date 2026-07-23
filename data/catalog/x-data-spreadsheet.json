@@ -39,10 +39,40 @@
     "height": 480,
     "note": "canvas 表格必须显式得到 viewport 高度;默认 480px,宽度取容器 clientWidth,铁律 3 禁 vh/百分比高。上游 view.height/view.width 回调返回像素数。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need a lightweight Excel-style grid with cell editing and multiple worksheets instead of hand-writing an HTML table/canvas, which tends to fail at selection, frozen panes, formula input, and clipboard interaction. It is not for long forms, database-scale virtual tables, or full Excel compatibility.",
+      "why_valuable": "AI defaults to a static table and cannot reliably provide selection, keyboard navigation, cell editing, merges, and worksheet state. x-spreadsheet supplies an editable canvas spreadsheet in one bundle, filling the UI gap left by calculation-only engines.",
+      "data_in": {
+        "note": "sheets is passed unchanged to upstream Spreadsheet.loadData. rows/cells keys are zero-based decimal index strings. The schema retains only stable, common fields and does not incorrectly feed it a 2D array. Defaults are documented for every optional field.",
+        "schema": {
+          "sheets": [
+            {
+              "name": "string -- worksheet name; required",
+              "rows": {
+                "<rowIndex>": {
+                  "height?": "number (px) -- default 25",
+                  "cells": {
+                    "<columnIndex>": {
+                      "text": "string -- displayed cell/formula text; required"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "mode?": "'edit' | 'read' -- default 'edit'"
+        }
+      },
+      "spec": {
+        "note": "The canvas spreadsheet must receive an explicit viewport height. Default is 480px, and width uses container clientWidth; rule 3 forbids vh or percentage heights. Upstream view.height/view.width callbacks return pixel values."
+      }
+    }
+  },
   "boot": {
-    "artifact": "// inferred-not-tested:CSS 按铁律 2 进 document.head\nawait import('https://cdn.jsdelivr.net/npm/x-data-spreadsheet@1.1.9/dist/xspreadsheet.js');  // @1/+esm bundle 失败,改 UMD 副作用载入\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/x-data-spreadsheet@1.1.9/dist/xspreadsheet.css'; document.head.appendChild(css);\nconst el = document.getElementById('sheet'); el.style.height = '480px';\nconst sheet = globalThis.x_spreadsheet(el, { mode: data.mode ?? 'edit', view: { height: () => 480, width: () => el.clientWidth } });  // UMD 全局是工厂,不用 new\nsheet.loadData(data.sheets);",
-    "widget": "await import('https://cdn.jsdelivr.net/npm/x-data-spreadsheet@1.1.9/dist/xspreadsheet.js');  // @1/+esm bundle 失败,改 UMD 副作用载入\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/x-data-spreadsheet@1.1.9/dist/xspreadsheet.css'; shadowRoot.appendChild(css);\nconst el = document.createElement('div'); el.style.height = '480px'; shadowRoot.appendChild(el);\nconst sheet = globalThis.x_spreadsheet(el, { mode: data.mode ?? 'edit', view: { height: () => 480, width: () => el.clientWidth } });  // UMD 全局是工厂,不用 new\nsheet.loadData(data.sheets);",
-    "codex": "await import('https://cdn.jsdelivr.net/npm/x-data-spreadsheet@1.1.9/dist/xspreadsheet.js');  // @1/+esm bundle 失败,改 UMD 副作用载入\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/x-data-spreadsheet@1.1.9/dist/xspreadsheet.css'; document.head.appendChild(css);\nconst el = document.getElementById('sheet'); el.style.height = '480px';\nconst sheet = globalThis.x_spreadsheet(el, { mode: data.mode ?? 'edit', view: { height: () => 480, width: () => el.clientWidth } });  // UMD 全局是工厂,不用 new\nsheet.loadData(data.sheets);"
+    "artifact": "// @1/+esm bundle 失败,使用官方 UMD 文件;先建立可见挂载状态再载入\nconst el = document.getElementById('sheet'); el.style.height = '480px'; el.textContent = 'Loading spreadsheet…';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/x-data-spreadsheet@1.1.9/dist/xspreadsheet.css'; document.head.appendChild(css);\nawait import('https://cdn.jsdelivr.net/npm/x-data-spreadsheet@1.1.9/dist/xspreadsheet.js');\nconst createSheet = globalThis.x_spreadsheet; if (typeof createSheet !== 'function') throw new Error('x_spreadsheet factory unavailable');\nel.textContent = ''; const sheet = createSheet(el, { mode: data.mode ?? 'edit', view: { height: () => 480, width: () => el.clientWidth || 600 } });\nconst sheets = Array.isArray(data.sheets) ? data.sheets : [data.sheets ?? { name:'Sheet1', rows:{} }]; sheet.loadData(sheets);",
+    "widget": "const el = document.createElement('div'); el.style.height = '480px'; el.textContent = 'Loading spreadsheet…'; shadowRoot.appendChild(el);\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/x-data-spreadsheet@1.1.9/dist/xspreadsheet.css'; shadowRoot.appendChild(css);\nawait import('https://cdn.jsdelivr.net/npm/x-data-spreadsheet@1.1.9/dist/xspreadsheet.js');\nconst createSheet = globalThis.x_spreadsheet; if (typeof createSheet !== 'function') throw new Error('x_spreadsheet factory unavailable');\nel.textContent = ''; const sheet = createSheet(el, { mode: data.mode ?? 'edit', view: { height: () => 480, width: () => el.clientWidth || 600 } });\nconst sheets = Array.isArray(data.sheets) ? data.sheets : [data.sheets ?? { name:'Sheet1', rows:{} }]; sheet.loadData(sheets);",
+    "codex": "const el = document.getElementById('sheet'); el.style.height = '480px'; el.textContent = 'Loading spreadsheet…';\nconst css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/x-data-spreadsheet@1.1.9/dist/xspreadsheet.css'; document.head.appendChild(css);\nawait import('https://cdn.jsdelivr.net/npm/x-data-spreadsheet@1.1.9/dist/xspreadsheet.js');\nconst createSheet = globalThis.x_spreadsheet; if (typeof createSheet !== 'function') throw new Error('x_spreadsheet factory unavailable');\nel.textContent = ''; const sheet = createSheet(el, { mode: data.mode ?? 'edit', view: { height: () => 480, width: () => el.clientWidth || 600 } });\nconst sheets = Array.isArray(data.sheets) ? data.sheets : [data.sheets ?? { name:'Sheet1', rows:{} }]; sheet.loadData(sheets);"
   },
   "example": {
     "_why": "表格 data 采用稀疏 rows/cells 索引对象,高歧义且不是二维数组;minimal 让 AI 一次拼对 loadData 形状。",
@@ -50,17 +80,29 @@
       "sheets": [
         {
           "name": "Sheet1",
+          "styles": [],
+          "merges": [],
+          "cols": {},
+          "validations": [],
           "rows": {
             "0": {
               "cells": {
-                "0": { "text": "项目" },
-                "1": { "text": "数量" }
+                "0": {
+                  "text": "项目"
+                },
+                "1": {
+                  "text": "数量"
+                }
               }
             },
             "1": {
               "cells": {
-                "0": { "text": "示例" },
-                "1": { "text": "3" }
+                "0": {
+                  "text": "示例"
+                },
+                "1": {
+                  "text": "3"
+                }
               }
             }
           }
@@ -88,7 +130,6 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "globalDomMutation=yes: appends context menus (`document.body.appendChild(c.el)`) and a modal dimmer overlay (`document.body.appendChild(this.dimmer.el)`) to document.body — these escape any shadow root. globalEvents=yes: binds `document.body` 'click' for click-outside-close (`xclickoutside`) and `window` 'keydown'/'resize'. globalStyleInjection=no for the main document: the sole `createElement('style')` targets the PRINT iframe's document (`@page` print CSS), not document.head. shadowCompatible=no: only the grid renders in the container; menus/modal overlays live on document.body outside the shadow, and the import is broken regardless.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

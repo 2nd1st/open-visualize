@@ -17,7 +17,7 @@ Why this helps: raising the ceiling of what an AI can render, spending fewer tok
 3. **Read the entry** — [`data/catalog/<id>.json`](data/catalog/) gives a trimmed data schema, a per-carrier boot snippet, and the license.
 4. **Assemble** — produce the `data` (JSON), add `spec` if layout is needed, and mount the component via the boot snippet.
 
-The discovery layer is tiered so an AI never has to load all 257 entries at once: the router is tiny, scene slices are loaded on demand, and full entries are read one at a time. `discovery/llms.txt` is the single-file dump for pasting the whole catalog into a knowledge base.
+The discovery layer is tiered so an AI never has to load all 406 entries at once: the router is tiny, scene slices are loaded on demand, and full entries are read one at a time. `discovery/llms.txt` is the single-file dump for pasting the whole catalog into a knowledge base.
 
 ## What's inside
 
@@ -27,7 +27,7 @@ The discovery layer is tiered so an AI never has to load all 257 entries at once
 | `discovery/index.md` | the router: data-shape → id index + scene directory |
 | `discovery/by-scene/*.md` | per-scene entry slices (load on demand) |
 | `discovery/llms.txt` | full single-file index of all entries |
-| `data/catalog/*.json` | 257 catalog entries, one JSON per component |
+| `data/catalog/*.json` | 406 catalog entries, one JSON per component |
 | `data/data-shapes.json` | the 18-word data-shape vocabulary for data-first discovery |
 
 ## Carriers
@@ -46,7 +46,7 @@ Each entry is a thin JSON object: always-present fields (`id`, `name`, `when_to_
 
 ## Status
 
-Early. **257 entries** — 236 directly consumable (`component` / `headless-primitive` / `data-asset`) plus 21 `blocked-until-forked` application stubs. Component APIs and CDN paths are verified against upstream; per-entry artifact-carrier behavior is being confirmed. Cataloged components retain their own upstream licenses (recorded per entry; copyleft flagged; a few unverified licenses are marked).
+Early. **406 entries** — 384 directly consumable (`component` / `headless-primitive` / `data-asset`) plus 22 `app-needs-fork` application stubs. Component APIs and CDN paths are verified against upstream; per-entry artifact-carrier behavior is being confirmed. Cataloged components retain their own upstream licenses (recorded per entry; copyleft flagged; a few unverified licenses are marked).
 
 ## License
 

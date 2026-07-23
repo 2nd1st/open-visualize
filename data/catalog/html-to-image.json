@@ -2,6 +2,35 @@
   "entry_version": "thin-1",
   "id": "html-to-image",
   "name": "html-to-image",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a hand-written implementation when you need to export an already rendered DOM node with computed styles, pseudo-elements, images, and fonts to PNG/JPEG/SVG/Blob in the browser, because native implementations fail at deep style cloning, resource inlining, and foreignObject->canvas rasterization.",
+      "why_valuable": "AI cannot produce reliable DOM screenshots by default: it cannot recursively copy computed styles, embed webfonts/background images, reconstruct pseudo-elements, and handle high-DPI canvas. This primitive supplies the last mile for taking non-persistent page output away.",
+      "data_in": {
+        "note": "node must be a connected HTMLElement whose layout has completed; the library reads its computed pixel geometry and clones it. Cross-origin images/fonts must be CORS-readable, and a tainted canvas or oversized data URI will fail.",
+        "schema": {
+          "node": "HTMLElement -- rendered root node to export, not a selector string or HTML source",
+          "options?": {
+            "_default": "when omitted, outputs with the node's computed size, a transparent background, and the device pixel ratio",
+            "width?": "number -- pixel width applied to the cloned node, default computed node width",
+            "height?": "number -- pixel height applied to the cloned node, default computed node height",
+            "canvasWidth?": "number -- raster-output pixel width, default width/node width",
+            "canvasHeight?": "number -- raster-output pixel height, default height/node height",
+            "backgroundColor?": "CSS color string -- transparent by default",
+            "quality?": "number 0..1 -- JPEG default 1",
+            "pixelRatio?": "number -- default devicePixelRatio",
+            "cacheBust?": "boolean -- default false",
+            "includeQueryParams?": "boolean -- default false",
+            "imagePlaceholder?": "data URL string -- default empty string",
+            "skipAutoScale?": "boolean -- default false"
+          }
+        }
+      },
+      "spec": {
+        "note": "The default 400px height applies only to the consumer-side container that displays the export result; vh or percentage height is prohibited. html-to-image itself reads node's computed pixel height by default. Unless options.height/canvasHeight is explicitly supplied, do not use this spec to crop the source node."
+      }
+    }
+  },
   "when_to_use": "需要在浏览器把一个已渲染 DOM 节点带计算样式、伪元素、图片与字体导出为 PNG/JPEG/SVG/Blob 时用它而非手写,因为原生在深克隆样式、资源内联和 foreignObject→canvas 栅格化上失败。",
   "why_valuable": "AI 默认完全做不到可靠 DOM 截图:无法递归复制 computed style、嵌入 webfont/背景图、重建伪元素并处理高 DPI canvas;该 primitive 补齐非持久化页面带走成果的最后一公里。",
   "supply_form": "headless-primitive",
@@ -61,7 +90,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "es/index.js grep 无 document.body / document.head / appendChild / documentElement。工作方式为克隆传入节点→内联样式→序列化为 SVG data URI→Image 绘入离屏 canvas,全程操作脱离文档的克隆与 data URL,不向 body/head 追加、不挂全局监听。可捕获 shadow 内节点(遍历子树)。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

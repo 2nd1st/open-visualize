@@ -2,6 +2,55 @@
   "entry_version": "thin-1",
   "id": "antv-x6",
   "name": "AntV X6",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written SVG when you need ports, marquee selection, snap alignment, and extensible SVG/HTML nodes in an ER diagram, flowchart, or DAG editor, because native implementations fail at complex direct manipulation, port routing, and graph-state consistency; not for automatic layout, workflow execution, or persistence services.",
+      "why_valuable": "AI can produce only static SVG by default, not production-grade marquee selection, ports, snap routing, and serializable editing state; X6's native Graph keeps these engineering capabilities and fromJSON/toJSON round trips in one model.",
+      "data_in": {
+        "note": "graph.fromJSON() accepts both {nodes,edges} metadata and the {cells} returned by graph.toJSON(); the catalog's primary input format is {nodes,edges}. Do not mix the two forms in one object.",
+        "schema": {
+          "oneOf": [
+            {
+              "nodes": [
+                {
+                  "id": "string -- unique across the graph",
+                  "shape": "'rect'|'circle'|'ellipse'|'polygon'|'image'|'html'|registered shape",
+                  "x": "number",
+                  "y": "number",
+                  "width": "number",
+                  "height": "number",
+                  "label?": "string -- defaults to empty text",
+                  "attrs?": "object -- inherits the shape styles by default",
+                  "ports?": "PortMetadata[] | {groups?:object(default {}),items?:PortMetadata[](default [])} -- no ports by default",
+                  "data?": "any -- default undefined"
+                }
+              ],
+              "edges": [
+                {
+                  "id": "string -- unique across the graph",
+                  "shape?": "string -- default 'edge'",
+                  "source": "string | {cell:string,port?:string} | {x:number,y:number}",
+                  "target": "string | {cell:string,port?:string} | {x:number,y:number}",
+                  "vertices?": "{x:number,y:number}[] -- default []",
+                  "labels?": "string[] | EdgeLabel[] -- default []",
+                  "router?": "string|object -- default built-in normal",
+                  "connector?": "string|object -- default built-in normal",
+                  "attrs?": "object -- inherits the edge styles by default",
+                  "data?": "any -- default undefined"
+                }
+              ]
+            },
+            {
+              "cells": "CellProperties[] -- native round-trip shape from graph.toJSON(); nodes contain position/size and edges contain source/target"
+            }
+          ]
+        }
+      },
+      "spec": {
+        "note": "X6 Graph requires pixel width and height. This entry defaults to height 420px and reads the container width during initialization; rule 3 prohibits vh/percentage height. When the container changes, the consuming AI should call graph.resize(width,height)."
+      }
+    }
+  },
   "when_to_use": "需要 ER 图、流程图或 DAG 编辑器中的连接桩、框选、吸附对齐与可扩展 SVG/HTML 节点时用它而非手写 SVG,因为原生在复杂直接操纵、端口路由和图状态一致性上失败;非做自动布局、流程执行或持久化服务。",
   "why_valuable": "AI 默认只能产出静态 SVG,做不到生产级框选、连接桩、吸附路由和可序列化编辑状态;X6 原生 Graph 把这些工程能力与 fromJSON/toJSON 往返集中到同一模型。",
   "supply_form": "component",
@@ -117,7 +166,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "css-loader/index.js 实测:createElement('style') + document.querySelector('head').insertBefore(styleElement,head.firstChild) → 硬注 document.head(globalStyleInjection=yes)。boot 仅 core+Selection+Snapline,渲进 container、无 body portal(未装 Stencil/ContextMenu/Tooltip)→ globalDomMutation=no。拖拽/框选在 document 挂 mousemove/mouseup 属瞬时监听,pointerup 即移除、graph.dispose() 兜底,无持久泄漏 → globalEvents=no。shadowCompatible=conditional:SVG 图可渲进 shadow,但 X6 强制向 document.head 注样式(非零足迹)且 head 样式不达 shadow 内容,widget 需额外把样式 adopt 进 shadow。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

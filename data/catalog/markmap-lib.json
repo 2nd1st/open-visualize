@@ -2,6 +2,18 @@
   "entry_version": "thin-1",
   "id": "markmap-lib",
   "name": "markmap",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a hand-written parser when you need to turn a Markdown outline into a collapsible, zoomable mind-map data tree, because native implementations fail to preserve heading hierarchy, lists, and inline rich-text semantics reliably.",
+      "why_valuable": "AI defaults can write Markdown but cannot reliably convert a Markdown AST into the markmap hierarchy tree or collect content-dependent rendering assets such as KaTeX/highlight; this entry turns AI's native language directly into data consumable by markmap-view.",
+      "data_in": {
+        "note": "The primary structural term follows picks as hierarchy; the component's actual entry point is a Markdown string. Transformer.transform produces the hierarchy root, features, and normalized content exactly; it does not accept a prebuilt tree.",
+        "schema": {
+          "markdown": "string -- Markdown heading/list outline; an empty string is a valid empty state"
+        }
+      }
+    }
+  },
   "when_to_use": "需要把 Markdown 大纲变成可折叠、可缩放思维导图的数据树时用它而非手写解析器,因为原生在稳定保留标题层级、列表与内联富文本语义上失败。",
   "why_valuable": "AI 默认能写 Markdown,但做不到稳定的 Markdown AST→markmap 层级树转换,也无法可靠收集 KaTeX/highlight 等按内容启用的渲染资产;本条把 AI 母语直接变成 markmap-view 可消费的数据。",
   "supply_form": "headless-primitive",
@@ -53,7 +65,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Headless transform primitive (markdown-it based). transform() is string→IPureNode data; getUsedAssets() RETURNS asset descriptors (IAssets{styles,scripts}) as plain data — it does not inject them. On the transform path there is no mount/render, no DOM/style/event side effect (the bundled markmap-view code is not executed unless Markmap.create is called, which this entry never does). Fully shadow-safe; any shadow concern belongs to the downstream markmap-view consumer, not this package.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

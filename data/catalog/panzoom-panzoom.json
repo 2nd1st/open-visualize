@@ -1,0 +1,111 @@
+{
+  "entry_version": "thin-1",
+  "id": "panzoom-panzoom",
+  "name": "Panzoom",
+  "when_to_use": "需要给一个「过大的生成内容」(大 SVG 架构/流程/电路图、超宽表/图、canvas)加平滑 pan + 滚轮/捏合 zoom + 边界约束,让它在固定视口里可浏览时用它。超高清 tiled 图(gigapixel/IIIF 渐进加载)用 openseadragon;普通图集 lightbox 用 photoswipe。",
+  "why_valuable": "AI 生成的大 SVG/超宽渲染在固定视口里看不全,而手写 transform + 指针/滚轮/捏合手势 + 惯性 + inside/outside 约束是一大坨易错状态机;Panzoom 用 CSS transform 把它收敛成 Panzoom(elem, options) 一行,并暴露 zoom/pan/reset/getScale 等原生方法。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@panzoom/panzoom",
+    "version": "4.6.2",
+    "github": "timmywil/panzoom"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "dom-element",
+    "note": "Panzoom 作用于「被平移缩放的目标元素」,该元素须放进一个尺寸确定、overflow:hidden 的父视口(父=视口,子=被拖动的画布)。关键:滚轮缩放不是默认绑定,须消费方在父视口上手动挂 wheel→pz.zoomWithWheel。data 只给内容与选项;真实消费中也可直接对已存在元素调用,不经 content 字段。",
+    "schema": {
+      "_defaults": {
+        "options": "{}"
+      },
+      "content": "string —— 要被平移缩放的内容(SVG/HTML 标记或 <img>),由 boot 放进目标元素;也可省略而由消费方对既有元素调用",
+      "options?": {
+        "_default": "省略时使用下列上游默认值(实测自 4.6.2 defaultOptions)",
+        "minScale?": "number —— 默认 0.125",
+        "maxScale?": "number —— 默认 4",
+        "step?": "number —— 滚轮/捏合/zoomIn 每步缩放,默认 0.3",
+        "startScale?": "number —— 初始缩放,默认 1",
+        "contain?": "'inside' | 'outside' —— 边界约束模式,默认不约束",
+        "cursor?": "string —— 拖动光标,默认 'move'",
+        "disablePan?": "boolean —— 默认 false",
+        "disableZoom?": "boolean —— 默认 false",
+        "panOnlyWhenZoomed?": "boolean —— 默认 false",
+        "animate?": "boolean —— 过渡动画,默认 false(duration 默认 200ms)"
+      }
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "父视口容器需显式像素高度(默认 400px)且 overflow:hidden;子内容可任意大,Panzoom 用 transform 在此视口内平移缩放。禁 vh/百分比高(铁律 3)。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:滚轮缩放非默认,须手动在父视口挂 wheel→zoomWithWheel(上游 d.ts 明示此用法)\nimport Panzoom from 'https://cdn.jsdelivr.net/npm/@panzoom/panzoom@4.6.2/+esm';\nconst viewport = document.getElementById('pz'); viewport.style.height = '400px'; viewport.style.overflow = 'hidden';\nconst content = document.createElement('div'); content.innerHTML = data.content ?? ''; viewport.appendChild(content);\nconst pz = Panzoom(content, data.options ?? {});\nviewport.addEventListener('wheel', pz.zoomWithWheel);",
+    "widget": "// 视口容器落 shadowRoot;Panzoom 只对目标元素与其父视口写 transform/style 并绑定它们的指针事件,不注入 head\nimport Panzoom from 'https://cdn.jsdelivr.net/npm/@panzoom/panzoom@4.6.2/+esm';\nconst viewport = document.createElement('div'); viewport.style.height = '400px'; viewport.style.overflow = 'hidden'; shadowRoot.appendChild(viewport);\nconst content = document.createElement('div'); content.innerHTML = data.content ?? ''; viewport.appendChild(content);\nconst pz = Panzoom(content, data.options ?? {});\nviewport.addEventListener('wheel', pz.zoomWithWheel);",
+    "codex": "// sandbox iframe:同 artifact\nimport Panzoom from 'https://cdn.jsdelivr.net/npm/@panzoom/panzoom@4.6.2/+esm';\nconst viewport = document.getElementById('pz'); viewport.style.height = '400px'; viewport.style.overflow = 'hidden';\nconst content = document.createElement('div'); content.innerHTML = data.content ?? ''; viewport.appendChild(content);\nconst pz = Panzoom(content, data.options ?? {});\nviewport.addEventListener('wheel', pz.zoomWithWheel);"
+  },
+  "example": {
+    "_why": "常被误解为默认支持滚轮缩放、且直接作用于父容器;minimal 钉死「目标元素 + 选项」且缩放范围/约束可控。",
+    "minimal": {
+      "content": "<svg width='1600' height='1200' viewBox='0 0 1600 1200'><!-- 大架构图 --></svg>",
+      "options": {
+        "maxScale": 8,
+        "minScale": 0.2,
+        "contain": "outside"
+      }
+    },
+    "empty": {
+      "content": ""
+    }
+  },
+  "uplink": {
+    "artifact": "artifact 无上行;当前缩放/位移由 pz.getScale()/pz.getPan() 读取,消费 AI 如需回传自行导出。",
+    "widget": "消费 AI 在确认控件读取 pz.getScale()/pz.getPan() 后拼 sendPrompt;本条不焊接统一事件出口(panzoom 原生派发 panzoomchange/panzoomzoom CustomEvent 可供监听)。",
+    "codex": "消费 AI 读取 pz.getScale()/pz.getPan() 后自行调用 sendFollowUpMessage。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:Panzoom 只对 shadow 内目标元素与父视口写 transform/style 并绑定它们自身的指针事件,无 head/body/document 逃逸",
+    "codex": "supported:纯 ESM + CSS transform + 指针事件,无 worker/wasm 依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "@panzoom/panzoom@4.6.2 +esm default export `lt as default` = Panzoom(elem:HTMLElement|SVGElement, options?:PanzoomGlobalOptions)=>PanzoomObject (dist/src/panzoom.d.ts). PanzoomObject methods zoomWithWheel(event,opts), zoomIn/zoomOut(opts), pan/zoom, reset(opts), getScale(), getPan(), setOptions(opts), destroy() (types.d.ts L215-395). Wheel zoom is NOT auto-bound — d.ts example (L383) shows elem.parentElement.addEventListener('wheel', panzoom.zoomWithWheel); boot follows this. defaultOptions verified in /tmp bundle: minScale:.125, maxScale:4, step:.3, startScale:1, cursor:'move', animate:false, disablePan:false, disableZoom:false, duration:200, overflow:'hidden', touchAction:'none'. Footprint: 0 document.head / createElement('style') / adoptedStyleSheets; 0 document.|ownerDocument.addEventListener in bundle — pointer/mouse/touch listeners are attached to the target element and its parent (bind target is the element var, uses pointer capture), NOT to document/window, and destroy() removes them. So Panzoom writes transform/transform-origin/touch-action on the target and touch-action/overflow on its parent, all inside the mounted subtree → shadow-safe with no global footprint.",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to add smooth pan, wheel/pinch zoom, and boundary constraints to oversized generated content (large SVG architecture/flow/circuit diagrams, extra-wide tables/charts, or canvas) so it can be explored in a fixed viewport. For ultra-high-resolution tiled images (gigapixel/IIIF progressive loading) use openseadragon; for a regular image-gallery lightbox use photoswipe.",
+      "why_valuable": "Large AI-generated SVG or extra-wide output does not fit in a fixed viewport, while hand-writing transform plus pointer/wheel/pinch gestures, inertia, and inside/outside constraints creates a large error-prone state machine. Panzoom reduces this to Panzoom(elem, options) using CSS transform and exposes native methods such as zoom/pan/reset/getScale.",
+      "data_in": {
+        "note": "Panzoom acts on the target element being panned and zoomed. That element must be inside a fixed-size parent viewport with overflow:hidden (parent=viewport, child=draggable canvas). Important: wheel zoom is not bound by default; the consumer must manually attach wheel -> pz.zoomWithWheel on the parent viewport. data contains only content and options; in real use it may also be called directly on an existing element without the content field.",
+        "schema": {
+          "_defaults": {
+            "options": "{}"
+          },
+          "content": "string -- Content to pan and zoom (SVG/HTML markup or <img>), placed in the target element by boot; may be omitted when the consumer calls Panzoom on an existing element",
+          "options?": {
+            "_default": "When omitted, uses the following upstream defaults (verified from 4.6.2 defaultOptions)",
+            "minScale?": "number -- Default 0.125",
+            "maxScale?": "number -- Default 4",
+            "step?": "number -- Scale increment for wheel/pinch/zoomIn; default 0.3",
+            "startScale?": "number -- Initial scale; default 1",
+            "contain?": "'inside' | 'outside' -- Boundary-constraint mode; unconstrained by default",
+            "cursor?": "string -- Drag cursor; default 'move'",
+            "disablePan?": "boolean -- Default false",
+            "disableZoom?": "boolean -- Default false",
+            "panOnlyWhenZoomed?": "boolean -- Default false",
+            "animate?": "boolean -- Transition animation; default false (duration defaults to 200ms)"
+          }
+        }
+      },
+      "spec": {
+        "note": "The parent viewport needs an explicit pixel height (default 400px) and overflow:hidden. Child content may be arbitrarily large; Panzoom uses transform to pan and zoom within this viewport. vh/percentage height is prohibited (Rule 3)."
+      }
+    }
+  }
+}

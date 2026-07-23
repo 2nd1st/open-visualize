@@ -1,0 +1,70 @@
+{
+  "entry_version": "thin-1",
+  "id": "bpmn-js",
+  "name": "bpmn-js",
+  "when_to_use": "要从 BPMN 2.0 XML 渲染/嵌入业务流程图(任务、类型化事件、网关、泳道池、序列/消息流)且需要标准 BPMN 语义与图标、或与流程引擎(Camunda/Zeebe)互通时,用只读 NavigatedViewer。只想要通用方框-箭头流程图用 mermaid 更轻。XML 必须自带 BPMNDI 布局坐标(NavigatedViewer 不自动排版)。",
+  "why_valuable": "BPMN 2.0 图有严格的形状语义(网关菱形、边界/定时事件、泳道路由、序列 vs 消息流)+ 标准图标;AI 徒手画 SVG 会图标不标准、对齐错乱、连线乱走、冗长易错。bpmn-js 解析标准 XML,产出规范、正确布线的流程图。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "bpmn-js",
+    "version": "18.21.0",
+    "github": "bpmn-io/bpmn-js"
+  },
+  "license": "SEE LICENSE IN LICENSE (bpmn.io — MIT-style 授权 + 不可移除的 bpmn.io watermark,须保持可见并链回 https://bpmn.io)",
+  "data_in": {
+    "shape": "notation-xml",
+    "note": "XML 必须是含 <bpmndi:BPMNDiagram>(图形交换,带 bounds/waypoints 坐标)的完整 BPMN 2.0 文档;NavigatedViewer 不自动布局,无 DI 会 importXML 报错/渲染空白(自动排版需另装 bpmn-auto-layout)。",
+    "schema": {
+      "xml": "string —— BPMN 2.0 XML(<bpmn:definitions> …),必须内含 <bpmndi:BPMNDiagram> 布局坐标(shape bounds / flow waypoints)"
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "SVG 图按容器铺展;给容器固定 px 高(如 400),禁 vh/百分比高。importXML 后调 viewer.get('canvas').zoom('fit-viewport') 适配视口。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested。只读 NavigatedViewer(自包含 bundle,default 导出);须外链 scoped CSS,bpmn-font 需 document 级才出图标\nimport NavigatedViewer from 'https://cdn.jsdelivr.net/npm/bpmn-js@18.21.0/dist/bpmn-navigated-viewer.production.min.js/+esm';\n['dist/assets/diagram-js.css','dist/assets/bpmn-js.css','dist/assets/bpmn-font/css/bpmn.css'].forEach(h => { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://cdn.jsdelivr.net/npm/bpmn-js@18.21.0/' + h; document.head.appendChild(l); });\nconst el = document.getElementById('bpmn'); el.style.height = '400px';\nconst viewer = new NavigatedViewer({ container: el });\nawait viewer.importXML(data.xml);\nviewer.get('canvas').zoom('fit-viewport');",
+    "widget": "// bundle 实测 0 document.head 注入。把 scoped CSS adopt 进 shadow;注意 bpmn-font 的 @font-face 在 shadow 内不注册 → 任务/事件图标空缺,但结构/布局/连线仍正确\nimport NavigatedViewer from 'https://cdn.jsdelivr.net/npm/bpmn-js@18.21.0/dist/bpmn-navigated-viewer.production.min.js/+esm';\nconst el = document.createElement('div'); el.style.height = '400px'; shadowRoot.appendChild(el);\n['dist/assets/diagram-js.css','dist/assets/bpmn-js.css'].forEach(h => { const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'https://cdn.jsdelivr.net/npm/bpmn-js@18.21.0/' + h; shadowRoot.appendChild(link); });\nconst viewer = new NavigatedViewer({ container: el });\nawait viewer.importXML(data.xml);\nviewer.get('canvas').zoom('fit-viewport');",
+    "codex": "import NavigatedViewer from 'https://cdn.jsdelivr.net/npm/bpmn-js@18.21.0/dist/bpmn-navigated-viewer.production.min.js/+esm';\n['dist/assets/diagram-js.css','dist/assets/bpmn-js.css','dist/assets/bpmn-font/css/bpmn.css'].forEach(h => { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://cdn.jsdelivr.net/npm/bpmn-js@18.21.0/' + h; document.head.appendChild(l); });\nconst el = document.getElementById('bpmn'); el.style.height = '400px';\nconst viewer = new NavigatedViewer({ container: el });\nawait viewer.importXML(data.xml);\nviewer.get('canvas').zoom('fit-viewport');"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested:须外链 3 个 scoped CSS(diagram-js/bpmn-js/bpmn-font);bpmn.io watermark 按 license 不可移除",
+    "widget": "conditional:SVG + scoped CSS adopt 进 shadow;bpmn-font @font-face 在 shadow 不注册 → 图标空缺,结构/布局/连线仍正确(可把 bpmn-font @font-face 单独注 document.head 恢复图标,但破坏零足迹)",
+    "codex": "supported:ESM bundle + 外链 CSS"
+  },
+  "example": {
+    "_why": "NavigatedViewer 不自动布局,minimal 钉死必须含 BPMNDI 坐标的完整 BPMN 2.0 XML(最小一个 task)。",
+    "minimal": {
+      "xml": "<?xml version=\"1.0\"?><bpmn:definitions xmlns:bpmn=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" id=\"d\" targetNamespace=\"x\"><bpmn:process id=\"p\"><bpmn:task id=\"t\" name=\"Do work\"/></bpmn:process><bpmndi:BPMNDiagram id=\"dia\"><bpmndi:BPMNPlane id=\"pl\" bpmnElement=\"p\"><bpmndi:BPMNShape id=\"t_di\" bpmnElement=\"t\"><dc:Bounds x=\"160\" y=\"80\" width=\"100\" height=\"80\"/></bpmndi:BPMNShape></bpmndi:BPMNPlane></bpmndi:BPMNDiagram></bpmn:definitions>"
+    },
+    "empty": {
+      "xml": ""
+    }
+  },
+  "uplink": "元素点击/选择默认不上行;需外传由消费 AI 接 viewer.on('element.click', cb) 等原生事件并按载体处理。",
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "conditional",
+    "evidence": "API correct: read-only NavigatedViewer bundle at dist/bpmn-navigated-viewer.production.min.js/+esm returns a default export (export{Ca as default}), HTTP 200, 191KB self-contained (all deps inlined); bundle contains importXML and 'fit-viewport'. API = new NavigatedViewer({ container }); await viewer.importXML(xml); viewer.get('canvas').zoom('fit-viewport'). globalStyleInjection=no: bundle grep shows 0 'document.head', 0 createElement('style'), 0 insertRule — it injects no global CSS; the catalog itself links the scoped CSS (dist/assets/diagram-js.css + dist/assets/bpmn-js.css, selectors .djs-*/.bjs-*, plus dist/assets/bpmn-font/css/bpmn.css for glyph icons — all four asset paths exist, verified). globalDomMutation=no: SVG + overlays render inside the provided container. shadowCompatible=conditional: SVG shapes + scoped CSS adopt into a shadow fine, BUT bpmn-font uses @font-face, which does not register when placed inside a shadow root (browser limitation) → task/event glyph icons render blank while structure/layout/flows stay correct. globalEvents=conditional: NavigatedViewer bundles keyboard navigation (diagram-js Keyboard) whose keydown binding can attach at document level — scoped nav, but worth flagging. License caveat: bpmn.io license requires the bpmn.io watermark (links to https://bpmn.io) to remain fully visible and not be removed/overlapped.",
+    "confidence": "medium"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use the read-only NavigatedViewer when you need to render or embed a business process from BPMN 2.0 XML, including tasks, typed events, gateways, pools/lanes, and sequence/message flows, and need standard BPMN semantics and icons or interoperability with a process engine such as Camunda/Zeebe. For a generic box-and-arrow flowchart, Mermaid is lighter. The XML must include BPMNDI layout coordinates because NavigatedViewer does not lay out diagrams automatically.",
+      "why_valuable": "BPMN 2.0 diagrams have strict shape semantics, including gateway diamonds, boundary/timer events, lane routing, and sequence versus message flows, plus standard icons. Handwritten SVG from AI produces nonstandard icons, misalignment, poor routing, and verbose fragile code. bpmn-js parses standard XML into a compliant, correctly routed process diagram.",
+      "data_in": {
+        "note": "XML must be a complete BPMN 2.0 document containing <bpmndi:BPMNDiagram>, the diagram interchange section with bounds/waypoint coordinates. NavigatedViewer does not perform automatic layout; without DI, importXML fails or renders blank. Automatic layout requires the separate bpmn-auto-layout package.",
+        "schema": {
+          "xml": "string -- BPMN 2.0 XML (<bpmn:definitions> ...), including <bpmndi:BPMNDiagram> layout coordinates (shape bounds / flow waypoints)"
+        }
+      },
+      "spec": {
+        "note": "The SVG diagram expands within its container; give the container a fixed pixel height such as 400px, not a vh or percentage height. After importXML, call viewer.get('canvas').zoom('fit-viewport') to fit the viewport."
+      }
+    }
+  }
+}

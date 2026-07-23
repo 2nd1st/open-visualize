@@ -1,0 +1,102 @@
+{
+  "entry_version": "thin-1",
+  "id": "sunburst-chart",
+  "name": "sunburst-chart",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to show a proportional hierarchy (disk usage, budgets, category composition) with click-to-drill-down navigation and breadcrumbs. For a purely structural tree such as reporting lines or folders, use d3-org-chart; for a mind map, use markmap or mind-elixir. Data is a {name,value,children} hierarchy with value on leaves.",
+      "why_valuable": "A zoomable sunburst requires d3 partition layout, arc generation, and animated zoom transitions for drilling down, and hand-written drill-down animation is very fragile. This turnkey component turns a hierarchy into a clickable radial drill-down chart.",
+      "data_in": {
+        "note": "Default accessors are label='name', size='value', and children='children' (all verified against the README method table). Leaf nodes provide value; d3-hierarchy automatically sums internal node values, so value may be omitted when children is present.",
+        "schema": {
+          "root": {
+            "name": "string -- node label, read by the default label accessor",
+            "value?": "number -- leaf size, read by the default size accessor; may be omitted when children is present",
+            "children?": "Node[] -- child-node array; omit for leaves"
+          }
+        }
+      },
+      "spec": {
+        "note": "The sunburst is radial and uses the smaller container dimension as its diameter. Default height is 500px; set the height before construction and do not use vh or percentage heights."
+      }
+    }
+  },
+  "when_to_use": "展示占比型层级(磁盘/预算/分类构成)并要点击逐层下钻 + 面包屑时用它;纯结构树(谁汇报谁、文件夹)用 d3-org-chart,思维导图用 markmap/mind-elixir。数据是 {name,value,children} 层级树,叶子给 value。",
+  "why_valuable": "可缩放旭日图涉及 d3 partition 布局 + 弧生成 + 下钻缩放过渡动画,AI 徒手写下钻动画极易崩;turnkey 组件喂层级树即出可点击下钻的放射图。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "sunburst-chart",
+    "version": "1.21.4",
+    "github": "vasturiano/sunburst-chart"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "hierarchy",
+    "note": "默认访问器 label='name'、size='value'、children='children'(均已从 README 方法表核实);叶子节点给 value,内部节点值由 d3-hierarchy 自动累加(有 children 时可省 value)。",
+    "schema": {
+      "root": {
+        "name": "string —— 节点标签(label 访问器默认读 name)",
+        "value?": "number —— 叶子大小(size 访问器默认读 value);有 children 时可省略",
+        "children?": "Node[] —— 子节点数组;叶子省略"
+      }
+    }
+  },
+  "spec": {
+    "height": 500,
+    "note": "旭日图为放射状,读取容器尺寸取较小边为直径;默认 height 500px,构造前设好高度,禁 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested。默认导出是 SunburstChart 类:new Sunburst(el)(非旧版 Sunburst()(el))。数据 {name,value,children}。注意 float-tooltip 会向 document.head 注 tooltip CSS。d3 经嵌套 +esm 自解析。\nimport Sunburst from 'https://cdn.jsdelivr.net/npm/sunburst-chart@1.21.4/+esm';\nconst el = document.getElementById('sunburst'); el.style.height = '500px';\nconst chart = new Sunburst(el).data(data.root);",
+    "widget": "// svg 与 tooltip 落 shadow 容器;但 float-tooltip 的 CSS 注入在 head,shadow 内 tooltip 会缺样式(仍可用)。\nimport Sunburst from 'https://cdn.jsdelivr.net/npm/sunburst-chart@1.21.4/+esm';\nconst el = document.createElement('div'); el.style.width = '100%'; el.style.height = '500px'; shadowRoot.appendChild(el);\nconst chart = new Sunburst(el).data(data.root);",
+    "codex": "import Sunburst from 'https://cdn.jsdelivr.net/npm/sunburst-chart@1.21.4/+esm';\nconst el = document.getElementById('sunburst'); el.style.height = '500px';\nconst chart = new Sunburst(el).data(data.root);"
+  },
+  "example": {
+    "_why": "钉死层级字段 name/value/children,叶子给 value。",
+    "minimal": {
+      "root": {
+        "name": "root",
+        "children": [
+          {
+            "name": "A",
+            "children": [
+              {
+                "name": "A1",
+                "value": 3
+              },
+              {
+                "name": "A2",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "name": "B",
+            "value": 4
+          }
+        ]
+      }
+    },
+    "empty": {
+      "root": {
+        "name": "root",
+        "children": []
+      }
+    }
+  },
+  "uplink": "display/local-interact 默认不上行;下钻/点击焦点若需外传,由消费 AI 接 .onClick(node) 原生回调并按载体处理。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:svg 与 tooltip 落 shadow 容器;但 float-tooltip 把其 CSS 注入 document.head(shadow 内 tooltip 会缺样式但仍可用)。",
+    "codex": "supported:ESM CDN,d3 经嵌套 +esm 自解析,无 worker/wasm。"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "默认导出是 SunburstChart 类(dts: declare class SunburstChart {...};export{SunburstChart as default})。实例化为 new Sunburst(<DOMElement>)(README: const myChart = new Sunburst(<myDOMElement>))——已用 new 模式,非旧 curried。默认访问器从 README 方法表核实:children→'children'、label→'name'、size→'value'(dts 的 data(rootNode:Node) 与 children/label/size 访问器方法一致),故数据 {name,value,children}。globalStyleInjection=yes:+esm(11554B,内联 d3-hierarchy/shape/scale/transition + float-tooltip)grep 命中 document.head||...getElementsByTagName(\"head\")...createElement(\"style\")——float-tooltip 的 tooltip CSS 注入 head。globalDomMutation=no:svg 与 tooltip DOM 建在传入容器内,无 document.body append。globalEvents=no。",
+    "confidence": "high"
+  }
+}

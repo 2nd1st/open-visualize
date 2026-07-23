@@ -7,7 +7,11 @@
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
-  "upstream": { "npm": "d3-graphviz", "version": "5.6.0", "github": "magjac/d3-graphviz" },
+  "upstream": {
+    "npm": "d3-graphviz",
+    "version": "5.6.0",
+    "github": "magjac/d3-graphviz"
+  },
   "license": "BSD-3-Clause",
   "data_in": {
     "shape": "graph",
@@ -40,7 +44,29 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "README L161-163: d3.graphviz(selector[,options]) — 'if the selector is not a string, instead creates the renderer on the specified node', so boot's graphviz(el,{...}) with a DOM node is valid. Supported-options table + src/options.js (`this._options[option]=options[option]` for every key) confirm engine(default dot)/fit(default false)/zoom(default true)/useWorker(default true) are all real constructor options; .width()/.height()/.renderDot(dotSrc) are real methods; engine enum values (dot/neato/fdp/sfdp/circo/twopi) are a valid subset. build/d3-graphviz.js grep for document.head/document.body/getElementById/insertRule/style-injection → empty (renders SVG into the passed node; d3-zoom binds to the in-container SVG with only transient window listeners during active drag). Requires @hpcc-js/wasm WebAssembly (useWorker:false → main thread); works in shadow DOM only if host CSP allows WASM → conditional.",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
+  },
+  "example": {
+    "minimal": {
+      "dot": "digraph Pipeline {\n  rankdir=LR;\n  node [shape=box style=\"rounded,filled\" fillcolor=\"#e0f2fe\" color=\"#0369a1\" fontname=\"Helvetica\"];\n  edge [color=\"#64748b\" fontname=\"Helvetica\"];\n  Start  [shape=ellipse fillcolor=\"#fef9c3\" color=\"#a16207\"];\n  Deploy [shape=ellipse fillcolor=\"#dcfce7\" color=\"#15803d\"];\n  Start -> Parse -> Compile -> Link;\n  Parse -> Validate -> Link;\n  Link -> Deploy [label=\"emit\"];\n}",
+      "engine": "dot"
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when AI can already provide DOT but you need stable in-browser rendering of clusters, ranks, and complex edge routing as scalable SVG, instead of implementing layout by hand, which fails at Graphviz-grade layout and transitions. Not for freely draggable or continuously evolving force-directed networks.",
+      "why_valuable": "AI can write DOT by default but cannot run Graphviz layout in the browser, generate high-quality rank/cluster geometry, or drive SVG transitions; this entry connects the familiar DSL directly to a WASM renderer.",
+      "data_in": {
+        "schema": {
+          "dot": "string -- Complete graph/digraph DOT source, not a node array",
+          "engine?": "'dot' | 'neato' | 'fdp' | 'sfdp' | 'circo' | 'twopi' -- Default 'dot'",
+          "fit?": "boolean -- Default true",
+          "zoom?": "boolean -- Default true"
+        }
+      },
+      "spec": {
+        "note": "The renderer is explicitly set to 400px high and the current container width; vh and percentage heights are forbidden. AI may override the pixel height for complex graphs. Workers are conservatively disabled because the pure ESM import has no worker script tag that upstream can detect."
+      }
+    }
   }
 }

@@ -45,6 +45,28 @@
     "_why_no_minimal": "slides 是单层有序 HTML 项,参数均为标量且默认已钉死,裁剪 schema 足够一次拼对;只保留空态 fixture。",
     "empty": {
       "slides": []
+    },
+    "minimal": {
+      "slides": [
+        {
+          "html": "<div style=\"height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2563eb,#1e40af);color:#fff;font:700 32px/1.2 system-ui,-apple-system,sans-serif;\">Slide 1 · 蓝</div>",
+          "ariaLabel": "第 1 张幻灯片"
+        },
+        {
+          "html": "<div style=\"height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#059669,#047857);color:#fff;font:700 32px/1.2 system-ui,-apple-system,sans-serif;\">Slide 2 · 绿</div>",
+          "ariaLabel": "第 2 张幻灯片"
+        },
+        {
+          "html": "<div style=\"height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#d97706,#b45309);color:#fff;font:700 32px/1.2 system-ui,-apple-system,sans-serif;\">Slide 3 · 橙</div>",
+          "ariaLabel": "第 3 张幻灯片"
+        },
+        {
+          "html": "<div style=\"height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#db2777,#9d174d);color:#fff;font:700 32px/1.2 system-ui,-apple-system,sans-serif;\">Slide 4 · 粉</div>",
+          "ariaLabel": "第 4 张幻灯片"
+        }
+      ],
+      "navigation": true,
+      "pagination": true
     }
   },
   "uplink": "display/local-interact 类默认无需上行;活动下标若需外传,由消费 AI 读取 swiper.swiper.activeIndex 并按载体处理,不预设事件出口。",
@@ -59,7 +81,33 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Swiper Element adopts its CSS into each element's OWN internal shadow root, not document.head (catalog note correct); navigation arrows/pagination bullets render inside that element shadow, not body. Touch and the default ResizeObserver are element-scoped. register() mutates the global customElements registry via define (benign, guarded). Only global listener is the opt-in keyboard module's document 'keydown' (keyboard default false; Swiper destroy() removes it). A swiper-container upgrades correctly when created via JS and appended to a widget shadowRoot.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for a content track that needs mobile nested swiping, touch resistance, breakpoint-based multi-card layouts, and keyboard/pagination navigation instead of handwritten translateX, which fails at gesture competition, boundary bounce, and responsive-state synchronization. Not for ordinary tabs, a static gallery, or a carousel with only two or three images.",
+      "why_valuable": "AI defaults can only write a fixed-width CSS carousel and cannot reliably determine touch velocity, coordinate nested scrolling, clone slides for looping, or provide accessible navigation; Swiper Element packages these behaviors as a mountable component through native parameters.",
+      "data_in": {
+        "note": "boot maps slides in order to swiper-slide custom elements; html is assigned to innerHTML, so accept only trusted or sanitized content.",
+        "schema": {
+          "slides": [
+            {
+              "html": "string -- Trusted or sanitized HTML for one slide",
+              "ariaLabel?": "string -- Does not set an additional aria-label by default"
+            }
+          ],
+          "initialSlide?": "non-negative integer -- Default 0",
+          "slidesPerView?": "positive number|'auto' -- Default 1",
+          "spaceBetween?": "number -- Default 0px",
+          "loop?": "boolean -- Default false",
+          "navigation?": "boolean -- Default false",
+          "pagination?": "boolean -- Default false",
+          "keyboard?": "boolean -- Default false"
+        }
+      },
+      "spec": {
+        "note": "The content track defaults to an explicit height of 320px, inherited by every slide. AI may use another pixel value; vh and percentage heights are forbidden by rule 3. Even naturally fixed-height content should state that pixel value explicitly."
+      }
+    }
   }
 }

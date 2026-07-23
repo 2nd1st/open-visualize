@@ -4,6 +4,28 @@
   "name": "Shudan",
   "when_to_use": "需要把围棋落子矩阵渲成带坐标、标记、箭头或热力覆盖的高质量棋盘时用它,而非手写 canvas/SVG——原生在十九路网格对齐、棋子质感与多层覆盖上失败。非围棋规则引擎或 SGF 解析器。",
   "why_valuable": "AI 默认做不到稳定的十九路棋盘几何、棋子纹理、标记/热力/连线叠层与缩放;Shudan 直接消费二维落子矩阵,把 Sabaki 级 Goban 渲染交给经过验证的 Preact 组件。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing canvas/SVG when you need to render a Go stone matrix as a high-quality board with coordinates, markers, arrows, or heat overlays, because native implementations fail at 19x19 grid alignment, stone appearance, and multi-layer overlays. Not a Go rules engine or SGF parser.",
+      "why_valuable": "AI cannot normally deliver stable 19x19 board geometry, stone textures, marker/heat/line overlays, and scaling; Shudan directly consumes a two-dimensional stone matrix and delegates Sabaki-grade Goban rendering to a verified Preact component.",
+      "data_in": {
+        "note": "signMap is the native upstream map: the outer dimension is rows (y), the inner dimension is columns (x), and every row has equal length. All vertex coordinates are zero-based [x,y]. This component does not handle rules, captures, or legality.",
+        "schema": {
+          "signMap": "(0 | 1 | -1)[][] -- 1=black stone, -1=white stone, 0=empty intersection; default [] is an empty board",
+          "markerMap?": "({type?:'circle'|'cross'|'triangle'|'square'|'point'|'loader'|'label'|null,label?:string|null,tooltip?:string|null}|null)[][] -- should match signMap dimensions; no markers by default",
+          "heatMap?": "({strength:number,text?:string|null}|null)[][] -- strength is heat intensity; no heat layer by default",
+          "selectedVertices?": "[number,number][] -- zero-based [x,y], default []",
+          "lines?": "{v1:[number,number],v2:[number,number],type?:'line'|'arrow'}[] -- type defaults to 'line'; overall default []",
+          "showCoordinates?": "boolean -- default false",
+          "fuzzyStonePlacement?": "boolean -- default false",
+          "animateStonePlacement?": "boolean -- default false; takes effect only when fuzzyStonePlacement=true and a new signMap object is supplied"
+        }
+      },
+      "spec": {
+        "note": "BoundedGoban must receive explicit maxWidth/maxHeight; boot defaults both to 480px, and the board stays square. AI may use other positive integer pixel values; do not use vh or percentage heights."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -32,9 +54,9 @@
     "note": "BoundedGoban 必须得到明确的 maxWidth/maxHeight；boot 默认二者均为 480px,棋盘保持正方形。AI 可改为其他正整数像素,禁用 vh/百分比高度。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:Shudan CSS 进入 document.head(铁律 2)\nimport { h, render } from 'https://cdn.jsdelivr.net/npm/preact@10/+esm';\nimport { BoundedGoban } from 'https://cdn.jsdelivr.net/npm/@sabaki/shudan@1/+esm';\nconst css = Object.assign(document.createElement('link'), {rel:'stylesheet', href:'https://cdn.jsdelivr.net/npm/@sabaki/shudan@1.8.0/css/goban.css'}); document.head.appendChild(css);\nconst host = document.getElementById('goban'); host.style.height = `${spec.height ?? 480}px`;\nrender(h(BoundedGoban, {...data, maxWidth:spec.height ?? 480, maxHeight:spec.height ?? 480}), host);",
-    "widget": "// 挂载点与 CSS 均落 shadowRoot；@import 保留 CSS 内图片的正确相对基址\nimport { h, render } from 'https://cdn.jsdelivr.net/npm/preact@10/+esm';\nimport { BoundedGoban } from 'https://cdn.jsdelivr.net/npm/@sabaki/shudan@1/+esm';\nconst style = document.createElement('style'); style.textContent = \"@import url('https://cdn.jsdelivr.net/npm/@sabaki/shudan@1.8.0/css/goban.css');\";\nconst host = document.createElement('div'); host.style.height = `${spec.height ?? 480}px`; shadowRoot.append(style, host);\nrender(h(BoundedGoban, {...data, maxWidth:spec.height ?? 480, maxHeight:spec.height ?? 480}), host);",
-    "codex": "import { h, render } from 'https://cdn.jsdelivr.net/npm/preact@10/+esm';\nimport { BoundedGoban } from 'https://cdn.jsdelivr.net/npm/@sabaki/shudan@1/+esm';\nconst css = Object.assign(document.createElement('link'), {rel:'stylesheet', href:'https://cdn.jsdelivr.net/npm/@sabaki/shudan@1.8.0/css/goban.css'}); document.head.appendChild(css);\nconst host = document.getElementById('goban'); host.style.height = `${spec.height ?? 480}px`;\nrender(h(BoundedGoban, {...data, maxWidth:spec.height ?? 480, maxHeight:spec.height ?? 480}), host);"
+    "artifact": "// Shudan 固定依赖 preact@10.29.7;boot 使用完全相同 URL,避免 hooks dispatcher 分裂\nconst host = document.getElementById('goban'); host.style.height = `${spec.height ?? 480}px`; host.textContent = 'Loading goban…';\nconst css = Object.assign(document.createElement('link'), {rel:'stylesheet', href:'https://cdn.jsdelivr.net/npm/@sabaki/shudan@1.8.0/css/goban.css'}); document.head.appendChild(css);\nconst [{ h, render }, { BoundedGoban }] = await Promise.all([import('https://cdn.jsdelivr.net/npm/preact@10.29.7/+esm'), import('https://cdn.jsdelivr.net/npm/@sabaki/shudan@1/+esm')]);\nhost.textContent = ''; render(h(BoundedGoban, {...data, maxWidth:spec.height ?? 480, maxHeight:spec.height ?? 480}), host);",
+    "widget": "// 挂载点与 CSS 均落 shadowRoot；Preact URL 与 Shudan 内部依赖完全一致\nconst style = document.createElement('style'); style.textContent = \"@import url('https://cdn.jsdelivr.net/npm/@sabaki/shudan@1.8.0/css/goban.css');\";\nconst host = document.createElement('div'); host.style.height = `${spec.height ?? 480}px`; host.textContent = 'Loading goban…'; shadowRoot.append(style, host);\nconst [{ h, render }, { BoundedGoban }] = await Promise.all([import('https://cdn.jsdelivr.net/npm/preact@10.29.7/+esm'), import('https://cdn.jsdelivr.net/npm/@sabaki/shudan@1/+esm')]);\nhost.textContent = ''; render(h(BoundedGoban, {...data, maxWidth:spec.height ?? 480, maxHeight:spec.height ?? 480}), host);",
+    "codex": "const host = document.getElementById('goban'); host.style.height = `${spec.height ?? 480}px`; host.textContent = 'Loading goban…';\nconst css = Object.assign(document.createElement('link'), {rel:'stylesheet', href:'https://cdn.jsdelivr.net/npm/@sabaki/shudan@1.8.0/css/goban.css'}); document.head.appendChild(css);\nconst [{ h, render }, { BoundedGoban }] = await Promise.all([import('https://cdn.jsdelivr.net/npm/preact@10.29.7/+esm'), import('https://cdn.jsdelivr.net/npm/@sabaki/shudan@1/+esm')]);\nhost.textContent = ''; render(h(BoundedGoban, {...data, maxWidth:spec.height ?? 480, maxHeight:spec.height ?? 480}), host);"
   },
   "peer": {
     "note": "本条只渲盘面；SGF 解析、轮次、提子与合法性须由消费 AI 另接围棋规则/棋谱引擎。顶点回调是上游普通回调,不在 catalog 中抽成统一事件契约。"
@@ -43,6 +65,241 @@
     "_why_no_minimal": "核心输入只是取值被钉死的等宽二维网格,裁剪 schema 足以一次拼对；按模板只保留空态 fixture。",
     "empty": {
       "signMap": []
+    },
+    "minimal": {
+      "signMap": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          -1,
+          0,
+          -1,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "markerMap": [
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          {
+            "type": "triangle"
+          },
+          null,
+          null,
+          null,
+          {
+            "type": "square"
+          },
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          {
+            "type": "label",
+            "label": "A"
+          },
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          {
+            "type": "circle"
+          },
+          null,
+          null,
+          null,
+          {
+            "type": "cross"
+          },
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ],
+      "selectedVertices": [
+        [
+          2,
+          4
+        ]
+      ],
+      "lines": [
+        {
+          "v1": [
+            2,
+            4
+          ],
+          "v2": [
+            6,
+            4
+          ],
+          "type": "arrow"
+        }
+      ],
+      "showCoordinates": true
     }
   },
   "carriers": {
@@ -56,7 +313,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "@sabaki/shudan@1.8.0 +esm: the only document.* usage is createElement (Preact internal node creation); no document.head, no document.body, no window/document addEventListener. Preact render() mounts into the passed host; Marker.tooltip renders inline in the board; all interaction is via onVertex* component props (no global listeners). Component is side-effect-free but needs goban.css loaded via @import so its relative url('./board.png')/url('./stone_1.svg')/url('./stone_-1.svg') resolve against the CDN base, and that CSS routed into the same shadow root -> conditional.",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

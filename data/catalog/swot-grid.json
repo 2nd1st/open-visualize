@@ -1,0 +1,98 @@
+{
+  "entry_version": "thin-1",
+  "id": "swot-grid",
+  "name": "SWOT grid",
+  "when_to_use": "需要把某个项目、产品或组织的内部优势/劣势与外部机会/威胁放在一张战略快照中时用它，适合方案汇报、复盘和交付物。若重点是逐项量化比较多个选项，应改用 comparison-table；若要表达因果链或时间演进，应改用流程图或时间线。",
+  "why_valuable": "自由文本 SWOT 很容易四类混排、视觉权重失衡，或在窄屏上失去 2×2 关系；本模板固定四象限语义，用绿/红/强调色/琥珀色区分性质，并在移动端保持可读的单列顺序。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "inline-template",
+  "upstream": {
+    "npm": null,
+    "version": null,
+    "github": null
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "data 是一个 SWOT 键值对象。title 与 summary 描述分析对象；strengths、weaknesses、opportunities、threats 各自是字符串数组，严格映射到固定四象限。数组可为空，空象限会显示占位提示；建议每项是一句可扫描的短语，每象限 2–5 项。",
+    "schema": {
+      "title?": "string —— 分析标题；省略时显示 “SWOT analysis”",
+      "summary?": "string —— 标题下的一句范围或结论说明",
+      "strengths": "string[] —— 内部优势；显示在绿色 Strengths 象限",
+      "weaknesses": "string[] —— 内部劣势；显示在红色 Weaknesses 象限",
+      "opportunities": "string[] —— 外部机会；显示在强调色 Opportunities 象限",
+      "threats": "string[] —— 外部威胁；显示在琥珀色 Threats 象限"
+    }
+  },
+  "spec": {
+    "height": "auto",
+    "note": "桌面宽度显示 2×2 四象限，620px 以下按 Strengths、Weaknesses、Opportunities、Threats 顺序折为单列；高度完全随条目数量增长，不读取载体尺寸。"
+  },
+  "boot": {
+    "artifact": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.summary{max-width:760px;margin:7px 0 0;color:var(--_muted);font-size:13px;line-height:1.5}\n.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--_line)}\n.quadrant{position:relative;min-height:210px;padding:22px 24px 24px;background:color-mix(in srgb,var(--tone) 6%,var(--_bg))}\n.quadrant::before{content:\"\";position:absolute;inset:0 auto 0 0;width:4px;background:var(--tone)}\n.qhead{display:flex;align-items:center;gap:11px;margin-bottom:16px}\n.icon{display:grid;width:34px;height:34px;flex:0 0 auto;place-items:center;border-radius:11px;background:color-mix(in srgb,var(--tone) 14%,var(--_bg));color:var(--tone);font-size:17px;font-weight:850}\n.label{color:var(--_text);font-size:16px;font-weight:780;letter-spacing:-.012em}\n.hint{margin-top:2px;color:var(--_muted);font-size:11px;font-weight:650;letter-spacing:.04em;text-transform:uppercase}\nul{display:grid;gap:10px;margin:0;padding:0;list-style:none}\nli{position:relative;padding-left:18px;color:var(--_text);font-size:13px;line-height:1.48}\nli::before{content:\"\";position:absolute;left:1px;top:.55em;width:7px;height:7px;border-radius:999px;background:var(--tone);box-shadow:0 0 0 4px color-mix(in srgb,var(--tone) 12%,transparent)}\n.strengths{--tone:var(--_ok)}.weaknesses{--tone:var(--_no)}.opportunities{--tone:var(--_accent)}.threats{--tone:var(--_partial)}\n.empty{color:var(--_muted);font-style:italic}\n@media (max-width:620px){.heading{padding:18px}.grid{grid-template-columns:1fr}.quadrant{min-height:0;padding:20px 20px 22px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make=(tag,className,text)=>{const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;};\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'SWOT analysis';\nconst frame=make('section','frame');frame.setAttribute('aria-label',title);\nconst heading=make('header','heading');heading.appendChild(make('div','eyebrow','Strategic snapshot'));heading.appendChild(make('h2','',title));\nif(data.summary)heading.appendChild(make('p','summary',String(data.summary)));frame.appendChild(heading);\nconst grid=make('div','grid');\n[\n  ['strengths','Strengths','S','Internal advantages'],\n  ['weaknesses','Weaknesses','W','Internal constraints'],\n  ['opportunities','Opportunities','O','External upside'],\n  ['threats','Threats','T','External risks']\n].forEach(([key,label,icon,hint])=>{\n  const card=make('section','quadrant '+key);card.setAttribute('aria-label',label);\n  const qhead=make('div','qhead');qhead.appendChild(make('span','icon',icon));\n  const names=make('div');names.appendChild(make('div','label',label));names.appendChild(make('div','hint',hint));qhead.appendChild(names);card.appendChild(qhead);\n  const list=make('ul');const values=Array.isArray(data[key])?data[key]:[];\n  if(values.length){values.forEach(value=>list.appendChild(make('li','',String(value))));}else{list.appendChild(make('li','empty','No items supplied'));}\n  card.appendChild(list);grid.appendChild(card);\n});\nframe.appendChild(grid);root.appendChild(frame);\nparent.appendChild(host);",
+    "widget": "const parent = shadowRoot;\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.summary{max-width:760px;margin:7px 0 0;color:var(--_muted);font-size:13px;line-height:1.5}\n.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--_line)}\n.quadrant{position:relative;min-height:210px;padding:22px 24px 24px;background:color-mix(in srgb,var(--tone) 6%,var(--_bg))}\n.quadrant::before{content:\"\";position:absolute;inset:0 auto 0 0;width:4px;background:var(--tone)}\n.qhead{display:flex;align-items:center;gap:11px;margin-bottom:16px}\n.icon{display:grid;width:34px;height:34px;flex:0 0 auto;place-items:center;border-radius:11px;background:color-mix(in srgb,var(--tone) 14%,var(--_bg));color:var(--tone);font-size:17px;font-weight:850}\n.label{color:var(--_text);font-size:16px;font-weight:780;letter-spacing:-.012em}\n.hint{margin-top:2px;color:var(--_muted);font-size:11px;font-weight:650;letter-spacing:.04em;text-transform:uppercase}\nul{display:grid;gap:10px;margin:0;padding:0;list-style:none}\nli{position:relative;padding-left:18px;color:var(--_text);font-size:13px;line-height:1.48}\nli::before{content:\"\";position:absolute;left:1px;top:.55em;width:7px;height:7px;border-radius:999px;background:var(--tone);box-shadow:0 0 0 4px color-mix(in srgb,var(--tone) 12%,transparent)}\n.strengths{--tone:var(--_ok)}.weaknesses{--tone:var(--_no)}.opportunities{--tone:var(--_accent)}.threats{--tone:var(--_partial)}\n.empty{color:var(--_muted);font-style:italic}\n@media (max-width:620px){.heading{padding:18px}.grid{grid-template-columns:1fr}.quadrant{min-height:0;padding:20px 20px 22px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make=(tag,className,text)=>{const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;};\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'SWOT analysis';\nconst frame=make('section','frame');frame.setAttribute('aria-label',title);\nconst heading=make('header','heading');heading.appendChild(make('div','eyebrow','Strategic snapshot'));heading.appendChild(make('h2','',title));\nif(data.summary)heading.appendChild(make('p','summary',String(data.summary)));frame.appendChild(heading);\nconst grid=make('div','grid');\n[\n  ['strengths','Strengths','S','Internal advantages'],\n  ['weaknesses','Weaknesses','W','Internal constraints'],\n  ['opportunities','Opportunities','O','External upside'],\n  ['threats','Threats','T','External risks']\n].forEach(([key,label,icon,hint])=>{\n  const card=make('section','quadrant '+key);card.setAttribute('aria-label',label);\n  const qhead=make('div','qhead');qhead.appendChild(make('span','icon',icon));\n  const names=make('div');names.appendChild(make('div','label',label));names.appendChild(make('div','hint',hint));qhead.appendChild(names);card.appendChild(qhead);\n  const list=make('ul');const values=Array.isArray(data[key])?data[key]:[];\n  if(values.length){values.forEach(value=>list.appendChild(make('li','',String(value))));}else{list.appendChild(make('li','empty','No items supplied'));}\n  card.appendChild(list);grid.appendChild(card);\n});\nframe.appendChild(grid);root.appendChild(frame);\nparent.appendChild(host);",
+    "codex": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.summary{max-width:760px;margin:7px 0 0;color:var(--_muted);font-size:13px;line-height:1.5}\n.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--_line)}\n.quadrant{position:relative;min-height:210px;padding:22px 24px 24px;background:color-mix(in srgb,var(--tone) 6%,var(--_bg))}\n.quadrant::before{content:\"\";position:absolute;inset:0 auto 0 0;width:4px;background:var(--tone)}\n.qhead{display:flex;align-items:center;gap:11px;margin-bottom:16px}\n.icon{display:grid;width:34px;height:34px;flex:0 0 auto;place-items:center;border-radius:11px;background:color-mix(in srgb,var(--tone) 14%,var(--_bg));color:var(--tone);font-size:17px;font-weight:850}\n.label{color:var(--_text);font-size:16px;font-weight:780;letter-spacing:-.012em}\n.hint{margin-top:2px;color:var(--_muted);font-size:11px;font-weight:650;letter-spacing:.04em;text-transform:uppercase}\nul{display:grid;gap:10px;margin:0;padding:0;list-style:none}\nli{position:relative;padding-left:18px;color:var(--_text);font-size:13px;line-height:1.48}\nli::before{content:\"\";position:absolute;left:1px;top:.55em;width:7px;height:7px;border-radius:999px;background:var(--tone);box-shadow:0 0 0 4px color-mix(in srgb,var(--tone) 12%,transparent)}\n.strengths{--tone:var(--_ok)}.weaknesses{--tone:var(--_no)}.opportunities{--tone:var(--_accent)}.threats{--tone:var(--_partial)}\n.empty{color:var(--_muted);font-style:italic}\n@media (max-width:620px){.heading{padding:18px}.grid{grid-template-columns:1fr}.quadrant{min-height:0;padding:20px 20px 22px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make=(tag,className,text)=>{const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;};\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'SWOT analysis';\nconst frame=make('section','frame');frame.setAttribute('aria-label',title);\nconst heading=make('header','heading');heading.appendChild(make('div','eyebrow','Strategic snapshot'));heading.appendChild(make('h2','',title));\nif(data.summary)heading.appendChild(make('p','summary',String(data.summary)));frame.appendChild(heading);\nconst grid=make('div','grid');\n[\n  ['strengths','Strengths','S','Internal advantages'],\n  ['weaknesses','Weaknesses','W','Internal constraints'],\n  ['opportunities','Opportunities','O','External upside'],\n  ['threats','Threats','T','External risks']\n].forEach(([key,label,icon,hint])=>{\n  const card=make('section','quadrant '+key);card.setAttribute('aria-label',label);\n  const qhead=make('div','qhead');qhead.appendChild(make('span','icon',icon));\n  const names=make('div');names.appendChild(make('div','label',label));names.appendChild(make('div','hint',hint));qhead.appendChild(names);card.appendChild(qhead);\n  const list=make('ul');const values=Array.isArray(data[key])?data[key]:[];\n  if(values.length){values.forEach(value=>list.appendChild(make('li','',String(value))));}else{list.appendChild(make('li','empty','No items supplied'));}\n  card.appendChild(list);grid.appendChild(card);\n});\nframe.appendChild(grid);root.appendChild(frame);\nparent.appendChild(host);"
+  },
+  "example": {
+    "_why": "以一家正在扩张的城市咖啡品牌为例，四个象限都有 3 条具体、长短适中的判断，可完整展示颜色、层级和 2×2 布局。",
+    "minimal": {
+      "title": "Northstar Coffee — expansion readiness",
+      "summary": "A concise view of the brand’s position before entering two new city markets.",
+      "strengths": [
+        "Distinctive single-origin menu with loyal local following",
+        "Profitable flagship store and disciplined unit economics",
+        "Experienced barista training program"
+      ],
+      "weaknesses": [
+        "Low brand awareness outside the home market",
+        "Roasting capacity is close to its current limit",
+        "Founder still approves most operating decisions"
+      ],
+      "opportunities": [
+        "Vacant premium sites with favorable lease terms",
+        "Growing demand for traceable, low-waste coffee",
+        "Corporate catering can smooth weekday demand"
+      ],
+      "threats": [
+        "National chains are accelerating local store openings",
+        "Green coffee prices remain volatile",
+        "Hiring experienced store managers is competitive"
+      ]
+    }
+  },
+  "uplink": "纯 display-only 组件，无 uplink；渲染结果只在当前 shadow root 中展示，不向 AI 或宿主回传状态。",
+  "carriers": {
+    "artifact": "supported:boot.artifact 已在 sandboxed iframe 中以 example.minimal 原样渲染验证；CSS 与 DOM 全部位于自有 shadow root",
+    "widget": "supported:与 artifact 同一零依赖模板，仅 parent 改为 shadowRoot；可在载体 shadow 内再挂自有 shadow",
+    "codex": "supported:与已验证的 artifact boot 相同，document.getElementById('viz') 为唯一载体挂载点"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "self-authored inline-template, owns its shadow, zero global footprint; rendered-verified",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need a strategic snapshot of a project's, product's, or organization's internal strengths/weaknesses and external opportunities/threats. It suits proposal presentations, reviews, and deliverables. If the focus is quantified item-by-item comparison across multiple options, use comparison-table instead. To show a causal chain or evolution over time, use a flowchart or timeline.",
+      "why_valuable": "Free-text SWOT easily mixes the four categories, creates uneven visual weight, or loses the 2x2 relationship on narrow screens. This template fixes the four-quadrant semantics, distinguishes character with green/red/accent/amber, and preserves a readable single-column order on mobile.",
+      "data_in": {
+        "note": "data is a SWOT key-value object. title and summary describe the subject. strengths, weaknesses, opportunities, and threats are string arrays that map strictly to the four fixed quadrants. Arrays may be empty, in which case the quadrant shows a placeholder. Each item should be a short scannable phrase; 2-5 items per quadrant is recommended.",
+        "schema": {
+          "title?": "string -- Analysis title; shows \"SWOT analysis\" when omitted",
+          "summary?": "string -- One-line scope or conclusion below the title",
+          "strengths": "string[] -- Internal strengths; shown in the green Strengths quadrant",
+          "weaknesses": "string[] -- Internal weaknesses; shown in the red Weaknesses quadrant",
+          "opportunities": "string[] -- External opportunities; shown in the accent-colored Opportunities quadrant",
+          "threats": "string[] -- External threats; shown in the amber Threats quadrant"
+        }
+      },
+      "spec": {
+        "note": "Desktop widths show a 2x2 quadrant grid. Below 620px it folds into a single column in Strengths, Weaknesses, Opportunities, Threats order. Height grows entirely with item count and does not read carrier dimensions."
+      }
+    }
+  }
+}

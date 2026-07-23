@@ -1,0 +1,150 @@
+{
+  "entry_version": "thin-1",
+  "id": "spec-sheet",
+  "name": "Spec sheet",
+  "when_to_use": "需要清晰交付某一个产品、设备、方案或文件的成组规格时用它：适合技术参数、采购附件、交付物摘要和详情页侧栏。若重点是多个候选项横向胜负，应改用 comparison-table；若指标本身需要显示相对强弱，应改用 scorecard-bars。",
+  "why_valuable": "普通 label:value 列表很容易丢失单位、把长值挤乱、让版本号等机器值与说明文字混在一起；本模板固定单对象、分组带状标题、单位层级、等宽值和 ✓/✗/partial 状态语义，窄屏仍保持可扫读。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "inline-template",
+  "upstream": {
+    "npm": null,
+    "version": null,
+    "github": null
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "key-value",
+    "note": "data 描述一个对象的规格：groups 按显示顺序提供分组，每组 fields 是 label:value 行。value 接受 string 或 number 并默认等宽显示；unit 与 value 分开以保持数值对齐；mono:false 用于自然语言值；status 可附加只读达标语义。空 groups 显示空态；不对值做换算或推断。",
+    "schema": {
+      "title?": "string —— 对象名称；省略时显示 “Specification”",
+      "subtitle?": "string —— 名称下方的一行型号、用途或版本说明",
+      "badge?": "string —— 右上角短状态，例如 “Release candidate”",
+      "groups": "{label:string,fields:{label:string,value:string|number,unit?:string,note?:string,status?:'yes'|'no'|'partial',mono?:boolean}[]}[] —— 有序规格分组；label 是分组带标题",
+      "groups[].fields[].label": "string —— 属性名",
+      "groups[].fields[].value": "string|number —— 主值；默认以等宽字体显示",
+      "groups[].fields[].unit?": "string —— 与主值分离显示的单位，不应重复写进 value",
+      "groups[].fields[].note?": "string —— 值下方的短限定说明",
+      "groups[].fields[].status?": "'yes'|'no'|'partial' —— 可选只读状态，分别显示绿色 ✓、红色 ✗、琥珀色部分满足",
+      "groups[].fields[].mono?": "boolean —— false 改用系统字体；默认 true"
+    }
+  },
+  "spec": {
+    "height": "auto",
+    "note": "按分组与字段数量自然增高；两列 label:value 在 520px 以下折为单列。无 vh/百分比高度，也不读取载体尺寸。"
+  },
+  "boot": {
+    "artifact": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.subtitle{margin-top:7px;color:var(--_muted);font-size:13px;line-height:1.45}\n.badge{flex:none;padding:6px 10px;border:1px solid color-mix(in srgb,var(--_accent) 24%,var(--_line));border-radius:999px;background:var(--_accent-soft);color:var(--_accent);font-size:10px;font-weight:850;letter-spacing:.06em;text-transform:uppercase}\n.group-head{padding:9px 24px;border-bottom:1px solid var(--_line);background:var(--_group);color:var(--_muted);font-size:10px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}\n.rows{margin:0}\n.row{display:grid;grid-template-columns:minmax(150px,.8fr) minmax(0,1.4fr);align-items:start;gap:20px;padding:14px 24px;border-bottom:1px solid var(--_line)}\n.section:last-child .row:last-child{border-bottom:0}\n.row:hover{background:var(--_hover)}\ndt{color:var(--_muted);font-size:13px;font-weight:650;line-height:1.5}\ndd{min-width:0;margin:0;text-align:right}\n.value-line{display:flex;align-items:center;justify-content:flex-end;gap:8px}\n.value{color:var(--_text);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.5;overflow-wrap:anywhere}\n.value.prose{font-family:inherit;font-weight:700}\n.unit{color:var(--_muted);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace;font-size:11px;font-weight:650;font-variant-numeric:tabular-nums}\n.note{margin-top:3px;color:var(--_muted);font-size:11px;line-height:1.4}\n.pill{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800;line-height:1}\n.pill.yes{background:color-mix(in srgb,var(--_ok) 12%,var(--_bg));color:var(--_ok)}\n.pill.no{background:color-mix(in srgb,var(--_no) 11%,var(--_bg));color:var(--_no)}\n.pill.partial{background:color-mix(in srgb,var(--_partial) 13%,var(--_bg));color:var(--_partial)}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n\n@media (max-width:520px){.heading{padding:18px}.badge{display:none}.group-head{padding:9px 18px}.row{grid-template-columns:1fr;gap:5px;padding:13px 18px}dd{text-align:left}.value-line{justify-content:flex-start}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Specification';\nconst groups=Array.isArray(data.groups)?data.groups:[];\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title);\nconst heading=make('header','heading'); const headingCopy=make('div');\nheadingCopy.appendChild(make('div','eyebrow','Specification sheet'));\nheadingCopy.appendChild(make('h2','',title));\nif(data.subtitle) headingCopy.appendChild(make('div','subtitle',String(data.subtitle)));\nheading.appendChild(headingCopy);\nif(data.badge) heading.appendChild(make('span','badge',String(data.badge)));\nframe.appendChild(heading);\nif(!groups.length){\n  frame.appendChild(make('div','empty','Add a group and at least one field to build the specification.'));\n}else{\n  groups.forEach((group) => {\n    const section=make('section','section');\n    section.appendChild(make('div','group-head',group&&group.label?String(group.label):'Details'));\n    const rows=make('dl','rows');\n    const fields=group&&Array.isArray(group.fields)?group.fields:[];\n    fields.forEach((field) => {\n      const row=make('div','row');\n      row.appendChild(make('dt','',field&&field.label!=null?String(field.label):'Untitled'));\n      const dd=make('dd'); const valueLine=make('div','value-line');\n      const prose=field&&field.mono===false;\n      valueLine.appendChild(make('span','value'+(prose?' prose':''),field&&field.value!=null?String(field.value):'—'));\n      if(field&&field.unit) valueLine.appendChild(make('span','unit',String(field.unit)));\n      const status=field&&['yes','no','partial'].includes(field.status)?field.status:null;\n      if(status){\n        const symbols={yes:'✓',no:'✗',partial:'~'}; const labels={yes:'Meets',no:'No',partial:'Partial'};\n        const pill=make('span','pill '+status,symbols[status]+' '+labels[status]); valueLine.appendChild(pill);\n      }\n      dd.appendChild(valueLine);\n      if(field&&field.note) dd.appendChild(make('div','note',String(field.note)));\n      row.appendChild(dd); rows.appendChild(row);\n    });\n    section.appendChild(rows); frame.appendChild(section);\n  });\n}\nroot.appendChild(frame);\nparent.appendChild(host);",
+    "widget": "const parent = shadowRoot;\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.subtitle{margin-top:7px;color:var(--_muted);font-size:13px;line-height:1.45}\n.badge{flex:none;padding:6px 10px;border:1px solid color-mix(in srgb,var(--_accent) 24%,var(--_line));border-radius:999px;background:var(--_accent-soft);color:var(--_accent);font-size:10px;font-weight:850;letter-spacing:.06em;text-transform:uppercase}\n.group-head{padding:9px 24px;border-bottom:1px solid var(--_line);background:var(--_group);color:var(--_muted);font-size:10px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}\n.rows{margin:0}\n.row{display:grid;grid-template-columns:minmax(150px,.8fr) minmax(0,1.4fr);align-items:start;gap:20px;padding:14px 24px;border-bottom:1px solid var(--_line)}\n.section:last-child .row:last-child{border-bottom:0}\n.row:hover{background:var(--_hover)}\ndt{color:var(--_muted);font-size:13px;font-weight:650;line-height:1.5}\ndd{min-width:0;margin:0;text-align:right}\n.value-line{display:flex;align-items:center;justify-content:flex-end;gap:8px}\n.value{color:var(--_text);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.5;overflow-wrap:anywhere}\n.value.prose{font-family:inherit;font-weight:700}\n.unit{color:var(--_muted);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace;font-size:11px;font-weight:650;font-variant-numeric:tabular-nums}\n.note{margin-top:3px;color:var(--_muted);font-size:11px;line-height:1.4}\n.pill{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800;line-height:1}\n.pill.yes{background:color-mix(in srgb,var(--_ok) 12%,var(--_bg));color:var(--_ok)}\n.pill.no{background:color-mix(in srgb,var(--_no) 11%,var(--_bg));color:var(--_no)}\n.pill.partial{background:color-mix(in srgb,var(--_partial) 13%,var(--_bg));color:var(--_partial)}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n\n@media (max-width:520px){.heading{padding:18px}.badge{display:none}.group-head{padding:9px 18px}.row{grid-template-columns:1fr;gap:5px;padding:13px 18px}dd{text-align:left}.value-line{justify-content:flex-start}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Specification';\nconst groups=Array.isArray(data.groups)?data.groups:[];\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title);\nconst heading=make('header','heading'); const headingCopy=make('div');\nheadingCopy.appendChild(make('div','eyebrow','Specification sheet'));\nheadingCopy.appendChild(make('h2','',title));\nif(data.subtitle) headingCopy.appendChild(make('div','subtitle',String(data.subtitle)));\nheading.appendChild(headingCopy);\nif(data.badge) heading.appendChild(make('span','badge',String(data.badge)));\nframe.appendChild(heading);\nif(!groups.length){\n  frame.appendChild(make('div','empty','Add a group and at least one field to build the specification.'));\n}else{\n  groups.forEach((group) => {\n    const section=make('section','section');\n    section.appendChild(make('div','group-head',group&&group.label?String(group.label):'Details'));\n    const rows=make('dl','rows');\n    const fields=group&&Array.isArray(group.fields)?group.fields:[];\n    fields.forEach((field) => {\n      const row=make('div','row');\n      row.appendChild(make('dt','',field&&field.label!=null?String(field.label):'Untitled'));\n      const dd=make('dd'); const valueLine=make('div','value-line');\n      const prose=field&&field.mono===false;\n      valueLine.appendChild(make('span','value'+(prose?' prose':''),field&&field.value!=null?String(field.value):'—'));\n      if(field&&field.unit) valueLine.appendChild(make('span','unit',String(field.unit)));\n      const status=field&&['yes','no','partial'].includes(field.status)?field.status:null;\n      if(status){\n        const symbols={yes:'✓',no:'✗',partial:'~'}; const labels={yes:'Meets',no:'No',partial:'Partial'};\n        const pill=make('span','pill '+status,symbols[status]+' '+labels[status]); valueLine.appendChild(pill);\n      }\n      dd.appendChild(valueLine);\n      if(field&&field.note) dd.appendChild(make('div','note',String(field.note)));\n      row.appendChild(dd); rows.appendChild(row);\n    });\n    section.appendChild(rows); frame.appendChild(section);\n  });\n}\nroot.appendChild(frame);\nparent.appendChild(host);",
+    "codex": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:22px 24px 20px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.subtitle{margin-top:7px;color:var(--_muted);font-size:13px;line-height:1.45}\n.badge{flex:none;padding:6px 10px;border:1px solid color-mix(in srgb,var(--_accent) 24%,var(--_line));border-radius:999px;background:var(--_accent-soft);color:var(--_accent);font-size:10px;font-weight:850;letter-spacing:.06em;text-transform:uppercase}\n.group-head{padding:9px 24px;border-bottom:1px solid var(--_line);background:var(--_group);color:var(--_muted);font-size:10px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}\n.rows{margin:0}\n.row{display:grid;grid-template-columns:minmax(150px,.8fr) minmax(0,1.4fr);align-items:start;gap:20px;padding:14px 24px;border-bottom:1px solid var(--_line)}\n.section:last-child .row:last-child{border-bottom:0}\n.row:hover{background:var(--_hover)}\ndt{color:var(--_muted);font-size:13px;font-weight:650;line-height:1.5}\ndd{min-width:0;margin:0;text-align:right}\n.value-line{display:flex;align-items:center;justify-content:flex-end;gap:8px}\n.value{color:var(--_text);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.5;overflow-wrap:anywhere}\n.value.prose{font-family:inherit;font-weight:700}\n.unit{color:var(--_muted);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace;font-size:11px;font-weight:650;font-variant-numeric:tabular-nums}\n.note{margin-top:3px;color:var(--_muted);font-size:11px;line-height:1.4}\n.pill{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800;line-height:1}\n.pill.yes{background:color-mix(in srgb,var(--_ok) 12%,var(--_bg));color:var(--_ok)}\n.pill.no{background:color-mix(in srgb,var(--_no) 11%,var(--_bg));color:var(--_no)}\n.pill.partial{background:color-mix(in srgb,var(--_partial) 13%,var(--_bg));color:var(--_partial)}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n\n@media (max-width:520px){.heading{padding:18px}.badge{display:none}.group-head{padding:9px 18px}.row{grid-template-columns:1fr;gap:5px;padding:13px 18px}dd{text-align:left}.value-line{justify-content:flex-start}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Specification';\nconst groups=Array.isArray(data.groups)?data.groups:[];\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title);\nconst heading=make('header','heading'); const headingCopy=make('div');\nheadingCopy.appendChild(make('div','eyebrow','Specification sheet'));\nheadingCopy.appendChild(make('h2','',title));\nif(data.subtitle) headingCopy.appendChild(make('div','subtitle',String(data.subtitle)));\nheading.appendChild(headingCopy);\nif(data.badge) heading.appendChild(make('span','badge',String(data.badge)));\nframe.appendChild(heading);\nif(!groups.length){\n  frame.appendChild(make('div','empty','Add a group and at least one field to build the specification.'));\n}else{\n  groups.forEach((group) => {\n    const section=make('section','section');\n    section.appendChild(make('div','group-head',group&&group.label?String(group.label):'Details'));\n    const rows=make('dl','rows');\n    const fields=group&&Array.isArray(group.fields)?group.fields:[];\n    fields.forEach((field) => {\n      const row=make('div','row');\n      row.appendChild(make('dt','',field&&field.label!=null?String(field.label):'Untitled'));\n      const dd=make('dd'); const valueLine=make('div','value-line');\n      const prose=field&&field.mono===false;\n      valueLine.appendChild(make('span','value'+(prose?' prose':''),field&&field.value!=null?String(field.value):'—'));\n      if(field&&field.unit) valueLine.appendChild(make('span','unit',String(field.unit)));\n      const status=field&&['yes','no','partial'].includes(field.status)?field.status:null;\n      if(status){\n        const symbols={yes:'✓',no:'✗',partial:'~'}; const labels={yes:'Meets',no:'No',partial:'Partial'};\n        const pill=make('span','pill '+status,symbols[status]+' '+labels[status]); valueLine.appendChild(pill);\n      }\n      dd.appendChild(valueLine);\n      if(field&&field.note) dd.appendChild(make('div','note',String(field.note)));\n      row.appendChild(dd); rows.appendChild(row);\n    });\n    section.appendChild(rows); frame.appendChild(section);\n  });\n}\nroot.appendChild(frame);\nparent.appendChild(host);"
+  },
+  "example": {
+    "_why": "示例覆盖多分组、单位、自然语言值、备注和三态中的 ✓/partial，能直接看出它是单个硬件交付物而非比较表。",
+    "minimal": {
+      "title": "Atlas X1 Edge Gateway",
+      "subtitle": "Industrial AI appliance · Model AX1-480",
+      "badge": "Release candidate",
+      "groups": [
+        {
+          "label": "Compute",
+          "fields": [
+            {
+              "label": "Processor",
+              "value": "12-core ARM v9",
+              "mono": false
+            },
+            {
+              "label": "Memory",
+              "value": 32,
+              "unit": "GB LPDDR5",
+              "note": "6400 MT/s · soldered"
+            },
+            {
+              "label": "AI throughput",
+              "value": 48,
+              "unit": "TOPS",
+              "status": "yes"
+            }
+          ]
+        },
+        {
+          "label": "Connectivity",
+          "fields": [
+            {
+              "label": "Ethernet",
+              "value": "2 × 2.5 GbE"
+            },
+            {
+              "label": "Wireless",
+              "value": "Wi-Fi 6E / Bluetooth 5.3",
+              "mono": false
+            },
+            {
+              "label": "5G modem",
+              "value": "Optional module",
+              "mono": false,
+              "status": "partial"
+            }
+          ]
+        },
+        {
+          "label": "Physical",
+          "fields": [
+            {
+              "label": "Dimensions",
+              "value": "168 × 112 × 42",
+              "unit": "mm"
+            },
+            {
+              "label": "Operating range",
+              "value": "−20 to 60",
+              "unit": "°C"
+            },
+            {
+              "label": "Ingress protection",
+              "value": "IP54"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "uplink": "display-only：规格、状态与单位均为单向展示，不定义任何向 AI 回传的事件。",
+  "carriers": {
+    "artifact": "supported:boot.artifact 已在 sandboxed iframe 中以 example.minimal 原样渲染验证；CSS 与 DOM 全部位于自有 shadow root",
+    "widget": "supported:与 artifact 同一模板，仅 parent 改为 shadowRoot；可在载体 shadow 内再挂自有 shadow",
+    "codex": "supported:与已验证的 artifact boot 相同，document.getElementById('viz') 为唯一载体挂载点"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "self-authored inline-template, owns its shadow, zero global footprint; rendered-verified",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to clearly deliver grouped specifications for one product, device, proposal, or file: suitable for technical parameters, procurement attachments, deliverable summaries, and detail-page sidebars. If the focus is head-to-head results across multiple candidates, use comparison-table instead; if the metrics themselves need relative-strength encoding, use scorecard-bars.",
+      "why_valuable": "Ordinary label:value lists easily lose units, crush long values, and mix machine values such as version numbers with prose. This template fixes a single-object model, banded group headings, unit hierarchy, monospaced values, and yes/no/partial status semantics while remaining scannable on narrow screens.",
+      "data_in": {
+        "note": "data describes one object's specifications: groups are supplied in display order, and each group's fields are label:value rows. value accepts string or number and is monospaced by default; unit is separated from value to align numbers; mono:false is for natural-language values; status adds read-only compliance semantics. Empty groups displays an empty state. Values are not converted or inferred.",
+        "schema": {
+          "title?": "string -- Object name; displays \"Specification\" when omitted",
+          "subtitle?": "string -- One-line model, purpose, or version description below the name",
+          "badge?": "string -- Short top-right status, such as \"Release candidate\"",
+          "groups": "{label:string,fields:{label:string,value:string|number,unit?:string,note?:string,status?:'yes'|'no'|'partial',mono?:boolean}[]}[] -- Ordered specification groups; label is the group-band heading",
+          "groups[].fields[].label": "string -- Attribute name",
+          "groups[].fields[].value": "string|number -- Main value; monospaced by default",
+          "groups[].fields[].unit?": "string -- Unit displayed separately from the main value; do not repeat it in value",
+          "groups[].fields[].note?": "string -- Short qualifier below the value",
+          "groups[].fields[].status?": "'yes'|'no'|'partial' -- Optional read-only status, displayed as green yes, red no, or amber partial",
+          "groups[].fields[].mono?": "boolean -- false uses the system font; default true"
+        }
+      },
+      "spec": {
+        "note": "Grows naturally with the number of groups and fields; two-column label:value rows collapse to one column below 520px. No vh or percentage height, and no carrier-size reads."
+      }
+    }
+  }
+}

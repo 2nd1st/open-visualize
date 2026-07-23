@@ -41,12 +41,35 @@
     "_why": "提交 DAG 属高歧义时序配置;minimal 固定命令顺序,让 AI 一次拼对分叉与合并。",
     "minimal": {
       "commands": [
-        { "kind": "branch", "name": "main" },
-        { "kind": "commit", "branch": "main", "subject": "init" },
-        { "kind": "branch", "name": "feature", "from": "main" },
-        { "kind": "commit", "branch": "feature", "subject": "feature work" },
-        { "kind": "merge", "into": "main", "from": "feature" },
-        { "kind": "tag", "branch": "main", "name": "v1.0.0" }
+        {
+          "kind": "branch",
+          "name": "main"
+        },
+        {
+          "kind": "commit",
+          "branch": "main",
+          "subject": "init"
+        },
+        {
+          "kind": "branch",
+          "name": "feature",
+          "from": "main"
+        },
+        {
+          "kind": "commit",
+          "branch": "feature",
+          "subject": "feature work"
+        },
+        {
+          "kind": "merge",
+          "into": "main",
+          "from": "feature"
+        },
+        {
+          "kind": "tag",
+          "branch": "main",
+          "name": "v1.0.0"
+        }
       ]
     },
     "empty": {
@@ -64,7 +87,29 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "@gitgraph/js@1.4.0(10.7KB)+其依赖 @gitgraph/core@1.5.0(27KB)两 chunk grep 均彻底干净:0 document.head/body、0 createElement(style/link)、0 insertRule、0 document/window.addEventListener、0 Worker。SVG 仅渲入传入容器,commit tooltip 为容器内 SVG 元素(非 body portal),hover 事件挂在 SVG 节点(非全局)。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to explain multi-branch commit and merge topology instead of writing SVG by hand, which fails at branch-lane layout, crossing merge edges, and commit-label alignment. Not for general networks and not for reading a real Git repository.",
+      "why_valuable": "AI defaults can hand-draw a simple three-branch graph to roughly 70% quality, but complex merge/rebase topology gets wrong edges and parent relationships; the library lays out SVG deterministically through its native branch/commit/merge API.",
+      "data_in": {
+        "note": "commands must follow topological order: create the parent branch first, then commit or create a child branch, and finally merge or tag. This is a focused representation of upstream branch/commit/merge/tag call sequences, not a general graph schema.",
+        "schema": {
+          "commands": [
+            {
+              "kind": "'branch' | 'commit' | 'merge' | 'tag'",
+              "branch-when-kind-is-branch": "{ name:string, from?:string -- When from is omitted, defaults to creation from the gitgraph root }",
+              "commit-when-kind-is-commit": "{ branch:string, subject:string }",
+              "merge-when-kind-is-merge": "{ into:string, from:string }",
+              "tag-when-kind-is-tag": "{ branch:string, name:string }"
+            }
+          ]
+        }
+      },
+      "spec": {
+        "note": "The geometry container defaults to an explicit height of 400px with scrolling; vh and percentage heights are forbidden (rule 3). Upstream SVG keeps its intrinsic size, so long histories are not forcibly compressed."
+      }
+    }
   }
 }

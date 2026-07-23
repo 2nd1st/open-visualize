@@ -4,6 +4,32 @@
   "name": "leader-line",
   "when_to_use": "需要在两个既有 DOM 元素之间画会随布局定位的箭头或连线时用它,而非手写 SVG path——原生在跨容器坐标换算、端点吸附和重排后重定位上容易失败;非做可编辑节点图或自动布局。",
   "why_valuable": "AI 默认只能画固定坐标 SVG,做不到任意 DOM 端点吸附、曲线路径和布局变化后的可靠重定位;leader-line 直接吃两个 HTMLElement 并管理覆盖层。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing an SVG path when you need an arrow or line between two existing DOM elements that follows layout, because native implementations easily fail at cross-container coordinate conversion, endpoint attachment, and repositioning after reflow; not for editable node graphs or automatic layout.",
+      "why_valuable": "AI can normally only draw fixed-coordinate SVG; it cannot reliably attach curved paths to arbitrary DOM endpoints and reposition them after layout changes. leader-line directly consumes two HTMLElement values and manages the overlay.",
+      "data_in": {
+        "note": "start/end are real HTMLElement values already in the same document, not CSS selectors; options includes only common upstream fields, and every optional field states its default.",
+        "schema": {
+          "start": "HTMLElement -- required start element",
+          "end": "HTMLElement -- required end element",
+          "options?": {
+            "_default": "{} -- use the entire default LeaderLine appearance",
+            "color?": "string -- default 'coral'",
+            "size?": "number (px) -- default 4",
+            "path?": "'straight' | 'arc' | 'fluid' | 'magnet' | 'grid' -- default 'fluid'",
+            "startSocket?": "'top' | 'right' | 'bottom' | 'left' | 'auto' -- default 'auto'",
+            "endSocket?": "'top' | 'right' | 'bottom' | 'left' | 'auto' -- default 'auto'",
+            "startPlug?": "string -- upstream plug name, default 'behind'",
+            "endPlug?": "string -- upstream plug name, default 'arrow1'"
+          }
+        }
+      },
+      "spec": {
+        "note": "The line has no container height of its own, but the endpoint layout area must have an explicit pixel height; the default example area is 320px, and rule 3 forbids vh or percentage heights. After an endpoint moves or its container reflows, the consuming AI must call line.position()."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -36,9 +62,9 @@
     "note": "连线没有自有容器高,但端点布局区必须有显式像素高度;默认示意区 320px,铁律 3 禁 vh/百分比高。端点移动或容器重排后由消费 AI 调 line.position()。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:LeaderLine 会在 document 级创建 SVG overlay\nimport LeaderLine from 'https://cdn.jsdelivr.net/npm/leader-line@1/+esm';\nconst stage = document.getElementById('stage'); stage.style.height = '320px';\nconst line = new LeaderLine(data.start, data.end, data.options ?? {});\nconst ro = new ResizeObserver(() => line.position());\nro.observe(stage);",
+    "artifact": "// leader-line 的 jsDelivr +esm 默认导出是空 CommonJS 包装对象,故加载固定版本的官方 classic 构建\nconst stage = document.getElementById('stage'); stage.style.cssText = 'height:320px;position:relative;overflow:visible';\nlet start = data.start, end = data.end;\nif (!(start instanceof Element) || !(end instanceof Element)) {\n  const makeEndpoint = (label, side) => { const node = document.createElement('div'); node.textContent = label; node.style.cssText = `position:absolute;${side}:24px;top:125px;padding:14px 18px;border-radius:10px;background:${side === 'left' ? '#2563eb' : '#f97316'};color:white;font:600 14px system-ui;box-shadow:0 4px 14px #0002`; stage.appendChild(node); return node; };\n  start = makeEndpoint('Start', 'left'); end = makeEndpoint('End', 'right');\n}\nconst loader = document.createElement('script'); loader.src = 'https://cdn.jsdelivr.net/npm/leader-line@1.0.8/leader-line.min.js'; stage.appendChild(loader);\nawait new Promise((ok, bad) => { loader.onload = ok; loader.onerror = bad; }); loader.remove();\nconst LeaderLineCtor = globalThis.LeaderLine; globalThis.LeaderLine = undefined;\nconst line = new LeaderLineCtor(start, end, data.options ?? {});\nconst ro = new ResizeObserver(() => line.position()); ro.observe(stage);",
     "widget": "unsupported:上游把 SVG overlay 挂到 document 级而非给定 ShadowRoot,无法满足 widget 所有视觉 DOM 落 shadow 容器的铁律。",
-    "codex": "import LeaderLine from 'https://cdn.jsdelivr.net/npm/leader-line@1/+esm';\nconst stage = document.getElementById('stage'); stage.style.height = '320px';\nconst line = new LeaderLine(data.start, data.end, data.options ?? {});\nconst ro = new ResizeObserver(() => line.position());\nro.observe(stage);"
+    "codex": "// 同 artifact:jsDelivr +esm 没有可调用构造器,加载 1.0.8 classic 构建\nconst stage = document.getElementById('stage'); stage.style.cssText = 'height:320px;position:relative;overflow:visible';\nlet start = data.start, end = data.end;\nif (!(start instanceof Element) || !(end instanceof Element)) { const a = document.createElement('button'), b = document.createElement('button'); a.textContent = 'Start'; b.textContent = 'End'; a.style.cssText = 'position:absolute;left:24px;top:130px'; b.style.cssText = 'position:absolute;right:24px;top:130px'; stage.append(a, b); start = a; end = b; }\nconst loader = document.createElement('script'); loader.src = 'https://cdn.jsdelivr.net/npm/leader-line@1.0.8/leader-line.min.js'; stage.appendChild(loader); await new Promise((ok, bad) => { loader.onload = ok; loader.onerror = bad; }); loader.remove();\nconst LeaderLineCtor = globalThis.LeaderLine; globalThis.LeaderLine = undefined; const line = new LeaderLineCtor(start, end, data.options ?? {}); const ro = new ResizeObserver(() => line.position()); ro.observe(stage);"
   },
   "carriers": {
     "artifact": "inferred-not-tested",
@@ -51,7 +77,20 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "leader-line.min.js 把 SVG overlay 追加到 document.body(document.body x5、.body.appendChild x3、insertBefore);绑 window `addEventListener(\"resize\")` 及 mouseenter/leave/out/over;无 head 样式注入(未见 createElement('style')/head.appendChild)。overlay 以绝对 document 坐标定位、逃逸到 body,无法收进 shadowRoot;boot 未在 teardown 调 line.remove() → resize 监听与 body SVG 会泄漏 → widget 不成立。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "start": "<HTMLElement — a real element already in the document, e.g. document.getElementById('node-a'); cannot be expressed as JSON>",
+      "end": "<HTMLElement — a real element already in the document, e.g. document.getElementById('node-b'); cannot be expressed as JSON>",
+      "options": {
+        "color": "coral",
+        "size": 4,
+        "path": "fluid",
+        "startSocket": "right",
+        "endSocket": "left",
+        "endPlug": "arrow1"
+      }
+    }
   }
 }

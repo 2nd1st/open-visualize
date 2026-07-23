@@ -1,0 +1,110 @@
+{
+  "entry_version": "thin-1",
+  "id": "granim",
+  "name": "granim",
+  "when_to_use": "需要在 canvas 上做流动、可交互、多状态互相过渡的渐变背景(hero/loading/氛围装饰)时用它:new Granim({element, states:{...gradients}})。用于动态流体渐变;要静态低多边形生成艺术用 trianglify。canvas 需给显式像素尺寸;widget 内必须把真实 canvas 元素传给 element(selector 按 document 解析、看不到 shadow)。",
+  "why_valuable": "在 canvas 上 60fps 平滑插值多组渐变状态并互相过渡是非平凡的,AI 的 CSS 渐变动画常有色带、卡顿或生硬跳变;granim 用 canvas 2D 逐帧插值把流体渐变做稳,只画进你给的 canvas、无样式注入。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "granim",
+    "version": "2.0.0",
+    "github": "sarcadass/granim.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "gradient",
+    "note": "真实入参是 { element, states: { 'default-state': { gradients } } };本 schema 把高频的 gradients 提到顶层,boot 内包成 states['default-state']。至少 2 组色才会循环过渡;element 接受 selector 或 HTMLCanvasElement。",
+    "schema": {
+      "_defaults": {
+        "options": "{}",
+        "opacity": "[1, 1]"
+      },
+      "gradients": "string[][] —— 每组是一套渐变色,如 [['#834D9B','#D04ED6'], ['#1CD8D2','#93EDC7']];>=2 组循环过渡",
+      "options?": {
+        "direction?": "'diagonal' | 'left-right' | 'top-bottom' | 'radial' —— 默认 'diagonal'",
+        "opacity?": "number[] —— 每个渐变色的不透明度,默认 [1, 1]",
+        "transitionSpeed?": "number —— 状态/组间过渡 ms",
+        "isPausedWhenNotInView?": "boolean —— 离开视口暂停,默认 false",
+        "image?": "object —— 可选图像混合遮罩(source/blendingMode 等)"
+      }
+    }
+  },
+  "spec": {
+    "height": 300,
+    "note": "canvas 需显式像素尺寸;widget 内建议 canvas.width/height 设像素值 + style.width:100%、style.height 固定 px,禁 vh/百分比高。"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for flowing, interactive canvas gradient backgrounds with transitions between multiple states (hero/loading/ambient decoration): new Granim({element, states:{...gradients}}). Use it for dynamic fluid gradients; for static low-poly generative art, use trianglify. Give the canvas explicit pixel dimensions. Inside a widget, pass the actual canvas element to element because selectors resolve against document and cannot see shadow DOM.",
+      "why_valuable": "Smoothly interpolating multiple gradient states on canvas at 60fps is non-trivial; AI-authored CSS gradient animations often show banding, stutter, or abrupt jumps. granim stabilizes the effect with per-frame Canvas2D interpolation, draws only into the supplied canvas, and injects no styles.",
+      "data_in": {
+        "note": "The real input is { element, states: { 'default-state': { gradients } } }. This schema lifts the common gradients field to the top level, and boot wraps it in states['default-state']. At least 2 color sets are needed for a transition loop. element accepts a selector or HTMLCanvasElement.",
+        "schema": {
+          "_defaults": {
+            "options": "{}",
+            "opacity": "[1, 1]"
+          },
+          "gradients": "string[][] -- each item is one gradient color set, for example [['#834D9B','#D04ED6'], ['#1CD8D2','#93EDC7']]; >=2 sets loop through transitions",
+          "options?": {
+            "direction?": "'diagonal' | 'left-right' | 'top-bottom' | 'radial' -- default 'diagonal'",
+            "opacity?": "number[] -- opacity for each gradient color; default [1, 1]",
+            "transitionSpeed?": "number -- transition time between states/sets in ms",
+            "isPausedWhenNotInView?": "boolean -- pause outside the viewport; default false",
+            "image?": "object -- optional image blending mask (source/blendingMode, etc.)"
+          }
+        }
+      },
+      "spec": {
+        "note": "The canvas needs explicit pixel dimensions. Inside a widget, set canvas.width/height in pixels plus style.width:100% and a fixed-px style.height. Do not use vh or percentage heights."
+      }
+    }
+  },
+  "boot": {
+    "artifact": "// default import;容器是 div,须在其中创建真实 canvas\nimport Granim from 'https://cdn.jsdelivr.net/npm/granim@2.0.0/+esm';\nconst el = document.getElementById('granim');\nconst cv = document.createElement('canvas');\ncv.width = el.clientWidth || 600; cv.height = spec.height ?? 300; cv.style.width = '100%'; cv.style.height = `${spec.height ?? 300}px`; el.appendChild(cv);\nnew Granim({ element: cv, direction: 'diagonal', states: { 'default-state': { gradients: data.gradients } }, ...(data.options ?? {}) });",
+    "widget": "// default import;必须传真实 canvas 元素(selector 按 document 解析,看不到 shadow)\nimport Granim from 'https://cdn.jsdelivr.net/npm/granim@2.0.0/+esm';\nconst cv = document.createElement('canvas'); cv.width = 600; cv.height = 300; cv.style.width = '100%'; cv.style.height = '300px'; shadowRoot.appendChild(cv);\nnew Granim({ element: cv, states: { 'default-state': { gradients: data.gradients } }, ...(data.options ?? {}) }); // window resize 监听全局但有界",
+    "codex": "import Granim from 'https://cdn.jsdelivr.net/npm/granim@2.0.0/+esm';\nconst el = document.getElementById('granim'); const cv = document.createElement('canvas');\ncv.width = el.clientWidth || 600; cv.height = spec.height ?? 300; cv.style.width = '100%'; cv.style.height = `${spec.height ?? 300}px`; el.appendChild(cv);\nnew Granim({ element: cv, states: { 'default-state': { gradients: data.gradients } }, ...(data.options ?? {}) });"
+  },
+  "example": {
+    "_why": "钉死 gradients 是二维色数组、boot 会包进 states['default-state'];>=2 组才过渡。",
+    "minimal": {
+      "gradients": [
+        [
+          "#834D9B",
+          "#D04ED6"
+        ],
+        [
+          "#1CD8D2",
+          "#93EDC7"
+        ]
+      ],
+      "options": {
+        "direction": "left-right",
+        "transitionSpeed": 3000
+      }
+    },
+    "empty": {
+      "gradients": [
+        [
+          "#111827",
+          "#111827"
+        ]
+      ]
+    }
+  },
+  "uplink": "display-only 不上行;onStart/onGradientChange/onEnd 等回调由消费 AI 直接接原生 config。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:渲染进传入的 canvas(务必传 element 而非 selector),无 CSS 注入;window resize 监听全局但有界",
+    "codex": "supported:ESM CDN + canvas 2D,无 worker/wasm"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "+esm 仅 default 导出(rt=Granim)。README:new Granim({ element, states:{'default-state':{gradients:[[..],[..]]}}, direction?, opacity?, isPausedWhenNotInView? });element 接受 selector 或 HTMLCanvasElement,走 canvas 2D 绘制。+esm 隔离扫描:document.head=0、createElement('style')=0、insertRule=0、document.body=0;window.addEventListener=2(resize,用于响应式 canvas)且有一处 `window.CustomEvent=` polyfill 赋值(旧浏览器兜底)。注意:element 传字符串按 document 解析,故 shadow 内传真实 canvas 元素。全局足迹仅 resize 监听 + CustomEvent polyfill,无样式/DOM 外泄。",
+    "confidence": "high"
+  }
+}

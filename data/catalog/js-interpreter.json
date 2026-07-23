@@ -4,6 +4,19 @@
   "name": "JS-Interpreter",
   "when_to_use": "需要把 ES5 程序逐步执行、暂停并检查当前求值状态时用它,而非手写执行轨迹——原生文本模拟在循环、作用域、闭包与调用栈上会算错且不能真实单步。",
   "why_valuable": "AI 默认做不到可信的逐语句 JavaScript 执行:它会臆测中间变量和控制流,也不能提供可重复的暂停状态;JS-Interpreter 在隔离解释器内给出确定的 step/run 结果。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing an execution trace when you need to step through an ES5 program, pause it, and inspect the current evaluation state, because native text simulations miscalculate loops, scopes, closures, and call stacks and cannot truly single-step.",
+      "why_valuable": "AI cannot normally execute JavaScript statement by statement with confidence: it invents intermediate variables and control flow and cannot provide repeatable paused state. JS-Interpreter returns deterministic step/run results inside an isolated interpreter.",
+      "data_in": {
+        "note": "Input is ES5 program source, not an ES module; the interpreter intentionally does not expose the browser DOM, and the consuming AI may inject host capabilities only one by one through an initialization function.",
+        "schema": {
+          "source": "string -- complete ES5 Program source",
+          "step_limit?": "positive integer -- consumer-side limit to prevent infinite loops, default 10000"
+        }
+      }
+    }
+  },
   "supply_form": "headless-primitive",
   "mode": "direct-import",
   "upstream": {
@@ -42,7 +55,6 @@
     "globalDomMutation": "yes",
     "globalEvents": "no",
     "evidence": "headless 纯计算,无样式无渲染(styleInject=no,events=no)。载入必须向 document.head append 一个 classic loader <script> 且置 globalThis.Interpreter(Pa.Interpreter=t)命名空间污染——这是全局文档/命名空间足迹(domMutation=yes),但非 body UI portal 且属加载机制。计算结果与 shadow 无关,产出可在任意容器消费(shadow=yes)。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

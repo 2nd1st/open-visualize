@@ -1,30 +1,45 @@
-# 开发者工件(scene: dev-artifacts,26 条)
+# 开发者工件(scene: dev-artifacts,41 条)
 
 每条:`id` — 何时用 · 数据形态 · supply_form · license。选中读 `data/catalog/<id>.json`。
 
 - `andypf-json-viewer` — 需要对大 JSON 做折叠层级、工具栏搜索、类型提示与复制时用它 · key-value · component L1 · MIT
-- `ansi-up` — 需要把 CI/build 日志中的 SGR 颜色、256 色与 truecolor 静态转成安全 H… · text-span · headless-primitive · MIT
+- `ansi-up` — 需要把 CI/build 日志中的 SGR 颜色、256 色与 truecolor 静态转成安全 HTML 时用它 · text-span · headless-primitive · MIT
 - `asciinema-player` — 需要按真实终端帧时序回放 CLI 教程、支持 seek/倍速/主题与复制时用它 · sequence · component L1 · Apache-2.0
+- `bit-field` — 把一组 bit 字段描述渲成像素对齐的寄存器/协议头/指令编码位域图 SVG 时用它 · field-array · component L1 · MIT
+- `bpmn-js` — 要从 BPMN 2.0 XML 渲染/嵌入业务流程图(任务、类型化事件、网关、泳道池、序列/消息流)… · notation-xml · component L1 · SEE LICENSE IN LICENSE (bpmn.io — MIT-style 授权 + 不可移除的 bpmn.io watermark,须保持可见并链回 https://bpmn.io)
+- `changelog` — 需要把产品或代码库的发布记录按版本、日期和变更类型交付时用它 · sequence · component L1 · MIT
+- `citation-cards` — 需要把 RAG 检索结果或回答依据呈现为可核验的来源卡片时用它 · records · component L1 · MIT
+- `code-snippet` — 需要在 AI 回答里交付一段带文件名、语言标识、语法着色和本地复制按钮的代码时用它 · code-string · component L1 · MIT
 - `codemirror` — 需要在工件中编辑长代码并获得选区、撤销、搜索、补全框架与虚拟化视口时用它 · text-span · component L1 · MIT
 - `croner` — 需要枚举 cron 的下一次或未来 N 次触发时间时用它 · notation-string · headless-primitive · MIT
 - `cronstrue` — 需要把 cron 表达式变成可读说明时用它 · notation-string · headless-primitive · MIT
-- `cssgridgenerator` — 应用态 · grid · app-needs-fork · MIT ⚠blocked(需fork)
-- `flexbox-labs` — 应用态 · key-value · app-needs-fork · MIT ⚠blocked(需fork)
+- `cssgridgenerator` — 应用态 · ? · app-needs-fork · MIT ⚠blocked(需fork)
+- `dineug-erd-editor` — 要一个可编辑/可交互的 ER 图(拖拽表、typed 列、PK/FK 关系带自动布线基数、自动布局… · schema · component L1 · MIT
+- `dmn-js` — 把业务规则/决策逻辑渲成规范的 DMN 决策表(hit policy、typed input/out… · notation-xml · component L1 · SEE LICENSE IN LICENSE (bpmn.io license —— MIT 文本 + 强制 bpmn.io watermark 必须保持可见,不得移除/遮挡)
+- `flame-chart-js` — 把带时间轴的 span/调用数据渲成可缩放、可平移的时间型 flame chart / 性能时间线时用它 · timeline-tree · component L1 · MIT
+- `flexbox-labs` — 应用态 · ? · app-needs-fork · MIT ⚠blocked(需fork)
+- `fossflow` — 画云/基础设施/网络架构的流行等距(isometric)风格图时用它 · isometric-scene · component L1 · MIT
 - `gitgraph-js` — 需要讲清多分支、提交与合并拓扑时用它 · graph · component L1 · MIT
 - `gpt-tokenizer` — 需要在浏览器里精确计数或拆解 GPT 文本 token 时用它 · text-span · headless-primitive · MIT
 - `graphql-voyager` — 需要把 GraphQL SDL 展开成可缩放、可追踪字段关系的全景图时用它 · graph · component L1 · MIT
+- `highlight-js` — 手上有代码但不确定语言、或需一次性支持大量语言并自动识别(automatic language de… · code-string · component L1 · BSD-3-Clause
 - `hpcc-js-wasm` — 需要在浏览器把 DOT 渲成高质量层次图时用它 · notation-string · component L1 · Apache-2.0
 - `json-crack` — 需要把嵌套 JSON/YAML/CSV 变成可缩放、折叠和搜索的节点连线图时用它 · graph · app-needs-fork · Apache-2.0 ⚠blocked(需fork)
+- `monaco-editor` — 需要 VS Code 保真度的代码查看(minimap、代码折叠、语法着色)或只读对比时用它 · code-text · app-needs-fork · MIT ⚠blocked(需fork)
+- `mscgenjs` — 需要正式的协议/电信 Message Sequence Chart(MSC 记号:parallel … · notation-string · component L1 · GPL-3.0
+- `netlistsvg` — 把一个 JSON netlist(如 Yosys 输出)渲成带标准门符号与网线自动布线的数字逻辑/R… · netlist-json · component L1 · MIT
 - `nomnoml` — 需要用极简 DSL 画 UML/框线关系图且在意体积时用它 · notation-string · component L1 · MIT
 - `perf-cascade` — 需要把 HAR 1.2 请求渲成带阶段着色、时间刻度和详情展开的瀑布图时用它 · interval-set · component L1 · MIT
 - `pev2` — 需要把 PostgreSQL EXPLAIN 计划变成耗时热点、节点统计和可缩放执行树时用它 · hierarchy · component L1 · PostgreSQL
 - `prismjs` — 需要稳定高亮长代码、嵌套语法或多段代码时用它 · text-span · component L1 · MIT
 - `railroad-diagrams` — 需要把 DSL、协议或配置文法渲成 JSON.org 风格 railroad SVG 时用它 · hierarchy · component L1 · CC0-1.0
-- `rapidoc` — 需要把 OpenAPI 3.x 文档变成可搜索、递归展开 schema 并带多语言请求样例的 API… · key-value · component L1 · MIT
+- `rapidoc` — 需要把 OpenAPI 3.x 文档变成可搜索、递归展开 schema 并带多语言请求样例的 API 阅读器时用它 · key-value · component L1 · MIT
 - `regulex` — 需要把 JavaScript 正则表达式解释成可缩放 railroad SVG 时用它 · notation-string · component L2 · MIT
 - `shiki` — 需要 TextMate 文法与 VS Code 主题级高亮精度时用它 · text-span · component L1 · MIT
+- `softwaretechnik-dbml-renderer` — 把一段 DBML(简洁的数据库 schema DSL)文本编译成布局好的 ER 图 SVG 时用它 · notation-string · component L1 · ISC
 - `speed-highlight-core` — 需要在体积敏感载体里快速高亮常见语言时用它 · text-span · component L1 · CC0-1.0
 - `speedscope` — 需要缩放、搜索并在 time-order、left-heavy 与 sandwich 视图间检查性能… · hierarchy · app-needs-fork · MIT ⚠blocked(需fork)
 - `sql-js` — 需要在浏览器沙箱里打开真实 SQLite 字节库或对内联表执行标准 SQL 时用它 · tabular · headless-primitive · MIT
 - `vanilla-jsoneditor` — 需要 tree/text/table 三模式编辑、JSON 修复、校验与大文档虚拟化时用它 · key-value · component L1 · ISC
 - `xterm-xterm` — 需要正确呈现 ANSI/CSI 光标移动、256 色/truecolor、scrollback 与可… · text-span · component L1 · MIT
+- `zenuml-core` — 需要把一段类代码的 ZenUML DSL 编译成 lifeline 精确、fragment 正确嵌套… · notation-string · component L1 · MIT

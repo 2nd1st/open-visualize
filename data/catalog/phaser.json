@@ -4,6 +4,29 @@
   "name": "Phaser",
   "when_to_use": "需要在对话里现写有场景、输入、碰撞、相机和游戏循环的 2D 小游戏时用它,而非手写 canvas 引擎——原生手写在生命周期、资源加载、碰撞和帧率独立更新上失败。非做静态插画、3D 游戏或免代码游戏编辑器。",
   "why_valuable": "AI 默认能拼一个短 canvas demo,但做不到可扩展的 Scene 生命周期、输入、Arcade/Matter 物理、相机、动画与资源缓存协同；Phaser 把新小游戏最容易崩的运行时骨架一次补齐。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to write a small 2D game in the conversation with scenes, input, collisions, a camera, and a game loop instead of hand-writing a canvas engine. Native implementations fail on lifecycle, asset loading, collision handling, and frame-rate-independent updates. It is not for static illustration, 3D games, or a no-code game editor.",
+      "why_valuable": "AI can assemble a short canvas demo by default, but cannot coordinate an extensible Scene lifecycle, input, Arcade/Matter physics, cameras, animation, and asset caching. Phaser supplies the runtime skeleton most likely to break in a new small game.",
+      "data_in": {
+        "note": "data_in.scene is a native Phaser Scene config callback object, not a JSON-serializable level DSL. boot handles only parent, renderer, and explicit pixel dimensions; game objects continue to use upstream APIs such as this.add, this.load, and this.physics inside create/preload/update.",
+        "schema": {
+          "renderer?": "'auto' | 'webgl' | 'canvas' - entry default 'auto'",
+          "backgroundColor?": "CSS color string | number - entry default '#000000'",
+          "pixelArt?": "boolean - default false",
+          "physics?": "Phaser.Types.Core.PhysicsConfig - omitted by default, so no physics system is enabled",
+          "scene": {
+            "preload?": "function(this: Phaser.Scene): void - default no-op; load assets here with this.load",
+            "create?": "function(this: Phaser.Scene): void - default no-op; create game objects here",
+            "update?": "function(this: Phaser.Scene, time: number, delta: number): void - default no-op; per-frame logic"
+          }
+        }
+      },
+      "spec": {
+        "note": "Game config must receive explicit pixel width/height. boot defaults width to the container clientWidth, falling back to 640px, and height to 400px; vh and percentage heights are prohibited. If the host width changes, consuming AI should configure Scale Manager or recreate the game."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -58,7 +81,6 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "Canvas is appended to the given `parent` (shadow container) — no document.body append in the basic path (fallback-to-body only when parent omitted, but boot always sets parent). Registers many PERSISTENT global listeners: window resize/orientationchange/load/touchstart/end/cancel/mousedown/up and document visibilitychange/pointerlockchange (removed only on game.destroy()). document.head <style>/<script> injection occurs ONLY via opt-in this.load.css/this.load.script loader plugins, not the Graphics/geometry path this entry covers.",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

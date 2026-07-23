@@ -4,6 +4,21 @@
   "name": "nomnoml",
   "when_to_use": "需要用极简 DSL 画 UML/框线关系图且在意体积时用它,而非手写 canvas/SVG——原生手写在自动布局、连线避让和文本量尺上会失败。非做自由画布、实时协作或复杂 BPMN。",
   "why_valuable": "AI 默认虽会写框线文本,却做不好稳定的 UML 节点布局与连线几何;nomnoml 让 AI 只写低歧义 DSL,由 graphre 确定性排版到 canvas。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing canvas/SVG when you need a tiny DSL for UML or box-and-line relationship diagrams and care about bundle size, because native implementations fail at automatic layout, edge routing, and text measurement. Not for a free-form canvas, real-time collaboration, or complex BPMN.",
+      "why_valuable": "AI can normally write box-and-line text but cannot produce stable UML node layout and edge geometry; nomnoml lets AI write only a low-ambiguity DSL, which graphre deterministically lays out onto canvas.",
+      "data_in": {
+        "schema": {
+          "source": "string -- nomnoml DSL; nodes use [Name], relationships such as [A]->[B], and directive lines begin with #",
+          "scale?": "number > 0 -- canvas rendering scale, default 1"
+        }
+      },
+      "spec": {
+        "note": "The canvas wrapper defaults to an explicit 400px height with scrolling; do not use vh or percentage heights (rule 3). nomnoml writes the canvas pixel width and height from the DSL layout; do not stretch and distort it in CSS."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -41,7 +56,12 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "+esm scan: 0 `document.head`, 0 `document.body`, 0 document/window addEventListener. Uses measureText/getContext (9 refs) for text sizing and draws into the caller-supplied canvas (only dependency is graphre, bundled). No global injection or portals — canvas output fully within the passed shadow container.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "source": "[Animal|\n  +name: String\n  +age: int\n|\n  +makeSound()\n  +sleep()\n]\n[Animal] <:- [Dog]\n[Animal] <:- [Cat]\n[Dog] -> [Owner]\n[Cat] -> [Owner]",
+      "scale": 1
+    }
   }
 }

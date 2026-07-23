@@ -2,6 +2,25 @@
   "entry_version": "thin-1",
   "id": "tippy-js",
   "name": "tippy.js",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a hand-written implementation when you need annotations, term definitions, or rich popovers anchored to any element and automatically kept away from viewport edges, because native absolute-positioned bubbles fail at collision flipping, scroll containers, and keyboard-focus accessibility.",
+      "why_valuable": "AI can only write an absolutely positioned bubble shown on hover by default; it cannot provide Popper-grade flip/shift, repositioning on scroll, and consistent touch/keyboard-focus state. tippy.js reduces these high-failure areas to an anchor plus shallow configuration.",
+      "data_in": {
+        "note": "anchor_selector must match one HTMLElement within the current carrier root; content is treated as plain text by default. Set allow_html to true only for trusted HTML.",
+        "schema": {
+          "anchor_selector": "string -- CSS selector for the unique anchor",
+          "content": "string -- tooltip/popover content",
+          "placement?": "'top'|'top-start'|'top-end'|'right'|'bottom'|'left' and corresponding -start/-end -- default 'top'",
+          "trigger?": "string -- native tippy trigger-word combination, default 'mouseenter focus'",
+          "interactive?": "boolean -- whether content is interactive, default false",
+          "allow_html?": "boolean -- whether to treat content as HTML, default false",
+          "max_width?": "number | string -- default 350",
+          "delay?": "number | [number, number | null] -- default 0"
+        }
+      }
+    }
+  },
   "when_to_use": "需要让批注、术语解释或富内容 popover 锚定任意元素并自动避开视口边缘时用它而非手写,因为原生 absolute 气泡在碰撞翻转、滚动容器和焦点可达上失败。",
   "why_valuable": "AI 默认只能写 hover 时显示的绝对定位气泡,做不到 Popper 级 flip/shift、滚动重定位、触摸与键盘焦点的一致状态;tippy.js 把这些高失败区收敛为 anchor 加浅配置。",
   "supply_form": "component",
@@ -43,7 +62,6 @@
     "globalEvents": "yes",
     "shadowCompatible": "conditional",
     "evidence": "默认 appendTo=document.body(widget boot 用 appendTo:()=>anchor.parentElement 覆盖);模块级 document mousemove/touchstart 全局监听不清理;ESM 不自动注 CSS,tippy.css 须手动进 shadow",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

@@ -1,0 +1,69 @@
+{
+  "entry_version": "thin-1",
+  "id": "d3-delaunay",
+  "name": "d3-delaunay",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when a set of 2D points needs Voronoi cells, a Delaunay triangulation, a convex hull, or nearest-neighbor queries instead of calculating cell boundaries by hand; use a plot/chart for an ordinary scatterplot. Augmentation boundary: it computes geometry and can optionally produce an SVG path with render() or draw into a canvas ctx; the consuming AI chooses the rendering carrier.",
+      "why_valuable": "AI is almost certain to get hand-calculated Voronoi cell boundaries, infinite-cell clipping, and triangle adjacency wrong; d3-delaunay uses an incremental algorithm (delaunator) to fix the topology, directly supporting computational geometry, nearest neighbors, spatial partitioning, and generative art from only a point array.",
+      "data_in": {
+        "note": "points is parsed as [[x,y],...] or a flat [x0,y0,x1,y1,...] array by default; object arrays require fx/fy accessors. voronoi bounds affect only cell clipping and the render viewport.",
+        "schema": {
+          "_defaults": {
+            "bounds": "[0,0,960,500]"
+          },
+          "points": "[x,y][] | number[] | object[] -- 2D points; use with fx/fy accessors for an object array",
+          "bounds?": "[xmin,ymin,xmax,ymax] -- voronoi viewport/clipping box, default [0,0,960,500]",
+          "fx?": "(d)=>number -- get X from an object (for object point sets)",
+          "fy?": "(d)=>number -- get Y from an object (for object point sets)"
+        }
+      }
+    }
+  },
+  "when_to_use": "给一组 2D 点要 Voronoi 单元/Delaunay 三角网/凸包/最近邻查询时用它,而非手算单元边界;画普通散点用 plot/chart。augment 边界:只算几何 + 可选 render() 产 SVG path 或画进 canvas ctx,渲染载体由消费 AI 定。",
+  "why_valuable": "AI 手算 Voronoi 单元边界、无穷单元裁剪、三角邻接几乎必错;d3-delaunay 用增量算法(delaunator)固定拓扑,输出直接教计算几何/最近邻/空间划分/生成艺术,输入只需点数组。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "d3-delaunay",
+    "version": "6.0.4",
+    "github": "d3/d3-delaunay"
+  },
+  "license": "ISC",
+  "data_in": {
+    "shape": "points",
+    "note": "points 默认按 [[x,y],...] 或扁平 [x0,y0,x1,y1,...] 解析;对象数组需传 fx/fy 存取器。voronoi 的 bounds 只影响单元裁剪与 render 视口。",
+    "schema": {
+      "_defaults": {
+        "bounds": "[0,0,960,500]"
+      },
+      "points": "[x,y][] | number[] | object[] —— 二维点;对象数组时配合 fx/fy 存取器",
+      "bounds?": "[xmin,ymin,xmax,ymax] —— voronoi 视口/裁剪框,默认 [0,0,960,500]",
+      "fx?": "(d)=>number —— 从对象取 X(对象点集时)",
+      "fy?": "(d)=>number —— 从对象取 Y(对象点集时)"
+    }
+  },
+  "provides": {
+    "shape": "voronoi-geometry",
+    "_note": "headless-primitive:三角化/Voronoi 几何,render() 可产 SVG path 或画进 canvas ctx;无 L 级、无 carriers 矩阵,渲染载体由消费 AI 选。",
+    "outputs": "Delaunay 三角网 + Voronoi 单元多边形/凸包/邻接/最近邻查询。render([ctx]) 无 ctx 时返回 SVG path 字符串,传 2d context 则画进 canvas。",
+    "api_surface": {
+      "build": "Delaunay.from(points[, fx, fy]); delaunay.voronoi([xmin,ymin,xmax,ymax])",
+      "geometry": "voronoi.cellPolygon(i); voronoi.cellPolygons(); delaunay.trianglePolygons(); delaunay.hullPolygon()",
+      "query": "delaunay.find(x,y[,i]); delaunay.neighbors(i); voronoi.neighbors(i); voronoi.contains(i,x,y)",
+      "render": "delaunay.render([ctx])/renderPoints([ctx],r)/renderHull([ctx]); voronoi.render([ctx])/renderCell(i,[ctx])/renderBounds([ctx]) —— 无 ctx 返回 SVG path 字符串"
+    }
+  },
+  "boot": {
+    "shared": "import { Delaunay } from 'https://cdn.jsdelivr.net/npm/d3-delaunay@6.0.4/+esm';\nconst delaunay = Delaunay.from(data.points); // [[x,y],...]\nconst bounds = data.bounds ?? [0, 0, 960, 500];\nconst voronoi = delaunay.voronoi(bounds);\n// SVG:const cells = Array.from(voronoi.cellPolygons()); 或 const path = voronoi.render(); // 无 ctx 返回 SVG path 字符串\n// Canvas:voronoi.render(ctx); delaunay.renderPoints(ctx, 2);\n// 查询:const i = delaunay.find(x, y); voronoi.contains(i, x, y)",
+    "note": "Delaunay.from 吃 [[x,y],...]/扁平数组/对象数组(配 fx/fy);render() 无 context 时返回 SVG path 字符串,传 2d context 则画进 canvas。库无 DOM/style/event/window 足迹。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm named exports Delaunay, Voronoi(F/X)已核。Delaunay.from(points[, fx, fy])——points 为 [[x,y],...]/扁平 Float64Array/对象+存取器(src/delaunay.js:35);delaunay.voronoi([xmin,ymin,xmax,ymax]) 默认 [0,0,960,500](src/voronoi.js:5)。render:delaunay.render([ctx])/voronoi.render([ctx])/renderPoints/renderHull/renderCell 在不传 context 时 RETURN SVG path 字符串(src/delaunay.js:162 `context==null ? context=new Path`),传 2d context 则画进该 context。几何:voronoi.cellPolygon(i)、delaunay.trianglePolygons()、delaunay.hullPolygon()、delaunay.find(x,y)、delaunay.neighbors(i)。dep:delaunator@5。零 DOM/style/event/window 足迹(只写入调用方提供的 canvas context)。headless-primitive。",
+    "confidence": "high"
+  }
+}

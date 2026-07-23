@@ -5,6 +5,28 @@
   "when_to_use": "需要极小体积的游动点阵、近邻连线与鼠标吸附背景时用它而非手写 canvas,因为原生在距离阈值、帧循环、尺寸响应和清理恢复上失败。",
   "why_valuable": "AI 默认能画随机点却很难同时稳定处理近邻连线透明度、边界反弹、指针吸附、容器尺寸响应与销毁;这个约 2KB 的单构造器把整套行为固化。",
   "supply_form": "component",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing canvas when you need a tiny animated-dot background with nearest-neighbor lines and mouse attraction, because native implementations fail at distance thresholds, frame loops, responsive sizing, and cleanup.",
+      "why_valuable": "AI can normally draw random points but struggles to stably combine nearest-neighbor line opacity, boundary bouncing, pointer attraction, container-size response, and destruction; this roughly 2KB single-constructor library fixes the full behavior.",
+      "data_in": {
+        "note": "data_in.options is passed exactly to new CanvasNest(element, config); color/pointColor must be comma-separated RGB triples, not hex or rgb(...).",
+        "schema": {
+          "options?": {
+            "_default": "{} -- use all 2.0.4 source defaults",
+            "color?": "string -- line RGB triple, default '0,0,0'",
+            "pointColor?": "string -- point RGB triple, default '0,0,0'",
+            "opacity?": "number 0..1 -- opacity of the entire canvas, default 0.5",
+            "count?": "integer -- number of moving points, default 99",
+            "zIndex?": "integer -- canvas stacking level, default -1"
+          }
+        }
+      },
+      "spec": {
+        "note": "The upstream canvas fits its parent, so the parent must already have an explicit pixel height; boot defaults to 400px. Do not use vh or percentage heights."
+      }
+    }
+  },
   "level": "L1",
   "mode": "direct-import",
   "upstream": {
@@ -48,7 +70,17 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "+esm 导出 k as default → import CanvasNest 正确;new CanvasNest(el,config) 签名正确;options color/pointColor/opacity/count/zIndex 与 2.0.4 源码消费一致(源码命中 opacity/pointColor/c.count),schema 强调 color/pointColor 须逗号分隔 RGB 三元组正确(源码内 rgb(${color}))。隔离:无 CSS(globalStyleInjection=no);canvas append 到传入 el(落 shadow)、无 document.body(globalDomMutation=no);源码实测以属性赋值覆盖 window.onmousemove/window.onmouseout(init:this.onmousemove=window.onmousemove 暂存后替换;destroy():window.onmousemove=this.onmousemove 还原)→ globalEvents=yes,属性式覆盖会 clobber 页面既有同名 handler、仅 destroy() 还原。shadowCompatible=conditional:canvas 完全落 shadow,但 window.onmousemove/onmouseout 全局覆盖逃出 shadow,同页限一活跃实例且卸载须 nest.destroy()。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "options": {
+        "color": "100,150,245",
+        "pointColor": "70,130,240",
+        "opacity": 0.9,
+        "count": 120,
+        "zIndex": 0
+      }
+    }
   }
 }

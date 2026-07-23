@@ -2,6 +2,26 @@
   "entry_version": "thin-1",
   "id": "react-diff-viewer-continued",
   "name": "react-diff-viewer-continued",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a hand-written table when you need to render two strings directly in React as a GitHub-style split/unified view with word-level highlighting and collapsed context, because native implementations fail on line alignment, within-word differences, and context folding. It is not for editable merging, semantic AST diff, or patch application.",
+      "why_valuable": "AI defaults can only place short static text side by side; they cannot reliably combine aligned line numbers, within-word differences, context folding, and virtualization for large diffs.",
+      "data_in": {
+        "schema": {
+          "oldValue": "string | object -- baseline value; object only with JSON compareMethod",
+          "newValue": "string | object -- comparison value; object only with JSON compareMethod",
+          "splitView?": "boolean -- true for two columns, false for unified; default true",
+          "compareMethod?": "'CHARS'|'WORDS'|'WORDS_WITH_SPACE'|'LINES'|'TRIMMED_LINES'|'SENTENCES'|'CSS'|'JSON'|'YAML' -- default CHARS",
+          "showDiffOnly?": "boolean -- whether to collapse unchanged lines; default true",
+          "useDarkTheme?": "boolean -- default false",
+          "useWorker?": "boolean -- default false; this entry calculates synchronously for carrier stability, and should be true only after Blob Worker support is confirmed"
+        }
+      },
+      "spec": {
+        "note": "The component body is a diff table; the wrapper uses an explicit max-height of 400px with overflow:auto. AI may change the pixel value, but iron rule 3 forbids vh and percentage heights."
+      }
+    }
+  },
   "when_to_use": "需要在 React 中把两个字符串直接渲成 GitHub 风格 split/unified、词级高亮与折叠视图时用它而非手写表格,因为原生在行对齐、词内差异和折叠上下文上失败;非做可编辑 merge、AST 语义 diff 或 patch 应用。",
   "why_valuable": "AI 默认只能做短文本静态并排,做不到稳定的行号对齐、词内差异、上下文折叠和大 diff 虚拟化组合。",
   "supply_form": "component",
@@ -30,8 +50,8 @@
     "note": "组件主体是 diff 表格;外层显式 max-height 400px 并 overflow:auto,AI 可改像素值但禁 vh/百分比高(铁律 3)。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:组件用 Emotion 动态样式,artifact 允许其进入 head\nimport React from 'https://cdn.jsdelivr.net/npm/react@19/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19/client/+esm';\nimport DiffViewer, { DiffMethod } from 'https://cdn.jsdelivr.net/npm/react-diff-viewer-continued@4/+esm';\nconst holder = document.getElementById('diff'); holder.style.cssText = 'max-height:400px;overflow:auto';\nconst props = { oldValue:data.oldValue, newValue:data.newValue, splitView:data.splitView ?? true, compareMethod:DiffMethod[data.compareMethod ?? 'CHARS'], showDiffOnly:data.showDiffOnly ?? true, useDarkTheme:data.useDarkTheme ?? false, disableWorker:!(data.useWorker ?? false) };\ncreateRoot(holder).render(React.createElement(DiffViewer, props));",
-    "widget": "// Emotion 默认向 head 写 data-emotion=react-diff 样式;只把本次新增 style 搬入 shadow(铁律 2)\nimport React from 'https://cdn.jsdelivr.net/npm/react@19/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19/client/+esm'; import DiffViewer,{DiffMethod} from 'https://cdn.jsdelivr.net/npm/react-diff-viewer-continued@4/+esm';\nconst observer = new MutationObserver(records => { for (const r of records) for (const n of r.addedNodes) if (n.nodeType === 1 && n.matches('style[data-emotion^=\"react-diff\"]')) shadowRoot.appendChild(n); }); observer.observe(document.head,{childList:true});\nconst holder = shadowRoot.appendChild(document.createElement('div')); holder.style.cssText = 'max-height:400px;overflow:auto';\ncreateRoot(holder).render(React.createElement(DiffViewer,{oldValue:data.oldValue,newValue:data.newValue,splitView:data.splitView ?? true,compareMethod:DiffMethod[data.compareMethod ?? 'CHARS'],showDiffOnly:data.showDiffOnly ?? true,useDarkTheme:data.useDarkTheme ?? false,disableWorker:!(data.useWorker ?? false)}));",
+    "artifact": "// 与组件解析到的 React 19.2.7 精确对齐为单实例；独立 mount 保留同步可见状态直到首个 React 子节点出现\nimport React from 'https://cdn.jsdelivr.net/npm/react@19.2.7/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19.2.7/client/+esm';\nimport DiffViewer, { DiffMethod } from 'https://cdn.jsdelivr.net/npm/react-diff-viewer-continued@4.4.0/+esm';\nconst holder = document.getElementById('diff'); holder.style.cssText = 'max-height:400px;overflow:auto';\nconst status = document.createElement('pre'), mount = document.createElement('div'); status.textContent = 'Computing diff…'; holder.append(status, mount);\nconst observer = new MutationObserver(() => { if (mount.childElementCount) { status.remove(); observer.disconnect(); } }); observer.observe(mount, { childList:true });\nconst props = { oldValue:data.oldValue, newValue:data.newValue, splitView:data.splitView ?? true, compareMethod:DiffMethod[data.compareMethod ?? 'CHARS'], showDiffOnly:data.showDiffOnly ?? true, useDarkTheme:data.useDarkTheme ?? false, disableWorker:!(data.useWorker ?? false) };\ncreateRoot(mount).render(React.createElement(DiffViewer, props));",
+    "widget": "// Emotion 默认向 head 写 data-emotion=react-diff 样式;只把本次新增 style 搬入 shadow(铁律 2)\nimport React from 'https://cdn.jsdelivr.net/npm/react@19.2.7/+esm'; import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19.2.7/client/+esm'; import DiffViewer,{DiffMethod} from 'https://cdn.jsdelivr.net/npm/react-diff-viewer-continued@4.4.0/+esm';\nconst styleObserver = new MutationObserver(records => { for (const r of records) for (const n of r.addedNodes) if (n.nodeType === 1 && n.matches('style[data-emotion^=\"react-diff\"]')) shadowRoot.appendChild(n); }); styleObserver.observe(document.head,{childList:true});\nconst holder = shadowRoot.appendChild(document.createElement('div')); holder.style.cssText = 'max-height:400px;overflow:auto';\nconst status = document.createElement('pre'), mount = document.createElement('div'); status.textContent = 'Computing diff…'; holder.append(status, mount);\nconst renderObserver = new MutationObserver(() => { if (mount.childElementCount) { status.remove(); renderObserver.disconnect(); } }); renderObserver.observe(mount, { childList:true });\ncreateRoot(mount).render(React.createElement(DiffViewer,{oldValue:data.oldValue,newValue:data.newValue,splitView:data.splitView ?? true,compareMethod:DiffMethod[data.compareMethod ?? 'CHARS'],showDiffOnly:data.showDiffOnly ?? true,useDarkTheme:data.useDarkTheme ?? false,disableWorker:!(data.useWorker ?? false)}));",
     "codex": "同 artifact(sandbox iframe):React createRoot + DiffViewer;默认 disableWorker:true 避开 Blob Worker 能力差异。"
   },
   "peer": {
@@ -49,7 +69,12 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "deps @emotion/css + @emotion/react inject <style data-emotion> into document.head; +esm defines two caches key:\"react-diff\" and key:\"highlighted-diff\". Diff table renders inside the React mount container; no global document/window listeners (optional diff worker is Blob-based and disabled by default via disableWorker). Shadow works only if BOTH emotion caches are relocated into the shadow root.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "oldValue": "import { useState } from \"react\";\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n  return <button onClick={() => setCount(count + 1)}>Clicked {count} times</button>;\n}",
+      "newValue": "import { useState, useCallback } from \"react\";\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n  const inc = useCallback(() => setCount(c => c + 1), []);\n  return <button onClick={inc}>Count: {count}</button>;\n}"
+    }
   }
 }

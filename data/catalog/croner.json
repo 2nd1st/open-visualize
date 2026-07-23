@@ -47,7 +47,22 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "croner@10.0.1 +esm exports 'b as Cron' — import{Cron} correct. dist/croner.d.ts: class Cron constructor(pattern:string|Date, fnOrOptions1?, fnOrOptions2?) (L541); nextRuns(n:number, previous?:Date|string):Date[] (L556) and nextRun (L548) real — boot's new Cron(pattern,opts).nextRuns(count, from-as-Date) correct (2nd arg 'previous' returns runs after it, matching the 'from = start time' intent). CronOptions contains all boot keys as real fields: paused (L11), timezone (L56), domAndDow (L66, default false=OR), mode (L93); CronMode type = 'auto'|'5-part'|'6-part'|'7-part'|'5-or-6-parts'|'6-or-7-parts' matches the schema enum verbatim. Headless-primitive: boot passes paused:true so no real timer/scheduledJobs registration; nextRuns is pure date evaluation — no DOM/style/global-listener footprint, shadow-safe.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to enumerate the next or next N cron trigger times instead of calculating them by hand, which fails around IANA time zones, DST transitions, and L/W/# edge cases.",
+      "why_valuable": "AI cannot reliably calculate next-run sequences across DST and time zones by default; this library closes cron parsing and date advancement into a deterministic Date[].",
+      "data_in": {
+        "schema": {
+          "pattern": "string -- A 5/6/7-part cron expression or supported date/nickname expression",
+          "count?": "integer,1..1000 -- Number of occurrences to enumerate; default 5",
+          "from?": "string(ISO 8601) -- Starting instant; defaults to the current time",
+          "timezone?": "string(IANA, such as 'Australia/Melbourne') -- Defaults to the host's local time zone",
+          "mode?": "'auto'|'5-part'|'6-part'|'7-part'|'5-or-6-parts'|'6-or-7-parts' -- Default 'auto'",
+          "domAndDow?": "boolean -- Whether day-of-month and day-of-week constraints are ANDed; default false (OR)"
+        }
+      }
+    }
   }
 }

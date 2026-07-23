@@ -82,7 +82,38 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "+esm injects Google-Fonts <link> into document.head 3x (\"...fonts.googleapis.com']')||document.head.appendChild(t)\", plus a per-font link), and attaches document.addEventListener('keydown'/'fullscreenchange'...) + window resize/scroll listeners. Its visual CSS is the static dist/style.css (catalog rewrites :root->:host into shadow, workable), but the Google-Font head injection leaks out of shadow and the external font URL may be CSP-blocked in artifact/widget; fonts degrade gracefully.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to arrange itinerary, history, or release events as keyboard-navigable vertical, horizontal, or alternating timeline cards instead of handwritten CSS, which fails at alternating layout, media cards, and navigation state across modes. Not for a zoomable interval axis or Gantt editor.",
+      "why_valuable": "AI defaults can only produce a static vertical line with cards at about 70% quality and cannot reliably combine alternating layout, horizontal mode, keyboard navigation, responsive card measurement, and media content.",
+      "data_in": {
+        "note": "This entry uses the native react-chrono 3.x items API with lowercase mode; items are ordered point-in-time cards, not draggable intervals with start/end.",
+        "schema": {
+          "items": [
+            {
+              "id?": "string -- Upstream identifies by position by default",
+              "title?": "string -- Point title is hidden by default",
+              "cardTitle?": "string -- Card title is hidden by default",
+              "cardSubtitle?": "string -- Subtitle is hidden by default",
+              "cardDetailedText?": "string | string[] -- Body is hidden by default",
+              "media?": {
+                "_default": "Media is hidden when omitted",
+                "type": "'IMAGE'|'VIDEO'",
+                "source": {
+                  "url": "string"
+                },
+                "name?": "string -- Default empty string"
+              }
+            }
+          ],
+          "mode?": "'vertical'|'horizontal'|'alternating'|'horizontal-all' -- Boot default vertical"
+        }
+      },
+      "spec": {
+        "note": "Timeline mode switching and card measurement require a definite container height; boot defaults to 480px. AI may provide another explicit pixel value; percentage and viewport units are forbidden."
+      }
+    }
   }
 }

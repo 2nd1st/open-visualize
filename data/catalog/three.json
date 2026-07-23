@@ -43,7 +43,29 @@
     "globalEvents": "no",
     "shadowCompatible": "yes",
     "evidence": "renderer.domElement(WebGL canvas)只落传入容器;无 document/window 监听(webglcontextlost 挂自身 canvas);纯几何无 CSS/字体/head 依赖",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "objects": [],
+      "background": "#3a6ea5"
+    }
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when rotatable cameras, lighting, materials, or grouped geometry are needed to explain 3D spatial relationships instead of handwritten Canvas/WebGL, which is expensive and unreliable for projection matrices, depth sorting, and GPU resource management. Not for real map tiles, a complete game, or physics simulation.",
+      "why_valuable": "AI defaults can only draw pseudo-3D SVG or one-off canvas and cannot provide stable camera projection, materials/lighting, depth buffering, and frame-by-frame rendering; three.js reduces these 0% areas to the native Object3D/Camera/Renderer API.",
+      "data_in": {
+        "note": "objects and camera must be created by the same three module import. boot only mounts Scene/Renderer and does not invent a JSON scene protocol. Every optional field states its default.",
+        "schema": {
+          "objects": "THREE.Object3D[] -- Mesh/Line/Points/Group instances to add to Scene; required",
+          "camera?": "THREE.Camera -- Defaults to PerspectiveCamera(50, width/height, 0.1, 1000) at z=5",
+          "background?": "THREE.ColorRepresentation | null -- Default null (transparent/determined by renderer alpha)"
+        }
+      },
+      "spec": {
+        "note": "The WebGL canvas needs explicit pixel dimensions; default height is 480px and width comes from container.clientWidth. vh and percentage heights are forbidden by rule 3. When the container changes, synchronize renderer.setSize and camera aspect."
+      }
+    }
   }
 }

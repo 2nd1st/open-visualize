@@ -1,0 +1,186 @@
+{
+  "entry_version": "thin-1",
+  "id": "stat-cards",
+  "name": "Stat cards",
+  "when_to_use": "需要用一排 KPI 快速概括当前状态、环比变化和短期趋势时用它：适合经营摘要、项目周报、分析结论和仪表盘开场。若重点是比较很多类别或查看精确时间序列，应改用条形图或折线图；若只有一个数字且没有上下文，普通强调文本通常更轻。",
+  "why_valuable": "KPI 卡片必须同时处理大数字、变化方向、好坏语义和微型趋势；本模板将方向箭头与 sentiment 分离，既能表达“下降是好事”的指标，也能用同一坐标归一化任意数值范围的内联 sparkline，保持卡片等高和数字对齐。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need a row of KPIs to summarize current status, period-over-period changes, and short-term trends quickly. It suits business summaries, project weekly reports, analytical conclusions, and dashboard openings. If the focus is comparing many categories or inspecting an exact time series, use a bar or line chart instead; if there is only one number without context, ordinary emphasized text is usually lighter.",
+      "why_valuable": "KPI cards must handle large numbers, change direction, positive or negative meaning, and micro-trends together. This template separates the direction arrow from sentiment, so it can express metrics where a decline is good, while independently normalizing any numeric range into an inline sparkline with shared coordinates, equal card heights, and aligned numbers.",
+      "data_in": {
+        "note": "Each object in data.metrics is one KPI card. value is an already formatted display string. delta.direction controls only the arrow, while delta.sentiment controls color, so \"response time down 18%\" can use direction:'down' and sentiment:'positive'. sparkline accepts at least 2 finite numbers and normalizes independently within each card; no chart is drawn when values are missing, invalid, or fewer than 2. Use 2-6 cards with 6-24 sparkline points each.",
+        "schema": {
+          "title?": "string - KPI group title; displays \"Key metrics\" when omitted",
+          "subtitle?": "string - time range or measurement basis; displays a metric-count summary when omitted",
+          "metrics": "{label:string,value:string,context?:string,delta?:{value:string,direction?:'up'|'down'|'flat',sentiment?:'positive'|'negative'|'neutral'},sparkline?:number[]}[] - KPI card array",
+          "_metricFields": {
+            "label": "string - metric name",
+            "value": "string - formatted primary value, for example \"$128.4k\" or \"4.8%\"",
+            "context?": "string - measurement basis or comparison baseline below the value",
+            "delta?": "{value:string,direction?:'up'|'down'|'flat',sentiment?:'positive'|'negative'|'neutral'} - change pill; direction defaults to flat and sentiment to neutral",
+            "sparkline?": "number[] - trend points in chronological order, at least 2 finite numbers"
+          },
+          "_deltaFields": {
+            "value": "string - formatted change, for example \"12.6%\"",
+            "direction?": "'up'|'down'|'flat' - displays ↑, ↓, and → respectively",
+            "sentiment?": "'positive'|'negative'|'neutral' - uses green, red, and amber respectively, independently of numeric direction"
+          }
+        }
+      },
+      "spec": {
+        "note": "Height grows naturally with the title and one row of cards. Cards use an auto-fit grid and wrap automatically when width is insufficient. The sparkline is an inline SVG with a fixed viewBox; it does not measure the carrier or create external resources."
+      }
+    }
+  },
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "inline-template",
+  "upstream": {
+    "npm": null,
+    "version": null,
+    "github": null
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "single-metric",
+    "note": "data.metrics 中每个对象是一张 KPI 卡。value 是已经格式化的展示字符串；delta.direction 只决定箭头，delta.sentiment 决定颜色，因此“响应时间下降 18%”可设 direction:'down'、sentiment:'positive'。sparkline 接受至少 2 个有限数字并在每张卡内独立归一化；缺失、非法或不足 2 点时不画图。建议 2–6 张卡，每条 sparkline 6–24 点。",
+    "schema": {
+      "title?": "string —— KPI 组标题；省略时显示 “Key metrics”",
+      "subtitle?": "string —— 时间范围或数据口径；省略时显示指标数量摘要",
+      "metrics": "{label:string,value:string,context?:string,delta?:{value:string,direction?:'up'|'down'|'flat',sentiment?:'positive'|'negative'|'neutral'},sparkline?:number[]}[] —— KPI 卡数组",
+      "_metricFields": {
+        "label": "string —— 指标名称",
+        "value": "string —— 已格式化主数值，例如 “$128.4k” 或 “4.8%”",
+        "context?": "string —— 数值下方的口径或比较基线",
+        "delta?": "{value:string,direction?:'up'|'down'|'flat',sentiment?:'positive'|'negative'|'neutral'} —— 变化 pill；direction 默认 flat，sentiment 默认 neutral",
+        "sparkline?": "number[] —— 按时间先后排列的趋势点，至少 2 个有限数字"
+      },
+      "_deltaFields": {
+        "value": "string —— 已格式化变化量，例如 “12.6%”",
+        "direction?": "'up'|'down'|'flat' —— 分别显示 ↑、↓、→",
+        "sentiment?": "'positive'|'negative'|'neutral' —— 分别使用绿色、红色、琥珀色；与数值方向独立"
+      }
+    }
+  },
+  "spec": {
+    "height": "auto",
+    "note": "按标题和单行卡片高度自然增高；卡片使用 auto-fit 网格，宽度不足时自动换行。sparkline 是固定 viewBox 的内联 SVG，不测量载体，也不创建外部资源。"
+  },
+  "boot": {
+    "artifact": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{padding:23px;border:1px solid var(--_line);border-radius:18px;background:var(--_soft);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:18px}\n.eyebrow{margin:0 0 5px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.meta{max-width:390px;margin:0;color:var(--_muted);font-size:12px;line-height:1.45;text-align:right}\n.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}\n.card{display:flex;min-width:0;min-height:184px;flex-direction:column;padding:18px;border:1px solid var(--_line);border-radius:15px;background:var(--_raised);box-shadow:0 4px 13px rgba(15,23,42,.045)}\n.top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}\n.label{margin:0;color:var(--_muted);font-size:11px;font-weight:800;letter-spacing:.075em;line-height:1.35;text-transform:uppercase}\n.delta{display:inline-flex;flex:0 0 auto;align-items:center;gap:4px;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}\n.delta.positive{background:color-mix(in srgb,var(--_ok) 12%,var(--_bg));color:var(--_ok)}\n.delta.negative{background:color-mix(in srgb,var(--_no) 11%,var(--_bg));color:var(--_no)}\n.delta.neutral{background:color-mix(in srgb,var(--_partial) 13%,var(--_bg));color:var(--_partial)}\n.value{margin:14px 0 0;color:var(--_text);font-size:clamp(27px,4vw,36px);font-weight:810;letter-spacing:-.045em;line-height:1;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}\n.context{min-height:34px;margin:7px 0 0;color:var(--_muted);font-size:11px;line-height:1.4}\n.spark-wrap{height:47px;margin-top:auto;padding-top:9px;border-top:1px solid var(--_line)}\n.spark{display:block;width:100%;height:38px;overflow:visible}\n.spark-base{stroke:var(--_line);stroke-width:1;stroke-dasharray:3 4;vector-effect:non-scaling-stroke}\n.spark-area{fill:color-mix(in srgb,var(--_accent) 10%,transparent)}\n.spark-line{fill:none;stroke:var(--_accent);stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}\n.spark-dot{fill:var(--_raised);stroke:var(--_accent);stroke-width:2;vector-effect:non-scaling-stroke}\n.no-spark{display:flex;height:47px;align-items:end;margin-top:auto;padding-top:9px;border-top:1px solid var(--_line);color:var(--_muted);font-size:10px}\n.empty{padding:38px 20px;border:1px dashed var(--_line);border-radius:14px;background:var(--_raised);color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:560px){.frame{padding:18px}.heading{display:block}.meta{margin-top:7px;text-align:left}.card{min-height:174px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}.card{box-shadow:0 5px 15px rgba(0,0,0,.16)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst svgNode = (tag,attrs) => { const node=document.createElementNS('http://www.w3.org/2000/svg',tag); Object.entries(attrs||{}).forEach(([key,value])=>node.setAttribute(key,String(value))); return node; };\nconst metrics=Array.isArray(data.metrics)?data.metrics:[];\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Key metrics';\nconst subtitle=typeof data.subtitle==='string'&&data.subtitle.trim()?data.subtitle.trim():metrics.length+' metric'+(metrics.length===1?'':'s')+' at a glance';\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title);\nconst heading=make('header','heading'); const headingCopy=make('div'); headingCopy.appendChild(make('div','eyebrow','Performance snapshot')); headingCopy.appendChild(make('h2','',title)); heading.appendChild(headingCopy); heading.appendChild(make('p','meta',subtitle)); frame.appendChild(heading);\nif(!metrics.length){\n  frame.appendChild(make('div','empty','Add at least one metric to build the KPI snapshot.'));\n}else{\n  const grid=make('div','grid');\n  metrics.forEach((metric) => {\n    const card=make('article','card'); const top=make('div','top'); top.appendChild(make('h3','label',metric&&metric.label!=null?String(metric.label):'Untitled metric'));\n    if(metric&&metric.delta&&metric.delta.value!=null){\n      const direction=['up','down','flat'].includes(metric.delta.direction)?metric.delta.direction:'flat'; const sentiment=['positive','negative','neutral'].includes(metric.delta.sentiment)?metric.delta.sentiment:'neutral'; const arrow=direction==='up'?'↑':direction==='down'?'↓':'→';\n      const delta=make('span','delta '+sentiment,arrow+' '+String(metric.delta.value)); delta.setAttribute('aria-label',direction+' '+String(metric.delta.value)+', '+sentiment); top.appendChild(delta);\n    }\n    card.appendChild(top); card.appendChild(make('div','value',metric&&metric.value!=null?String(metric.value):'—')); card.appendChild(make('p','context',metric&&metric.context?String(metric.context):''));\n    const values=metric&&Array.isArray(metric.sparkline)?metric.sparkline.filter((value)=>typeof value==='number'&&Number.isFinite(value)):[];\n    if(values.length>=2){\n      const min=Math.min(...values); const max=Math.max(...values); const span=max-min||1; const points=values.map((value,index)=>{ const x=4+(152*index/(values.length-1)); const y=40-((value-min)/span)*32; return [x,y]; });\n      const wrap=make('div','spark-wrap'); const svg=svgNode('svg',{class:'spark',viewBox:'0 0 160 44',role:'img','aria-label':'Trend over '+values.length+' periods'}); svg.appendChild(svgNode('line',{class:'spark-base',x1:4,y1:40,x2:156,y2:40}));\n      const pointString=points.map((point)=>point[0].toFixed(1)+','+point[1].toFixed(1)).join(' '); const areaPoints='4,40 '+pointString+' 156,40'; svg.appendChild(svgNode('polygon',{class:'spark-area',points:areaPoints})); svg.appendChild(svgNode('polyline',{class:'spark-line',points:pointString})); const last=points[points.length-1]; svg.appendChild(svgNode('circle',{class:'spark-dot',cx:last[0],cy:last[1],r:3})); wrap.appendChild(svg); card.appendChild(wrap);\n    }else{\n      card.appendChild(make('div','no-spark','No trend data'));\n    }\n    grid.appendChild(card);\n  });\n  frame.appendChild(grid);\n}\nroot.appendChild(frame);\nparent.appendChild(host);",
+    "widget": "const parent = shadowRoot;\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{padding:23px;border:1px solid var(--_line);border-radius:18px;background:var(--_soft);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:18px}\n.eyebrow{margin:0 0 5px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.meta{max-width:390px;margin:0;color:var(--_muted);font-size:12px;line-height:1.45;text-align:right}\n.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}\n.card{display:flex;min-width:0;min-height:184px;flex-direction:column;padding:18px;border:1px solid var(--_line);border-radius:15px;background:var(--_raised);box-shadow:0 4px 13px rgba(15,23,42,.045)}\n.top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}\n.label{margin:0;color:var(--_muted);font-size:11px;font-weight:800;letter-spacing:.075em;line-height:1.35;text-transform:uppercase}\n.delta{display:inline-flex;flex:0 0 auto;align-items:center;gap:4px;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}\n.delta.positive{background:color-mix(in srgb,var(--_ok) 12%,var(--_bg));color:var(--_ok)}\n.delta.negative{background:color-mix(in srgb,var(--_no) 11%,var(--_bg));color:var(--_no)}\n.delta.neutral{background:color-mix(in srgb,var(--_partial) 13%,var(--_bg));color:var(--_partial)}\n.value{margin:14px 0 0;color:var(--_text);font-size:clamp(27px,4vw,36px);font-weight:810;letter-spacing:-.045em;line-height:1;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}\n.context{min-height:34px;margin:7px 0 0;color:var(--_muted);font-size:11px;line-height:1.4}\n.spark-wrap{height:47px;margin-top:auto;padding-top:9px;border-top:1px solid var(--_line)}\n.spark{display:block;width:100%;height:38px;overflow:visible}\n.spark-base{stroke:var(--_line);stroke-width:1;stroke-dasharray:3 4;vector-effect:non-scaling-stroke}\n.spark-area{fill:color-mix(in srgb,var(--_accent) 10%,transparent)}\n.spark-line{fill:none;stroke:var(--_accent);stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}\n.spark-dot{fill:var(--_raised);stroke:var(--_accent);stroke-width:2;vector-effect:non-scaling-stroke}\n.no-spark{display:flex;height:47px;align-items:end;margin-top:auto;padding-top:9px;border-top:1px solid var(--_line);color:var(--_muted);font-size:10px}\n.empty{padding:38px 20px;border:1px dashed var(--_line);border-radius:14px;background:var(--_raised);color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:560px){.frame{padding:18px}.heading{display:block}.meta{margin-top:7px;text-align:left}.card{min-height:174px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}.card{box-shadow:0 5px 15px rgba(0,0,0,.16)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst svgNode = (tag,attrs) => { const node=document.createElementNS('http://www.w3.org/2000/svg',tag); Object.entries(attrs||{}).forEach(([key,value])=>node.setAttribute(key,String(value))); return node; };\nconst metrics=Array.isArray(data.metrics)?data.metrics:[];\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Key metrics';\nconst subtitle=typeof data.subtitle==='string'&&data.subtitle.trim()?data.subtitle.trim():metrics.length+' metric'+(metrics.length===1?'':'s')+' at a glance';\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title);\nconst heading=make('header','heading'); const headingCopy=make('div'); headingCopy.appendChild(make('div','eyebrow','Performance snapshot')); headingCopy.appendChild(make('h2','',title)); heading.appendChild(headingCopy); heading.appendChild(make('p','meta',subtitle)); frame.appendChild(heading);\nif(!metrics.length){\n  frame.appendChild(make('div','empty','Add at least one metric to build the KPI snapshot.'));\n}else{\n  const grid=make('div','grid');\n  metrics.forEach((metric) => {\n    const card=make('article','card'); const top=make('div','top'); top.appendChild(make('h3','label',metric&&metric.label!=null?String(metric.label):'Untitled metric'));\n    if(metric&&metric.delta&&metric.delta.value!=null){\n      const direction=['up','down','flat'].includes(metric.delta.direction)?metric.delta.direction:'flat'; const sentiment=['positive','negative','neutral'].includes(metric.delta.sentiment)?metric.delta.sentiment:'neutral'; const arrow=direction==='up'?'↑':direction==='down'?'↓':'→';\n      const delta=make('span','delta '+sentiment,arrow+' '+String(metric.delta.value)); delta.setAttribute('aria-label',direction+' '+String(metric.delta.value)+', '+sentiment); top.appendChild(delta);\n    }\n    card.appendChild(top); card.appendChild(make('div','value',metric&&metric.value!=null?String(metric.value):'—')); card.appendChild(make('p','context',metric&&metric.context?String(metric.context):''));\n    const values=metric&&Array.isArray(metric.sparkline)?metric.sparkline.filter((value)=>typeof value==='number'&&Number.isFinite(value)):[];\n    if(values.length>=2){\n      const min=Math.min(...values); const max=Math.max(...values); const span=max-min||1; const points=values.map((value,index)=>{ const x=4+(152*index/(values.length-1)); const y=40-((value-min)/span)*32; return [x,y]; });\n      const wrap=make('div','spark-wrap'); const svg=svgNode('svg',{class:'spark',viewBox:'0 0 160 44',role:'img','aria-label':'Trend over '+values.length+' periods'}); svg.appendChild(svgNode('line',{class:'spark-base',x1:4,y1:40,x2:156,y2:40}));\n      const pointString=points.map((point)=>point[0].toFixed(1)+','+point[1].toFixed(1)).join(' '); const areaPoints='4,40 '+pointString+' 156,40'; svg.appendChild(svgNode('polygon',{class:'spark-area',points:areaPoints})); svg.appendChild(svgNode('polyline',{class:'spark-line',points:pointString})); const last=points[points.length-1]; svg.appendChild(svgNode('circle',{class:'spark-dot',cx:last[0],cy:last[1],r:3})); wrap.appendChild(svg); card.appendChild(wrap);\n    }else{\n      card.appendChild(make('div','no-spark','No trend data'));\n    }\n    grid.appendChild(card);\n  });\n  frame.appendChild(grid);\n}\nroot.appendChild(frame);\nparent.appendChild(host);",
+    "codex": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{padding:23px;border:1px solid var(--_line);border-radius:18px;background:var(--_soft);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:18px}\n.eyebrow{margin:0 0 5px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(20px,3vw,27px);font-weight:750;letter-spacing:-.025em;line-height:1.2}\n.meta{max-width:390px;margin:0;color:var(--_muted);font-size:12px;line-height:1.45;text-align:right}\n.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}\n.card{display:flex;min-width:0;min-height:184px;flex-direction:column;padding:18px;border:1px solid var(--_line);border-radius:15px;background:var(--_raised);box-shadow:0 4px 13px rgba(15,23,42,.045)}\n.top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}\n.label{margin:0;color:var(--_muted);font-size:11px;font-weight:800;letter-spacing:.075em;line-height:1.35;text-transform:uppercase}\n.delta{display:inline-flex;flex:0 0 auto;align-items:center;gap:4px;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}\n.delta.positive{background:color-mix(in srgb,var(--_ok) 12%,var(--_bg));color:var(--_ok)}\n.delta.negative{background:color-mix(in srgb,var(--_no) 11%,var(--_bg));color:var(--_no)}\n.delta.neutral{background:color-mix(in srgb,var(--_partial) 13%,var(--_bg));color:var(--_partial)}\n.value{margin:14px 0 0;color:var(--_text);font-size:clamp(27px,4vw,36px);font-weight:810;letter-spacing:-.045em;line-height:1;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}\n.context{min-height:34px;margin:7px 0 0;color:var(--_muted);font-size:11px;line-height:1.4}\n.spark-wrap{height:47px;margin-top:auto;padding-top:9px;border-top:1px solid var(--_line)}\n.spark{display:block;width:100%;height:38px;overflow:visible}\n.spark-base{stroke:var(--_line);stroke-width:1;stroke-dasharray:3 4;vector-effect:non-scaling-stroke}\n.spark-area{fill:color-mix(in srgb,var(--_accent) 10%,transparent)}\n.spark-line{fill:none;stroke:var(--_accent);stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}\n.spark-dot{fill:var(--_raised);stroke:var(--_accent);stroke-width:2;vector-effect:non-scaling-stroke}\n.no-spark{display:flex;height:47px;align-items:end;margin-top:auto;padding-top:9px;border-top:1px solid var(--_line);color:var(--_muted);font-size:10px}\n.empty{padding:38px 20px;border:1px dashed var(--_line);border-radius:14px;background:var(--_raised);color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:560px){.frame{padding:18px}.heading{display:block}.meta{margin-top:7px;text-align:left}.card{min-height:174px}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}.card{box-shadow:0 5px 15px rgba(0,0,0,.16)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst svgNode = (tag,attrs) => { const node=document.createElementNS('http://www.w3.org/2000/svg',tag); Object.entries(attrs||{}).forEach(([key,value])=>node.setAttribute(key,String(value))); return node; };\nconst metrics=Array.isArray(data.metrics)?data.metrics:[];\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Key metrics';\nconst subtitle=typeof data.subtitle==='string'&&data.subtitle.trim()?data.subtitle.trim():metrics.length+' metric'+(metrics.length===1?'':'s')+' at a glance';\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title);\nconst heading=make('header','heading'); const headingCopy=make('div'); headingCopy.appendChild(make('div','eyebrow','Performance snapshot')); headingCopy.appendChild(make('h2','',title)); heading.appendChild(headingCopy); heading.appendChild(make('p','meta',subtitle)); frame.appendChild(heading);\nif(!metrics.length){\n  frame.appendChild(make('div','empty','Add at least one metric to build the KPI snapshot.'));\n}else{\n  const grid=make('div','grid');\n  metrics.forEach((metric) => {\n    const card=make('article','card'); const top=make('div','top'); top.appendChild(make('h3','label',metric&&metric.label!=null?String(metric.label):'Untitled metric'));\n    if(metric&&metric.delta&&metric.delta.value!=null){\n      const direction=['up','down','flat'].includes(metric.delta.direction)?metric.delta.direction:'flat'; const sentiment=['positive','negative','neutral'].includes(metric.delta.sentiment)?metric.delta.sentiment:'neutral'; const arrow=direction==='up'?'↑':direction==='down'?'↓':'→';\n      const delta=make('span','delta '+sentiment,arrow+' '+String(metric.delta.value)); delta.setAttribute('aria-label',direction+' '+String(metric.delta.value)+', '+sentiment); top.appendChild(delta);\n    }\n    card.appendChild(top); card.appendChild(make('div','value',metric&&metric.value!=null?String(metric.value):'—')); card.appendChild(make('p','context',metric&&metric.context?String(metric.context):''));\n    const values=metric&&Array.isArray(metric.sparkline)?metric.sparkline.filter((value)=>typeof value==='number'&&Number.isFinite(value)):[];\n    if(values.length>=2){\n      const min=Math.min(...values); const max=Math.max(...values); const span=max-min||1; const points=values.map((value,index)=>{ const x=4+(152*index/(values.length-1)); const y=40-((value-min)/span)*32; return [x,y]; });\n      const wrap=make('div','spark-wrap'); const svg=svgNode('svg',{class:'spark',viewBox:'0 0 160 44',role:'img','aria-label':'Trend over '+values.length+' periods'}); svg.appendChild(svgNode('line',{class:'spark-base',x1:4,y1:40,x2:156,y2:40}));\n      const pointString=points.map((point)=>point[0].toFixed(1)+','+point[1].toFixed(1)).join(' '); const areaPoints='4,40 '+pointString+' 156,40'; svg.appendChild(svgNode('polygon',{class:'spark-area',points:areaPoints})); svg.appendChild(svgNode('polyline',{class:'spark-line',points:pointString})); const last=points[points.length-1]; svg.appendChild(svgNode('circle',{class:'spark-dot',cx:last[0],cy:last[1],r:3})); wrap.appendChild(svg); card.appendChild(wrap);\n    }else{\n      card.appendChild(make('div','no-spark','No trend data'));\n    }\n    grid.appendChild(card);\n  });\n  frame.appendChild(grid);\n}\nroot.appendChild(frame);\nparent.appendChild(host);"
+  },
+  "example": {
+    "_why": "四个常见经营 KPI 覆盖金额、计数、百分比、上升与下降方向，以及“下降是正向”的 sentiment 分离；不同数值范围的 sparkline 可检验独立归一化。",
+    "minimal": {
+      "title": "Growth pulse",
+      "subtitle": "Trailing 30 days · compared with the previous period",
+      "metrics": [
+        {
+          "label": "Monthly revenue",
+          "value": "$128.4k",
+          "context": "Net recurring revenue",
+          "delta": {
+            "value": "12.6%",
+            "direction": "up",
+            "sentiment": "positive"
+          },
+          "sparkline": [
+            82,
+            86,
+            88,
+            94,
+            91,
+            103,
+            108,
+            116,
+            121,
+            128
+          ]
+        },
+        {
+          "label": "Active teams",
+          "value": "1,842",
+          "context": "Logged in during the period",
+          "delta": {
+            "value": "8.4%",
+            "direction": "up",
+            "sentiment": "positive"
+          },
+          "sparkline": [
+            1320,
+            1375,
+            1422,
+            1510,
+            1496,
+            1608,
+            1670,
+            1712,
+            1788,
+            1842
+          ]
+        },
+        {
+          "label": "Trial conversion",
+          "value": "4.8%",
+          "context": "Visitor to paid workspace",
+          "delta": {
+            "value": "0.3 pt",
+            "direction": "up",
+            "sentiment": "positive"
+          },
+          "sparkline": [
+            3.9,
+            4.2,
+            4.1,
+            4.4,
+            4.25,
+            4.5,
+            4.62,
+            4.55,
+            4.72,
+            4.8
+          ]
+        },
+        {
+          "label": "First response",
+          "value": "2h 14m",
+          "context": "Median support response time",
+          "delta": {
+            "value": "18%",
+            "direction": "down",
+            "sentiment": "positive"
+          },
+          "sparkline": [
+            210,
+            198,
+            205,
+            186,
+            174,
+            169,
+            156,
+            149,
+            141,
+            134
+          ]
+        }
+      ]
+    }
+  },
+  "uplink": "纯 display，无 uplink；KPI、delta 与 sparkline 均为输入数据的只读可视化。",
+  "carriers": {
+    "artifact": "supported:boot.artifact 已在 sandboxed iframe 中以 example.minimal 原样渲染验证；CSS、DOM 与 SVG 全部位于自有 shadow root",
+    "widget": "supported:与 artifact 同一零依赖模板，仅 parent 改为 shadowRoot；可在载体 shadow 内再挂自有 shadow",
+    "codex": "supported:与已验证的 artifact boot 相同，document.getElementById('viz') 为唯一载体挂载点"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "self-authored inline-template, owns its shadow, zero global footprint; rendered-verified",
+    "confidence": "high"
+  }
+}

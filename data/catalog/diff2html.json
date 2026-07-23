@@ -2,6 +2,25 @@
   "entry_version": "thin-1",
   "id": "diff2html",
   "name": "diff2html",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a hand-written table when you need to render a unified/git diff as a GitHub-style line-by-line or side-by-side comparison with a file list, line numbers, and word-level highlighting, because native AI implementations inevitably fail on pairing lines in long files, aligning two columns, and word-level differences.",
+      "why_valuable": "AI defaults can only hand-write a roughly 60-70% usable two-color table for a short diff; they cannot reliably pair lines in long files, align line numbers across columns, or highlight word-level changes. diff2html closes the loop with both the parsing algorithm and HTML rendering.",
+      "data_in": {
+        "note": "The primary input is one complete unified/git diff string; the other fields only modify the output form of upstream html(diff, config). The library escapes diff content, and the consumer places the returned library-generated HTML into a dedicated container.",
+        "schema": {
+          "diff": "string -- unified/git diff text including file headers and @@ hunks",
+          "outputFormat?": "'line-by-line' | 'side-by-side'",
+          "drawFileList?": "boolean -- whether to render the file list",
+          "matching?": "'none' | 'lines' | 'words' -- changed-line matching granularity",
+          "diffStyle?": "'word' | 'char' -- inline highlight granularity"
+        }
+      },
+      "spec": {
+        "note": "The output contains wide tables and code lines; set the container to an explicit 480px height with overflow:auto so long diffs do not overrun the host. Iron rule 3 forbids vh and percentage heights. side-by-side may scroll horizontally in narrow containers."
+      }
+    }
+  },
   "when_to_use": "需要把 unified/git diff 渲成 GitHub 风格的 line-by-line 或 side-by-side 对照、文件列表、行号与词级高亮时用它而非手写表格,因为 AI 原生手写在长文件行配对、双栏对齐和词级差异上必然失败。",
   "why_valuable": "AI 默认只能把短 diff 手写成约 60-70% 可用的双色表格,做不到长文件稳定行配对、双栏行号对齐和词级高亮;diff2html 把解析算法与 HTML 渲染一次闭环。",
   "supply_form": "component",

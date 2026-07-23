@@ -1,0 +1,67 @@
+{
+  "entry_version": "thin-1",
+  "id": "bwip-js",
+  "name": "bwip-js",
+  "when_to_use": "要出物流面单/医药/证件里的 2D 码(DataMatrix、PDF417、Aztec、MaxiCode)或 GS1(GS1-128/GS1 DataMatrix,含 FNC1/AI 处理)、邮政码等工业/物流标准码时用;装饰性 QR 用 qr-code-styling,普通一维码用 jsbarcode。",
+  "why_valuable": "100+ 条码符号学一库全包,含严格的纠错(Reed-Solomon)、掩码、结构化 append、FNC1/AI 处理;这些手写渲染必错,原生 AI 产不出合规工业/物流码。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "bwip-js",
+    "version": "4.11.2",
+    "github": "metafloor/bwip-js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "code-string",
+    "note": "核心两参:bcid(符号学名,库内真实名用下划线非连字符)+ text(要编码内容)。toSVG(opts) 返回 SVG 字符串,最适合注入 shadow;toCanvas(canvas,opts) 画进你提供的 canvas。",
+    "schema": {
+      "bcid": "string —— 符号学 id,如 'datamatrix' | 'pdf417' | 'azteccode' | 'maxicode' | 'gs1datamatrix' | 'gs1_128' | 'qrcode' | 'code128' | 'royalmail'(全部见 symbolList)",
+      "text": "string —— 要编码的数据;GS1 用 ^FNC1 语法并配 parsefnc:true",
+      "scale?": "number —— 放大倍数,默认 2",
+      "height?": "number —— 一维码条高(mm),2D 码通常不需",
+      "includetext?": "boolean —— 默认 false;是否在码下渲染人读文字",
+      "rotate?": "'N' | 'R' | 'L' | 'I' —— 旋转 90/180/270,默认 'N'"
+    }
+  },
+  "provides": {
+    "shape": "svg-string",
+    "_note": "headless-primitive:纯渲染函数,返回 SVG 字符串或画进你给的 canvas;无组件生命周期、无 custom element、无 carriers 矩阵。",
+    "outputs": "toSVG(opts) → string(可 innerHTML 注入);toCanvas(canvasElOrId, opts) → 就地绘制并返回该 canvas。",
+    "api_surface": {
+      "svg": "toSVG(opts:{bcid,text,...}) → string",
+      "canvas": "toCanvas(canvasElOrId, opts) → HTMLCanvasElement",
+      "catalog": "symbolList → 全部 100+ 可用 bcid 及描述",
+      "named": "亦可 import 单个符号学函数,如 { datamatrix }(canvasOrOpts, ...)"
+    }
+  },
+  "boot": {
+    "shared": "// 产 SVG 字符串,零全局足迹;挂载载体差异见 note\nimport { toSVG } from 'https://cdn.jsdelivr.net/npm/bwip-js@4.11.2/+esm';\nconst svg = toSVG({\n  bcid: data.bcid,\n  text: data.text,\n  scale: data.scale ?? 2,\n  height: data.height,\n  includetext: data.includetext ?? false,\n  rotate: data.rotate ?? 'N'\n});\n// 挂载:widget → 落 shadowRoot;artifact/codex → 落目标容器\nconst holder = document.createElement('div');\nholder.innerHTML = svg;\n// widget: shadowRoot.appendChild(holder);  artifact/codex: targetEl.appendChild(holder);",
+    "note": "toSVG 返回纯内联 SVG 字符串,库自身零 DOM/style/event 足迹。widget 载体:把 holder 直接 shadowRoot.appendChild —— SVG 内联无外链无 :root,天然落 shadow 隔离。bcid 传错会抛错并可查 symbolList 修正。GS1 数据加 parse/parsefnc:true 处理 FNC1/AI。仅要位图用 toCanvas(在 shadow 内 createElement('canvas') 传入)。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr bwip-js@4.11.2 +esm (964KB): exports include named toSVG/toCanvas/render/raw + all symbology fns (datamatrix,pdf417,azteccode,maxicode,gs1datamatrix,gs1_128,qrcode,code128,royalmail all confirmed present) + symbolList + default ($p). dist/bwip-js.d.ts: toSVG(opts:RenderOptions):string; toCanvas(canvas:string|CanvasType, opts:RenderOptions):CanvasType; RenderOptions extends BwippOptions with required bcid:string,text:string + scale?/scaleX?/scaleY?/height?/width?/includetext?/rotate?('N'|'R'|'L'|'I')/textxalign? — schema fields match exactly. Global-footprint grep: document.head 0, document.body 0, document.createElement 0, <style/insertRule/adoptedStyleSheets 0, addEventListener 0 — toSVG is a pure string builder; toCanvas draws only into the caller-supplied canvas. No global side effects; the SVG output is self-contained inline markup, so injecting it into a shadowRoot is fully isolated.",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for industrial or logistics barcodes such as 2D codes in shipping labels, medical products, and IDs (DataMatrix, PDF417, Aztec, MaxiCode), GS1 codes (GS1-128/GS1 DataMatrix, including FNC1/AI handling), and postal codes. For decorative QR codes use qr-code-styling; for ordinary 1D barcodes use jsbarcode.",
+      "why_valuable": "One library covers 100+ barcode symbologies, including strict error correction (Reed-Solomon), masking, structured append, and FNC1/AI handling. Hand-written renderers inevitably get these wrong, and native AI cannot produce compliant industrial or logistics codes.",
+      "data_in": {
+        "note": "The two core parameters are bcid (the symbology name; real library names use underscores rather than hyphens) and text (the content to encode). toSVG(opts) returns an SVG string and is best for injection into shadow; toCanvas(canvas,opts) draws into the supplied canvas.",
+        "schema": {
+          "bcid": "string -- Symbology id, such as 'datamatrix' | 'pdf417' | 'azteccode' | 'maxicode' | 'gs1datamatrix' | 'gs1_128' | 'qrcode' | 'code128' | 'royalmail' (see symbolList for all values)",
+          "text": "string -- Data to encode; for GS1 use ^FNC1 syntax with parsefnc:true",
+          "scale?": "number -- Scale multiplier; default 2",
+          "height?": "number -- 1D barcode bar height (mm); usually unnecessary for 2D codes",
+          "includetext?": "boolean -- Default false; whether to render human-readable text below the code",
+          "rotate?": "'N' | 'R' | 'L' | 'I' -- Rotation by 90/180/270 degrees; default 'N'"
+        }
+      }
+    }
+  }
+}

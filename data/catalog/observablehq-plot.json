@@ -60,7 +60,32 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "+esm scan: 0 `document.head` refs; Plot generates a scoped class (e.g. `plot-d6a7b5`) and places its `<style>` INSIDE the returned figure element, so styles travel with the node into the shadow root (no head injection). 0 `document.body` -> returns a detached SVG/figure node the consumer mounts. 0 document/window addEventListener -> interactive marks (tip/pointer/crosshair) bind to the returned SVG's own elements. Returned figure with its scoped inline <style> drops straight into a shadow container.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need binning, stacking, faceted small multiples, or layered multi-mark EDA over tabular data, instead of hand-writing SVG, because native implementations fail at correct aggregation, facet layout, and shared scales. Not for a static single bar/line/pie chart.",
+      "why_valuable": "AI cannot correctly perform bin aggregation, align scales across multiple facets, or compose multiple marks by default; it can only imitate a single static chart. Observable Plot packages these high-error steps as grammar-of-graphics primitives.",
+      "data_in": {
+        "note": "rows is the raw table. marks must be runtime Plot.Mark objects returned by native factories such as Plot.barY/lineY/dot/rectY/cell, not strings or a custom JSON DSL.",
+        "schema": {
+          "rows": "Record<string, string | number | boolean | Date | null>[]",
+          "marks": "Plot.Mark[] -- Each mark factory consumes rows directly",
+          "options?": {
+            "_default": "{}; width/height are injected by boot",
+            "width?": "number -- boot defaults to container pixel width, or 640 when unavailable",
+            "height?": "number -- boot default 400",
+            "margin?": "number -- Inferred automatically by Plot by default",
+            "x?": "Plot.ScaleOptions -- Inferred from mark channels by default",
+            "y?": "Plot.ScaleOptions -- Inferred from mark channels by default",
+            "color?": "Plot.ScaleOptions -- Inferred from mark channels by default",
+            "caption?": "string -- No caption by default"
+          }
+        }
+      },
+      "spec": {
+        "note": "Plot.plot produces SVG/figure. boot explicitly sets a default height of 400px and measures container width. It has no in-place reflow API, so rebuild the node when container dimensions change; Rule 3 prohibits vh/percentage height."
+      }
+    }
   }
 }

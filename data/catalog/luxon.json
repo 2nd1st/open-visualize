@@ -2,6 +2,21 @@
   "entry_version": "thin-1",
   "id": "luxon",
   "name": "Luxon",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written conversion when you need to reliably move a local time with a source zone into another IANA time zone, cross DST boundaries, or calculate a duration, because native implementations fail at ambiguous times, daylight-saving transitions, and historical time-zone rules.",
+      "why_valuable": "AI cannot reliably derive DST boundaries and historical offsets by default and often treats wall-clock time as UTC; Luxon uses IANA time-zone data through browser Intl without an external tzdata fetch.",
+      "data_in": {
+        "note": "data_in is fixed to \"local ISO wall-clock time without Z/offset + explicit source IANA zone + target IANA zone\"; this makes fromISO zone semantics unambiguous and avoids reapplying an offset already present in the string.",
+        "schema": {
+          "local_iso": "string -- ISO 8601 local time without Z or +/-HH:mm offset, for example YYYY-MM-DDTHH:mm:ss",
+          "from_zone": "string -- IANA time-zone name, for example 'Australia/Melbourne'; do not use ambiguous abbreviations such as EST/PST",
+          "to_zone": "string -- IANA time-zone name, for example 'Europe/London'",
+          "locale?": "string -- BCP 47 locale, default browser locale; affects display only, not the instant"
+        }
+      }
+    }
+  },
   "when_to_use": "需要把带来源时区的本地时间可靠换到另一 IANA 时区、跨越 DST 边界或计算 duration 时用它而非手写,因为原生在歧义时刻、夏令时跳变和历史时区规则上会失败。",
   "why_valuable": "AI 默认做不到可靠推算 DST 边界与历史 offset,并常把墙上时间当成 UTC；Luxon 通过浏览器 Intl 使用 IANA 时区数据,无需外部 tzdata fetch。",
   "supply_form": "headless-primitive",
@@ -51,7 +66,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Headless pure-computation primitive. esm exports only date/zone classes (DateTime, Duration, Interval, Zone variants, Info, Settings); zone resolution goes through Intl.DateTimeFormat (README: no external tzdata). No DOM, document, window, style, or event references. Fully shadow-safe (never touches the DOM).",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

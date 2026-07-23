@@ -1,0 +1,82 @@
+{
+  "entry_version": "thin-1",
+  "id": "pdf-lib",
+  "name": "pdf-lib",
+  "when_to_use": "当交付物是「在客户给的现有 PDF 上操作」——填 AcroForm 表单域、合并/拆分页面、盖章/水印、旋转裁剪、扁平化(flatten)表单——而非从空白排版时用它;纯从零排版走 jspdf/pdfmake/react-pdf,只渲染/读现有 PDF 走 pdfjs-dist,固定版式套数据走 pdfme。",
+  "why_valuable": "原生 AI 能从零画 PDF,但改一份已有 PDF 做不到:填表单域、合并页面、盖水印都要操作 PDF 对象图(xref/streams/AcroForm),手写字节必崩;pdf-lib 是唯一「加载现有 PDF → 编辑 → 存回」的纯浏览器零 Node 依赖库。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when the deliverable requires operating on an existing client-supplied PDF: filling AcroForm fields, merging or splitting pages, adding stamps or watermarks, rotating or cropping, or flattening forms, rather than laying out a blank document. For from-scratch layout use jspdf/pdfmake/react-pdf; to render or read an existing PDF use pdfjs-dist; to fill a fixed layout with data use pdfme.",
+      "why_valuable": "Native AI can draw a PDF from scratch but cannot modify an existing one. Filling fields, merging pages, and adding watermarks require manipulating the PDF object graph (xref/streams/AcroForm), and hand-written bytes inevitably fail. pdf-lib is the only pure-browser, zero-Node-dependency library for loading an existing PDF, editing it, and saving it back.",
+      "data_in": {
+        "note": "There are two input paths: to modify an existing PDF, pass existingPdf as base64/ArrayBuffer/Uint8Array plus field values; to create from scratch, omit existingPdf. Saving is always await doc.save(), which returns Uint8Array for consuming AI to wrap in a Blob for download or preview.",
+        "schema": {
+          "existingPdf?": "string (plain base64 without a data-uri prefix) | ArrayBuffer | Uint8Array - existing PDF bytes; when provided, use the PDFDocument.load editing path, otherwise create with PDFDocument.create",
+          "formFields?": "Record<string,string> - AcroForm text-field name to value; keys must be real field names in the PDF or an error is thrown",
+          "flatten?": "boolean - default false; when true, call form.flatten() after filling so fields become fixed and no longer editable",
+          "draws?": [
+            {
+              "page?": "number - target page index, default 0",
+              "text": "string - text to draw as a watermark or stamp",
+              "x": "number - origin is at the page's bottom-left and y increases upward, opposite to screen coordinates",
+              "y": "number",
+              "size?": "number - font size, default 24",
+              "color?": "[number,number,number] - RGB normalized to 0..1, default [0,0,0] black"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "pdf-lib",
+    "version": "1.17.1",
+    "github": "Hopding/pdf-lib"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "pdf-document",
+    "note": "两种输入路线:改现有 PDF 传 existingPdf(base64/ArrayBuffer/Uint8Array)+ 要填的字段值;从零建则省 existingPdf。存回一律 await doc.save() → Uint8Array,消费 AI 包成 Blob 交下载/预览。",
+    "schema": {
+      "existingPdf?": "string(纯 base64,无 data-uri 前缀) | ArrayBuffer | Uint8Array —— 现有 PDF 字节;给了走 PDFDocument.load 编辑路线,否则 PDFDocument.create 新建",
+      "formFields?": "Record<string,string> —— AcroForm 文本域 名→值;键必须是 PDF 里真实存在的域名(不存在会抛错)",
+      "flatten?": "boolean —— 默认 false;true 则填完 form.flatten() 使字段固化不可再编辑",
+      "draws?": [
+        {
+          "page?": "number —— 目标页索引,默认 0",
+          "text": "string —— 要绘制的文字(水印/盖章)",
+          "x": "number —— 坐标原点在页面左下、y 向上(与屏幕相反)",
+          "y": "number",
+          "size?": "number —— 字号,默认 24",
+          "color?": "[number,number,number] —— 0..1 归一 RGB,默认 [0,0,0] 黑"
+        }
+      ]
+    }
+  },
+  "provides": {
+    "shape": "pdf-bytes",
+    "_note": "headless-primitive:不渲染、无 L 级、无 carriers 矩阵;产出 Uint8Array PDF 字节,消费 AI 决定下载或交 pdfjs-dist 渲染预览。",
+    "outputs": "await doc.save() → Uint8Array;new Blob([bytes],{type:'application/pdf'}) 下载或预览。",
+    "api_surface": {
+      "load_or_create": "PDFDocument.load(bytes) 编辑现有 / PDFDocument.create() 从零",
+      "form": "doc.getForm() → form.getTextField(name).setText(v);form.getField(name);form.flatten()",
+      "pages": "doc.addPage([w,h]) / doc.getPage(i);page.drawText(text,{x,y,size,font,color:rgb(r,g,b)})",
+      "fonts": "await doc.embedFont(StandardFonts.Helvetica)",
+      "save": "await doc.save() → Uint8Array"
+    }
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS 产字节,零 DOM/style/event 足迹\nimport { PDFDocument, rgb, StandardFonts } from 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/+esm';\nlet doc;\nif (data.existingPdf) {\n  const bytes = typeof data.existingPdf === 'string'\n    ? Uint8Array.from(atob(data.existingPdf), c => c.charCodeAt(0))\n    : data.existingPdf;\n  doc = await PDFDocument.load(bytes);\n  if (data.formFields) {\n    const form = doc.getForm();\n    for (const [k, v] of Object.entries(data.formFields)) form.getTextField(k).setText(String(v));\n    if (data.flatten) form.flatten();\n  }\n} else {\n  doc = await PDFDocument.create();\n  doc.addPage();\n}\nif (data.draws) {\n  const font = await doc.embedFont(StandardFonts.Helvetica);\n  for (const d of data.draws) {\n    const p = doc.getPage(d.page ?? 0);\n    const [r, g, b] = d.color ?? [0, 0, 0];\n    p.drawText(d.text, { x: d.x, y: d.y, size: d.size ?? 24, font, color: rgb(r, g, b) });\n  }\n}\nconst pdfBytes = await doc.save();\nconst blob = new Blob([pdfBytes], { type: 'application/pdf' });",
+    "note": "坐标系原点在页面左下、y 向上(与屏幕相反)。getTextField 对不存在的域名会抛错,消费 AI 应先容错或用 form.getFields() 列举真实域名。本库只产字节,widget 里若要预览需另接 pdfjs-dist;pdf-lib 自身零 shadow/head 足迹。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr pdf-lib@1.17.1 +esm (234KB): named exports used by boot all present (oe as PDFDocument, Q as rgb, Tr as StandardFonts); no default export (boot uses named imports correctly). Signatures from es/api/PDFDocument.d.ts: static load(pdf:string|Uint8Array|ArrayBuffer,options?)→Promise<PDFDocument>; static create(options?)→Promise<PDFDocument>; getForm()→PDFForm; addPage(page?:PDFPage|[number,number])→PDFPage; embedFont(...)→Promise; save(options?)→Promise<Uint8Array>. es/api/form/PDFForm.d.ts: getTextField(name)→PDFTextField; getField(name)→PDFField; flatten(options?)→void — all match api_surface/boot. Global-footprint grep over full +esm: document.head 0, document.body 0, document.createElement 0, <style/insertRule/adoptedStyleSheets 0, addEventListener 0 — pure-JS byte producer, renders nothing into the DOM, so trivially shadow-safe (no carriers matrix by design).",
+    "confidence": "high"
+  }
+}

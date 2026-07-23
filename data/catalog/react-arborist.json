@@ -1,0 +1,130 @@
+{
+  "entry_version": "thin-1",
+  "id": "react-arborist",
+  "name": "react-arborist",
+  "when_to_use": "需要交互式浏览一棵大的层级结构(文件树、目录树、嵌套 JSON、组织结构)且要折叠 + 虚拟滚动(可上万节点)+ 键盘导航 + 拖拽重排 + 行内重命名时用它。要算树布局坐标(radial/tidy tree 绘图)用 d3-hierarchy;思维导图用 mind-elixir/simple-mind-map。仅 React 生态可用。",
+  "why_valuable": "AI 手写递归树无虚拟化会在几百节点起卡顿,且做不到稳定的键盘导航、多选、拖拽重排与行内重命名;react-arborist 以 <Tree data> + 节点渲染函数把虚拟化树收敛为 React 原生组件(内建 react-window 虚拟化 + react-dnd 拖拽)。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to browse a large hierarchy interactively, such as a file tree, directory tree, nested JSON, or organization structure, with collapse, virtual scrolling for up to tens of thousands of nodes, keyboard navigation, drag reordering, and inline rename. To compute tree-layout coordinates for radial or tidy-tree drawing, use d3-hierarchy; for mind maps, use mind-elixir/simple-mind-map. Available only in the React ecosystem.",
+      "why_valuable": "An AI-written recursive tree without virtualization starts to lag at a few hundred nodes and cannot provide reliable keyboard navigation, multi-select, drag reordering, and inline rename. react-arborist turns <Tree data> plus a node renderer into a native React virtualized tree with built-in react-window virtualization and react-dnd dragging.",
+      "data_in": {
+        "note": "data is an array of nodes. Each node uses id as its unique key and children as its child array by default; idAccessor/childrenAccessor can change the field names. undefined/null children means a leaf. Each row is rendered by the node-render function passed as children, (({node,style,dragHandle})=>JSX), not by a declarative template. Tree requires explicit width/height/rowHeight because virtualization depends on a fixed row height.",
+        "schema": {
+          "_defaults": {
+            "options": "{}"
+          },
+          "data": "T[] - tree-node array; by default each node has { id:string, children?:T[] } plus arbitrary domain fields such as name; omitted children means a leaf",
+          "options?": {
+            "_default": "when omitted, use the following upstream defaults",
+            "width?": "number | string - viewport width, default '100%' (pixels may be supplied)",
+            "height?": "number - virtualized viewport height in pixels, default 500",
+            "rowHeight?": "number - fixed row height in pixels, default 24",
+            "indent?": "number - indentation per level in pixels, default 24",
+            "openByDefault?": "boolean - default true",
+            "idAccessor?": "string - unique-key field name, default 'id'",
+            "childrenAccessor?": "string - child-node field name, default 'children'",
+            "disableDrag?": "boolean - default false",
+            "disableEdit?": "boolean - disable inline rename, default false",
+            "searchTerm?": "string - filter term, default ''"
+          }
+        }
+      },
+      "spec": {
+        "note": "Tree uses a fixed height in pixels for its virtualized viewport and requires it explicitly, default 500px. rowHeight is fixed, default 24px. vh and percentage heights are prohibited (hard rule 3); width may be pixels or '100%'."
+      }
+    }
+  },
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "react-arborist",
+    "version": "3.15.1",
+    "github": "brimdata/react-arborist"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "tree",
+    "note": "data 是节点数组,每节点默认用 id 作唯一键、children 作子数组(可用 idAccessor/childrenAccessor 改字段名);children 为 undefined/null 视作叶子。渲染每行的是作为 children 传入的节点渲染函数(({node,style,dragHandle})=>JSX),不是声明式模板。Tree 需显式 width/height/rowHeight(虚拟化依赖固定行高)。",
+    "schema": {
+      "_defaults": {
+        "options": "{}"
+      },
+      "data": "T[] —— 树节点数组;默认每节点 { id:string, children?:T[] } 加任意业务字段(如 name);children 缺省即叶子",
+      "options?": {
+        "_default": "省略时使用下列上游默认值",
+        "width?": "number | string —— 视口宽,默认 '100%'(可传像素)",
+        "height?": "number —— 虚拟化视口高度(像素),默认 500",
+        "rowHeight?": "number —— 固定行高(像素),默认 24",
+        "indent?": "number —— 每层缩进像素,默认 24",
+        "openByDefault?": "boolean —— 默认 true",
+        "idAccessor?": "string —— 唯一键字段名,默认 'id'",
+        "childrenAccessor?": "string —— 子节点字段名,默认 'children'",
+        "disableDrag?": "boolean —— 默认 false",
+        "disableEdit?": "boolean —— 行内重命名禁用,默认 false",
+        "searchTerm?": "string —— 过滤词,默认 ''"
+      }
+    }
+  },
+  "spec": {
+    "height": 500,
+    "note": "Tree 用固定 height(像素)做虚拟化视口高度,须显式传入(默认 500px);rowHeight 固定(默认 24px)。禁 vh/百分比高(铁律 3);width 可为像素或 '100%'。"
+  },
+  "boot": {
+    "artifact": "// 3.15.1 的 +esm 图混入 React 17/19；3.4.0 的主图统一为 React 18，仅桥接 react-dnd@14 的 React 17 dispatcher\nconst el = document.getElementById('tree'); el.style.height = `${spec.height ?? 500}px`; const mount = document.createElement('div'); mount.style.height = `${spec.height ?? 500}px`; mount.textContent = 'Loading tree…'; el.appendChild(mount);\nconst [ReactModule, React17, { createRoot }, { Tree }] = await Promise.all([import('https://cdn.jsdelivr.net/npm/react@18.2.0/+esm'), import('https://cdn.jsdelivr.net/npm/react@17.0.2/+esm'), import('https://cdn.jsdelivr.net/npm/react-dom@18.2.0/client/+esm'), import('https://cdn.jsdelivr.net/npm/react-arborist@3.4.0/+esm')]);\nconst React = ReactModule.default, primaryDispatcher = ReactModule.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentDispatcher, legacyDispatcher = React17.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentDispatcher; Object.defineProperty(legacyDispatcher, 'current', { configurable: true, get: () => primaryDispatcher.current, set: value => { primaryDispatcher.current = value; } });\nconst Node = ({ node, style, dragHandle }) => React.createElement('div', { style, ref: dragHandle, onClick: () => node.toggle() }, (node.isLeaf ? '• ' : (node.isOpen ? '▾ ' : '▸ ')) + (node.data.name ?? node.id));\nconst o = data.options ?? {}; mount.textContent = ''; createRoot(mount).render(React.createElement(Tree, { data: data.data, width: o.width ?? '100%', height: o.height ?? 500, rowHeight: o.rowHeight ?? 24, indent: o.indent ?? 24, openByDefault: o.openByDefault ?? true, idAccessor: o.idAccessor ?? 'id', childrenAccessor: o.childrenAccessor ?? 'children', searchTerm: o.searchTerm }, Node));",
+    "widget": "// Tree 挂到 shadowRoot 内显式尺寸容器；React 18 dispatcher 仅在本模块图内桥接旧版 react-dnd\nconst mount = document.createElement('div'); mount.style.height = `${spec.height ?? 500}px`; mount.textContent = 'Loading tree…'; shadowRoot.appendChild(mount);\nconst [ReactModule, React17, { createRoot }, { Tree }] = await Promise.all([import('https://cdn.jsdelivr.net/npm/react@18.2.0/+esm'), import('https://cdn.jsdelivr.net/npm/react@17.0.2/+esm'), import('https://cdn.jsdelivr.net/npm/react-dom@18.2.0/client/+esm'), import('https://cdn.jsdelivr.net/npm/react-arborist@3.4.0/+esm')]);\nconst React = ReactModule.default, primaryDispatcher = ReactModule.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentDispatcher, legacyDispatcher = React17.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentDispatcher; Object.defineProperty(legacyDispatcher, 'current', { configurable: true, get: () => primaryDispatcher.current, set: value => { primaryDispatcher.current = value; } });\nconst Node = ({ node, style, dragHandle }) => React.createElement('div', { style, ref: dragHandle, onClick: () => node.toggle() }, (node.isLeaf ? '• ' : (node.isOpen ? '▾ ' : '▸ ')) + (node.data.name ?? node.id));\nconst o = data.options ?? {}; mount.textContent = ''; createRoot(mount).render(React.createElement(Tree, { data: data.data, width: o.width ?? '100%', height: o.height ?? 500, rowHeight: o.rowHeight ?? 24, indent: o.indent ?? 24, openByDefault: o.openByDefault ?? true, idAccessor: o.idAccessor ?? 'id', childrenAccessor: o.childrenAccessor ?? 'children', searchTerm: o.searchTerm }, Node));",
+    "codex": "const el = document.getElementById('tree'); el.style.height = `${spec.height ?? 500}px`; const mount = document.createElement('div'); mount.style.height = `${spec.height ?? 500}px`; mount.textContent = 'Loading tree…'; el.appendChild(mount);\nconst [ReactModule, React17, { createRoot }, { Tree }] = await Promise.all([import('https://cdn.jsdelivr.net/npm/react@18.2.0/+esm'), import('https://cdn.jsdelivr.net/npm/react@17.0.2/+esm'), import('https://cdn.jsdelivr.net/npm/react-dom@18.2.0/client/+esm'), import('https://cdn.jsdelivr.net/npm/react-arborist@3.4.0/+esm')]);\nconst React = ReactModule.default, primaryDispatcher = ReactModule.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentDispatcher, legacyDispatcher = React17.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentDispatcher; Object.defineProperty(legacyDispatcher, 'current', { configurable: true, get: () => primaryDispatcher.current, set: value => { primaryDispatcher.current = value; } });\nconst Node = ({ node, style, dragHandle }) => React.createElement('div', { style, ref: dragHandle, onClick: () => node.toggle() }, (node.isLeaf ? '• ' : (node.isOpen ? '▾ ' : '▸ ')) + (node.data.name ?? node.id));\nconst o = data.options ?? {}; mount.textContent = ''; createRoot(mount).render(React.createElement(Tree, { data: data.data, width: o.width ?? '100%', height: o.height ?? 500, rowHeight: o.rowHeight ?? 24, indent: o.indent ?? 24, openByDefault: o.openByDefault ?? true, idAccessor: o.idAccessor ?? 'id', childrenAccessor: o.childrenAccessor ?? 'children', searchTerm: o.searchTerm }, Node));"
+  },
+  "example": {
+    "_why": "树数据是「节点数组 + id/children 字段」而非扁平边表;minimal 钉死默认 id/children 形态与叶子表示。",
+    "minimal": {
+      "data": [
+        {
+          "id": "1",
+          "name": "src",
+          "children": [
+            {
+              "id": "2",
+              "name": "index.ts"
+            },
+            {
+              "id": "3",
+              "name": "utils",
+              "children": [
+                {
+                  "id": "4",
+                  "name": "math.ts"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "options": {
+        "openByDefault": true
+      }
+    },
+    "empty": {
+      "data": []
+    }
+  },
+  "uplink": {
+    "artifact": "artifact 无上行;选中/展开由节点回调(onSelect/onActivate/onToggle)得到,消费 AI 如需回传自行导出。",
+    "widget": "消费 AI 在 onSelect/onActivate 或确认控件里读取选中节点,再拼 sendPrompt;本条不焊接统一事件出口。",
+    "codex": "消费 AI 用 onSelect/onActivate 读取节点后自行调用 sendFollowUpMessage。"
+  },
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "conditional:需 react/react-dom + react-arborist 多包 ESM 图且共用同一 React 实例;Tree DOM 与拖拽层挂 shadow 容器,react-window 用行内 style 无 head CSS",
+    "codex": "supported:浏览器 ESM + React;内部 react-window/react-dnd 已打包进 +esm"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "yes",
+    "evidence": "react-arborist@3.15.1 +esm exports named `Tree`(zt), `TreeApi`, `NodeApi`, `SimpleTree`, `useSimpleTree` — import {Tree} correct (not default). index.d.ts re-exports { Tree } from ./components/tree; tree-props.d.ts TreeProps<T>: data?/initialData?, children?:ElementType<NodeRendererProps> (node renderer), rowHeight?:number, width?:number|string, height?:number, indent?, openByDefault?, idAccessor?:string|((d)=>string), childrenAccessor?:string|((d)=>readonly T[]|null), disableDrag?/disableEdit?, onMove/onRename/onSelect/onActivate/onToggle — all boot props valid. node-api.d.ts NodeApi exposes get isLeaf/isInternal/isOpen, toggle()/open()/close()/select() — renderer's node.toggle()/isLeaf/isOpen/data all real. peerDependencies react/react-dom >=16.14 (registry) → boot loads react@19 + react-dom@19/client (both resolve 200) and mounts via createRoot. Footprint of /tmp bundle (41 KB): 0 document.head / createElement('style') / adoptedStyleSheets / insertRule — virtualization via bundled react-window uses inline styles (rowHeight:24 default confirmed in bundle), tree/rows render inside the mount container. globalEvents=yes: react-dnd HTML5Backend + DndProvider are bundled (confirmed present) and register window-level native drag listeners on mount, torn down on unmount — no persistent style/body footprint. Mounts + functions in a shadow container; med confidence due to React dual-instance dedupe reliance and dnd-in-shadow.",
+    "confidence": "med"
+  }
+}

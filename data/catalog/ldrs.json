@@ -1,0 +1,83 @@
+{
+  "entry_version": "thin-1",
+  "id": "ldrs",
+  "name": "ldrs",
+  "when_to_use": "任何 pending/loading/skeleton 状态想要一个精致的 inline spinner 时用它,而非手搓 CSS 转圈——确定进度的顶部条用 nprogress,复杂矢量动画用 lottie-web(已在目录)。它只给已调好物理的加载动画元素;显隐与你的异步状态绑定仍由消费 AI 接。",
+  "why_valuable": "AI 默认输出僵硬的通用 border-spinner;调好缓动、不 jank 的 SVG/CSS spinner 很琐碎。ldrs 以 40+ 打磨过的 loader 作为 tree-shakeable web component 交付,消费 AI 只需 register + 挂标签。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "ldrs",
+    "version": "1.1.9",
+    "github": "GriffinJohnston/ldrs"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "config",
+    "note": "选一个 loader 名(决定 register 出的 <l-*> 标签),再给它的视觉属性;color 吃 CSS 颜色,size/speed/stroke 吃数字。多词 loader 标签走 kebab,如 dotWave→l-dot-wave。",
+    "schema": {
+      "spinner": "string —— loader 名,如 ring/quantum/helix/orbit/trio/waveform/dotWave;对应 named export + <l-ring> 等标签",
+      "size?": "number —— 直径 px,默认约 40",
+      "color?": "string —— CSS 颜色,默认 loader 自带(黑)",
+      "speed?": "number —— 动画周期秒,默认随 loader",
+      "stroke?": "number —— 描边宽 px(ring 等支持),默认随 loader",
+      "bg-opacity?": "number —— 轨道底色透明度 0..1(ring 类),默认随 loader"
+    }
+  },
+  "spec": {
+    "height": 40,
+    "note": "尺寸由 size 属性(px)决定,默认约 40;元素为 inline 级自撑,勿用 vh/百分比外壳强拉。"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it whenever a pending/loading/skeleton state needs a polished inline spinner instead of a hand-rolled CSS rotation. For a determinate top progress bar, use nprogress; for complex vector animation, use lottie-web (already in the catalog). It supplies only a loader element with tuned physics; the consuming AI still binds visibility to async state.",
+      "why_valuable": "AI defaults to a stiff generic border spinner, while tuning a smooth SVG/CSS spinner without jank is tedious. ldrs ships 40+ polished loaders as tree-shakeable web components, so consuming AI only needs to register and mount a tag.",
+      "data_in": {
+        "note": "Choose one loader name (which determines the registered <l-*> tag), then supply its visual attributes. color accepts a CSS color; size/speed/stroke accept numbers. Multiword loader tags use kebab-case, for example dotWave -> l-dot-wave.",
+        "schema": {
+          "spinner": "string -- loader name, such as ring/quantum/helix/orbit/trio/waveform/dotWave; maps to a named export and tags such as <l-ring>",
+          "size?": "number -- diameter in px; default about 40",
+          "color?": "string -- CSS color; defaults to the loader's own color (black)",
+          "speed?": "number -- animation period in seconds; default depends on the loader",
+          "stroke?": "number -- stroke width in px (supported by ring and similar loaders); default depends on the loader",
+          "bg-opacity?": "number -- track opacity 0..1 (ring-style loaders); default depends on the loader"
+        }
+      },
+      "spec": {
+        "note": "Size is controlled by the size attribute in px and defaults to about 40. The element is inline-level and self-sizing; do not force it through a vh or percentage wrapper."
+      }
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested. ldrs loaders 是 web component:register 你要的那个,再挂它的 <l-*> 标签。\nimport { ring } from 'https://cdn.jsdelivr.net/npm/ldrs@1.1.9/+esm';\nring.register();                       // defines <l-ring>(customElements.define,已 guard,可重复调用)\nconst el = document.createElement('l-ring');\nel.setAttribute('size', String(data.size ?? 40));\nif (data.color != null) el.setAttribute('color', String(data.color));\nif (data.speed != null) el.setAttribute('speed', String(data.speed));\nif (data.stroke != null) el.setAttribute('stroke', String(data.stroke));\ndocument.getElementById('loader').appendChild(el);\n// 换 loader:import { quantum } → quantum.register() → <l-quantum>;多词 kebab,如 dotWave → <l-dot-wave>",
+    "widget": "// ldrs 元素在自己的 shadow root 内自渲染、不注入任何全局 CSS —— 直接挂进宿主 shadowRoot。\nimport { ring } from 'https://cdn.jsdelivr.net/npm/ldrs@1.1.9/+esm';\nring.register();                       // customElements 注册表是全局的(被 customElements.get 守卫)\nconst el = document.createElement('l-ring');\nel.setAttribute('size', String(data.size ?? 40));\nif (data.color != null) el.setAttribute('color', String(data.color));\nif (data.speed != null) el.setAttribute('speed', String(data.speed));\nshadowRoot.appendChild(el);",
+    "codex": "import { ring } from 'https://cdn.jsdelivr.net/npm/ldrs@1.1.9/+esm';\nring.register();\nconst el = document.createElement('l-ring');\nel.setAttribute('size', String(data.size ?? 40));\nif (data.color != null) el.setAttribute('color', String(data.color));\nif (data.speed != null) el.setAttribute('speed', String(data.speed));\ndocument.getElementById('loader').appendChild(el);"
+  },
+  "example": {
+    "_why": "钉死本库以 spinner 名选 loader、以属性(非 props)配置。",
+    "minimal": {
+      "spinner": "ring",
+      "size": 44,
+      "color": "#6366f1",
+      "speed": 2
+    },
+    "empty": {
+      "spinner": "ring"
+    }
+  },
+  "uplink": "纯 display,无 uplink;加载态的显隐由消费 AI 依自身异步生命周期直接增删元素处理。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:元素在自身 shadow 内渲染、零全局 CSS 注入,<l-*> 挂进宿主 shadowRoot 即可;仅共享全局 customElements 注册表(guarded)",
+    "codex": "supported:ESM CDN + custom element,无 worker/wasm/uplink 硬依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "API correct: +esm 导出各 loader 命名对象(Ge as bouncy … zt as ring … gt as quantum … At as trio … Mt as waveform)(F);index.d.ts 逐个 re-export 元素 default;elements/ring.d.ts default = { register:(name?)=>void, element: class extends Base };register→customElements.define(e,class extends u{}) 被 customElements.get(e) 守卫(grep),重复注册安全;Base attachShadow({mode:'open'}) —— 元素在自己的 shadow 内渲染。globalStyleInjection=no / globalDomMutation=no / globalEvents=no:grep 到 0 处 document.head、0 处 document.body append、0 处 window.* 赋值、0 处 window/document addEventListener。唯一全局面是共享 customElements 注册表条目(guarded)。",
+    "confidence": "high"
+  }
+}

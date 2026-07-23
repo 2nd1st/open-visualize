@@ -2,6 +2,57 @@
   "entry_version": "thin-1",
   "id": "cal-heatmap",
   "name": "cal-heatmap",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written SVG when you need to compress daily habits, activity, or commit counts into a GitHub contribution-style calendar grid, because native implementations fail on date bucketing, week/month boundaries, color scales, and navigation across domains.",
+      "why_valuable": "AI defaults can only assemble static squares, not bucket dates consistently by time zone, handle missing dates, align weeks across months, apply continuous color scales, or navigate dates; cal-heatmap closes these error-prone steps directly from date/value records.",
+      "data_in": {
+        "note": "points becomes paint().data.source directly; upstream converts date strings to timestamps, and value is aggregated within the same subdomain. boot fixes x='date' and y='value' so AI does not have to assemble field mappings again.",
+        "schema": {
+          "points": [
+            {
+              "date": "ISO-8601 date/time string | epoch-milliseconds",
+              "value": "number"
+            }
+          ],
+          "start?": "ISO-8601 date/time string | epoch-milliseconds -- default current time",
+          "range?": "positive integer -- boot defaults to 12 domains",
+          "aggregate?": "'sum' | 'count' | 'min' | 'max' | 'average' -- default 'sum'",
+          "domain?": {
+            "_default": "{type:'month',gutter:4,sort:'asc'}",
+            "type?": "'year' | 'month' | 'week' | 'xDay' | 'ghDay' | 'day' | 'hour' | 'minute' -- boot default 'month'",
+            "gutter?": "number(px) -- default 4",
+            "sort?": "'asc' | 'desc' -- default 'asc'",
+            "label?": "native Cal-Heatmap domain.label object -- by default generated for the domain type and placed at bottom"
+          },
+          "subDomain?": {
+            "_default": "{type:'day',width:10,height:10,gutter:2,radius:0,label:null}",
+            "type?": "native subdomain name compatible with the selected domain -- boot default 'day'",
+            "width?": "positive number(px) -- default 10",
+            "height?": "positive number(px) -- default 10",
+            "gutter?": "number(px) -- default 2",
+            "radius?": "number(px) -- default 0",
+            "label?": "dayjs format string | null -- default null"
+          },
+          "scale?": {
+            "_default": "upstream default color quantize, domain [0,100], scheme 'YlOrBr'",
+            "color?": {
+              "domain": "number[]",
+              "scheme?": "d3 chromatic scheme name -- default 'YlOrBr'",
+              "range?": "CSS color string[] -- generated from scheme by default",
+              "type?": "d3 scale type string -- default 'quantize'"
+            },
+            "opacity?": "native Cal-Heatmap opacity scale object -- unset by default"
+          },
+          "theme?": "'light' | 'dark' -- default 'light'",
+          "vertical?": "boolean -- default false"
+        }
+      },
+      "spec": {
+        "note": "The calendar SVG grid needs stable pixel geometry; boot defaults the container height to 190px, while actual width is determined by range and cell size. Pass only an explicit px height; do not use vh or percentage heights (iron rule 3)."
+      }
+    }
+  },
   "when_to_use": "需要把每日习惯、活跃度或提交量压成 GitHub contribution 风格的日历格网时用它而非手写 SVG,因为原生在日期分桶、周/月边界、色阶和跨域导航上失败。",
   "why_valuable": "AI 默认只能拼静态方格,做不到按时区稳定归桶、处理缺失日期、跨月周对齐、连续色阶与日期导航;cal-heatmap 用 date/value 记录直接闭环这些高错率步骤。",
   "supply_form": "component",
@@ -93,7 +144,10 @@
       },
       "scale": {
         "color": {
-          "domain": [0, 10],
+          "domain": [
+            0,
+            10
+          ],
           "scheme": "Blues"
         }
       }
@@ -115,7 +169,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "+esm 默认导出 zd as default → import CalHeatmap 正确;paint({itemSelector,range,date:{start},domain,subDomain,data:{source,x,y,groupY},scale,theme,verticalOrientation}) 顶层 key 在 +esm 均命中(itemSelector×2/groupY×2/source×8/subDomain×16/domain×126/verticalOrientation×7);data_in points[{date,value}]→data.source + 固定 x='date'/y='value' 正确;CSS cal-heatmap.css 存在。隔离:+esm 0 document.body append、0 window/document 全局监听、无 head 注入(bundle 内 1 处 createElement('style') 未随 document.head/body append,呈 D3 SVG 作用域内);本 boot 不启用会向 body 放浮层的 Tooltip 插件。shadowCompatible=yes:SVG+外链 CSS 均落 shadow、无 body/head 突变,boot 已把 CSS+挂载点放 shadow。",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

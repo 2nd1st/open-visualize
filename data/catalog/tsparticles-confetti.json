@@ -46,6 +46,42 @@
     "height": 400,
     "note": "自定义 canvas 必须有显式像素高度;默认 400px,宽度取容器 clientWidth(不可用时按 640px),禁用 vh/百分比高。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for one-shot fireworks, cannons, falling pieces, or unusual confetti shapes such as emoji/cards when you also need precise emission physics, instead of hand-writing canvas code that tends to fail at emitters, particle lifetimes, rotation, and multi-shape composition. For an ordinary paper-confetti burst, prefer the lighter confetti package.",
+      "why_valuable": "AI defaults to same-shaped rectangles on approximate parabolas and cannot reliably coordinate an emitter, shape plugins, per-particle lifetimes, tumbling, and wobble. This package wraps a complete tsParticles sub-engine in one confetti API.",
+      "data_in": {
+        "note": "data_in.options is passed exactly to @tsparticles/confetti's confetti.create(canvas, options). This entry is not a general tsParticles background editor and does not expose low-level engine plugin configuration.",
+        "schema": {
+          "options?": {
+            "_default": "{} -- use all upstream defaults",
+            "count?": "integer -- particle count; default 50",
+            "angle?": "number -- emission angle in degrees; default 90",
+            "spread?": "number -- fan spread in degrees; default 45",
+            "startVelocity?": "number -- initial velocity; default 45",
+            "decay?": "number -- velocity-decay coefficient; default 0.9",
+            "flat?": "boolean -- whether to render flat; default false",
+            "gravity?": "number -- gravity multiplier; default 1",
+            "drift?": "number -- horizontal drift; default 0",
+            "ticks?": "integer -- particle lifetime in frames; default 200",
+            "position?": {
+              "_default": "{x:50,y:50}",
+              "x?": "number -- percentage of canvas width; default 50",
+              "y?": "number -- percentage of canvas height; default 50"
+            },
+            "colors?": "string[] -- CSS color list; default ['#26ccff','#a25afd','#ff5e7e','#88ff5a','#fcff42','#ffa62d','#ff36ff']",
+            "shapes?": "string[] -- shape names registered with the bundle; default ['square','circle']",
+            "scalar?": "number -- particle-scale multiplier; default 1",
+            "zIndex?": "integer -- canvas stacking level; default 100",
+            "disableForReducedMotion?": "boolean -- disable when the system prefers reduced motion; default true"
+          }
+        }
+      },
+      "spec": {
+        "note": "A custom canvas must have an explicit pixel height. Default is 400px; width uses container clientWidth, or 640px when unavailable. Do not use vh or percentage heights."
+      }
+    }
+  },
   "boot": {
     "artifact": "// inferred-not-tested:自定义 canvas 把粒子限制在 artifact 容器\nimport { confetti } from 'https://cdn.jsdelivr.net/npm/@tsparticles/confetti@4/+esm';\nconst el = document.getElementById('confetti'); el.style.height = `${spec.height ?? 400}px`;\nconst canvas = document.createElement('canvas'); canvas.style.cssText = `width:100%;height:${spec.height ?? 400}px;display:block`;\ncanvas.width = el.clientWidth || 640; canvas.height = spec.height ?? 400; el.appendChild(canvas);\nconst fire = await confetti.create(canvas, {}); await fire(data.options ?? {});  // create 只绑定 canvas 返回 fire,必须再调用才发射",
     "widget": "// canvas 直接落 shadow 容器,无 CSS/head 注入\nimport { confetti } from 'https://cdn.jsdelivr.net/npm/@tsparticles/confetti@4/+esm';\nconst el = document.createElement('div'); el.style.height = `${spec.height ?? 400}px`; shadowRoot.appendChild(el);\nconst canvas = document.createElement('canvas'); canvas.style.cssText = `width:100%;height:${spec.height ?? 400}px;display:block`;\ncanvas.width = el.clientWidth || 640; canvas.height = spec.height ?? 400; el.appendChild(canvas);\nconst fire = await confetti.create(canvas, {}); await fire(data.options ?? {});  // create 只绑定 canvas 返回 fire,必须再调用才发射",
@@ -62,7 +98,38 @@
     "globalDomMutation": "no",
     "globalEvents": "unknown",
     "evidence": "+esm(仅 6.5KB)为惰性包装,引擎副作用在代码分割 chunk(@tsparticles/engine 及 emitters/motion/shapes/updaters),未能逐块反编译→部分轴 unknown。boot 走 confetti.create(canvas) 传入 shadowRoot 内自建 canvas,按引用绑定,不走会 append 固定定位 canvas 到 document.body 的全局 confetti(options) 形态→globalDomMutation 倾向 no;canvas 2D 渲染自足→shadowCompatible=conditional(需 provided-canvas 路径且须补 fire 调用)。tsParticles Container 一般挂 window resize/visibilitychange 并随 burst life(ticks)结束自动 destroy,未逐块确认→globalEvents=unknown。无 head/style 证据但引擎 chunk 未验→globalStyleInjection 标 no(低置信)。",
-    "confidence": "low",
-    "audited": "2026-07-23"
+    "confidence": "low"
+  },
+  "example": {
+    "minimal": {
+      "options": {
+        "count": 200,
+        "angle": 90,
+        "spread": 360,
+        "startVelocity": 28,
+        "decay": 0.92,
+        "gravity": 0.6,
+        "ticks": 400,
+        "scalar": 1.2,
+        "position": {
+          "x": 50,
+          "y": 45
+        },
+        "colors": [
+          "#26ccff",
+          "#a25afd",
+          "#ff5e7e",
+          "#88ff5a",
+          "#fcff42",
+          "#ffa62d",
+          "#ff36ff"
+        ],
+        "shapes": [
+          "square",
+          "circle"
+        ],
+        "disableForReducedMotion": false
+      }
+    }
   }
 }

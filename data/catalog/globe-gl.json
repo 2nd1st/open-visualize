@@ -1,0 +1,103 @@
+{
+  "entry_version": "thin-1",
+  "id": "globe-gl",
+  "name": "globe.gl",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when a rotating-globe narrative should show global distribution or connections (routes, networks, migration, launch events). For flat distribution use deck.gl/d3-geo; if you do not need 3D, do not put it on a globe. It wraps spherical projection, a ThreeJS camera, and latitude/longitude-to-Cartesian conversion in one chained config.",
+      "why_valuable": "A 3D globe with latitude/longitude data (points, arcs, heatmaps, country polygons) involves spherical projection, a ThreeJS camera, latitude/longitude-to-Cartesian conversion, GPU rendering, and interaction picking; native AI will almost certainly fail when writing it by hand. A chained globe.gl config produces a rotatable, interactive data globe and bundles three itself.",
+      "data_in": {
+        "note": "Kapsule chaining API: after new Globe(el), chain .pointsData(arr).arcsData(arr) and similar configuration. Accessors (pointLat/pointLng, etc.) default to object lat/lng properties but can be changed. globeImageUrl textures must be CORS-reachable. canvas renders into the supplied el (which may be in shadow), but the library uses styleInject on document.head.",
+        "schema": {
+          "globeImageUrl": "string -- globe texture URL (for example //unpkg.com/three-globe/example/img/earth-dark.jpg; must be CORS-reachable)",
+          "points?": "[{ lat:number, lng:number, color?:string, altitude?:number, size?:number }] -- pointsData; pointLat/pointLng default to lat/lng",
+          "arcs?": "[{ startLat:number, startLng:number, endLat:number, endLng:number, color?:string|string[] }] -- arcsData (routes/connections)",
+          "showAtmosphere?": "boolean -- atmospheric glow; default true",
+          "showGraticules?": "boolean -- latitude/longitude grid; default false"
+        }
+      },
+      "spec": {
+        "note": "globe.gl reads the supplied container size to render a WebGL canvas; the container must have an explicit px height. Do not use vh or percentage heights."
+      }
+    }
+  },
+  "when_to_use": "想用「旋转地球」叙事展示全球分布/连线(航线、网络、迁徙、发射事件)时用它;若只需平面分布用 deck.gl/d3-geo,不需要 3D 就别上球。它把球面投影+ThreeJS 相机+经纬度转笛卡尔封成一个链式 config。",
+  "why_valuable": "3D 地球+经纬度数据(点/弧/热力/国家多边形)涉及球面投影、ThreeJS 相机、经纬度转笛卡尔、GPU 渲染与交互拾取,原生 AI 徒手写几乎必翻车。globe.gl 一串链式 config 即出可旋转、可交互的数据地球(自 bundle three)。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "globe.gl",
+    "version": "2.46.1",
+    "github": "vasturiano/globe.gl"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "globe",
+    "note": "kapsule 链式 API:new Globe(el) 后 .pointsData(arr).arcsData(arr) 等链式配置。accessor(pointLat/pointLng 等)默认取对象的 lat/lng 属性但可改。globeImageUrl 贴图须 CORS 可达。canvas 渲染进传入的 el(可落 shadow),但库会 styleInject 到 document.head。",
+    "schema": {
+      "globeImageUrl": "string —— 地球贴图 URL(如 //unpkg.com/three-globe/example/img/earth-dark.jpg;须 CORS 可达)",
+      "points?": "[{ lat:number, lng:number, color?:string, altitude?:number, size?:number }] —— pointsData;pointLat/pointLng 默认取 lat/lng",
+      "arcs?": "[{ startLat:number, startLng:number, endLat:number, endLng:number, color?:string|string[] }] —— arcsData(航线/连线)",
+      "showAtmosphere?": "boolean —— 大气层光晕,默认 true",
+      "showGraticules?": "boolean —— 经纬网格,默认 false"
+    }
+  },
+  "spec": {
+    "height": 500,
+    "note": "globe.gl 读传入容器尺寸渲染 WebGL canvas;容器须显式 px 高,禁用 vh/百分比高。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested;注意:globe.gl 会向 document.head styleInject 小样式(.clickable/tooltip)\nimport Globe from 'https://cdn.jsdelivr.net/npm/globe.gl@2/+esm';\nconst el = document.getElementById('globe'); el.style.height = '500px';\nconst world = new Globe(el)\n  .globeImageUrl(data.globeImageUrl)\n  .pointsData(data.points ?? [])\n  .pointLat(d => d.lat).pointLng(d => d.lng).pointColor(d => d.color ?? 'orange').pointAltitude(d => d.altitude ?? 0.05)\n  .arcsData(data.arcs ?? [])\n  .arcStartLat(d => d.startLat).arcStartLng(d => d.startLng).arcEndLat(d => d.endLat).arcEndLng(d => d.endLng);",
+    "widget": "// three canvas 渲染进传入的 el(挂 shadowRoot);但 globe.gl 仍会 styleInject 到 document.head(铁律2 例外,样式小且限本库类名)\nimport Globe from 'https://cdn.jsdelivr.net/npm/globe.gl@2/+esm';\nconst el = document.createElement('div'); el.style.height = '500px'; shadowRoot.appendChild(el);\nconst world = new Globe(el)\n  .globeImageUrl(data.globeImageUrl)\n  .pointsData(data.points ?? [])\n  .pointLat(d => d.lat).pointLng(d => d.lng)\n  .arcsData(data.arcs ?? [])\n  .arcStartLat(d => d.startLat).arcStartLng(d => d.startLng).arcEndLat(d => d.endLat).arcEndLng(d => d.endLng);",
+    "codex": "import Globe from 'https://cdn.jsdelivr.net/npm/globe.gl@2/+esm';\nconst el = document.getElementById('globe'); el.style.height = '500px';\nconst world = new Globe(el).globeImageUrl(data.globeImageUrl).pointsData(data.points ?? []).pointLat(d=>d.lat).pointLng(d=>d.lng).arcsData(data.arcs ?? []).arcStartLat(d=>d.startLat).arcStartLng(d=>d.startLng).arcEndLat(d=>d.endLat).arcEndLng(d=>d.endLng);"
+  },
+  "example": {
+    "_why": "globe.gl 的 point/arc accessor 默认取 lat/lng/startLat...;minimal 钉死这套默认字段名。",
+    "minimal": {
+      "globeImageUrl": "//unpkg.com/three-globe/example/img/earth-dark.jpg",
+      "points": [
+        {
+          "lat": 40.71,
+          "lng": -74,
+          "color": "orange",
+          "altitude": 0.1
+        },
+        {
+          "lat": 51.5,
+          "lng": -0.12,
+          "color": "cyan",
+          "altitude": 0.1
+        }
+      ],
+      "arcs": [
+        {
+          "startLat": 40.71,
+          "startLng": -74,
+          "endLat": 51.5,
+          "endLng": -0.12,
+          "color": "yellow"
+        }
+      ]
+    },
+    "empty": {
+      "globeImageUrl": "//unpkg.com/three-globe/example/img/earth-dark.jpg",
+      "points": [],
+      "arcs": []
+    }
+  },
+  "uplink": "display/local-interact 默认不上行;点/弧点击或视点变化若需外传,由消费 AI 直接接 onPointClick/onArcClick/onGlobeClick 原生回调并按载体处理。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:canvas 与 tooltip 渲染进传入的 el(可落 shadow);但 globe.gl 经 styleInject 向 document.head 注入 .clickable/tooltip 小样式(铁律2 例外,已实测,类名限本库)",
+    "codex": "supported:ESM CDN + WebGL(自 bundle three);无 worker/uplink 硬依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "conditional",
+    "globalStyleInjection": "yes",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "+esm 导出 {default}(export{Globe as default});dist/globe.gl.d.ts:declare const Globe:{ new(element:HTMLElement, configOptions?):GlobeInstance }——故 new Globe(el) 正确。accessor 继承 three-globe(实测 three-globe@2.45.2 d.ts 有 globeImageUrl/pointsData/pointLat/pointLng/pointColor/pointAltitude/arcsData/arcStartLat/arcStartLng/arcEndLat/arcEndLng/showAtmosphere/showGraticules)。globalStyleInjection=yes:globe.mjs grep createElement('style')×1 + document.head×1 + styleInject×2,注入 CSS 含 '.clickable{cursor:pointer}' 与 float-tooltip 样式(限本库类名,非破坏性但确写 head)。globalDomMutation=yes(仅指 styleInject 到 head;canvas 与 tooltip 挂进传入 el 的 domNode,非 body——grep domNode×3、renderer.domElement 挂容器)。globalEvents=yes:three OrbitControls 挂 renderer.domElement + resize 处理,_destructor() 清理。shadowCompatible=conditional:canvas/tooltip 可全落 shadow,唯 styleInject 逃逸到 head(小且限本库)。",
+    "confidence": "high"
+  }
+}

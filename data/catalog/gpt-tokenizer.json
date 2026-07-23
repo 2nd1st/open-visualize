@@ -2,6 +2,19 @@
   "entry_version": "thin-1",
   "id": "gpt-tokenizer",
   "name": "gpt-tokenizer",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written character estimates or BPE when you need to count or break down GPT text tokens exactly in the browser, because native implementations inevitably fail on Unicode, special tokens, and model-specific encoding differences.",
+      "why_valuable": "AI can only make rough token estimates from character counts by default; it cannot perform token-by-token o200k_base BPE merges, reversible decoding, and hard-limit checks. This library reliably turns text into real token ids and counts without network requests.",
+      "data_in": {
+        "note": "data_in.text is passed unchanged to the o200k_base encoder exported by the package root. For an older model, the consuming AI should instead use the gpt-tokenizer/model/<model> subpath; do not mix token ids from different models.",
+        "schema": {
+          "text": "string -- complete text to encode or count; an empty string is valid and produces an empty token sequence",
+          "limit?": "number -- optional token limit; when omitted, no isWithinTokenLimit check is performed"
+        }
+      }
+    }
+  },
   "when_to_use": "需要在浏览器里精确计数或拆解 GPT 文本 token 时用它,而非手写字符估算或 BPE——原生手写在 Unicode、特殊 token 与模型编码差异上必然失败。",
   "why_valuable": "AI 默认只能按字符数粗估 token,做不到逐 token 的 o200k_base BPE 合并、可逆解码和硬上限判断；本库把文本稳定变成真实 token id 与计数,且无需网络请求。",
   "supply_form": "headless-primitive",
@@ -49,7 +62,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "headless-primitive 纯同步 JS,无渲染;+esm 仅导出 encode/decode/countTokens/isWithinTokenLimit 等函数,无 DOM/document/window API,可在任意上下文(含 shadow)运行。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

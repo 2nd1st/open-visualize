@@ -4,6 +4,28 @@
   "name": "vanilla-jsoneditor (svelte-jsoneditor)",
   "when_to_use": "需要 tree/text/table 三模式编辑、JSON 修复、校验与大文档虚拟化时用它而非手写编辑器,因为原生 AI 在结构编辑、undo、错误定位和大数组性能上失败;非做通用代码编辑器或 JSON Schema 表单。",
   "why_valuable": "AI 默认只能做静态 JSON 展示或一个 textarea,做不到树形结构编辑、table 投影、可靠 undo、解析修复、校验错误定位与大文档虚拟化;该库把这些能力收敛到 content + mode 与 editor.get()。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing an editor when you need tree/text/table editing modes, JSON repair, validation, and virtualization for large documents, because native AI implementations fail at structural editing, undo, error location, and large-array performance; not for a general code editor or a JSON Schema form.",
+      "why_valuable": "AI can normally provide only a static JSON view or a textarea; it cannot deliver tree-structure editing, table projection, reliable undo, parse repair, validation-error location, and virtualization for large documents. This library reduces these capabilities to content + mode and editor.get().",
+      "data_in": {
+        "note": "content uses the exact upstream mutually exclusive union: {json:JSONValue} or {text:string}; do not pass bare JSON directly as props.content. Table mode suits only projectable structures such as arrays of objects.",
+        "schema": {
+          "content": "{ json: JSONValue } | { text: string } -- choose exactly one",
+          "JSONValue": "null | boolean | number | string | JSONValue[] | { [key: string]: JSONValue }",
+          "mode?": "'tree'|'text'|'table' -- default 'tree'",
+          "readOnly?": "boolean -- default false",
+          "mainMenuBar?": "boolean -- default true",
+          "navigationBar?": "boolean -- default true",
+          "statusBar?": "boolean -- default true",
+          "indentation?": "number | string -- default 2"
+        }
+      },
+      "spec": {
+        "note": "Editor/table mode requires an explicit pixel height; default 520px, overridable by AI, and rule 3 forbids vh or percentage heights. The mount point must already be visible and allow internal scrolling."
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -41,8 +63,14 @@
     "minimal": {
       "content": {
         "json": [
-          { "name": "Alpha", "score": 8 },
-          { "name": "Beta", "score": 13 }
+          {
+            "name": "Alpha",
+            "score": 8
+          },
+          {
+            "name": "Beta",
+            "score": 13
+          }
         ]
       },
       "mode": "table",
@@ -53,7 +81,9 @@
       "indentation": 2
     },
     "empty": {
-      "content": { "json": {} },
+      "content": {
+        "json": {}
+      },
       "mode": "tree"
     }
   },
@@ -73,7 +103,6 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "+esm (513KB): `createElement('style')` + `document.head` inject the `.jse-*` base CSS at module-eval time (1243 `.jse-` refs) — exactly the entry's claim. 4x `document.body` + 16x AbsolutePopup: context menus, color picker, and sort/transform modals can portal to body. document click/keydown/mousemove(x2)/mouseup(x2)/reset listeners (click-outside + drag). The boot's shadow strategy relocates the freshly-injected `.jse-` <style> into shadowRoot, which styles the editor body — but any popup/modal that portals to document.body would then render unstyled; requires the relocation trick + a live probe, hence conditional.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

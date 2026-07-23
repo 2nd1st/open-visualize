@@ -48,9 +48,9 @@
     "note": "Winwheel 直接读取 canvas width/height 属性;boot 默认创建 420×420 canvas,不使用 CSS 百分比高或 vh(铁律 3)。要改尺寸须同时改 canvas 属性与本 spec。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:动画依赖 legacy TweenMax;先显式暴露 GSAP 2 全局\nimport Winwheel from 'https://cdn.jsdelivr.net/npm/winwheel@1/+esm';\nimport { TweenMax } from 'https://cdn.jsdelivr.net/npm/gsap@2/+esm'; globalThis.TweenMax = TweenMax;\nconst canvas = document.createElement('canvas'); canvas.id = 'winwheel-canvas'; canvas.width = 420; canvas.height = 420;\ndocument.getElementById('wheel').appendChild(canvas);\nconst wheel = new Winwheel({ ...data, canvasId: canvas.id, numSegments: data.numSegments ?? data.segments.length });\nif (data.animation) wheel.startAnimation();",
+    "artifact": "// Winwheel 1.0.1 是 sloppy-mode 源码；在动画生命周期内暂存其未声明变量与 GSAP 2 全局并在结束后恢复\nconst el = document.getElementById('wheel'); const canvas = document.createElement('canvas'); canvas.id = 'winwheel-canvas'; canvas.width = 420; canvas.height = 420; el.appendChild(canvas);\nconst legacyNames = ['defaultOptions', 'x', 'y', 'i', 'seg', 'character', 'radiusPercent', 'totalArc', 'newSegment', 'TweenMax'];\nconst savedGlobals = legacyNames.map(name => ({ name, had: Object.prototype.hasOwnProperty.call(globalThis, name), value: globalThis[name] }));\nconst beforeImportGlobals = new Set(Object.getOwnPropertyNames(globalThis)); let introducedGlobals = [];\nconst restoreGlobals = () => { for (const name of introducedGlobals) delete globalThis[name]; for (const { name, had, value } of savedGlobals) had ? globalThis[name] = value : delete globalThis[name]; };\nconst [{ default: Winwheel }, { TweenMax }] = await Promise.all([\n  import('https://cdn.jsdelivr.net/npm/winwheel@1/+esm'),\n  import('https://cdn.jsdelivr.net/npm/gsap@2/+esm')\n]);\nintroducedGlobals = Object.getOwnPropertyNames(globalThis).filter(name => !beforeImportGlobals.has(name));\nfor (const { name } of savedGlobals) globalThis[name] = undefined; globalThis.TweenMax = TweenMax;\ntry {\n  const wheel = new Winwheel({ ...data, canvasId: canvas.id, numSegments: data.numSegments ?? data.segments.length });\n  if (data.animation) { wheel.startAnimation(); setTimeout(restoreGlobals, ((data.animation.duration ?? 10) * 1000) + 250); } else restoreGlobals();\n} catch (error) { restoreGlobals(); throw error; }",
     "widget": "unsupported:Winwheel 1.0.1 在构造器内硬编码 document.getElementById(canvasId),无法穿透 widget shadow root;把 canvas 放 light DOM 会违反载体隔离。",
-    "codex": "// sandbox iframe 有普通 document,可用上游原生全局查找\nimport Winwheel from 'https://cdn.jsdelivr.net/npm/winwheel@1/+esm';\nimport { TweenMax } from 'https://cdn.jsdelivr.net/npm/gsap@2/+esm'; globalThis.TweenMax = TweenMax;\nconst canvas = document.createElement('canvas'); canvas.id = 'winwheel-canvas'; canvas.width = 420; canvas.height = 420; document.body.appendChild(canvas);\nconst wheel = new Winwheel({ ...data, canvasId: canvas.id, numSegments: data.numSegments ?? data.segments.length });\nif (data.animation) wheel.startAnimation();"
+    "codex": "// sandbox iframe 内暂存 Winwheel sloppy-mode 变量与 GSAP 2 全局，动画结束后恢复\nconst el = document.getElementById('wheel'); const canvas = document.createElement('canvas'); canvas.id = 'winwheel-canvas'; canvas.width = 420; canvas.height = 420; el.appendChild(canvas);\nconst legacyNames = ['defaultOptions', 'x', 'y', 'i', 'seg', 'character', 'radiusPercent', 'totalArc', 'newSegment', 'TweenMax'];\nconst savedGlobals = legacyNames.map(name => ({ name, had: Object.prototype.hasOwnProperty.call(globalThis, name), value: globalThis[name] }));\nconst beforeImportGlobals = new Set(Object.getOwnPropertyNames(globalThis)); let introducedGlobals = [];\nconst restoreGlobals = () => { for (const name of introducedGlobals) delete globalThis[name]; for (const { name, had, value } of savedGlobals) had ? globalThis[name] = value : delete globalThis[name]; };\nconst [{ default: Winwheel }, { TweenMax }] = await Promise.all([import('https://cdn.jsdelivr.net/npm/winwheel@1/+esm'), import('https://cdn.jsdelivr.net/npm/gsap@2/+esm')]);\nintroducedGlobals = Object.getOwnPropertyNames(globalThis).filter(name => !beforeImportGlobals.has(name));\nfor (const { name } of savedGlobals) globalThis[name] = undefined; globalThis.TweenMax = TweenMax;\ntry {\n  const wheel = new Winwheel({ ...data, canvasId: canvas.id, numSegments: data.numSegments ?? data.segments.length });\n  if (data.animation) { wheel.startAnimation(); setTimeout(restoreGlobals, ((data.animation.duration ?? 10) * 1000) + 250); } else restoreGlobals();\n} catch (error) { restoreGlobals(); throw error; }"
   },
   "example": {
     "_why": "segments、numSegments、秒制 duration 与 TweenMax 依赖很容易被其他 wheel API 污染,minimal 用来钉死 Winwheel 原生形状。",
@@ -91,7 +91,44 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Constructor hard-codes `document.getElementById(canvasId)` (lib/Winwheel.js:98) to resolve its canvas — a canvas inside a widget shadowRoot is invisible to document.getElementById, so it cannot mount in shadow (matches catalog widget=unsupported). Source has no document.head/createElement('style') (no style injection), no document.body append (no DOM mutation), and no addEventListener/window listeners of its own (animation runs on GSAP's internal RAF ticker, not document events).",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need a mature canvas prize wheel with image segments, rich text orientation, or precomputed stopping points, instead of hand-writing arcs and rotation hit detection, because native implementations fail at image clipping, angle hits, and eased stopping. If you only need a modern dependency-free decision wheel, prefer spin-wheel.",
+      "why_valuable": "AI can only draw static segments by default; it cannot provide Winwheel image-drawing modes, text orientation, landing-angle calculation, or post-animation hit detection. The library consolidates these historical edge cases in one canvas class.",
+      "data_in": {
+        "note": "data_in maps to native Winwheel options. boot injects canvasId and calibrates the numSegments default to segments.length. Animation still depends on legacy GSAP TweenMax, so boot explicitly loads gsap@2; this is an upstream structural constraint.",
+        "schema": {
+          "segments": [
+            {
+              "text": "string",
+              "fillStyle?": "CSS color string -- Inherits wheel.fillStyle('silver') by default",
+              "strokeStyle?": "CSS color string | null -- Inherits wheel.strokeStyle('black') by default",
+              "textFillStyle?": "CSS color string -- Inherits wheel.textFillStyle('black') by default",
+              "size?": "number(deg) -- Default null; segments without size divide the remaining angle equally"
+            }
+          ],
+          "numSegments?": "number -- Catalog default segments.length; bare upstream default 1",
+          "drawMode?": "'code' | 'image' | 'segmentImage' -- Default 'code'",
+          "outerRadius?": "number(px) | null -- Default null, using the available radius of the canvas's shorter side",
+          "innerRadius?": "number(px) -- Default 0",
+          "pointerAngle?": "number(deg) -- Default 0",
+          "textFontFamily?": "string -- Default 'Arial'",
+          "textFontSize?": "number(px) -- Default 20",
+          "textOrientation?": "'horizontal' | 'vertical' | 'curved' -- Default 'horizontal'",
+          "animation?": {
+            "_default": "When omitted, does not autoplay; when provided, boot calls startAnimation()",
+            "type": "'spinToStop'",
+            "duration?": "number(seconds) -- Default 10",
+            "spins?": "number -- spinToStop default 5",
+            "easing?": "GSAP 2 easing string -- spinToStop default 'Power4.easeOut'"
+          }
+        }
+      },
+      "spec": {
+        "note": "Winwheel reads canvas width/height attributes directly. boot creates a 420x420 canvas by default and does not use CSS percentage height or vh (Rule 3). To change size, update both canvas attributes and this spec."
+      }
+    }
   }
 }

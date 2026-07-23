@@ -2,6 +2,35 @@
   "entry_version": "thin-1",
   "id": "dom-confetti",
   "name": "dom-confetti",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written absolutely positioned nodes when you need lightweight DOM confetti to burst from a button, badge, or coordinate anchor without adding canvas, because native implementations fail on randomized 3D trajectories, fading, and residue-free cleanup.",
+      "why_valuable": "AI defaults can pile up colored divs but cannot reliably produce 3D wobble, velocity friction, staggered fading, and complete cleanup afterward; this small package closes the loop with one anchor and shallow configuration.",
+      "data_in": {
+        "note": "data_in.options is passed exactly to confetti(root, config); root is the zero-size emission anchor created by boot. Do not put callbacks or an upstream protocol into the entry.",
+        "schema": {
+          "options?": {
+            "_default": "{} -- use all upstream defaults",
+            "angle?": "number -- emission direction in degrees; default 90",
+            "spread?": "number -- spread angle in degrees; default 45",
+            "startVelocity?": "number -- initial velocity; default 45",
+            "width?": "CSS length string -- piece width; default '10px'",
+            "height?": "CSS length string -- piece height; default '10px'",
+            "perspective?": "CSS perspective string -- written to the anchor; default ''",
+            "elementCount?": "integer -- particle count; default 50",
+            "dragFriction?": "number -- per-frame decay applied to current velocity; default 0.1",
+            "duration?": "number -- duration in milliseconds; default 3000",
+            "stagger?": "number -- stagger in milliseconds per piece; default 0",
+            "colors?": "string[] -- default ['#a864fd','#29cdff','#78ff44','#ff718d','#fdff6a']",
+            "decay?": "number -- legacy compatibility velocity factor; omitted by default in favor of dragFriction"
+          }
+        }
+      },
+      "spec": {
+        "note": "The outer stage defines the spatial boundary for DOM particles; boot provides an explicit default height of 400px and places the anchor at 50%/70%. Do not use vh or percentage heights."
+      }
+    }
+  },
   "when_to_use": "需要从某个按钮、徽章或坐标锚点爆出轻量 DOM 彩屑且不想引入 canvas 时用它而非手写绝对定位节点,因为原生在随机 3D 弹道、淡出和无残留清理上失败。",
   "why_valuable": "AI 默认能堆出彩色 div,但做不到稳定的 3D wobble、速度摩擦、错峰淡出与结束后完整清理;这个小包以一个锚点和浅配置闭环。",
   "supply_form": "component",
@@ -55,7 +84,22 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "lib/main.js createElements() styles each particle purely inline (element.style['background-color'|width|height|position|willChange|visibility]) and does `root.appendChild(element)` where root is the caller-supplied anchor (boot creates it inside the shadow container). No `document.head`, no `createElement('style')`, no `document.body`. Animation uses requestAnimationFrame only — zero document/window addEventListener. Fully self-contained under the caller's root.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "options": {
+        "elementCount": 150,
+        "spread": 90,
+        "duration": 7000,
+        "colors": [
+          "#a864fd",
+          "#29cdff",
+          "#78ff44",
+          "#ff718d",
+          "#fdff6a"
+        ]
+      }
+    }
   }
 }

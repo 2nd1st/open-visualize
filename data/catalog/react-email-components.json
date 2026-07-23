@@ -2,6 +2,26 @@
   "entry_version": "thin-1",
   "id": "react-email-components",
   "name": "React Email",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when a React component tree must compose an email and render email-safe HTML in the browser instead of hand-written output, which fails at semantic component reuse, inline styles, and email-client compatibility markup. Do not use it for ordinary Web UI or real-client delivery testing.",
+      "why_valuable": "AI can write React pages but cannot reliably degrade structures such as Section, Column, Button, and Img into email HTML. React Email lets AI compose with familiar component semantics, then render one complete document.",
+      "data_in": {
+        "note": "Native render accepts an in-memory ReactElement, not an arbitrary JSON AST. email must be constructed from React and @react-email/components imported on the same page. Html is the recommended root, with content inside Body.",
+        "schema": {
+          "email": "ReactElement<Html> -- component tree may use Html/Head/Preview/Body/Container/Section/Row/Column/Heading/Text/Button/Link/Img/Hr",
+          "render_options?": {
+            "_default": "outputs a compact HTML document by default",
+            "pretty?": "boolean -- defaults to false",
+            "plainText?": "boolean -- defaults to false; keep false for preview"
+          }
+        }
+      },
+      "spec": {
+        "note": "The email-preview iframe defaults to an explicit height of 640px with internal scrolling; AI may supply another pixel value. Do not use vh or percentage heights."
+      }
+    }
+  },
   "when_to_use": "需要用 React 组件树组合邮件并在浏览器渲成邮件安全 HTML 时用它而非手写,因为原生在语义组件复用、内联样式和邮件客户端兼容标记上失败;非做普通 Web UI 或真实客户端投递测试。",
   "why_valuable": "AI 默认会写 React 页面但做不到把 Section、Column、Button、Img 等结构稳定降级为邮件 HTML;React Email 让 AI 用熟悉的组件语义拼装,再由 render 统一产出完整文档。",
   "supply_form": "component",
@@ -30,9 +50,9 @@
     "note": "邮件预览 iframe 默认显式高 640px 并内部滚动,AI 可给其他像素值;禁止 vh 或百分比高。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:data.email 已由同上下文的 React Email 组件构成\nimport { render } from 'https://cdn.jsdelivr.net/npm/@react-email/components@1/+esm';\nconst html = await render(data.email, data.render_options ?? {});\nconst frame = document.createElement('iframe');\nframe.style.cssText = `width:100%;height:${spec.height ?? 640}px;border:0`;\nframe.srcdoc = html;\ndocument.getElementById('email').appendChild(frame);",
-    "widget": "// render 产物是完整文档;iframe 落 shadowRoot,邮件样式不进入宿主 head\nimport { render } from 'https://cdn.jsdelivr.net/npm/@react-email/components@1/+esm';\nconst html = await render(data.email, data.render_options ?? {});\nconst frame = document.createElement('iframe');\nframe.style.cssText = `width:100%;height:${spec.height ?? 640}px;border:0`;\nframe.srcdoc = html;\nshadowRoot.appendChild(frame);",
-    "codex": "// sandbox iframe:同 artifact 的 render + srcdoc 预览\nimport { render } from 'https://cdn.jsdelivr.net/npm/@react-email/components@1/+esm';\nconst html = await render(data.email, data.render_options ?? {});\nconst frame = document.createElement('iframe');\nframe.style.cssText = `width:100%;height:${spec.height ?? 640}px;border:0`;\nframe.srcdoc = html;\ndocument.getElementById('email').appendChild(frame);"
+    "artifact": "// 先挂 iframe，再动态载入较大的 render 依赖图；网络冷启动时容器也不会被判空\nconst frame = document.createElement('iframe'); frame.style.cssText = `width:100%;height:${spec.height ?? 640}px;border:0`; frame.srcdoc = '<p style=\"font:14px system-ui\">Rendering email preview…</p>'; document.getElementById('email').appendChild(frame);\nconst { render } = await import('https://cdn.jsdelivr.net/npm/@react-email/components@1.0.12/+esm');\nframe.srcdoc = await render(data.email, data.render_options ?? {});",
+    "widget": "// render 产物是完整文档；iframe 先落 shadowRoot，邮件样式不进入宿主 head\nconst frame = document.createElement('iframe'); frame.style.cssText = `width:100%;height:${spec.height ?? 640}px;border:0`; frame.srcdoc = '<p style=\"font:14px system-ui\">Rendering email preview…</p>'; shadowRoot.appendChild(frame);\nconst { render } = await import('https://cdn.jsdelivr.net/npm/@react-email/components@1.0.12/+esm');\nframe.srcdoc = await render(data.email, data.render_options ?? {});",
+    "codex": "// sandbox iframe:先挂预览 frame，再动态执行 render + srcdoc\nconst frame = document.createElement('iframe'); frame.style.cssText = `width:100%;height:${spec.height ?? 640}px;border:0`; frame.srcdoc = '<p style=\"font:14px system-ui\">Rendering email preview…</p>'; document.getElementById('email').appendChild(frame);\nconst { render } = await import('https://cdn.jsdelivr.net/npm/@react-email/components@1.0.12/+esm');\nframe.srcdoc = await render(data.email, data.render_options ?? {});"
   },
   "peer": {
     "npm": [
@@ -52,7 +72,12 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "render() produces an HTML string via server-side render (no DOM mount, no head/body writes); the catalog mounts the result through <iframe srcdoc>, so all email CSS lives inside the iframe document -> zero host head/body/shadow footprint. Works identically whether mounted in shadow or not.",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
+  },
+  "example": {
+    "minimal": {
+      "email": "Order #1042 confirmed — thanks for your purchase! Your order ships within 2 business days.",
+      "render_options": {}
+    }
   }
 }

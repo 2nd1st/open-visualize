@@ -2,6 +2,43 @@
   "entry_version": "thin-1",
   "id": "frappe-gantt",
   "name": "Frappe Gantt",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need an interactive Gantt chart with task intervals, progress, dependency arrows, and day/week/month views instead of hand-written SVG, which fails at time scales, dependency routing, drag geometry, and cross-scale views. Do not use it for an ordinary point-event timeline or a static list of only a few items.",
+      "why_valuable": "AI can usually produce only about 60% of a static Mermaid Gantt chart and cannot deliver reliable dependency arrows, draggable task bars and progress handles, date scales, or multiple view modes. Frappe Gantt adds these capabilities through a shallow tasks array.",
+      "data_in": {
+        "note": "Pass tasks directly to the native new Gantt(element, tasks, options). start/end use YYYY-MM-DD or date-time strings; upstream treats an end before start or a span over ten years as invalid. Callbacks are excluded below; the consuming AI must connect uplink for post-interaction state.",
+        "schema": {
+          "tasks": [
+            {
+              "id": "string -- unique and without spaces; dependencies references this value",
+              "name": "string",
+              "start": "string -- YYYY-MM-DD or YYYY-MM-DD HH:mm",
+              "end": "string -- YYYY-MM-DD or YYYY-MM-DD HH:mm",
+              "progress?": "number 0..100 -- defaults to 0",
+              "dependencies?": "string | string[] -- prerequisite task ids; comma-separate a string; defaults to []",
+              "description?": "string -- rendered only with a custom popup option; the default popup does not show it",
+              "custom_class?": "string -- task-bar CSS class; unset by default"
+            }
+          ],
+          "options?": {
+            "_default": "defaults to {}",
+            "view_mode?": "'Hour' | 'Quarter Day' | 'Half Day' | 'Day' | 'Week' | 'Month' | 'Year' -- defaults to 'Day'",
+            "readonly?": "boolean -- defaults to false",
+            "readonly_dates?": "boolean -- defaults to false",
+            "readonly_progress?": "boolean -- defaults to false",
+            "scroll_to?": "'today' | 'start' | 'end' | string-date -- defaults to 'today'",
+            "language?": "ISO 639-1 string -- defaults to 'en'",
+            "view_mode_select?": "boolean -- defaults to false"
+          },
+          "empty_text?": "string -- displayed by boot when tasks is empty; defaults to '暂无任务'"
+        }
+      },
+      "spec": {
+        "note": "The Gantt table and geometry must receive an explicit pixel height before initialization. The default is 400px and AI may override it. boot sets both the container height and upstream container_height; vh and percentage heights are forbidden by iron rule 3."
+      }
+    }
+  },
   "when_to_use": "需要任务区间、完成度、依赖箭头与日/周/月视图的交互甘特图时用它而非手写 SVG,因为原生在时间刻度、依赖布线、拖动几何和跨尺度视图上失败;非做普通点事件时间轴或仅展示三五项的静态清单。",
   "why_valuable": "AI 默认只能写约 60% 的静态 Mermaid 甘特,做不到可靠的依赖箭头、可拖任务条/进度柄、日期刻度与多视图切换;Frappe Gantt 用浅 tasks 数组补齐这些能力。",
   "supply_form": "component",
@@ -103,7 +140,6 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "Source: the popup renders into a popup_wrapper appended to the gantt container (no document.body); the library does not auto-inject CSS — frappe-gantt.css is placed by the boot (in shadowRoot for widget). It registers one persistent document.addEventListener('mouseup', …) for bar/progress drag-release with no destroy/cleanup path; that listener still fires cross-shadow (mouseup bubbles to document), so it works but is a standing global footprint. Shadow use is conditional on placing the CSS inside the shadow root.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

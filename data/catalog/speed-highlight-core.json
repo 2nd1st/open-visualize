@@ -32,6 +32,12 @@
       "code": "",
       "language": "js",
       "display": "multiline"
+    },
+    "minimal": {
+      "code": "// Fibonacci sequence\nfunction fib(n) {\n  return n < 2 ? n : fib(n - 1) + fib(n - 2);\n}\nconsole.log(fib(10)); // 55",
+      "language": "js",
+      "display": "multiline",
+      "hideLineNumbers": false
     }
   },
   "carriers": {
@@ -45,7 +51,20 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "highlightElement only sets elm.innerHTML (index.d.ts) — library injects no style itself. Theme CSS is a boot responsibility: widget boot does fetch(default.css)→<style>→shadowRoot (in-shadow, no head pollution); artifact boot uses document.head by convention. Library runtime-imports per-language modules from the CDN (loadLanguage) → needs CSP script/import allowance. Conditional only because theme CSS must be delivered into the shadow (widget boot does this).",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need fast highlighting for common languages in a size-sensitive carrier, instead of hand-writing token spans, because native implementations fail on long code, multilingual boundaries, and consistent themes. Not for TextMate-level accuracy, an editable code editor, or a code executor.",
+      "why_valuable": "AI cannot reliably classify tokens across languages in a roughly 2KB core by default. Manual coloring misses escaping and comment boundaries; this library produces deterministic HTML through native ESM and per-language loading.",
+      "data_in": {
+        "schema": {
+          "code": "string -- Raw source text",
+          "language?": "'asm'|'bash'|'c'|'css'|'diff'|'go'|'html'|'java'|'js'|'json'|'md'|'py'|'rs'|'sql'|'ts'|'xml'|'yaml' -- Default 'js'",
+          "display?": "'multiline'|'inline' -- Default 'multiline'",
+          "hideLineNumbers?": "boolean -- Default true"
+        }
+      }
+    }
   }
 }

@@ -1,0 +1,93 @@
+{
+  "entry_version": "thin-1",
+  "id": "vanilla-tilt",
+  "name": "vanilla-tilt",
+  "when_to_use": "卡片/商品格/头像/图片上的交互式 3D 悬停倾斜带视差 glare 时用它;单元素 tilt+glare 用它,多层视差弹出用分层库(如 atropos)。你给元素 + options,它接管指针→transform 数学与 glare。",
+  "why_valuable": "把 perspective/transform/glare 数学调到显高级而非扭曲很难;AI 手搓出僵硬或明显变形的倾斜。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for interactive 3D hover tilt with parallax glare on cards, product tiles, avatars, or images. Use it for single-element tilt plus glare; for multilayer parallax pop-out, use a layered library such as atropos. You provide an element plus options, and it handles pointer-to-transform math and glare.",
+      "why_valuable": "Tuning perspective/transform/glare math to look polished rather than distorted is difficult. AI hand-builds stiff or visibly warped tilts.",
+      "data_in": {
+        "note": "It operates on an existing element. The glare element is created inside the target, so no external CSS is required. Import side effects set window.VanillaTilt and automatically initialize [data-tilt] elements in the document; do not put data-tilt on host nodes that should not tilt automatically.",
+        "schema": {
+          "target": "string selector | Element | Element[] - element(s) to tilt, resolved to nodes in boot and allowed inside shadow",
+          "options?": {
+            "max?": "number - maximum tilt angle in degrees, default 15",
+            "perspective?": "number - perspective distance; smaller is more dramatic, default 1000",
+            "scale?": "number - hover scale, default 1",
+            "speed?": "number - enter/leave transition speed in ms, default 300",
+            "glare?": "boolean - glare highlight, default false",
+            "max-glare?": "number - maximum glare opacity 0..1, default 1",
+            "reverse?": "boolean - reverse tilt, default false",
+            "axis?": "'x' | 'y' | null - constrain to one axis, default null",
+            "gyroscope?": "boolean - gyroscope on mobile, default true",
+            "full-page-listening?": "boolean - listen to mouse movement across the whole page, default false"
+          }
+        }
+      }
+    }
+  },
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "vanilla-tilt",
+    "version": "1.8.1",
+    "github": "micku7zu/vanilla-tilt.js"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "config",
+    "note": "作用于一个已存在元素;glare 元素会创建在目标内部,无需外链 CSS。import 副作用:设 window.VanillaTilt 并自动 init 文档里的 [data-tilt] —— 别把 data-tilt 打在不想被自动倾斜的宿主节点上。",
+    "schema": {
+      "target": "string 选择器 | Element | Element[] —— 要倾斜的元素(boot 里解析为节点,可在 shadow 内)",
+      "options?": {
+        "max?": "number —— 最大倾斜角(度),默认 15",
+        "perspective?": "number —— 透视距离,越小越夸张,默认 1000",
+        "scale?": "number —— 悬停缩放,默认 1",
+        "speed?": "number —— 进出过渡速度 ms,默认 300",
+        "glare?": "boolean —— 高光,默认 false",
+        "max-glare?": "number —— 高光最大不透明度 0..1,默认 1",
+        "reverse?": "boolean —— 反向倾斜,默认 false",
+        "axis?": "'x' | 'y' | null —— 限制单轴,默认 null",
+        "gyroscope?": "boolean —— 陀螺仪(移动端),默认 true",
+        "full-page-listening?": "boolean —— 监听整页鼠标,默认 false"
+      }
+    }
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested。注意:import 本模块会设 window.VanillaTilt 并自动 init 文档里的 [data-tilt]。\nimport VanillaTilt from 'https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/+esm';\nconst el = document.querySelector(data.target ?? '.tilt-card');\nVanillaTilt.init(el, data.options ?? { max: 15, speed: 400, glare: true, 'max-glare': 0.4 });\n// el.vanillaTilt.destroy() 卸载",
+    "widget": "// shadow 内可用:对 shadow 元素 init;glare 与 transform 都是目标上/内的 inline 样式(无外链 CSS)。\nimport VanillaTilt from 'https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/+esm';\nconst el = shadowRoot.querySelector(data.target ?? '.tilt-card');\nVanillaTilt.init(el, data.options ?? { max: 15, speed: 400, glare: true, 'max-glare': 0.4 });\n// import 期副作用仍会设 window.VanillaTilt 并扫 document 的 [data-tilt]",
+    "codex": "import VanillaTilt from 'https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/+esm';\nconst el = document.querySelector(data.target ?? '.tilt-card');\nVanillaTilt.init(el, data.options ?? { max: 15, speed: 400, glare: true, 'max-glare': 0.4 });"
+  },
+  "example": {
+    "_why": "target 传 CSS 选择器(boot 解析为元素);options 用 kebab 键 max-glare/full-page-listening 对齐真实 API。",
+    "minimal": {
+      "target": ".tilt-card",
+      "options": {
+        "max": 15,
+        "speed": 400,
+        "glare": true,
+        "max-glare": 0.4
+      }
+    },
+    "empty": {
+      "target": ".tilt-card"
+    }
+  },
+  "uplink": "纯 local-interact,默认不上行;若需实时倾斜值,消费 AI 直接调实例 getValues() 并按载体处理。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:对 shadow 元素 init,glare 嵌在目标内、transform inline,无全局 CSS;注意 import 会设 window.VanillaTilt 并自动 init 文档 [data-tilt]",
+    "codex": "supported:default export,无 worker/wasm/uplink 硬依赖"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "yes",
+    "globalEvents": "yes",
+    "evidence": "API correct: +esm default export(n as default)= VanillaTilt;d.ts:constructor(element, settings?) + static init(elements, settings?);默认已实测:max 15、perspective 1000、scale 1、speed 300、glare false、max-glare 1、gyroscope true、reverse false、transition true。IMPORT 副作用(grep +esm 尾):`typeof document<'u'&&(window.VanillaTilt=n,n.init(document.querySelectorAll('[data-tilt]')))` —— import 即赋 window.VanillaTilt 并自动 init 文档 [data-tilt]。globalStyleInjection=no:glare/transform 为目标上/内 inline 样式;document.body 仅被 READ 取 clientWidth/Height 回退(无 body append)。globalDomMutation=yes:import 期的 window 全局 + document [data-tilt] 扫描。globalEvents=yes:每实例元素指针事件 + window 'resize';gyroscope 时 window 'deviceorientation';destroy() 移除。shadowCompatible=yes:对显式 shadow 元素 init,glare 嵌在目标内。",
+    "confidence": "high"
+  }
+}

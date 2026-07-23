@@ -1,0 +1,66 @@
+{
+  "entry_version": "thin-1",
+  "id": "ahp",
+  "name": "ahp",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for multi-criteria decisions when you want the Analytic Hierarchy Process (AHP: pairwise comparisons + eigenvector weights + consistency checks) rather than a simple weighted sum: provide pairwise preference ratios among criteria and among alternatives under each criterion, and get final alternative scores, weight vectors, and consistency diagnostics. The catalog's weighteddecisionmatrix only performs linear weighted scoring; AHP is a different method (pairwise + eigenvector + CR), so they are not substitutes. If you only need simple scoring and ranking, use weighteddecisionmatrix instead.",
+      "why_valuable": "AHP normalizes each pairwise comparison matrix into an eigenvector of priority weights, then calculates the consistency ratio CR to detect contradictory judgments. Both eigenvectors and CR are numerical results that AI cannot calculate reliably by hand. Give ahp the criteria and alternative pairwise matrices to get rankedScoreMap (final scores by alternative), the criteria weight vector, and ci/ri/cr diagnostics for every matrix (CR>0.1 flags inconsistent judgments).",
+      "data_in": {
+        "note": "The easiest input path is ahp.import({items, criteria, criteriaItemRank, criteriaRank}): items is an array of alternative names and criteria is an array of criterion names. criteriaRank is the reciprocal m x m pairwise comparison matrix among criteria (m=number of criteria). For each criterion, criteriaItemRank supplies either an n x n reciprocal pairwise comparison matrix among alternatives under that criterion or an absolute score array of length n (the library converts it to comparisons). Matrices must be positive reciprocal (matrix[i][j]=1/matrix[j][i], diagonal=1). Use the 1..9 Saaty scale (>1 when i is preferred to j, <1 when it is weaker). Caveat: adoption is low (~740/wk), maintenance stopped after 2022, and the bundle inlines about 51KB of mathjs+numericjs; run a live probe before publishing.",
+        "schema": {
+          "items": "string[] -- alternatives (choices), for example ['CarA','CarB','CarC']",
+          "criteria": "string[] -- criteria (judging perspectives), for example ['price','speed','safety']",
+          "criteriaRank": "number[][] -- positive reciprocal m x m pairwise comparison matrix among criteria (m=criteria.length)",
+          "criteriaItemRank": "{ [criterion: string]: number[][] | number[] } -- for each criterion, an n x n pairwise comparison matrix among alternatives or an absolute score array of length n (n=items.length)"
+        }
+      }
+    }
+  },
+  "when_to_use": "做『多准则决策』且想用层次分析法(AHP:两两比较 + 特征向量权重 + 一致性检验)而非简单加权求和时用它:给准则间、以及每个准则下各方案间的两两偏好比,吐各方案最终得分 + 权重向量 + 一致性诊断。目录里的 weighteddecisionmatrix 只做线性加权评分矩阵,AHP 是不同方法(pairwise + 特征向量 + CR),二者非替代;非只需简单打分排序的场景(那用 weighteddecisionmatrix)。",
+  "why_valuable": "AHP 要把两两比较矩阵做特征向量归一得优先级权重、再算一致性比率 CR 判断判断是否自相矛盾——特征向量与 CR 都是 AI 徒手算不准的数值;ahp 输入准则/方案的两两比较矩阵,直接吐 rankedScoreMap(各方案最终得分)+ 准则权重向量 + 每个矩阵的 ci/ri/cr 诊断(CR>0.1 提示判断不一致)。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "ahp",
+    "version": "2.4.2",
+    "github": "airicyu/ahp"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "matrix",
+    "note": "最省事的喂法是 ahp.import({items, criteria, criteriaItemRank, criteriaRank}):items=方案名数组、criteria=准则名数组;criteriaRank 是准则间的 m×m 两两比较倒数矩阵(m=准则数);criteriaItemRank 每个准则给一份『该准则下 n 个方案的 n×n 两两比较倒数矩阵』,或给一份长度 n 的绝对分数数组(库自动转比较)。比较矩阵须为正互反(matrix[i][j]=1/matrix[j][i],对角线=1),用 1..9 Saaty 标度(i 比 j 强填 >1,弱填 <1)。诚实标注:采用度偏低(~740/wk)、2022 后停更、bundle 内联 mathjs+numericjs 约 51KB,上架前建议活体探针。",
+    "schema": {
+      "items": "string[] —— 方案(choices),如 ['CarA','CarB','CarC']",
+      "criteria": "string[] —— 准则(judging perspectives),如 ['price','speed','safety']",
+      "criteriaRank": "number[][] —— 准则间 m×m 正互反两两比较矩阵(m=criteria.length)",
+      "criteriaItemRank": "{ [criterion: string]: number[][] | number[] } —— 每准则:n×n 方案两两比较矩阵,或长度 n 的绝对分数数组(n=items.length)"
+    }
+  },
+  "provides": {
+    "shape": "priority-weights",
+    "_note": "headless-primitive:纯 MCDM 数值层,不渲染、无 L 级、无 carriers 矩阵;消费 AI 拿得分/权重后自行画排名条/权重饼/一致性提示。",
+    "outputs": "run() → { error, rankingMatrix, itemRankMetaMap:{准则:{ci,ri,cr}}, criteriaRankMetaMap:{ci,ri,cr,weightedVector(准则权重)}, rankedScoreMap:{方案:最终得分}, rankedScores:[得分数组,按 items 顺序] };CR>0.1 表示对应两两比较自相矛盾,建议复核。",
+    "api_surface": {
+      "bulk": "new AHP().import({items,criteria,criteriaItemRank,criteriaRank}) —— 一次喂全,最适合 AI 拼 data",
+      "builder": "addItems(names)、addCriteria(names)、rankCriteriaItem(crit, [[itemA,itemB,scale],…]) 或 setCriteriaItemRankByGivenScores(crit, scores[])、rankCriteria([[critA,critB,scale],…])",
+      "compute": "run() → 结果对象;debug() → run 结果 + 人类可读 log 字符串;export() → 回吐上下文"
+    }
+  },
+  "peer": {
+    "id": "weighteddecisionmatrix",
+    "note": "同属多准则决策(MCDM)但方法不同:weighteddecisionmatrix 是线性加权求和,ahp 是两两比较 + 特征向量 + 一致性比率。想让用户在『简单加权』与『AHP 严谨比较』间二选一,可两条并列。"
+  },
+  "boot": {
+    "shared": "// 三载体一致:纯 JS 数值(内联 mathjs+numericjs),零 DOM/CSS/uplink/shadow 足迹;default 导出\nimport AHP from 'https://cdn.jsdelivr.net/npm/ahp@2/+esm';\nconst ahp = new AHP();\nahp.import({ items: data.items, criteria: data.criteria, criteriaItemRank: data.criteriaItemRank, criteriaRank: data.criteriaRank });\nconst out = ahp.run(); // { rankedScoreMap, rankedScores, criteriaRankMetaMap:{weightedVector,cr}, itemRankMetaMap:{…:{cr}}, error }\nif (out.error) throw out.error;",
+    "note": "default 导出(import AHP from …)。比较矩阵须正互反(matrix[i][j]=1/matrix[j][i]、对角=1),否则一致性异常。检查 out.criteriaRankMetaMap.cr 与各 itemRankMetaMap[*].cr:>0.1 说明两两比较自相矛盾,应提示用户复核而非直接采信排名。也可用 ahp.debug() 拿人类可读的推导 log。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "Verified vs jsDelivr ahp@2.4.2 (+esm, 51.6KB): DEFAULT export is the AHP class (grep 'er as default'), plus named helpers (calculateMatrixConsistency, checkRankMatrixCompleted, findRankMatrixIncompleteCell, print2DMatrixAsStr, printMatrixAsStr) — import must be default (import AHP from …). API from README (no .d.ts ships): new AHP(); import({items,criteria,criteriaItemRank,criteriaRank}); builder addItems/addCriteria/rankCriteriaItem/setCriteriaItemRankByGivenScores/rankCriteria; run() returns {error, rankingMatrix, itemRankMetaMap, criteriaRankMetaMap:{…,weightedVector}, rankedScoreMap, rankedScores} — matches boot/provides (README console-output verbatim). Zero global footprint: grep over the 51.6KB bundle found 0 document.head/body/createElement/querySelector, 0 window.addEventListener, 0 customElements, 0 insertRule/adoptedStyleSheets — pure numeric (bundles mathjs+numericjs inline), trivially shadow-safe. Maintenance caveat (not an isolation issue): low adoption (~740/wk), no releases since 2022; API itself verified live today.",
+    "confidence": "high"
+  }
+}

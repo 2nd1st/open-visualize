@@ -2,12 +2,62 @@
   "entry_version": "thin-1",
   "id": "seatchart",
   "name": "Seatchart.js",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a hand-written button matrix when you need a seat grid with types, prices, reserved states, aisles, and a cart, because native implementations fail to keep seat state, legend, price totals, and layout spacing synchronized.",
+      "why_valuable": "AI defaults can only blur together an untyped button grid; they cannot keep seat types, unavailable states, aisles, legend, selected set, and total price consistent. Seatchart.js directly maintains a compact SeatInfo[] cart.",
+      "data_in": {
+        "note": "The entire data object is upstream Options; every SeatIndex is zero-based {row,col}, and seatTypes.default is required.",
+        "schema": {
+          "map": {
+            "rows": "integer >= 0",
+            "columns": "integer >= 0",
+            "seatTypes": {
+              "default": {
+                "label": "string",
+                "price": "number >= 0",
+                "cssClass": "string"
+              },
+              "<typeKey>?": {
+                "label": "string",
+                "price": "number >= 0",
+                "cssClass": "string",
+                "seats?": "{row:integer,col:integer}[] -- default []",
+                "seatRows?": "integer[] -- default []",
+                "seatColumns?": "integer[] -- default []"
+              }
+            },
+            "selectedSeats?": "{row:integer,col:integer}[] -- default []",
+            "reservedSeats?": "{row:integer,col:integer}[] -- default []",
+            "disabledSeats?": "{row:integer,col:integer}[] -- default []",
+            "columnSpacers?": "integer[] -- default []",
+            "rowSpacers?": "integer[] -- default []",
+            "frontVisible?": "boolean -- default true"
+          },
+          "cart?": {
+            "visible?": "boolean -- default true",
+            "currency?": "string -- default '€'",
+            "submitLabel?": "string -- default 'Checkout'",
+            "_default": "the default cart is still shown when cart is omitted"
+          },
+          "legendVisible?": "boolean -- default true"
+        }
+      },
+      "spec": {
+        "note": "The seat grid uses DOM geometric layout; give the host an explicit min-height of at least 420px as the default canvas, and allow content to grow naturally with many rows/columns. Do not use vh or percentage heights (iron rule 3)."
+      }
+    }
+  },
   "when_to_use": "需要带类型、价格、保留态、过道和购物篮的座位网格时用它,而非手写 button 矩阵——原生在座位状态、图例、价格汇总和布局间距同步上失败。",
   "why_valuable": "AI 默认只能糊一个无类型的按钮网格;做不到让座位类型、不可用态、过道、图例、已选集合与总价始终一致,Seatchart.js 直接维护紧凑 SeatInfo[] 购物篮。",
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
-  "upstream": { "npm": "seatchart", "version": "0.1.0", "github": "omahili/seatchart.js" },
+  "upstream": {
+    "npm": "seatchart",
+    "version": "0.1.0",
+    "github": "omahili/seatchart.js"
+  },
   "license": "MIT",
   "data_in": {
     "shape": "grid",
@@ -17,7 +67,11 @@
         "rows": "integer >= 0",
         "columns": "integer >= 0",
         "seatTypes": {
-          "default": { "label": "string", "price": "number >= 0", "cssClass": "string" },
+          "default": {
+            "label": "string",
+            "price": "number >= 0",
+            "cssClass": "string"
+          },
           "<typeKey>?": {
             "label": "string",
             "price": "number >= 0",
@@ -59,12 +113,27 @@
         "rows": 2,
         "columns": 3,
         "seatTypes": {
-          "default": { "label": "Standard", "price": 20, "cssClass": "standard-seat" }
+          "default": {
+            "label": "Standard",
+            "price": 20,
+            "cssClass": "standard-seat"
+          }
         },
-        "reservedSeats": [{ "row": 0, "col": 1 }],
-        "columnSpacers": [1]
+        "reservedSeats": [
+          {
+            "row": 0,
+            "col": 1
+          }
+        ],
+        "columnSpacers": [
+          1
+        ]
       },
-      "cart": { "visible": true, "currency": "$", "submitLabel": "Confirm" },
+      "cart": {
+        "visible": true,
+        "currency": "$",
+        "submitLabel": "Confirm"
+      },
       "legendVisible": true
     },
     "empty": {
@@ -72,10 +141,16 @@
         "rows": 0,
         "columns": 0,
         "seatTypes": {
-          "default": { "label": "Standard", "price": 0, "cssClass": "standard-seat" }
+          "default": {
+            "label": "Standard",
+            "price": 0,
+            "cssClass": "standard-seat"
+          }
         }
       },
-      "cart": { "visible": false },
+      "cart": {
+        "visible": false
+      },
       "legendVisible": false
     }
   },
@@ -95,7 +170,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "seatchart@0.1.0 +esm: builds all DOM with document.createElement x32 / appendChild x38 into the passed element (map + cart + legend render inside the container); grep found 0 document.body, 0 document.head, 0 window.addEventListener, 0 document.addEventListener. The single addEventListener('click') is a.addEventListener('click', seatClick) bound to individual seat elements, not document/window. Library injects no styles (CSS loaded by boot -> head in artifact, -> shadowRoot in widget). Zero global footprint and self-contained CSS (no external image assets) -> fully works in a shadow root (matches widget=supported).",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

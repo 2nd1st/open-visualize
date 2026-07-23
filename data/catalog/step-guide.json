@@ -1,0 +1,154 @@
+{
+  "entry_version": "thin-1",
+  "id": "step-guide",
+  "name": "Step guide",
+  "when_to_use": "需要按明确顺序教授一个过程，并为每步配解释、要点和提示时用它：适合操作教程、上手指南、检查流程和回答中的可执行步骤。若只需展示简短里程碑，应改用 timeline；若步骤存在分支或状态流转，应改用流程图；若用户必须逐项勾选并回传进度，则需要任务组件。",
+  "why_valuable": "长教程容易退化成编号墙；本模板用连续轨道、醒目的步号、分层正文、要点列表和语义 tip callout 把动作与解释绑定，同时保持全部内容在首屏可扫读且无需折叠交互。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "inline-template",
+  "upstream": {
+    "npm": null,
+    "version": null,
+    "github": null
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "sequence",
+    "note": "data.steps 严格按执行顺序展示，不自动排序。每步 body 可传单个字符串或段落字符串数组；bullets 是该步的补充动作清单；tip 是可选局部提示，variant 决定 icon 与颜色。label 适合放阶段名或耗时。模板只展示过程，不保存完成状态，也没有展开、勾选或回传。",
+    "schema": {
+      "title?": "string —— 教程标题；省略时显示 “Step-by-step guide”",
+      "intro?": "string —— 标题下的目标、前置条件或结果说明；省略时显示步骤数量摘要",
+      "steps": "{title:string,label?:string,body:string|string[],bullets?:string[],tip?:{variant?:'tip'|'note'|'warning'|'success',title?:string,body:string}}[] —— 按执行顺序排列的步骤",
+      "_stepFields": {
+        "title": "string —— 步骤动作标题",
+        "label?": "string —— 阶段、预计耗时或短元信息",
+        "body": "string|string[] —— 一段或多段正文；数组中的每项渲染为独立段落",
+        "bullets?": "string[] —— 正文后的要点列表",
+        "tip?": "{variant?:'tip'|'note'|'warning'|'success',title?:string,body:string} —— 步骤内的可选提示卡"
+      },
+      "_tipFields": {
+        "variant?": "'tip'|'note'|'warning'|'success' —— 默认 tip；分别使用灯泡、信息、警告、成功语义",
+        "title?": "string —— 提示标题；省略时使用 variant 名称",
+        "body": "string —— 提示正文"
+      }
+    }
+  },
+  "spec": {
+    "height": "auto",
+    "note": "按步骤、段落、要点和提示数量自然增高；连接轨道随内容延伸。无折叠、内部滚动、vh 或载体尺寸测量。"
+  },
+  "boot": {
+    "artifact": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:23px 25px 21px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(21px,3vw,28px);font-weight:750;letter-spacing:-.027em;line-height:1.2}\n.intro{max-width:760px;margin:8px 0 0;color:var(--_muted);font-size:13px;line-height:1.55}\n.steps{display:grid;gap:0;padding:22px 25px 25px}\n.step{position:relative;display:grid;grid-template-columns:48px minmax(0,1fr);gap:17px;padding-bottom:22px}\n.step:last-child{padding-bottom:0}\n.step:not(:last-child)::before{content:'';position:absolute;top:44px;bottom:-2px;left:23px;width:2px;border-radius:2px;background:linear-gradient(var(--_accent),var(--_line))}\n.number{position:relative;z-index:1;display:flex;width:48px;height:48px;align-items:center;justify-content:center;border:1px solid color-mix(in srgb,var(--_accent) 32%,var(--_line));border-radius:15px;background:var(--_accent-soft);color:var(--_accent);font-size:15px;font-weight:850;line-height:1;font-variant-numeric:tabular-nums;box-shadow:0 4px 10px color-mix(in srgb,var(--_accent) 11%,transparent)}\n.card{min-width:0;padding:17px 18px 18px;border:1px solid var(--_line);border-radius:15px;background:var(--_raised);box-shadow:0 4px 13px rgba(15,23,42,.04)}\n.step-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px}\nh3{margin:0;color:var(--_text);font-size:16px;font-weight:760;letter-spacing:-.012em;line-height:1.35}\n.label{flex:0 0 auto;color:var(--_accent);font-size:9px;font-weight:820;letter-spacing:.09em;text-transform:uppercase}\n.body{display:grid;gap:8px;margin-top:9px}\n.body p{margin:0;color:var(--_muted);font-size:13px;line-height:1.57}\nul{display:grid;gap:7px;margin:12px 0 0;padding:0;list-style:none}\nli{position:relative;padding-left:22px;color:var(--_text);font-size:12px;font-weight:580;line-height:1.45}\nli::before{content:'✓';position:absolute;left:0;top:0;display:inline-flex;width:16px;height:16px;align-items:center;justify-content:center;border-radius:999px;background:color-mix(in srgb,var(--_ok) 12%,var(--_bg));color:var(--_ok);font-size:9px;font-weight:900}\n.tip{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;margin-top:14px;padding:11px 12px;border:1px solid color-mix(in srgb,var(--_accent) 25%,var(--_line));border-radius:11px;background:var(--_accent-soft)}\n.tip.warning{border-color:color-mix(in srgb,var(--_partial) 32%,var(--_line));background:color-mix(in srgb,var(--_partial) 9%,var(--_bg))}\n.tip.success{border-color:color-mix(in srgb,var(--_ok) 28%,var(--_line));background:color-mix(in srgb,var(--_ok) 8%,var(--_bg))}\n.tip-icon{display:flex;width:26px;height:26px;align-items:center;justify-content:center;border-radius:8px;background:var(--_raised);color:var(--_accent);font-size:14px;box-shadow:0 1px 4px rgba(15,23,42,.08)}\n.tip.warning .tip-icon{color:var(--_partial)}\n.tip.success .tip-icon{color:var(--_ok)}\n.tip-title{display:block;color:var(--_text);font-size:10px;font-weight:850;letter-spacing:.07em;line-height:1.35;text-transform:uppercase}\n.tip-body{display:block;margin-top:2px;color:var(--_muted);font-size:11px;line-height:1.45}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:540px){.heading{padding:19px 18px 18px}.steps{padding:18px}.step{grid-template-columns:40px minmax(0,1fr);gap:12px}.step:not(:last-child)::before{top:38px;left:19px}.number{width:40px;height:40px;border-radius:12px}.card{padding:15px}.step-head{display:block}.label{display:block;margin-top:4px}.tip{grid-template-columns:25px minmax(0,1fr)}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}.card{box-shadow:0 5px 15px rgba(0,0,0,.14)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst steps=Array.isArray(data.steps)?data.steps:[];\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Step-by-step guide';\nconst intro=typeof data.intro==='string'&&data.intro.trim()?data.intro.trim():steps.length+' ordered step'+(steps.length===1?'':'s')+' from start to finish';\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title);\nconst heading=make('header','heading'); heading.appendChild(make('div','eyebrow','How to')); heading.appendChild(make('h2','',title)); heading.appendChild(make('p','intro',intro)); frame.appendChild(heading);\nif(!steps.length){\n  frame.appendChild(make('div','empty','Add at least one step to build the guide.'));\n}else{\n  const list=make('div','steps');\n  steps.forEach((step,index) => {\n    const row=make('article','step'); row.appendChild(make('div','number',String(index+1).padStart(2,'0')));\n    const card=make('div','card'); const head=make('div','step-head'); head.appendChild(make('h3','',step&&step.title!=null?String(step.title):'Untitled step')); if(step&&step.label) head.appendChild(make('span','label',String(step.label))); card.appendChild(head);\n    const body=make('div','body'); const paragraphs=Array.isArray(step&&step.body)?step.body:[step&&step.body]; paragraphs.filter((value)=>value!==null&&value!==undefined&&String(value).trim()).forEach((value)=>body.appendChild(make('p','',String(value)))); card.appendChild(body);\n    const bullets=step&&Array.isArray(step.bullets)?step.bullets:[]; if(bullets.length){ const ul=make('ul'); bullets.forEach((value)=>ul.appendChild(make('li','',String(value)))); card.appendChild(ul); }\n    if(step&&step.tip&&step.tip.body!=null){\n      const variant=['tip','note','warning','success'].includes(step.tip.variant)?step.tip.variant:'tip'; const icons={tip:'✦',note:'i',warning:'!',success:'✓'}; const tip=make('aside','tip '+variant); tip.appendChild(make('span','tip-icon',icons[variant])); const copy=make('div'); copy.appendChild(make('span','tip-title',step.tip.title?String(step.tip.title):variant)); copy.appendChild(make('span','tip-body',String(step.tip.body))); tip.appendChild(copy); card.appendChild(tip);\n    }\n    row.appendChild(card); list.appendChild(row);\n  });\n  frame.appendChild(list);\n}\nroot.appendChild(frame);\nparent.appendChild(host);",
+    "widget": "const parent = shadowRoot;\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:23px 25px 21px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(21px,3vw,28px);font-weight:750;letter-spacing:-.027em;line-height:1.2}\n.intro{max-width:760px;margin:8px 0 0;color:var(--_muted);font-size:13px;line-height:1.55}\n.steps{display:grid;gap:0;padding:22px 25px 25px}\n.step{position:relative;display:grid;grid-template-columns:48px minmax(0,1fr);gap:17px;padding-bottom:22px}\n.step:last-child{padding-bottom:0}\n.step:not(:last-child)::before{content:'';position:absolute;top:44px;bottom:-2px;left:23px;width:2px;border-radius:2px;background:linear-gradient(var(--_accent),var(--_line))}\n.number{position:relative;z-index:1;display:flex;width:48px;height:48px;align-items:center;justify-content:center;border:1px solid color-mix(in srgb,var(--_accent) 32%,var(--_line));border-radius:15px;background:var(--_accent-soft);color:var(--_accent);font-size:15px;font-weight:850;line-height:1;font-variant-numeric:tabular-nums;box-shadow:0 4px 10px color-mix(in srgb,var(--_accent) 11%,transparent)}\n.card{min-width:0;padding:17px 18px 18px;border:1px solid var(--_line);border-radius:15px;background:var(--_raised);box-shadow:0 4px 13px rgba(15,23,42,.04)}\n.step-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px}\nh3{margin:0;color:var(--_text);font-size:16px;font-weight:760;letter-spacing:-.012em;line-height:1.35}\n.label{flex:0 0 auto;color:var(--_accent);font-size:9px;font-weight:820;letter-spacing:.09em;text-transform:uppercase}\n.body{display:grid;gap:8px;margin-top:9px}\n.body p{margin:0;color:var(--_muted);font-size:13px;line-height:1.57}\nul{display:grid;gap:7px;margin:12px 0 0;padding:0;list-style:none}\nli{position:relative;padding-left:22px;color:var(--_text);font-size:12px;font-weight:580;line-height:1.45}\nli::before{content:'✓';position:absolute;left:0;top:0;display:inline-flex;width:16px;height:16px;align-items:center;justify-content:center;border-radius:999px;background:color-mix(in srgb,var(--_ok) 12%,var(--_bg));color:var(--_ok);font-size:9px;font-weight:900}\n.tip{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;margin-top:14px;padding:11px 12px;border:1px solid color-mix(in srgb,var(--_accent) 25%,var(--_line));border-radius:11px;background:var(--_accent-soft)}\n.tip.warning{border-color:color-mix(in srgb,var(--_partial) 32%,var(--_line));background:color-mix(in srgb,var(--_partial) 9%,var(--_bg))}\n.tip.success{border-color:color-mix(in srgb,var(--_ok) 28%,var(--_line));background:color-mix(in srgb,var(--_ok) 8%,var(--_bg))}\n.tip-icon{display:flex;width:26px;height:26px;align-items:center;justify-content:center;border-radius:8px;background:var(--_raised);color:var(--_accent);font-size:14px;box-shadow:0 1px 4px rgba(15,23,42,.08)}\n.tip.warning .tip-icon{color:var(--_partial)}\n.tip.success .tip-icon{color:var(--_ok)}\n.tip-title{display:block;color:var(--_text);font-size:10px;font-weight:850;letter-spacing:.07em;line-height:1.35;text-transform:uppercase}\n.tip-body{display:block;margin-top:2px;color:var(--_muted);font-size:11px;line-height:1.45}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:540px){.heading{padding:19px 18px 18px}.steps{padding:18px}.step{grid-template-columns:40px minmax(0,1fr);gap:12px}.step:not(:last-child)::before{top:38px;left:19px}.number{width:40px;height:40px;border-radius:12px}.card{padding:15px}.step-head{display:block}.label{display:block;margin-top:4px}.tip{grid-template-columns:25px minmax(0,1fr)}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}.card{box-shadow:0 5px 15px rgba(0,0,0,.14)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst steps=Array.isArray(data.steps)?data.steps:[];\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Step-by-step guide';\nconst intro=typeof data.intro==='string'&&data.intro.trim()?data.intro.trim():steps.length+' ordered step'+(steps.length===1?'':'s')+' from start to finish';\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title);\nconst heading=make('header','heading'); heading.appendChild(make('div','eyebrow','How to')); heading.appendChild(make('h2','',title)); heading.appendChild(make('p','intro',intro)); frame.appendChild(heading);\nif(!steps.length){\n  frame.appendChild(make('div','empty','Add at least one step to build the guide.'));\n}else{\n  const list=make('div','steps');\n  steps.forEach((step,index) => {\n    const row=make('article','step'); row.appendChild(make('div','number',String(index+1).padStart(2,'0')));\n    const card=make('div','card'); const head=make('div','step-head'); head.appendChild(make('h3','',step&&step.title!=null?String(step.title):'Untitled step')); if(step&&step.label) head.appendChild(make('span','label',String(step.label))); card.appendChild(head);\n    const body=make('div','body'); const paragraphs=Array.isArray(step&&step.body)?step.body:[step&&step.body]; paragraphs.filter((value)=>value!==null&&value!==undefined&&String(value).trim()).forEach((value)=>body.appendChild(make('p','',String(value)))); card.appendChild(body);\n    const bullets=step&&Array.isArray(step.bullets)?step.bullets:[]; if(bullets.length){ const ul=make('ul'); bullets.forEach((value)=>ul.appendChild(make('li','',String(value)))); card.appendChild(ul); }\n    if(step&&step.tip&&step.tip.body!=null){\n      const variant=['tip','note','warning','success'].includes(step.tip.variant)?step.tip.variant:'tip'; const icons={tip:'✦',note:'i',warning:'!',success:'✓'}; const tip=make('aside','tip '+variant); tip.appendChild(make('span','tip-icon',icons[variant])); const copy=make('div'); copy.appendChild(make('span','tip-title',step.tip.title?String(step.tip.title):variant)); copy.appendChild(make('span','tip-body',String(step.tip.body))); tip.appendChild(copy); card.appendChild(tip);\n    }\n    row.appendChild(card); list.appendChild(row);\n  });\n  frame.appendChild(list);\n}\nroot.appendChild(frame);\nparent.appendChild(host);",
+    "codex": "const parent = document.getElementById('viz');\nconst host = document.createElement('div'); host.style.cssText='display:block;width:100%';\nconst root = host.attachShadow({mode:'open'});\nconst CSS = `\n:host{display:block;width:100%;--_bg:var(--ov-bg,#fff);--_raised:var(--ov-bg,#fff);--_text:var(--ov-text,#1f2933);--_muted:var(--ov-muted,#6b7280);--_line:var(--ov-line,#e5e7eb);--_accent:var(--ov-accent,#4f46e5);--_ok:var(--ov-ok,#0f9d58);--_no:var(--ov-no,#e11d48);--_partial:var(--ov-partial,#d97706);--_soft:#f8fafc;--_group:#f3f4f6;--_accent-soft:#eef2ff;--_hover:#f8fafc;color:var(--_text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}\n:host([hidden]){display:none}\n*{box-sizing:border-box}\n.frame{overflow:hidden;border:1px solid var(--_line);border-radius:18px;background:var(--_bg);box-shadow:0 12px 32px rgba(15,23,42,.07)}\n.heading{padding:23px 25px 21px;border-bottom:1px solid var(--_line);background:var(--_soft)}\n.eyebrow{margin:0 0 6px;color:var(--_accent);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}\nh2{margin:0;color:var(--_text);font-size:clamp(21px,3vw,28px);font-weight:750;letter-spacing:-.027em;line-height:1.2}\n.intro{max-width:760px;margin:8px 0 0;color:var(--_muted);font-size:13px;line-height:1.55}\n.steps{display:grid;gap:0;padding:22px 25px 25px}\n.step{position:relative;display:grid;grid-template-columns:48px minmax(0,1fr);gap:17px;padding-bottom:22px}\n.step:last-child{padding-bottom:0}\n.step:not(:last-child)::before{content:'';position:absolute;top:44px;bottom:-2px;left:23px;width:2px;border-radius:2px;background:linear-gradient(var(--_accent),var(--_line))}\n.number{position:relative;z-index:1;display:flex;width:48px;height:48px;align-items:center;justify-content:center;border:1px solid color-mix(in srgb,var(--_accent) 32%,var(--_line));border-radius:15px;background:var(--_accent-soft);color:var(--_accent);font-size:15px;font-weight:850;line-height:1;font-variant-numeric:tabular-nums;box-shadow:0 4px 10px color-mix(in srgb,var(--_accent) 11%,transparent)}\n.card{min-width:0;padding:17px 18px 18px;border:1px solid var(--_line);border-radius:15px;background:var(--_raised);box-shadow:0 4px 13px rgba(15,23,42,.04)}\n.step-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px}\nh3{margin:0;color:var(--_text);font-size:16px;font-weight:760;letter-spacing:-.012em;line-height:1.35}\n.label{flex:0 0 auto;color:var(--_accent);font-size:9px;font-weight:820;letter-spacing:.09em;text-transform:uppercase}\n.body{display:grid;gap:8px;margin-top:9px}\n.body p{margin:0;color:var(--_muted);font-size:13px;line-height:1.57}\nul{display:grid;gap:7px;margin:12px 0 0;padding:0;list-style:none}\nli{position:relative;padding-left:22px;color:var(--_text);font-size:12px;font-weight:580;line-height:1.45}\nli::before{content:'✓';position:absolute;left:0;top:0;display:inline-flex;width:16px;height:16px;align-items:center;justify-content:center;border-radius:999px;background:color-mix(in srgb,var(--_ok) 12%,var(--_bg));color:var(--_ok);font-size:9px;font-weight:900}\n.tip{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;margin-top:14px;padding:11px 12px;border:1px solid color-mix(in srgb,var(--_accent) 25%,var(--_line));border-radius:11px;background:var(--_accent-soft)}\n.tip.warning{border-color:color-mix(in srgb,var(--_partial) 32%,var(--_line));background:color-mix(in srgb,var(--_partial) 9%,var(--_bg))}\n.tip.success{border-color:color-mix(in srgb,var(--_ok) 28%,var(--_line));background:color-mix(in srgb,var(--_ok) 8%,var(--_bg))}\n.tip-icon{display:flex;width:26px;height:26px;align-items:center;justify-content:center;border-radius:8px;background:var(--_raised);color:var(--_accent);font-size:14px;box-shadow:0 1px 4px rgba(15,23,42,.08)}\n.tip.warning .tip-icon{color:var(--_partial)}\n.tip.success .tip-icon{color:var(--_ok)}\n.tip-title{display:block;color:var(--_text);font-size:10px;font-weight:850;letter-spacing:.07em;line-height:1.35;text-transform:uppercase}\n.tip-body{display:block;margin-top:2px;color:var(--_muted);font-size:11px;line-height:1.45}\n.empty{padding:42px 24px;color:var(--_muted);font-size:14px;text-align:center}\n@media (max-width:540px){.heading{padding:19px 18px 18px}.steps{padding:18px}.step{grid-template-columns:40px minmax(0,1fr);gap:12px}.step:not(:last-child)::before{top:38px;left:19px}.number{width:40px;height:40px;border-radius:12px}.card{padding:15px}.step-head{display:block}.label{display:block;margin-top:4px}.tip{grid-template-columns:25px minmax(0,1fr)}}\n@media (prefers-color-scheme:dark){:host{--_bg:var(--ov-bg,#0f172a);--_raised:var(--ov-bg,#111827);--_text:var(--ov-text,#e5e7eb);--_muted:var(--ov-muted,#9ca3af);--_line:var(--ov-line,#293548);--_accent:var(--ov-accent,#818cf8);--_ok:var(--ov-ok,#34d399);--_no:var(--ov-no,#fb7185);--_partial:var(--ov-partial,#fbbf24);--_soft:#111827;--_group:#182235;--_accent-soft:#1b2145;--_hover:#172033}.frame{box-shadow:0 14px 34px rgba(0,0,0,.28)}.card{box-shadow:0 5px 15px rgba(0,0,0,.14)}}\n`;\nconst sheet = new CSSStyleSheet(); sheet.replaceSync(CSS); root.adoptedStyleSheets=[sheet];\nconst make = (tag,className,text) => { const node=document.createElement(tag); if(className) node.className=className; if(text!==undefined) node.textContent=text; return node; };\nconst steps=Array.isArray(data.steps)?data.steps:[];\nconst title=typeof data.title==='string'&&data.title.trim()?data.title.trim():'Step-by-step guide';\nconst intro=typeof data.intro==='string'&&data.intro.trim()?data.intro.trim():steps.length+' ordered step'+(steps.length===1?'':'s')+' from start to finish';\nconst frame=make('section','frame'); frame.setAttribute('aria-label',title);\nconst heading=make('header','heading'); heading.appendChild(make('div','eyebrow','How to')); heading.appendChild(make('h2','',title)); heading.appendChild(make('p','intro',intro)); frame.appendChild(heading);\nif(!steps.length){\n  frame.appendChild(make('div','empty','Add at least one step to build the guide.'));\n}else{\n  const list=make('div','steps');\n  steps.forEach((step,index) => {\n    const row=make('article','step'); row.appendChild(make('div','number',String(index+1).padStart(2,'0')));\n    const card=make('div','card'); const head=make('div','step-head'); head.appendChild(make('h3','',step&&step.title!=null?String(step.title):'Untitled step')); if(step&&step.label) head.appendChild(make('span','label',String(step.label))); card.appendChild(head);\n    const body=make('div','body'); const paragraphs=Array.isArray(step&&step.body)?step.body:[step&&step.body]; paragraphs.filter((value)=>value!==null&&value!==undefined&&String(value).trim()).forEach((value)=>body.appendChild(make('p','',String(value)))); card.appendChild(body);\n    const bullets=step&&Array.isArray(step.bullets)?step.bullets:[]; if(bullets.length){ const ul=make('ul'); bullets.forEach((value)=>ul.appendChild(make('li','',String(value)))); card.appendChild(ul); }\n    if(step&&step.tip&&step.tip.body!=null){\n      const variant=['tip','note','warning','success'].includes(step.tip.variant)?step.tip.variant:'tip'; const icons={tip:'✦',note:'i',warning:'!',success:'✓'}; const tip=make('aside','tip '+variant); tip.appendChild(make('span','tip-icon',icons[variant])); const copy=make('div'); copy.appendChild(make('span','tip-title',step.tip.title?String(step.tip.title):variant)); copy.appendChild(make('span','tip-body',String(step.tip.body))); tip.appendChild(copy); card.appendChild(tip);\n    }\n    row.appendChild(card); list.appendChild(row);\n  });\n  frame.appendChild(list);\n}\nroot.appendChild(frame);\nparent.appendChild(host);"
+  },
+  "example": {
+    "_why": "一份完整的手冲咖啡教程包含阶段标签、多段正文、动作要点和 tip／warning／success 三类局部提示，可验证长内容下的连接轨道、层级和移动端可读性。",
+    "minimal": {
+      "title": "Brew a balanced pour-over",
+      "intro": "A repeatable four-step recipe for one bright, clean cup using 20 g of coffee and 320 g of water.",
+      "steps": [
+        {
+          "title": "Heat and prepare",
+          "label": "Prep · 3 min",
+          "body": "Heat water to 94°C, place the filter in the dripper, and rinse it thoroughly over your server.",
+          "bullets": [
+            "Discard the rinse water",
+            "Preheat the brewer and cup",
+            "Set the server on a scale"
+          ],
+          "tip": {
+            "variant": "tip",
+            "title": "Water matters",
+            "body": "Filtered water with moderate mineral content gives clearer sweetness than distilled or very hard water."
+          }
+        },
+        {
+          "title": "Grind and bloom",
+          "label": "0:00–0:45",
+          "body": [
+            "Grind 20 g of coffee medium-fine, similar to table salt, and level the bed.",
+            "Start the timer and pour 60 g of water, making sure every ground is wet."
+          ],
+          "bullets": [
+            "Gently swirl once",
+            "Wait until 45 seconds"
+          ],
+          "tip": {
+            "variant": "warning",
+            "title": "Avoid a dry pocket",
+            "body": "A pale or bubbling patch means the bloom is uneven; target it with a small, controlled pour."
+          }
+        },
+        {
+          "title": "Build the brew",
+          "label": "0:45–2:15",
+          "body": "Pour slowly in two even pulses, keeping the water level steady and the stream away from the paper wall.",
+          "bullets": [
+            "Pour to 190 g by 1:15",
+            "Pause for 15 seconds",
+            "Finish at 320 g by 2:15"
+          ]
+        },
+        {
+          "title": "Draw down and adjust",
+          "label": "Finish · 3:00",
+          "body": "Let the brewer drain completely, swirl the server, and taste once the cup has cooled slightly.",
+          "bullets": [
+            "If sour, grind a little finer",
+            "If bitter or dry, grind a little coarser"
+          ],
+          "tip": {
+            "variant": "success",
+            "title": "Target result",
+            "body": "A balanced cup should taste sweet and clear, with no hollow finish or lingering dryness."
+          }
+        }
+      ]
+    }
+  },
+  "uplink": "纯 display，无 uplink；步骤、要点和提示只读展示，不记录完成状态或向 AI 回传进度。",
+  "carriers": {
+    "artifact": "supported:boot.artifact 已在 sandboxed iframe 中以 example.minimal 原样渲染验证；CSS 与 DOM 全部位于自有 shadow root",
+    "widget": "supported:与 artifact 同一零依赖模板，仅 parent 改为 shadowRoot；可在载体 shadow 内再挂自有 shadow",
+    "codex": "supported:与已验证的 artifact boot 相同，document.getElementById('viz') 为唯一载体挂载点"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "self-authored inline-template, owns its shadow, zero global footprint; rendered-verified",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to teach a process in a clear order, with explanations, key points, and tips for each step. It suits operational tutorials, getting-started guides, check procedures, and actionable steps in an answer. If you only need short milestones, use timeline instead. If steps branch or transition between states, use a flowchart. If users must check off items and report progress, use a task component.",
+      "why_valuable": "Long tutorials easily degrade into walls of numbered text. This template binds actions to explanations with a continuous track, prominent step numbers, layered body text, bullet lists, and semantic tip callouts, while keeping all content scannable without collapse interaction.",
+      "data_in": {
+        "note": "data.steps is displayed strictly in execution order and is not sorted automatically. Each step's body may be a single string or an array of paragraph strings. bullets is the step's supplementary action list; tip is an optional local callout whose variant controls icon and color. label suits a phase name or duration. The template only presents a process: it does not store completion state and has no expansion, checking, or reporting.",
+        "schema": {
+          "title?": "string -- Tutorial title; shows \"Step-by-step guide\" when omitted",
+          "intro?": "string -- Goal, prerequisite, or outcome below the title; shows a step-count summary when omitted",
+          "steps": "{title:string,label?:string,body:string|string[],bullets?:string[],tip?:{variant?:'tip'|'note'|'warning'|'success',title?:string,body:string}}[] -- Steps in execution order",
+          "_stepFields": {
+            "title": "string -- Step action title",
+            "label?": "string -- Phase, estimated duration, or short metadata",
+            "body": "string|string[] -- One or more body paragraphs; each array item renders as a separate paragraph",
+            "bullets?": "string[] -- Key-point list after the body",
+            "tip?": "{variant?:'tip'|'note'|'warning'|'success',title?:string,body:string} -- Optional callout card within the step"
+          },
+          "_tipFields": {
+            "variant?": "'tip'|'note'|'warning'|'success' -- Default tip; uses lightbulb, information, warning, and success semantics respectively",
+            "title?": "string -- Callout title; uses the variant name when omitted",
+            "body": "string -- Callout body"
+          }
+        }
+      },
+      "spec": {
+        "note": "Height grows naturally with the number of steps, paragraphs, points, and callouts; the connecting track extends with content. No collapse, internal scrolling, vh, or carrier-size measurement."
+      }
+    }
+  }
+}

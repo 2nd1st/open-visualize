@@ -1,0 +1,67 @@
+{
+  "entry_version": "thin-1",
+  "id": "crossfilter2",
+  "name": "crossfilter2",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it as the filtering and aggregation engine for an exploratory dashboard where one dataset drives multiple charts and brushing any chart filters all the others. Feed bins from group().all() or filtered rows from dim.top() to an existing catalog renderer such as uPlot, Chart.js, or ECharts. A single-chart, single-view case does not need it. This is a data engine; it does not render.",
+      "why_valuable": "Near-O(1) cross-dimensional filtering and incremental aggregation across millions of rows depend on multidimensional sorted indexes. An AI-maintained linked-filter state will be both slow and incorrect.",
+      "data_in": {
+        "note": "records is an array of object rows. dimensionKey selects a field as the brushing dimension, and range is the closed interval [lo,hi] passed to filterRange. crossfilter builds multidimensional sorted indexes internally. Call dispose() on dimensions that are no longer used.",
+        "schema": {
+          "records": "Array<Record<string, any>> -- data rows, one object per row",
+          "dimensionKey": "string -- field name used as the filter/group dimension; it must be a key present on the records",
+          "range?": "[number, number] -- closed interval passed to filterRange; omit it for no filtering"
+        }
+      }
+    }
+  },
+  "when_to_use": "做\"一份数据、多张图联动、刷哪儿全联动过滤\"的探索仪表盘时,用它当过滤/聚合引擎,把 group().all() 的分箱或 dim.top() 的过滤行接给目录已有的图(uplot/Chart.js/ECharts)渲染;单图单视图不需要。它是数据引擎,不渲染。",
+  "why_valuable": "百万行下近 O(1) 的跨维过滤 + 增量聚合靠多维排序索引,AI 自己维护联动过滤状态必然又慢又错。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "crossfilter2",
+    "version": "1.5.4",
+    "github": "crossfilter/crossfilter"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "tabular",
+    "note": "records 是对象行数组;dimensionKey 选一个字段做刷选维度,range 传给 filterRange 的闭区间 [lo,hi]。crossfilter 在内部建多维排序索引;不再用的 dimension 调 dispose() 释放。",
+    "schema": {
+      "records": "Array<Record<string, any>> —— 数据行,每行一个对象",
+      "dimensionKey": "string —— 用作过滤/分组维度的字段名(须为记录上存在的键)",
+      "range?": "[number, number] —— 传给 filterRange 的闭区间;省略则不过滤"
+    }
+  },
+  "provides": {
+    "shape": "filtered-index",
+    "_note": "headless-primitive:不渲染、无 L 级、无 spec/carriers 矩阵;纯 JS 多维过滤/聚合引擎。",
+    "outputs": "过滤后的记录(dim.top/bottom)、按维度分箱的聚合(group.all()/top())、全量聚合(groupAll),供任意图库渲染。",
+    "api_surface": {
+      "create": "crossfilter(records) → Crossfilter",
+      "dimension": "cf.dimension(d => d[key]) → Dimension",
+      "filter": "dim.filterRange([lo,hi]) / filterExact(v) / filterFunction(fn) / filterAll()",
+      "select": "dim.top(k) / dim.bottom(k) → 过滤后的原始记录",
+      "group": "dim.group([keyFn]).all() / .top(k) / .reduceCount() / .reduceSum(fn) / .order(fn)",
+      "aggregate": "cf.groupAll(); cf.size(); dim.dispose()"
+    }
+  },
+  "peer": {
+    "id": "uplot",
+    "note": "本条只做过滤/聚合,不画图;把 group().all() 的 [{key,value}] 分箱喂柱状/直方,或把 dim.top(Infinity) 的过滤行喂散点/表,由图库渲染,并把图上的刷选回调接回 dim.filterRange 实现多视图联动。"
+  },
+  "boot": {
+    "shared": "// 纯 JS 多维过滤/聚合引擎,无 DOM/shadow/uplink 足迹。三载体一致。把结果接目录已有图库渲染。\nimport crossfilter from 'https://cdn.jsdelivr.net/npm/crossfilter2@1.5.4/+esm';\nconst cf = crossfilter(data.records);\nconst dim = cf.dimension(d => d[data.dimensionKey]);\nif (data.range) dim.filterRange(data.range);\nconst grp = dim.group();          // 按维度分箱计数\nconst bins = grp.all();           // [{key, value}] → 喂柱状/直方\nconst rows = dim.top(Infinity);   // 当前过滤后的行 → 喂散点/表",
+    "note": "records 为空或 dimensionKey 不存在于记录上时结果无意义,消费 AI 须先校验。多个联动视图各建自己的 dimension:某视图刷选后调该 dim.filterRange,其余视图重读各自 group().all() 即联动。不再用的 dimension 调 dispose() 释放索引。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "默认导出 crossfilter 工厂(index.d.ts: export = crossfilter;declare function crossfilter<T>(records?: T[]): Crossfilter<T>;+esm: export{Nr as default})。Dimension 接口(index.d.ts)核实:filter/filterExact/filterRange([lo,hi])/filterFunction/filterAll、top(k)/bottom(k)、group(keyFn?)、groupAll()、dispose();Group:top(k)/all()/reduce/reduceCount()/reduceSum(fn)/order()——与 api_surface/schema 一致(records/dimensionKey/range 恰被 boot 消费)。+esm(15239B)grep 对 document.head / document.body / window / ResizeObserver 全 0 命中——纯内存多维索引,零 DOM/style/event 足迹,故 headless-primitive 天然 shadow 安全(按设计无 carriers 矩阵)。",
+    "confidence": "high"
+  }
+}

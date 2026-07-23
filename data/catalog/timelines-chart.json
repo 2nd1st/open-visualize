@@ -2,6 +2,45 @@
   "entry_version": "thin-1",
   "id": "timelines-chart",
   "name": "timelines-chart",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need grouped/entity swimlanes for discrete or continuous state intervals, a color legend, and brush zooming instead of hand-written SVG, which fails at interval hit-testing, time axes across scales, vertical lane layout, and synchronized zoom. Do not use it for a dependency-aware project Gantt or a list of point events.",
+      "why_valuable": "AI cannot produce state-band swimlanes for service availability, device status, or staffing schedules: interval layout, brush zooming, color scales, and hit-testing across many rows are all weak areas. This component expresses the entire view through a fixed three-level array.",
+      "data_in": {
+        "note": "The exact native shape is Group[]: group.data[] contains swimlanes, and each swimlane's data[] contains time intervals. timeRange accepts Date or epoch-milliseconds; upstream new Date also converts ISO strings passed through JSON. Use either categorical strings or continuous numbers for val consistently across the dataset.",
+        "schema": {
+          "groups": [
+            {
+              "group": "string -- group heading",
+              "data": [
+                {
+                  "label": "string -- swimlane label",
+                  "data": [
+                    {
+                      "timeRange": "[Date | ISO-8601 string | epoch-milliseconds, Date | ISO-8601 string | epoch-milliseconds] -- [start,end]",
+                      "val": "string | number -- use string when qualitative=true, otherwise number",
+                      "labelVal?": "string | number -- value displayed at left/in the tooltip; defaults to val"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "options?": {
+            "_default": "defaults to {}",
+            "qualitative?": "boolean -- categorical color-scale mode; defaults to false (continuous numeric color scale)",
+            "use_utc?": "boolean -- defaults to false (local time zone)",
+            "time_format?": "d3-time-format string -- defaults to '%Y-%m-%d %-I:%M:%S %p'",
+            "max_line_height?": "number(px) -- defaults to 12",
+            "enable_overview?": "boolean -- bottom overview brush; defaults to true"
+          }
+        }
+      },
+      "spec": {
+        "note": "Swimlane row layout and brushing require an explicit pixel height. Default maxHeight is 480px and AI may override it. Set height:480px before container initialization; vh and percentage heights are forbidden by iron rule 3."
+      }
+    }
+  },
   "when_to_use": "需要按组/实体展示离散或连续状态区间、颜色图例并用 brush 缩放的泳道图时用它而非手写 SVG,因为原生在区间命中、跨尺度时间轴、纵向泳道布局与缩放同步上失败;非做项目依赖甘特或单点事件列表。",
   "why_valuable": "AI 默认做不到服务可用性、设备状态或值班表这类状态带泳道:时间段布局、brush 缩放、颜色尺度与大量行的命中检测均为零能力区;本组件用固定三层数组一次表达。",
   "supply_form": "component",
@@ -49,9 +88,9 @@
     "note": "泳道图的行布局与 brush 需要明确像素高度;默认 maxHeight 480px,AI 可覆盖。容器初始化前设 height:480px,禁用 vh/百分比高(铁律 3)。"
   },
   "boot": {
-    "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合前按此推断写;ESM 自行把内置 CSS 写入 document.head\nimport TimelinesChart from 'https://cdn.jsdelivr.net/npm/timelines-chart@2/+esm';\nconst el = document.getElementById('timelines'); el.style.height = `${spec.height ?? 480}px`;\nconst o = data.options ?? {};\nconst chart = new TimelinesChart(el).width(el.clientWidth).maxHeight(spec.height ?? 480).maxLineHeight(o.max_line_height ?? 12);\nchart.zQualitative(o.qualitative ?? false).useUtc(o.use_utc ?? false).timeFormat(o.time_format ?? '%Y-%m-%d %-I:%M:%S %p').enableOverview(o.enable_overview ?? true).data(data.groups);",
+    "artifact": "// JSON 时间字符串先还原成 Date；先让 overview 完成异步 scale 初始化,再设置 data,避免其 domainRange 抢跑\nimport TimelinesChart from 'https://cdn.jsdelivr.net/npm/timelines-chart@2/+esm';\nconst el = document.getElementById('timelines'); el.style.height = `${spec.height ?? 480}px`;\nconst o = data.options ?? {};\nconst groups = (data.groups ?? []).map(group => ({ ...group, data: (group.data ?? []).map(row => ({ ...row, data: (row.data ?? []).map(segment => ({ ...segment, timeRange: segment.timeRange.map(value => value instanceof Date ? value : new Date(value)) })) })) }));\nconst chart = new TimelinesChart(el).width(el.clientWidth || 600).maxHeight(spec.height ?? 480).maxLineHeight(o.max_line_height ?? 12);\nchart.zQualitative(o.qualitative ?? false).useUtc(o.use_utc ?? false).timeFormat(o.time_format ?? '%Y-%m-%d %-I:%M:%S %p').enableOverview(o.enable_overview ?? true);\nawait new Promise(ok => setTimeout(ok, 100)); chart.data(groups);",
     "widget": "unsupported: timelines-chart@2.14.3 的 ESM 在 import 时硬写 document.head,且发布包无独立 CSS 文件可放入 shadowRoot;违反铁律 2,不得伪装成 shadow-safe。",
-    "codex": "// sandbox iframe 可接受 ESM 把内置 CSS 写入该 iframe 的 document.head\nimport TimelinesChart from 'https://cdn.jsdelivr.net/npm/timelines-chart@2/+esm';\nconst el = document.getElementById('timelines'); el.style.height = `${spec.height ?? 480}px`;\nconst o = data.options ?? {};\nconst chart = new TimelinesChart(el).width(el.clientWidth).maxHeight(spec.height ?? 480).maxLineHeight(o.max_line_height ?? 12);\nchart.zQualitative(o.qualitative ?? false).useUtc(o.use_utc ?? false).timeFormat(o.time_format ?? '%Y-%m-%d %-I:%M:%S %p').enableOverview(o.enable_overview ?? true).data(data.groups);"
+    "codex": "// sandbox iframe 可接受 ESM 把内置 CSS 写入该 iframe 的 document.head\nimport TimelinesChart from 'https://cdn.jsdelivr.net/npm/timelines-chart@2/+esm';\nconst el = document.getElementById('timelines'); el.style.height = `${spec.height ?? 480}px`;\nconst o = data.options ?? {};\nconst groups = (data.groups ?? []).map(group => ({ ...group, data: (group.data ?? []).map(row => ({ ...row, data: (row.data ?? []).map(segment => ({ ...segment, timeRange: segment.timeRange.map(value => value instanceof Date ? value : new Date(value)) })) })) }));\nconst chart = new TimelinesChart(el).width(el.clientWidth || 600).maxHeight(spec.height ?? 480).maxLineHeight(o.max_line_height ?? 12);\nchart.zQualitative(o.qualitative ?? false).useUtc(o.use_utc ?? false).timeFormat(o.time_format ?? '%Y-%m-%d %-I:%M:%S %p').enableOverview(o.enable_overview ?? true);\nawait new Promise(ok => setTimeout(ok, 100)); chart.data(groups);"
   },
   "example": {
     "_why": "时间轴的三层 group/label/segment 嵌套与 qualitative/continuous 分支高歧义,minimal example 用真实原生形状消歧。",
@@ -104,7 +143,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "mjs 含 styleInject(css){...var head=document.head...} 把内置 CSS(含 .chart-tooltip 规则)注入 document.head(styleInject×2, document.head×1),且发布包无独立 .css 资产可改道 shadowRoot→shadowCompatible=no、widget unsupported 成立、globalStyleInjection=yes。document.body=0 且 window/document.addEventListener=0:tooltip 为 .chart-tooltip 元素落图表自有容器,brush/zoom 用 d3 事件绑定于自有 SVG,无 body 追加/全局窗口监听→globalDomMutation=no、globalEvents=no。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

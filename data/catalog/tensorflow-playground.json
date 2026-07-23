@@ -1,20 +1,23 @@
 {
- "entry_version": "thin-1",
- "id": "tensorflow-playground",
- "name": "TensorFlow Playground",
- "supply_form": "app-needs-fork",
- "status": "blocked-until-forked",
- "upstream": {
-  "github": "tensorflow/playground"
- },
- "license": "Apache-2.0",
- "scenarios": [
-  "teach-sim"
- ],
- "fork_note": "应用态,需 fork+改造+发 npm 才过白名单;不作可消费条目上架。one_liner: 著名神经网络交互演示(Apache-2.0):拖层数/神经元/学习率,实时看决策边界与权重演化",
- "data_in": {
-  "shapes": [
-   "key-value"
-  ]
- }
+  "entry_version": "thin-1",
+  "id": "tensorflow-playground",
+  "name": "TensorFlow Playground",
+  "supply_form": "app-needs-fork",
+  "status": "blocked-until-forked",
+  "upstream": {
+    "github": "tensorflow/playground"
+  },
+  "license": "Apache-2.0",
+  "scenarios": [
+    "teach-sim"
+  ],
+  "fork_note": "应用态,需 fork+改造+发 npm 才过白名单;不作可消费条目上架。one_liner: 著名神经网络交互演示(Apache-2.0):拖层数/神经元/学习率,实时看决策边界与权重演化",
+  "i18n": {
+    "en": {}
+  },
+  "data_in": {
+    "shapes": [
+      "key-value"
+    ]
+  }
 }

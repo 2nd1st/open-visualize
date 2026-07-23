@@ -5,6 +5,22 @@
   "when_to_use": "需要在浏览器中旋转、缩放并以 cartoon 或球棍方式查看 PDB/SDF/MOL2/XYZ 三维坐标时用它而非手写 WebGL,因为原生在分子解析、键连接、相机与着色上失败;非做 2D 结构编辑或化学性质计算。",
   "why_valuable": "AI 默认只能复述坐标、原子或残基列表,无法传达分子折叠与空间邻近关系;3Dmol.js 把多格式解析、分子样式、相机控制和 WebGL 场景闭环。",
   "supply_form": "component",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need to rotate and zoom PDB/SDF/MOL2/XYZ 3D coordinates in the browser and view them as cartoons or ball-and-stick models instead of hand-writing WebGL, which fails at molecule parsing, bond connectivity, cameras, and shading; not for 2D structure editing or chemical-property calculations.",
+      "why_valuable": "AI can normally only restate coordinates or lists of atoms or residues, not convey molecular folding and spatial proximity; 3Dmol.js closes the loop with multi-format parsing, molecular styles, camera controls, and a WebGL scene.",
+      "data_in": {
+        "note": "source must be the file contents, not a URL; format is passed directly to GLViewer.addModel so the component does not have to guess the format.",
+        "schema": {
+          "source": "string -- complete molecular coordinate/structure file contents",
+          "format": "'pdb' | 'sdf' | 'mol2' | 'xyz' | 'cif' | 'pqr' | 'gro' -- must match source exactly"
+        }
+      },
+      "spec": {
+        "note": "The WebGL canvas requires a container with a pixel height; default height is 420px, and width is determined by the container. Do not use vh or percentage heights. Call viewer.resize() after the container size changes."
+      }
+    }
+  },
   "level": "L1",
   "mode": "direct-import",
   "upstream": {
@@ -41,7 +57,12 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "+esm 实测:`document.body.addEventListener('mouseup',this._handleMouse...)` 与 `window.addEventListener('resize',this.resize.bind(this))`;grep 无 createElement('style')/document.head,WebGL canvas 渲入传入容器(可为 shadow)。故渲染 shadow-OK 但残留全局 body/window 监听,且 bind 使 removeEventListener 困难。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "format": "sdf",
+      "source": "benzene\n  3Dmol\n\n 12 12  0     0  0  0  0  0  0999 V2000\n   -1.2131   -0.6884    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.2028    0.7064    0.0001 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.0103   -1.3948    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0104    1.3948   -0.0001 C   0  0  0  0  0  0  0  0  0  0  0  0\n    1.2028   -0.7063    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    1.2131    0.6884    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.1577   -1.2244    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.1393    1.2564    0.0001 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.0184   -2.4809   -0.0001 H   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0184    2.4808    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0\n    2.1394   -1.2563    0.0001 H   0  0  0  0  0  0  0  0  0  0  0  0\n    2.1577    1.2245    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0\n  1  2  2  0  0  0  0\n  1  3  1  0  0  0  0\n  1  7  1  0  0  0  0\n  2  4  1  0  0  0  0\n  2  8  1  0  0  0  0\n  3  5  2  0  0  0  0\n  3  9  1  0  0  0  0\n  4  6  2  0  0  0  0\n  4 10  1  0  0  0  0\n  5  6  1  0  0  0  0\n  5 11  1  0  0  0  0\n  6 12  1  0  0  0  0\nM  END\n"
+    }
   }
 }

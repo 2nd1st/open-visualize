@@ -24,7 +24,7 @@
     }
   },
   "boot": {
-    "artifact": "// inferred-not-tested:Leva/Stitches 样式注入 artifact document.head\nimport React from 'https://cdn.jsdelivr.net/npm/react@19.2.0/+esm';\nimport { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@19.2.0/client/+esm';\nimport { LevaPanel, useControls, useCreateStore } from 'https://cdn.jsdelivr.net/npm/leva@0/+esm';\nfunction Panel(){ const store = useCreateStore(); const values = useControls(data.controls, { store }); globalThis.levaValues = values; return React.createElement(LevaPanel, { store, fill:true, flat:data.flat ?? false, collapsed:data.collapsed ?? false, titleBar:{ title:data.title ?? 'Controls' } }); }\ncreateRoot(document.getElementById('leva')).render(React.createElement(Panel));",
+    "artifact": "// Leva 的 jsDelivr 图同时含多个 React 与拆开的 use-gesture core；子 iframe 用 import map 合并单例\nconst holder = document.getElementById('leva'); holder.style.cssText = 'height:360px;overflow:hidden;background:#181c20';\nconst frame = document.createElement('iframe'); frame.title = 'Leva controls'; frame.style.cssText = 'width:100%;height:360px;border:0;display:block'; frame.name = JSON.stringify(data); holder.appendChild(frame);\nconst cdn = 'https://cdn.jsdelivr.net/npm/', reactVersion = '18.2.0', imports = {};\nfor (const version of ['17.0.2','18.0.0','19.1.0','19.1.1','19.2.0']) { imports[cdn + `react@${version}/+esm`] = cdn + `react@${reactVersion}/+esm`; imports[cdn + `react@${version}/jsx-runtime/+esm`] = cdn + `react@${reactVersion}/jsx-runtime/+esm`; imports[cdn + `react@${version}/jsx-dev-runtime/+esm`] = cdn + `react@${reactVersion}/jsx-dev-runtime/+esm`; imports[cdn + `react-dom@${version}/+esm`] = cdn + `react-dom@${reactVersion}/+esm`; imports[cdn + `react-dom@${version}/client/+esm`] = cdn + `react-dom@${reactVersion}/client/+esm`; }\nObject.assign(imports, { [cdn + '@use-gesture/react@10.3.1/+esm']: cdn + '@use-gesture/react@10.2.5/dist/use-gesture-react.esm.js', react: cdn + `react@${reactVersion}/+esm`, '@use-gesture/core': cdn + '@use-gesture/core@10.2.5/dist/use-gesture-core.esm.js', '@use-gesture/core/actions': cdn + '@use-gesture/core@10.2.5/actions/dist/use-gesture-core-actions.esm.js', '@use-gesture/core/utils': cdn + '@use-gesture/core@10.2.5/utils/dist/use-gesture-core-utils.esm.js', '@use-gesture/core/types': cdn + '@use-gesture/core@10.2.5/types/dist/use-gesture-core-types.esm.js' });\nconst closeScript = '<' + '/script>';\nconst moduleCode = `import React from '${cdn}react@18.2.0/+esm'; import { createRoot } from '${cdn}react-dom@18.2.0/client/+esm'; import { LevaPanel, useControls, useCreateStore } from '${cdn}leva@0.10.1/+esm'; const data=JSON.parse(window.name); window.name=''; function Panel(){const store=useCreateStore();useControls(data.controls,{store});return React.createElement(LevaPanel,{store,fill:true,flat:data.flat??false,collapsed:data.collapsed??false,titleBar:{title:data.title??'Controls'}})} createRoot(document.getElementById('root')).render(React.createElement(Panel));`;\nframe.srcdoc = '<!doctype html><meta charset=\"utf-8\"><style>html,body,#root{margin:0;min-height:100%;background:#181c20}</style><div id=\"root\">Loading controls…</div>' + '<script>globalThis.process={env:{NODE_ENV:\"production\"}};' + closeScript + '<script type=\"importmap\">' + JSON.stringify({ imports }) + closeScript + '<script type=\"module\">' + moduleCode + closeScript;",
     "widget": "unsupported:Leva 0.10.1 的 Stitches 规则注入 document.head,没有把完整动态样式表稳定定向到 widget shadowRoot 的原生选项;节点即使落 shadow 也会失去样式,不满足铁律 2。",
     "codex": "同 artifact(sandbox iframe):React 19.2.0 与 Leva 的 jsDelivr peer URL 对齐,用 useCreateStore + useControls + LevaPanel 原生 API 挂载。"
   },
@@ -66,7 +66,21 @@
     "globalDomMutation": "yes",
     "globalEvents": "yes",
     "evidence": "leva 0.10.1 打包 Stitches(+esm 命中 'stitches';@stitches/react 运行时向 document.head 注入 <style>,无重定向到 shadowRoot 的 API);package.json deps 含 @radix-ui/react-portal + @radix-ui/react-tooltip → tooltip/portal 挂 document.body;拖拽/tooltip 绑 window/document 事件。节点即便落 shadow 也失去 Stitches 样式(铁律2)且 portal 逃逸 → widget 不成立。Stitches 具体 insertRule 调用未逐行验(故 med)。",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when an existing React component tree needs a declarative schema turned into a live parameter panel instead of building one by hand, which fails at compound controls, store synchronization, and compact layout. Not for long business forms or submit-based forms.",
+      "why_valuable": "AI defaults repeatedly write useState plus input but cannot reliably generate numeric, color, range, and enum controls from the same schema while keeping the React store synchronized; Leva unifies panel generation and value access in useControls.",
+      "data_in": {
+        "note": "controls is passed unchanged to useControls(schema,{store}); a simple scalar can be the value directly, while constrained values use {value,...settings}. Do not insert a unified event contract into the schema.",
+        "schema": {
+          "controls": "Record<string, string|number|boolean|{value:string|number|boolean|number[],min?:number,max?:number,step?:number,options?:string[]|number[]|Record<string,string|number>,label?:string}>; min/max have no explicit bounds by default, step is inferred by Leva, and options/label are omitted by default",
+          "title?": "string -- Default 'Controls'",
+          "collapsed?": "boolean -- Default false",
+          "flat?": "boolean -- Default false"
+        }
+      }
+    }
   }
 }

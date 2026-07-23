@@ -40,6 +40,36 @@
     "height": 420,
     "note": "JSXGraph 在 initBoard 时读取容器 clientWidth/clientHeight,几何/Canvas 类必须先给明确像素高度;默认 420px,AI 可覆盖,禁用 vh/百分比高(铁律 3)。容器宽度跟随载体可用宽度。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need draggable points, sliders, constrained geometry, or parameter-driven function plots instead of hand-written SVG/Canvas, which tends to fail at keeping intersections, loci, and dependent geometry correct after dragging. It is not for a static, non-interactive single-function curve.",
+      "why_valuable": "AI can draw a static function plot or a rough single slider, but it cannot build a constraint-geometry engine in which intersections, circles, loci, and dependent objects continuously recalculate as free points move. JSXGraph supplies this through its mature board.create primitive system.",
+      "data_in": {
+        "note": "data maps directly to the native JSXGraph API: board is passed to JXG.JSXGraph.initBoard, then each element calls board.create(type, parents, attributes) in order. parents may contain numbers, coordinate arrays, or expression strings. At runtime, dependent construction may substitute JSXGraph objects returned by earlier board.create calls; do not invent a string-reference protocol.",
+        "schema": {
+          "board?": {
+            "_default": "defaults to {}",
+            "boundingbox?": "[left, top, right, bottom] -- default [-5,5,5,-5]",
+            "axis?": "boolean | object -- default false",
+            "keepaspectratio?": "boolean -- default false; constrained geometry commonly sets true explicitly",
+            "shownavigation?": "boolean -- default true",
+            "showcopyright?": "boolean -- default true"
+          },
+          "elements": [
+            {
+              "type": "'point' | 'line' | 'circle' | 'polygon' | 'slider' | 'glider' | 'intersection' | 'functiongraph' | 'curve'",
+              "parents": "unknown[] -- native board.create parents; for example point:[x,y], circle:[[x,y],r], slider:[[x1,y1],[x2,y2],[min,value,max]], functiongraph:[expression-string]",
+              "attributes?": "Record<string, string | number | boolean | number[]> -- default {}"
+            }
+          ],
+          "empty_text?": "string -- shown when elements is empty; default '暂无几何对象'"
+        }
+      },
+      "spec": {
+        "note": "JSXGraph reads container clientWidth/clientHeight during initBoard, so geometry/Canvas use needs an explicit pixel height first. The default is 420px; AI may override it, but rule 3 forbids vh or percentage heights. Container width follows the carrier's available width."
+      }
+    }
+  },
   "boot": {
     "artifact": "// inferred-not-tested:artifact 列 H0 探针未闭合前按此推断写\nimport JXG from 'https://cdn.jsdelivr.net/npm/jsxgraph@1/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/jsxgraph@1/distrib/jsxgraph.css' }); document.head.appendChild(css);\nconst el = document.getElementById('jxg'); el.className = 'jxgbox'; el.style.height = `${spec.height ?? 420}px`;\nconst board = JXG.JSXGraph.initBoard(el, data.board ?? {});\nfor (const item of data.elements) board.create(item.type, item.parents, item.attributes ?? {}); if (!data.elements.length) el.textContent = data.empty_text ?? '暂无几何对象';",
     "widget": "// JSXGraph 1.13 initBoard 可接 HTMLElement;CSS 与元素都落 shadowRoot\nimport JXG from 'https://cdn.jsdelivr.net/npm/jsxgraph@1/+esm';\nconst css = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/jsxgraph@1/distrib/jsxgraph.css' });\nconst el = document.createElement('div'); el.className = 'jxgbox'; el.style.height = `${spec.height ?? 420}px`; shadowRoot.append(css, el);\nconst board = JXG.JSXGraph.initBoard(el, data.board ?? {});\nfor (const item of data.elements) board.create(item.type, item.parents, item.attributes ?? {}); if (!data.elements.length) el.textContent = data.empty_text ?? '暂无几何对象';",
@@ -139,7 +169,6 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "+esm grep: no head style injection (zero createElement('style')/insertRule/head.appendChild); relies on external distrib/jsxgraph.css (200) which the boot adopts into the shadow. globalEvents=yes: registers 6× addEvent(this.document,...) drag listeners for pointermove/pointerup/mousemove/mouseup/touchmove/touchend on the shared document; teardown exists via JXG.JSXGraph.freeBoard but the boot wires none. globalDomMutation=no for the boot's path: the one `document.body.insertBefore(...,'jxgbox')` is in the string-id/auto-board container-creation helper, NOT initBoard(HTMLElement) — initBoard calls getDimensions(e) directly and only hits getElementById when `typeof e=='string'`. Shadow works given: element ref passed + jsxgraph.css in shadow + sized container attached before initBoard — the widget boot does all three.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

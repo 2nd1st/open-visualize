@@ -2,6 +2,22 @@
   "entry_version": "thin-1",
   "id": "crosswords-js",
   "name": "crosswords-js",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing a table state machine when you need to turn structured across/down clues into a crossword grid with blocks, numbering, keyboard navigation, and fillable cells, because native implementations fail at crossing validation, numbering, focus movement, and accessible keyboard behavior. It is not a puzzle generator or answer-grading service.",
+      "why_valuable": "AI can list clues by default but cannot reliably compile crossings, detect bounds/conflicts, and generate a keyboard-fillable grid; the upstream definition->model->DOM path fills this gap, though the current npm artifact cannot be mounted directly in a carrier.",
+      "data_in": {
+        "note": "A future fork should consume the upstream Crossword Definition unchanged; x/y are one-based grid coordinates, and answer length is read from the parenthesized structure at the end of clue.",
+        "schema": {
+          "width": "positive integer -- number of grid columns",
+          "height": "positive integer -- number of grid rows",
+          "acrossClues?": "{x:positive integer,y:positive integer,clue:string}[] -- across clues, default []",
+          "downClues?": "{x:positive integer,y:positive integer,clue:string}[] -- down clues, default []",
+          "_clue_rule": "clue should start with a number and end with an answer pattern, such as '1. Tiny feline (3)'; the compiler derives the occupied length from (3) or (4,5)"
+        }
+      }
+    }
+  },
   "when_to_use": "需要把结构化横纵线索变成带黑格、编号、键盘导航和可填单元格的填字网格时用它,而非手写表格状态机——原生在交叉校验、编号、焦点移动与无障碍键盘行为上失败。非谜题生成器或答案判分服务。",
   "why_valuable": "AI 默认只能列出线索,做不到稳定编译交叉格、检测越界/冲突并生成可键盘填写的网格；该上游的 definition→model→DOM 路径可补齐这段能力,但当前 npm 产物不可直接上载体。",
   "supply_form": "app-needs-fork",

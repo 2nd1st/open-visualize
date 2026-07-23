@@ -2,6 +2,43 @@
   "entry_version": "thin-1",
   "id": "chart-js",
   "name": "Chart.js",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need lightweight mixed series, hover hit-testing, tooltips/legends, and responsive container-aware charts instead of hand-written canvas, which fails at interaction hit-testing and reliable redraws. Do not use it for a static single bar, line, or pie chart; native SVG is enough.",
+      "why_valuable": "AI can normally draw only one-off static bar, line, and pie charts. It cannot reliably handle element hit-testing, coordinate scales across mixed series, or responsive canvas redraws. Chart.js fills that layer with a shallow config.",
+      "data_in": {
+        "note": "data_in.config is passed directly to new Chart(canvas, config). The schema below only constrains common Cartesian and pie-chart paths rather than introducing another chart DSL.",
+        "schema": {
+          "config": {
+            "type": "'bar' | 'line' | 'scatter' | 'bubble' | 'pie' | 'doughnut' | 'radar' | 'polarArea'",
+            "data": {
+              "labels?": "string[] -- defaults to []; may be omitted for scatter/bubble",
+              "datasets": [
+                {
+                  "label?": "string -- defaults to an empty string",
+                  "data": "number[] | {x:number|string,y:number}[] | {x:number,y:number,r:number}[]",
+                  "type?": "same chart-type string as config.type -- inherits config.type by default",
+                  "backgroundColor?": "string | string[] -- assigned by the registered Colors plugin by default",
+                  "borderColor?": "string | string[] -- assigned by the registered Colors plugin by default"
+                }
+              ]
+            },
+            "options?": {
+              "_default": "{}; boot also injects responsive:true and maintainAspectRatio:false",
+              "responsive?": "boolean -- boot defaults to true",
+              "maintainAspectRatio?": "boolean -- boot defaults to false",
+              "indexAxis?": "'x' | 'y' -- defaults to 'x'",
+              "plugins?": "native Chart.js plugins configuration object -- uses upstream defaults",
+              "scales?": "native Chart.js scales configuration object -- inferred from chart type by default"
+            }
+          }
+        }
+      },
+      "spec": {
+        "note": "The canvas parent must have an explicit pixel height. boot defaults to 400px and disables maintainAspectRatio; iron rule 3 forbids vh and percentage heights."
+      }
+    }
+  },
   "when_to_use": "需要轻量的混合系列、hover 命中、tooltip/legend 与容器自适应图表时用它而非手写 canvas,因为原生手写在交互命中和可靠重绘上失败;静态单一柱线饼非做它,原生 SVG 足够。",
   "why_valuable": "AI 默认只能画一次性的静态柱线饼,做不到稳定的元素命中、混合系列尺度协调和响应式 canvas 重绘;Chart.js 用浅 config 补齐这层。",
   "supply_form": "component",
@@ -57,11 +94,19 @@
       "config": {
         "type": "line",
         "data": {
-          "labels": ["Mon", "Tue", "Wed"],
+          "labels": [
+            "Mon",
+            "Tue",
+            "Wed"
+          ],
           "datasets": [
             {
               "label": "Requests",
-              "data": [12, 19, 15]
+              "data": [
+                12,
+                19,
+                15
+              ]
             }
           ]
         }
@@ -88,7 +133,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "+esm exports include `cn as Chart` and `zc as registerables` (named) — boot import {Chart, registerables} correct; new Chart(canvas,{...config,options}) with type/data/options is the canonical v4 API. grep of chart.js@4.5.1 +esm for document.head/document.body/createElement('style')/adoptedStyleSheets returned ZERO hits — canvas-only, tooltip/legend drawn on canvas, responsive via ResizeObserver on container; all shadow-safe.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

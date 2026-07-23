@@ -2,12 +2,41 @@
   "entry_version": "thin-1",
   "id": "cropperjs",
   "name": "Cropper.js",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written pointer interactions when users need to drag eight-direction handles over an image and obtain precise crop geometry -- native implementations fail on scaled coordinate conversion, boundary constraints, and synchronized multi-direction handles.",
+      "why_valuable": "AI defaults can only draw a static box or write a fragile one-handle demo, not reliable eight-direction resizing, panning, touch input, and image-coordinate round-tripping; Cropper.js directly produces x/y/width/height and can generate a cropped canvas.",
+      "data_in": {
+        "note": "Cropper.js 2.x no longer has v1's getData(); the precise read path is cropper.getCropperSelection(), then x/y/width/height. Coordinates belong to the cropper-canvas coordinate system.",
+        "schema": {
+          "image": {
+            "src": "string -- loadable image URL or data URL",
+            "alt?": "string -- default empty string"
+          },
+          "selection?": {
+            "x": "number",
+            "y": "number",
+            "width": "number > 0",
+            "height": "number > 0",
+            "_default": "when omitted, uses upstream defaults: centered with initialCoverage=0.5"
+          }
+        }
+      },
+      "spec": {
+        "note": "The crop area needs an explicit pixel height; default 400px, which AI may override. Do not use vh or percentage heights (iron rule 3); width may follow the container."
+      }
+    }
+  },
   "when_to_use": "需要让用户在图片上拖拽八向手柄并得到精确裁剪几何时用它,而非手写指针交互——原生在缩放坐标换算、边界约束和多方向手柄同步上失败。",
   "why_valuable": "AI 默认只能画静态框或写脆弱的单手柄 demo,做不到稳定的八向缩放、平移、触控与图像坐标闭环;Cropper.js 直接产出 x/y/width/height 并可生成裁剪 canvas。",
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
-  "upstream": { "npm": "cropperjs", "version": "2.1.1", "github": "fengyuanchen/cropperjs" },
+  "upstream": {
+    "npm": "cropperjs",
+    "version": "2.1.1",
+    "github": "fengyuanchen/cropperjs"
+  },
   "license": "MIT",
   "data_in": {
     "shape": "geometry",
@@ -51,7 +80,14 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "cropper.d.ts: constructor(element,options?:CropperOptions); CropperOptions{container?:Element|string} (L1583) so boot's {container:el} is valid; getCropperSelection():CropperSelection|null; CropperSelection has x/y/width/height (L1600-03) + $change(x,y,width?,height?) (L1677) — boot usage exact. Bundled cropper.esm.js: attachShadow (L462) + per-element shadowRoot.adoptedStyleSheets (L348/L526) so styles stay inside each custom element's own shadow root, no document.head write; customElements.define (L569) is global but custom elements function in shadow DOM; no document.body.appendChild in bundle (mounts into the container). Keyboard nav attaches a document KeyDown listener ($onDocumentKeyDown; keydown/KeyDown L1859-65) but bound via connected/disconnectedCallback, so removing the shadow container cleans it up — not a leak. Web-components mount inside our shadow container = shadow-safe.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "image": {
+        "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iMzYwIiB2aWV3Qm94PSIwIDAgNDgwIDM2MCI+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9InNreSIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzRhOTBkOSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2JmZTBmNSIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JkIiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjOGJjMzRhIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNGU3ZDJjIi8+PC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjM2MCIgZmlsbD0idXJsKCNza3kpIi8+CjxjaXJjbGUgY3g9IjM4NSIgY3k9Ijc4IiByPSI0NCIgZmlsbD0iI2ZmZTA4MiIvPgo8cGF0aCBkPSJNMCAyNTAgTDEzMCAxNTAgTDI1MCAyNTAgWiIgZmlsbD0iIzlhYTdiMCIvPgo8cGF0aCBkPSJNMTcwIDI1MCBMMzMwIDEzMCBMNDcwIDI1MCBaIiBmaWxsPSIjNmQ3ZjhiIi8+CjxyZWN0IHk9IjI0OCIgd2lkdGg9IjQ4MCIgaGVpZ2h0PSIxMTIiIGZpbGw9InVybCgjZ3JkKSIvPgo8Y2lyY2xlIGN4PSI5MCIgY3k9IjMwMCIgcj0iMTAiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuODUiLz4KPHRleHQgeD0iMjAiIHk9IjM0NSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjIiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9IjAuOSI+Y3JvcCBtZTwvdGV4dD4KPC9zdmc+",
+        "alt": "mountain landscape at sunrise"
+      }
+    }
   }
 }

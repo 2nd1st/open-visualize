@@ -6,7 +6,11 @@
   "why_valuable": "AI 默认能写短表单 HTML,但做不到可复用的条件逻辑、跨题校验、分页状态与答案模型一致性;SurveyJS Core 把这些收敛为确定性 Model 和 key-value 结果。",
   "supply_form": "headless-primitive",
   "mode": "direct-import",
-  "upstream": { "npm": "survey-core", "version": "2.5.35", "github": "surveyjs/survey-library" },
+  "upstream": {
+    "npm": "survey-core",
+    "version": "2.5.35",
+    "github": "surveyjs/survey-library"
+  },
   "license": "MIT",
   "data_in": {
     "shape": "key-value",
@@ -48,6 +52,36 @@
     "npm": "survey-js-ui",
     "note": "需要 vanilla HTML/CSS UI 时由 survey-js-ui 消费本模型;也可配 survey-react-ui、survey-vue3-ui 或 survey-angular-ui。本条故意不冒充 renderer。"
   },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to turn question JSON into conditional visibility, validation state, and a compact answer object instead of hand-writing a form state machine, which tends to fail at cross-page conditions, validation dependencies, and result consistency. This entry models data only; it does not render UI or a long-form page.",
+      "why_valuable": "AI can write a short HTML form but cannot reliably keep reusable conditional logic, cross-question validation, pagination state, and the answer model consistent. SurveyJS Core converges them into a deterministic Model and key-value result.",
+      "data_in": {
+        "note": "Input is SurveyJS survey JSON plus an optional answer object. This entry does not accept JSON Schema, and the question field is named name rather than key.",
+        "schema": {
+          "survey": {
+            "title?": "string -- empty title by default",
+            "pages": [
+              {
+                "name": "string -- unique page name",
+                "elements": [
+                  {
+                    "type": "'text'|'comment'|'radiogroup'|'checkbox'|'dropdown'|'boolean'|'rating'|'matrix'|'expression'",
+                    "name": "string -- key in the answer object",
+                    "title?": "string -- defaults to name",
+                    "isRequired?": "boolean -- default false",
+                    "choices?": "(string | {value:string|number,text:string})[] -- default []; used only by choice question types",
+                    "visibleIf?": "string -- always visible by default; SurveyJS expression, for example \"{age} >= 18\""
+                  }
+                ]
+              }
+            ]
+          },
+          "answers?": "Record<string, unknown> -- default {}"
+        }
+      }
+    }
+  },
   "boot": {
     "shared": "// 三载体一致:纯模型层,无 shadow/CSS/uplink 依赖\nimport { Model } from 'https://cdn.jsdelivr.net/npm/survey-core@2/+esm';\nconst survey = new Model(data.survey);\nsurvey.data = data.answers ?? {};\nconst valid = survey.validate();\nconst result = { answers: survey.data, valid };",
     "note": "validate() 对同步规则返回 boolean;若题目使用异步校验函数,须按上游回调参数处理,这里不假装同步闭环。"
@@ -60,14 +94,28 @@
           {
             "name": "main",
             "elements": [
-              { "type": "radiogroup", "name": "plan", "title": "选择方案", "isRequired": true, "choices": ["A", "B"] }
+              {
+                "type": "radiogroup",
+                "name": "plan",
+                "title": "选择方案",
+                "isRequired": true,
+                "choices": [
+                  "A",
+                  "B"
+                ]
+              }
             ]
           }
         ]
       },
       "answers": {}
     },
-    "empty": { "survey": { "pages": [] }, "answers": {} }
+    "empty": {
+      "survey": {
+        "pages": []
+      },
+      "answers": {}
+    }
   },
   "isolation": {
     "globalStyleInjection": "no",
@@ -75,7 +123,6 @@
     "globalEvents": "no",
     "shadowCompatible": "yes",
     "evidence": "boot 只构造 Model/设 data/validate/读 data 不渲染;bundle 里 body/resize 属未触及的 UI/ResponsivityManager;SurveyJS Model SSR/Node-safe",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

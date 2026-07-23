@@ -1,0 +1,104 @@
+{
+  "entry_version": "thin-1",
+  "id": "nightingale-msa",
+  "name": "@nightingale-elements/nightingale-msa",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it for comparative genomics or protein-family views: a multiple sequence alignment (MSA) panel, conservation, and sequence-logo views. Provide aligned sequences of equal length with '-' for gaps as el.data=[{name,sequence}]. Use it instead of a static colored table when the alignment grows or needs conservation/logo views. Note: color-scheme='conservation' or overlay-conservation starts an inline Blob web worker; strict CSP must allow worker-src blob:, otherwise avoid that color scheme.",
+      "why_valuable": "A multiple sequence alignment (MSA) viewer for thousands of aligned residues, with conservation/consensus coloring, a sequence logo, overview thumbnail, synchronized coordinate labels, and canvas virtualization for large alignments. Native AI can fake a small colored letter grid but fails at real alignment scale, color schemes, gap handling, and logo rendering.",
+      "data_in": {
+        "note": "This is a custom element; the consumer calls customElements.define('nightingale-msa', NightingaleMSA) with a duplicate-definition guard. Assign data to el.data as SequencesMSA = Array<{name, sequence}>. Sequences should be aligned to equal lengths, with '-' for gaps. Pass color-scheme, label-width, tile-height, and similar options as kebab-case attributes.",
+        "schema": {
+          "sequences": [
+            {
+              "name": "string -- sequence label",
+              "sequence": "string -- aligned residues of equal length, using '-' for gaps"
+            }
+          ],
+          "width?": "number -- pixel-width attribute; defaults to about 600",
+          "height?": "number -- pixel-height attribute; defaults to about 200",
+          "color-scheme?": "string -- defaults to 'clustal2'; examples include clustal, zappo, taylor, hydro, nucleotide, conservation...",
+          "labelWidth?": "number -- label-width attribute; 0 hides labels",
+          "tileHeight?": "number -- tile-height attribute, height per base; defaults to 20"
+        }
+      },
+      "spec": {
+        "note": "Provide width/height as px attributes. Do not use vh."
+      }
+    }
+  },
+  "when_to_use": "比较基因组学/蛋白家族图:多序列比对(MSA)面板、保守性与 sequence-logo 视图。喂已比对的序列(等长、gap 用 '-'),赋给 el.data=[{name,sequence}]。比对变大或需保守性/logo 时替代静态彩色表。注意:color-scheme='conservation' 或 overlay-conservation 会起一个内联 Blob web worker——严格 CSP 需放行 worker-src blob:,否则避开该配色。",
+  "why_valuable": "多序列比对(MSA)查看器:数千条已比对残基,带保守性/consensus 着色、sequence logo、overview 缩略图与同步坐标标签,对大比对做虚拟化(canvas)。原生 AI 能伪造小的彩色字母网格,但在真实比对规模、着色方案、gap 处理与 logo 渲染上会崩。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "@nightingale-elements/nightingale-msa",
+    "version": "5.6.0",
+    "github": "ebi-webcomponents/nightingale"
+  },
+  "license": "MIT",
+  "data_in": {
+    "shape": "alignment",
+    "note": "custom element,消费方 customElements.define('nightingale-msa', NightingaleMSA)(guard 防重)。数据赋给 el.data,类型 SequencesMSA = Array<{name, sequence}>,序列应等长(已比对,gap 用 '-')。color-scheme、label-width、tile-height 等以属性给(kebab-case)。",
+    "schema": {
+      "sequences": [
+        {
+          "name": "string —— 序列标签",
+          "sequence": "string —— 已比对残基(等长,gap 用 '-')"
+        }
+      ],
+      "width?": "number —— 属性,像素宽,默认约 600",
+      "height?": "number —— 属性,像素高,默认约 200",
+      "color-scheme?": "string —— 默认 'clustal2';如 clustal、zappo、taylor、hydro、nucleotide、conservation…",
+      "labelWidth?": "number —— 属性 label-width,0=不显示标签",
+      "tileHeight?": "number —— 属性 tile-height,单碱基高,默认 20"
+    }
+  },
+  "spec": {
+    "height": 200,
+    "note": "width/height 以属性给(px)。禁 vh。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested:default export = NightingaleMSA 类;消费方注册 custom element\nimport NightingaleMSA from 'https://cdn.jsdelivr.net/npm/@nightingale-elements/nightingale-msa@5.6.0/+esm';\nif (!customElements.get('nightingale-msa')) customElements.define('nightingale-msa', NightingaleMSA);\nconst msa = document.createElement('nightingale-msa');\nmsa.setAttribute('width', String(data.width ?? 600));\nmsa.setAttribute('height', String(data.height ?? 200));\nmsa.setAttribute('label-width', String(data.labelWidth ?? 100));\nif (data['color-scheme']) msa.setAttribute('color-scheme', data['color-scheme']);\ndocument.getElementById('msa').appendChild(msa);\ncustomElements.whenDefined('nightingale-msa').then(() => { msa.data = data.sequences; });",
+    "widget": "// 自包含 Lit 组件,自建 shadow + adoptedStyleSheets,落宿主 shadowRoot。避开 color-scheme='conservation'(内联 Blob worker,需 CSP worker-src blob:)\nimport NightingaleMSA from 'https://cdn.jsdelivr.net/npm/@nightingale-elements/nightingale-msa@5.6.0/+esm';\nif (!customElements.get('nightingale-msa')) customElements.define('nightingale-msa', NightingaleMSA);\nconst msa = document.createElement('nightingale-msa');\nmsa.setAttribute('width', String(data.width ?? 600));\nmsa.setAttribute('height', String(data.height ?? 200));\nmsa.setAttribute('label-width', String(data.labelWidth ?? 100));\nif (data['color-scheme']) msa.setAttribute('color-scheme', data['color-scheme']);\nshadowRoot.appendChild(msa);\ncustomElements.whenDefined('nightingale-msa').then(() => { msa.data = data.sequences; });",
+    "codex": "import NightingaleMSA from 'https://cdn.jsdelivr.net/npm/@nightingale-elements/nightingale-msa@5.6.0/+esm';\nif (!customElements.get('nightingale-msa')) customElements.define('nightingale-msa', NightingaleMSA);\nconst msa = document.createElement('nightingale-msa');\nmsa.setAttribute('width', String(data.width ?? 600));\nmsa.setAttribute('height', String(data.height ?? 200));\nmsa.setAttribute('label-width', String(data.labelWidth ?? 100));\nif (data['color-scheme']) msa.setAttribute('color-scheme', data['color-scheme']);\ndocument.getElementById('msa').appendChild(msa);\ncustomElements.whenDefined('nightingale-msa').then(() => { msa.data = data.sequences; });"
+  },
+  "example": {
+    "_why": "data 是 [{name,sequence}] 且序列须等长,minimal 钉死字段名与等长约束。",
+    "minimal": {
+      "width": 600,
+      "height": 160,
+      "labelWidth": 100,
+      "color-scheme": "clustal",
+      "sequences": [
+        {
+          "name": "seq1",
+          "sequence": "MEEPQSDPSV"
+        },
+        {
+          "name": "seq2",
+          "sequence": "ME-PQSDLSV"
+        },
+        {
+          "name": "seq3",
+          "sequence": "MEEP-SDPSA"
+        }
+      ]
+    }
+  },
+  "uplink": "display/local-interact 默认不上行;残基 hover/选择与 highlight 由消费 AI 接组件原生事件处理。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:自包含 Lit web component,自身 shadow 样式,零 head/body 足迹;color-scheme='conservation' 需 CSP 放行 worker-src blob:",
+    "codex": "supported:ESM CDN + custom element;guard customElements.define"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm default export = NightingaleMSA (va). dist/nightingale-msa.d.ts: `set data(sequences: SequencesMSA)`; SequencesMSA = Array<{name:string, sequence:string}> (dist/types/types.d.ts) — schema pins el.data=[{name,sequence}]. README attributes: width/height, color-scheme(default 'clustal2'; clustal/zappo/taylor/hydro/nucleotide/conservation/...), label-width(default 0), tile-height(default 20); mixins withPosition/withDimensions add length/display-start/display-end. Package does NOT self-register 'nightingale-msa' with a literal (grep found no customElements.define(\"nightingale-msa\")); consumer registers (guarded). Self-contained Lit element: grep +esm attachShadow x1, adoptedStyleSheets x2 into own shadow; zero document.head, zero document.body. globalStyleInjection=no, globalDomMutation=no, globalEvents=no. CSP caveat: color-scheme 'conservation'/overlay-conservation spins an inline worker (grep new Worker x1 + Blob( x1) → needs worker-src blob:. Two internal customElements.define (variable tag) register helper elements. License MIT — inherited from the monorepo LICENSE (github.com/ebi-webcomponents/nightingale, EMBL-EBI 2023); the published package.json omits the license field. shadowCompatible=yes (conditional only on the Blob worker for the conservation scheme). Deps @nightingale-elements/nightingale-new-core, d3.",
+    "confidence": "high"
+  }
+}

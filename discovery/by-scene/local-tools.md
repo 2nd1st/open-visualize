@@ -1,27 +1,43 @@
-# 本地工具与推演(scene: local-tools,23 条)
+# 本地工具与推演(scene: local-tools,39 条)
 
 每条:`id` — 何时用 · 数据形态 · supply_form · license。选中读 `data/catalog/<id>.json`。
 
+- `ahp` — 做『多准则决策』且想用层次分析法(AHP:两两比较 + 特征向量权重 + 一致性检验)而非简单加权求和时用它 · matrix · headless-primitive · MIT
+- `black-scholes` — 要画期权价随标的价·波动率·到期时间变化的曲线或盈亏图时用它 · scalar · headless-primitive · MIT
 - `cashify` — 需要基于调用方提供的汇率快照做多币种换算时用它 · scalar · headless-primitive · MIT
-- `cfiresim` — 应用态 · expression · app-needs-fork · Apache-2.0 ⚠blocked(需fork)
+- `cfiresim` — 应用态 · ? · app-needs-fork · Apache-2.0 ⚠blocked(需fork)
+- `checklist-coverage` — 需要只读展示交付物、审计项、上线条件或本地工具准备度的覆盖状态时用它 · tabular · component L1 · MIT
 - `convert` — 需要类型安全、可摇树且覆盖物理量与数据单位的现代单位换算核时用它 · scalar · headless-primitive · MIT
 - `convert-units` — 需要在长度、面积、质量、体积、温度、时间等单位间可靠换算时用它 · scalar · headless-primitive · MIT
 - `currency-js` — 需要小体积的单币种金额运算、分摊与格式化时用它 · scalar · headless-primitive · MIT
-- `date-fns-tz` — 需要用纯函数把 instant 格式化到指定 IANA 时区、或在 wall-clock 与 UTC… · scalar · headless-primitive · MIT
+- `d3-delaunay` — 给一组 2D 点要 Voronoi 单元/Delaunay 三角网/凸包/最近邻查询时用它 · points · headless-primitive · ISC
+- `date-fns-tz` — 需要用纯函数把 instant 格式化到指定 IANA 时区、或在 wall-clock 与 UTC 间换算时用它 · scalar · headless-primitive · MIT
 - `decimal-js` — 需要复利、分期或高精度小数链式运算时用它 · scalar · headless-primitive · MIT
+- `decision-matrix` — 需要把少量候选方案按多项重要性不同的标准做可解释选型时用它 · matrix · component L1 · MIT
 - `dinero-js` — 需要带 ISO 币种与 scale 的不可变金额对象或严格比例分配时用它 · scalar · headless-primitive · MIT
-- `epidemic-calculator-epcalc` — 应用态 · expression · app-needs-fork · unverified ⚠blocked(需fork)
+- `epidemic-calculator-epcalc` — 应用态 · ? · app-needs-fork · None ⚠blocked(需fork)
+- `fft-js` — 有一段波形/时间序列采样,想画『频谱』(哪些频率成分强)、做瀑布图/声谱、或频域滤波前后对比时用它 · array · headless-primitive · MIT
 - `financejs` — 需要复算 PV/FV/NPV/IRR、分期付款、CAGR 或复利等经典金融公式时用它 · scalar · headless-primitive · MIT
 - `financial` — 需要零依赖且对齐 numpy-financial 语义的贷款、净现值或收益率计算核时用它 · scalar · headless-primitive · MIT
 - `formulajs-formulajs` — 需要在 JavaScript 里复算 Excel 风格的财务与统计函数时用它 · scalar · headless-primitive · MIT
+- `hyperformula` — 需要一个真正的电子表格计算引擎——改一个单元格、依赖它的公式格按依赖图自动重算(what-if 预算… · tabular · headless-primitive · GPL-3.0-only
 - `js-quantities` — 需要解析复合单位、做量纲一致性检查或换算 km/h、N·m、kWh 等带量纲数量时用它 · scalar · headless-primitive · MIT
 - `leva` — 已有 React 组件树且需要把声明式 schema 变成实时调参面板时用它 · key-value · component L1 · MIT
 - `lil-gui` — 需要用紧凑面板实时调数值、布尔、颜色和枚举参数时用它 · key-value · component L1 · MIT
 - `loanjs` — 需要生成等额本息、期初等额本息或等额本金的完整贷款分期表时用它 · scalar · headless-primitive · MIT
-- `loopy` — 应用态 · graph · app-needs-fork · CC0-1.0 ⚠blocked(需fork)
-- `luxon` — 需要把带来源时区的本地时间可靠换到另一 IANA 时区、跨越 DST 边界或计算 duration … · scalar · headless-primitive · MIT
+- `loopy` — 应用态 · ? · app-needs-fork · CC0-1.0 ⚠blocked(需fork)
+- `luxon` — 需要把带来源时区的本地时间可靠换到另一 IANA 时区、跨越 DST 边界或计算 duration 时用它 · scalar · headless-primitive · MIT
+- `mathsteps` — 需要展示『一步步解方程/化简表达式/因式分解』的教学过程时用它 · notation-string · headless-primitive · Apache-2.0
+- `ml-hclust` — 想画 dendrogram、展示样本自底向上如何逐级合并(基因/文档/相似度聚类)时用它 · tabular · headless-primitive · MIT
+- `ml-matrix` — 需要 SVD/特征分解(EVD)/QR/LU/Cholesky、矩阵求逆、伪逆或线性方程组求解(so… · matrix · headless-primitive · MIT
+- `ml-pca` — 有高维数据(>3 维)想降到 2D/3D 画散点看聚集/离群,或看各主成分解释方差时用它 · matrix · headless-primitive · MIT
 - `papaparse` — 需要把用户粘贴的带引号、换行、自动分隔符与坏行的 CSV 稳定变成记录表时用它 · tabular · headless-primitive · MIT
+- `progress-dashboard` — 需要在一个快照里展示多个项目、目标或本地工具任务的完成度与健康状态时用它 · key-value · component L1 · MIT
+- `regression` — 有一组散点想拟合并画趋势线、标 R² 时用它 · tabular · headless-primitive · MIT
 - `simple-statistics` — 需要百分位、样本方差、相关性或一元回归的可复算统计核时用它 · tabular · headless-primitive · ISC
+- `skmeans` — 有一维或多维点集想自动分成固定 k 个扁平簇、按簇染色画散点时用它 · tabular · headless-primitive · MIT
 - `spacetime` — 需要跨 IANA 时区换算、DST 边界日期算术或口语化日期格式时用它 · scalar · headless-primitive · Apache-2.0
+- `suncalc` — 要算"某地某天"的日出/日落/黎明黄昏/黄金时刻、太阳方位角高度角、月出月落/月相月照率并可视化(日… · temporal · headless-primitive · BSD-2-Clause
 - `tvm-financejs` — 需要按 Excel 参数语义复算 PV/FV/PMT/NPER/RATE 等货币时间价值函数时用它 · scalar · headless-primitive · MIT
-- `weighteddecisionmatrix` — 应用态 · tabular · app-needs-fork · MIT ⚠blocked(需fork)
+- `weighteddecisionmatrix` — 应用态 · ? · app-needs-fork · MIT ⚠blocked(需fork)
+- `xirr` — 现金流发生在不等间隔的真实日期上(定投、房贷提前还款、PE 出资),要算真年化内部收益率时用它 · tabular · headless-primitive · MIT

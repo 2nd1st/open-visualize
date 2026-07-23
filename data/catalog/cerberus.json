@@ -1,20 +1,23 @@
 {
- "entry_version": "thin-1",
- "id": "cerberus",
- "name": "Cerberus",
- "supply_form": "app-needs-fork",
- "status": "blocked-until-forked",
- "upstream": {
-  "github": "emailmonday/Cerberus"
- },
- "license": "MIT",
- "scenarios": [
-  "deliverables"
- ],
- "fork_note": "应用态,需 fork+改造+发 npm 才过白名单;不作可消费条目上架。one_liner: 久经沙场的响应式邮件 HTML 模板套件(fluid/responsive/hybrid 三套模式)",
- "data_in": {
-  "shapes": [
-   "key-value"
-  ]
- }
+  "entry_version": "thin-1",
+  "id": "cerberus",
+  "name": "Cerberus",
+  "supply_form": "app-needs-fork",
+  "status": "blocked-until-forked",
+  "upstream": {
+    "github": "emailmonday/Cerberus"
+  },
+  "license": "MIT",
+  "scenarios": [
+    "deliverables"
+  ],
+  "fork_note": "应用态,需 fork+改造+发 npm 才过白名单;不作可消费条目上架。one_liner: 久经沙场的响应式邮件 HTML 模板套件(fluid/responsive/hybrid 三套模式)",
+  "data_in": {
+    "shapes": [
+      "key-value"
+    ]
+  },
+  "i18n": {
+    "en": {}
+  }
 }

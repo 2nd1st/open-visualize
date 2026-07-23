@@ -2,6 +2,37 @@
   "entry_version": "thin-1",
   "id": "spin-wheel",
   "name": "spin-wheel",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need a decision wheel that can be dragged and flung, decelerates naturally, and stops precisely on a specified item instead of hand-written CSS rotate, which often fails at momentum, hit indexes, weighted sectors, and responsive redraws. Do not use it as a random backend or secure prize-draw decision for anything with cash value.",
+      "why_valuable": "AI can draw a wheel that spins but cannot deliver stable touch flinging, rotation resistance, weighted-sector hit-testing, and easing to a specified index. spin-wheel wraps the complete interaction in native dependency-free canvas.",
+      "data_in": {
+        "note": "data_in is a trimmed set of Wheel constructor props, with one item row per sector. If prizes have real value, a trusted backend must determine the winning index; the frontend should only call spinToItem to display the result.",
+        "schema": {
+          "items": [
+            {
+              "label": "string",
+              "value?": "any JSON value -- defaults to null",
+              "weight?": "number > 0 -- defaults to 1",
+              "backgroundColor?": "CSS color string -- defaults to null, falling back to itemBackgroundColors",
+              "labelColor?": "CSS color string -- defaults to null, falling back to itemLabelColors"
+            }
+          ],
+          "isInteractive?": "boolean -- defaults to true",
+          "itemBackgroundColors?": "CSS color string[] -- defaults to ['#fff']",
+          "itemLabelColors?": "CSS color string[] -- defaults to ['#000']",
+          "itemLabelFont?": "string -- defaults to 'sans-serif'",
+          "itemLabelFontSizeMax?": "number(px) -- defaults to 100",
+          "pointerAngle?": "number(deg) -- defaults to 0; the library only calculates pointer angle, so draw the pointer with DOM or overlayImage",
+          "rotationResistance?": "number -- defaults to -35",
+          "rotationSpeedMax?": "number -- defaults to 250"
+        }
+      },
+      "spec": {
+        "note": "Wheel creates a canvas in the container and redraws with ResizeObserver. The default container has explicit width 100% and height 420px. vh and percentage heights are forbidden by iron rule 3; the visual square uses the container's shorter side."
+      }
+    }
+  },
   "when_to_use": "需要可拖拽甩动、带减速手感且能精确停到指定项的决定轮盘时用它,而非手写 CSS rotate——原生手写在动量、命中索引、加权扇区和响应式重绘上经常失败。非做有现金价值的随机后端或安全抽奖判定。",
   "why_valuable": "AI 默认只能画出会转的圆盘,做不到稳定的触摸甩动、旋转阻力、加权扇区命中和指定索引缓动;spin-wheel 用无依赖 canvas 原生封装补齐完整手感。",
   "supply_form": "component",
@@ -81,7 +112,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "src/events.js: uses ResizeObserver on the canvas container via util.getResizeObserver (element-scoped — confirms catalog note) + a window.matchMedia('(resolution:...)') 'change' listener for devicePixelRatio. Drag = canvas.setPointerCapture with pointer listeners on the canvas; mouse fallback adds document mousemove/mouseup that self-remove on mouseup. unregister()/remove() removes canvas listeners, stops the ResizeObserver, and removes the matchMedia listener → no leak IF teardown calls wheel.remove(). Canvas appended to the supplied container; nothing to body/head.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

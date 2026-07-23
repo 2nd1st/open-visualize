@@ -4,6 +4,23 @@
   "name": "SortableJS",
   "when_to_use": "需要触摸友好、带动画的列表重排或同一 shadow 内跨列表归类时用它而非手写 HTML5 拖放,因为原生在移动端、占位反馈和跨容器一致性上失败。",
   "why_valuable": "AI 默认只能可靠写上下移按钮,做不稳触摸拖拽、动画占位与跨容器投放;SortableJS 把 DOM 顺序变更和 toArray() 的 id 序列化闭环封装完成。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing HTML5 drag-and-drop when you need touch-friendly animated list reordering or cross-list categorization within the same shadow root, because native implementations fail at mobile behavior, placeholder feedback, and consistency across containers.",
+      "why_valuable": "AI can normally write only reliable move-up/move-down buttons; it cannot stabilize touch dragging, animated placeholders, and cross-container drops. SortableJS closes the loop between DOM-order changes and serialization to the id sequence from toArray().",
+      "data_in": {
+        "note": "data_in.items first creates direct list items, with each id written to data-id; Sortable.toArray() returns the current DOM order exactly as string[].",
+        "schema": {
+          "items": [
+            {
+              "id": "string -- unique within the list; maps to data-id",
+              "label": "string -- written with textContent; HTML is not parsed"
+            }
+          ]
+        }
+      }
+    }
+  },
   "supply_form": "component",
   "level": "L1",
   "mode": "direct-import",
@@ -34,6 +51,30 @@
     "_why_no_minimal": "sequence 只有 id+label 两个无歧义字段,裁剪 schema 足够一次拼对;按模板只保留空态 fixture。",
     "empty": {
       "items": []
+    },
+    "minimal": {
+      "items": [
+        {
+          "id": "auth",
+          "label": "实现登录鉴权"
+        },
+        {
+          "id": "api",
+          "label": "接入订单 API"
+        },
+        {
+          "id": "ui",
+          "label": "重构结算页 UI"
+        },
+        {
+          "id": "test",
+          "label": "补端到端测试"
+        },
+        {
+          "id": "deploy",
+          "label": "灰度发布上线"
+        }
+      ]
     }
   },
   "uplink": {
@@ -52,7 +93,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "modular/sortable.esm.js: fallbackOnBody default false (README l.146) → drag ghost appended to rootEl.parentNode, not document.body (body ref at l.448 only used when fallbackOnBody:true, which boot never sets). Drag listeners bound via element.ownerDocument on dragstart and removed on drop; destroy() clears element listeners → no persistent leak. No <style> injected (chosen/ghost classes styled by user CSS; animation via inline transform/transition). Works within a single shadow tree; touch uses in-shadow fallback; cross-list needs same shadow+group (catalog notes this).",
-    "confidence": "med",
-    "audited": "2026-07-23"
+    "confidence": "med"
   }
 }

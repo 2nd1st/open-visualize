@@ -5,6 +5,29 @@
   "when_to_use": "需要对大 JSON 做折叠层级、工具栏搜索、类型提示与复制时用它而非手写递归 DOM,因为原生手写在几百节点后的状态、搜索定位和性能上失败。",
   "why_valuable": "AI 默认只能稳定输出静态 <pre>,手写递归 <details> 也缺少搜索、展开深度、类型提示和大树状态维护;该组件把任意 JSON 直接变成自带 shadow 样式的可探索树。",
   "supply_form": "component",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a hand-written recursive DOM when you need collapsible hierarchy, toolbar search, type hints, and copying for large JSON, because hand-written implementations fail at state, search navigation, and performance beyond a few hundred nodes.",
+      "why_valuable": "AI can normally only produce a stable static <pre>; a hand-written recursive <details> tree also lacks search, expansion depth, type hints, and large-tree state management. This component turns arbitrary JSON directly into an explorable tree with its own shadow styles.",
+      "data_in": {
+        "note": "Assign the primary input directly to the data property of <andypf-json-viewer>; use the object property rather than the data HTML attribute to avoid stringify and escaping ambiguity.",
+        "schema": {
+          "data": "JSONValue",
+          "JSONValue": "null | boolean | number | string | JSONValue[] | { [key: string]: JSONValue }",
+          "expanded?": "number | boolean -- initial expansion depth, default 1; true expands all, false collapses all",
+          "indent?": "number -- spaces of indentation per level, default 2",
+          "theme?": "string | Record<string,string> -- built-in theme name or CSS variable object, default 'default-light'",
+          "showDataTypes?": "boolean -- default true",
+          "showToolbar?": "boolean -- search and expansion toolbar, default false",
+          "showCopy?": "boolean -- default true",
+          "showSize?": "boolean -- default true",
+          "expandIconType?": "'arrow'|'square'|'circle' -- default 'arrow'",
+          "expandEmpty?": "boolean -- default true",
+          "preserveExpanded?": "boolean -- preserve expansion state when data changes, default false"
+        }
+      }
+    }
+  },
   "level": "L1",
   "mode": "direct-import",
   "upstream": {
@@ -48,7 +71,27 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "+esm:`attachShadow` x1(自带 Shadow DOM,46 主题样式封装其内);全部 addEventListener(click x4/mouseenter x2/mouseleave x2)挂在其内部 shadow 元素;零 document.head/body。README 明示『Web Components + Shadow DOM』。落入宿主 shadowRoot 形成嵌套 shadow,正常工作。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "data": {
+        "name": "Ada Lovelace",
+        "id": 1815,
+        "active": true,
+        "roles": [
+          "mathematician",
+          "writer"
+        ],
+        "address": {
+          "city": "London",
+          "country": "UK"
+        },
+        "score": 99.5,
+        "manager": null
+      },
+      "expanded": 2,
+      "showToolbar": true
+    }
   }
 }

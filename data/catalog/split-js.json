@@ -2,6 +2,35 @@
   "entry_version": "thin-1",
   "id": "split-js",
   "name": "Split.js",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of a hand-written implementation when you need a user-resizable two-column or multi-column comparison of source/translation or A/B clauses, because native implementations fail at pointer dragging, minimum-size constraints, and gutter-size calculations.",
+      "why_valuable": "AI can write only a fixed-ratio CSS grid by default; it cannot reliably capture dragging, link adjacent pane sizes, enforce min/max values, and snap at boundaries. Split.js closes these constraints with about 2KB of vanilla logic.",
+      "data_in": {
+        "note": "Each pane_selectors entry must match one adjacent HTMLElement under the same root; boot resolves them to an element array before passing them to the native upstream Split(elements,options).",
+        "schema": {
+          "root_selector": "string -- CSS selector for the unique split root container",
+          "pane_selectors": "string[] -- at least two pane selectors; order is layout order",
+          "options?": {
+            "_default": "when omitted, uses all upstream defaults",
+            "sizes?": "number[] -- initial percentages, equal shares by default",
+            "minSize?": "number | number[] -- pixel minimum, default 100",
+            "maxSize?": "number | number[] -- pixel maximum, default Infinity",
+            "expandToMin?": "boolean -- default false",
+            "gutterSize?": "number -- pixels, default 10",
+            "gutterAlign?": "'start' | 'center' | 'end' -- default 'center'",
+            "snapOffset?": "number -- pixels, default 30",
+            "dragInterval?": "number -- pixels, default 1",
+            "direction?": "'horizontal' | 'vertical' -- default 'horizontal'",
+            "cursor?": "string -- default horizontal='col-resize', vertical='row-resize'"
+          }
+        }
+      },
+      "spec": {
+        "note": "boot defaults the root container to 360px high; vertical splitting especially requires an explicit pixel height, while horizontal splitting also aligns panes to that height. Rule 3 prohibits vh/percentage height."
+      }
+    }
+  },
   "when_to_use": "需要把原文/译文或 A/B 条款做成用户可拖拽调宽的双栏或多栏对照时用它而非手写,因为原生在指针拖拽、最小尺寸约束和 gutter 尺寸换算上失败。",
   "why_valuable": "AI 默认只能写固定比例 CSS grid,做不到稳定的拖拽捕获、相邻 pane 尺寸联动、最小/最大值与吸附边界;Split.js 用约 2KB 原生逻辑闭合这些约束。",
   "supply_form": "component",
@@ -57,7 +86,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Library injects no <style>; gutter visuals are user CSS (boot supplies gutter CSS into shadowRoot for the widget carrier). +esm binds drag mousemove/mouseup to the panes' parent element (grep shows only parent./ .parentNode, no document.body/window/ownerDocument), removed on drag end. Gutter elements are inserted between panes inside the container, never body. Boot passes element references (not document selectors) so no document-level queries.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

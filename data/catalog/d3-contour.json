@@ -1,0 +1,78 @@
+{
+  "entry_version": "thin-1",
+  "id": "d3-contour",
+  "name": "d3-contour",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when a scalar field or heat grid needs isolines (marching squares), or when a 2D point cloud needs density contours, instead of calculating contour polygons by hand. Do not use it for a single-value bar chart or discrete heatmap cells. Augment boundary: it outputs GeoJSON MultiPolygon; render with d3-geo's geoPath (already in the catalog) or convert it manually to SVG/canvas.",
+      "why_valuable": "Hand-calculated contour polygons are error-prone and produce broken topology. d3-contour uses marching squares for consistent contour topology plus 2D kernel density estimation, accepts a flat numeric grid or point array, and outputs standard GeoJSON.",
+      "data_in": {
+        "note": "For isolines, values is a flat row-major number[] of length width*height, where element i+j*width maps to plane point <i+0.5, j+0.5>. For density, supply points to contourDensity instead; points and values are mutually exclusive.",
+        "schema": {
+          "_defaults": {
+            "thresholds": "automatic (about 10 levels)",
+            "bandwidth": "about 20 (density)"
+          },
+          "values": "number[] -- flat scalar grid of length width*height in row-major order (for contours)",
+          "width": "number -- number of grid columns n",
+          "height": "number -- number of grid rows m",
+          "thresholds?": "number | number[] -- number of thresholds or an explicit threshold array; automatic levels by default",
+          "points?": "[x,y][] -- point cloud used with contourDensity; mutually exclusive with values",
+          "bandwidth?": "number -- density-kernel bandwidth for contourDensity; about 20 by default"
+        }
+      }
+    }
+  },
+  "when_to_use": "有标量场/热力网格要等值线(marching squares),或有 2D 点云要密度等值带时用它,而非手算等高线多边形;单值柱状或离散热力块不用它。augment 边界:输出 GeoJSON MultiPolygon,渲染配 d3-geo 的 geoPath(目录已有)或手动转 SVG/canvas。",
+  "why_valuable": "AI 手算等高线多边形必错、拓扑还会断裂;d3-contour 用 marching squares 固定等值线拓扑 + 2D 核密度估计,吃扁平数值网格或点数组,输出标准 GeoJSON。",
+  "supply_form": "headless-primitive",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "d3-contour",
+    "version": "4.0.2",
+    "github": "d3/d3-contour"
+  },
+  "license": "ISC",
+  "data_in": {
+    "shape": "grid",
+    "note": "等值线路径:values 是长度 width*height 的扁平行主序 number[],元素 i+j*width ↔ 平面点 ⟨i+0.5, j+0.5⟩。密度路径:改喂 points 用 contourDensity,与 values 二选一。",
+    "schema": {
+      "_defaults": {
+        "thresholds": "自动(约 10 档)",
+        "bandwidth": "约 20(密度)"
+      },
+      "values": "number[] —— 扁平标量网格,长度 = width*height,行主序(contours 用)",
+      "width": "number —— 网格列数 n",
+      "height": "number —— 网格行数 m",
+      "thresholds?": "number | number[] —— 阈值个数或显式阈值数组,默认自动分档",
+      "points?": "[x,y][] —— 点云(改用 contourDensity 时),与 values 二选一",
+      "bandwidth?": "number —— 密度核带宽(contourDensity),默认约 20"
+    }
+  },
+  "provides": {
+    "shape": "contour-polygons",
+    "_note": "headless-primitive:marching squares 等值线 + 2D 密度;输出 GeoJSON MultiPolygon,无 L 级、无 carriers 矩阵,消费 AI 用 d3-geo geoPath 或手动画。",
+    "outputs": "contours(values) → GeoJSON MultiPolygon[](每个 geometry.value = 其阈值);contourDensity(points) → 密度等值带。坐标平面制,元素 i+j*width ↔ ⟨i+0.5, j+0.5⟩。",
+    "api_surface": {
+      "grid": "contours().size([n,m]).thresholds(数组或个数).smooth(bool) 然后 contours(flatValues)",
+      "density": "contourDensity().x(fn).y(fn).size([w,h]).bandwidth(n).cellSize(n).weight(fn) 然后 contourDensity(points)",
+      "render": "GeoJSON 交给 d3-geo geoPath()(identity/null 投影)或手动转 SVG/canvas(本包不含渲染)"
+    }
+  },
+  "peer": {
+    "id": "d3-geo",
+    "note": "d3-contour 只出 GeoJSON MultiPolygon;用 d3-geo(目录已有)的 geoPath()(null/identity 投影)转 SVG path 或画 canvas。"
+  },
+  "boot": {
+    "shared": "import { contours, contourDensity } from 'https://cdn.jsdelivr.net/npm/d3-contour@4.0.2/+esm';\nimport { geoPath } from 'https://cdn.jsdelivr.net/npm/d3-geo@3/+esm'; // 渲染 GeoJSON(目录已有 d3-geo)\n// 标量网格:values 扁平、长度 width*height、行主序\nconst polys = contours().size([data.width, data.height]).thresholds(data.thresholds ?? 10)(data.values);\nconst path = geoPath(); // identity 投影;polys 每个是 MultiPolygon,含 .value\n// polys.forEach(g => svgAppendPath(path(g), colorScale(g.value)));\n// 点密度:contourDensity().x(d=>d[0]).y(d=>d[1]).size([w,h]).bandwidth(data.bandwidth ?? 20)(data.points)",
+    "note": "contours(values) 与 contourDensity(points) 都返回 GeoJSON MultiPolygon[](每个 .value=阈值),用 d3-geo 的 geoPath()(identity 投影)转 SVG path 或画 canvas。库无 DOM/style/event/window 足迹。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "no",
+    "globalEvents": "no",
+    "evidence": "+esm named exports contours, contourDensity(B/rn)已核。contours().size([n,m]).thresholds(数组或个数).smooth(bool) 然后 contours(values)——values 是长度 n*m 的扁平行主序 number[];返回 GeoJSON MultiPolygon[],每个 geometry.value = 其阈值(src/contours.js:34,186-201)。contourDensity().x(fn).y(fn).size([w,h]).cellSize(n).bandwidth(n).thresholds(...).weight(fn) 然后 contourDensity(points) → 密度 MultiPolygon[](src/density.js:18,56-75)。输出平面 GeoJSON:元素 i+j*n ↔ ⟨i+0.5, j+0.5⟩。渲染经 d3-geo 的 geoPath(identity/null 投影)或手动 SVG/canvas——本包不含。dep:d3-array@^3.2。零 DOM/style/event/window 足迹(纯几何计算)。headless-primitive。",
+    "confidence": "high"
+  }
+}

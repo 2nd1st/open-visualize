@@ -1,0 +1,108 @@
+{
+  "entry_version": "thin-1",
+  "id": "lightweight-charts",
+  "name": "lightweight-charts",
+  "when_to_use": "展示价格/OHLC 时间序列、蜡烛图、面积/基线图并要金融级交互(缩放、十字光标、多窗格同步、海量 bar 平移)时用它;普通折线时间序列用 uplot/Chart.js。v5 API:系列用 addSeries(CandlestickSeries, …),不是 v4 的 addCandlestickSeries()。",
+  "why_valuable": "TradingView 金融引擎:蜡烛体几何 + 精确 OHLC 坐标 + 十字光标联动 + 大数据平移,AI 手写蜡烛体与坐标必错且卡。",
+  "supply_form": "component",
+  "level": "L1",
+  "mode": "direct-import",
+  "upstream": {
+    "npm": "lightweight-charts",
+    "version": "5.2.0",
+    "github": "tradingview/lightweight-charts"
+  },
+  "license": "Apache-2.0",
+  "data_in": {
+    "shape": "ohlc",
+    "note": "v5 API。candlestick/bar 系列吃 {time,open,high,low,close};line/area/baseline 系列改吃 {time,value}。time 可为 'YYYY-MM-DD' 字符串、UNIX 秒(UTCTimestamp)或 {year,month,day}(BusinessDay);同一系列须按 time 升序、无重复。",
+    "schema": {
+      "candles": [
+        {
+          "time": "string | number | {year,month,day} —— 'YYYY-MM-DD' / UNIX 秒 / BusinessDay;升序无重",
+          "open": "number",
+          "high": "number",
+          "low": "number",
+          "close": "number"
+        }
+      ]
+    }
+  },
+  "spec": {
+    "height": 400,
+    "note": "canvas 图读容器宽度;默认 height 400px,禁 vh。boot 传 { width: el.clientWidth, height };尺寸跟随可用 autoSize 选项或 chart.applyOptions({width})。"
+  },
+  "boot": {
+    "artifact": "// inferred-not-tested。v5 命名导出;系列用 addSeries(CandlestickSeries, …)(非 v4 的 addCandlestickSeries())。fancy-canvas 已内联。\nimport { createChart, CandlestickSeries } from 'https://cdn.jsdelivr.net/npm/lightweight-charts@5.2.0/+esm';\nconst el = document.getElementById('chart'); el.style.height = '400px';\nconst chart = createChart(el, { width: el.clientWidth, height: 400 });\nconst series = chart.addSeries(CandlestickSeries);\nseries.setData(data.candles);\nchart.timeScale().fitContent();",
+    "widget": "// 天然 shadow 安全:样式附到图表自有 wrapper(非 document.head);ResizeObserver 观察容器,chart.remove() 时清理。\nimport { createChart, CandlestickSeries } from 'https://cdn.jsdelivr.net/npm/lightweight-charts@5.2.0/+esm';\nconst el = document.createElement('div'); el.style.width = '100%'; el.style.height = '400px'; shadowRoot.appendChild(el);\nconst chart = createChart(el, { height: 400 });\nconst series = chart.addSeries(CandlestickSeries);\nseries.setData(data.candles);\nchart.timeScale().fitContent();",
+    "codex": "import { createChart, CandlestickSeries } from 'https://cdn.jsdelivr.net/npm/lightweight-charts@5.2.0/+esm';\nconst el = document.getElementById('chart'); el.style.height = '400px';\nconst chart = createChart(el, { width: el.clientWidth, height: 400 });\nconst series = chart.addSeries(CandlestickSeries);\nseries.setData(data.candles);\nchart.timeScale().fitContent();"
+  },
+  "example": {
+    "_why": "钉死 v5 candlestick 数据 {time,open,high,low,close},time 升序。",
+    "minimal": {
+      "candles": [
+        {
+          "time": "2019-04-11",
+          "open": 80,
+          "high": 82,
+          "low": 79,
+          "close": 81
+        },
+        {
+          "time": "2019-04-12",
+          "open": 81,
+          "high": 85,
+          "low": 80,
+          "close": 84
+        },
+        {
+          "time": "2019-04-13",
+          "open": 84,
+          "high": 86,
+          "low": 83,
+          "close": 83
+        }
+      ]
+    },
+    "empty": {
+      "candles": []
+    }
+  },
+  "uplink": "display/local-interact 默认不上行;十字光标/可见区间/点击若需外传,由消费 AI 接 chart.subscribeCrosshairMove、timeScale().subscribeVisibleTimeRangeChange 等原生订阅并按载体处理。",
+  "carriers": {
+    "artifact": "inferred-not-tested",
+    "widget": "supported:样式附到图表自有 wrapper(非 head)故天然 shadow 安全;ResizeObserver 观察容器,chart.remove() 清理。",
+    "codex": "supported:ESM CDN(fancy-canvas 已内联),无 worker/wasm/uplink。"
+  },
+  "isolation": {
+    "shadowCompatible": "yes",
+    "globalStyleInjection": "no",
+    "globalDomMutation": "conditional",
+    "globalEvents": "no",
+    "evidence": "v5.2.0,命名导出(+esm: createChart,CandlestickSeries,LineSeries,AreaSeries,BarSeries,BaselineSeries,HistogramSeries…)。createChart(container:string|HTMLElement, options?):IChartApi(dts L212)。v5 系列 API:chart.addSeries<T>(definition:SeriesDefinition<T>, options?, paneIndex?):ISeriesApi(dts L1640)——即 addSeries(CandlestickSeries, …);dts 里 2 处 addCandlestickSeries(L2566/2581)仅为迁移 JSDoc 注释,非真实方法。OhlcData{time,open,high,low,close}(L3444,extends WhitespaceData),SingleValueData{time,value}(L4309);Time=UTCTimestamp(Nominal<number>,秒)|BusinessDay|string(L4987)。globalStyleInjection=no:归属署名 logo 的 <style>(this.Uv,innerText a#tv-attr-logo{...})被 this.jv.appendChild(this.Uv) 附到图表自有 wrapper 元素、非 document.head——挂进 shadow 时随容器留在 shadow,故 shadow 安全。globalDomMutation=conditional:唯一 body 触碰是 CSS 颜色字符串→RGBA 解析时临时 createElement(\"div\")(display:none)appendChild 到 body 读取后即弃,非持久图表 DOM。globalEvents=no:用 ResizeObserver 观察容器自适应,remove() 时清理,无 window 监听。",
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to display price/OHLC time series, candlesticks, area/baseline charts, and financial-grade interaction (zoom, crosshair, synchronized panes, panning across many bars). For ordinary line time series use uplot/Chart.js. v5 API: add series with addSeries(CandlestickSeries, ...), not v4 addCandlestickSeries().",
+      "why_valuable": "TradingView's financial engine provides candlestick geometry, precise OHLC coordinates, synchronized crosshairs, and high-volume panning. AI hand-written candlesticks and coordinates are inevitably wrong and slow.",
+      "data_in": {
+        "note": "v5 API. candlestick/bar series accept {time,open,high,low,close}; line/area/baseline series instead accept {time,value}. time may be a 'YYYY-MM-DD' string, UNIX seconds (UTCTimestamp), or {year,month,day} (BusinessDay). Within a series it must be ascending by time with no duplicates.",
+        "schema": {
+          "candles": [
+            {
+              "time": "string | number | {year,month,day} -- 'YYYY-MM-DD' / UNIX seconds / BusinessDay; ascending and unique",
+              "open": "number",
+              "high": "number",
+              "low": "number",
+              "close": "number"
+            }
+          ]
+        }
+      },
+      "spec": {
+        "note": "The canvas chart reads container width; default height is 400px and vh is prohibited. boot passes { width: el.clientWidth, height }. Track size with the autoSize option or chart.applyOptions({width})."
+      }
+    }
+  }
+}

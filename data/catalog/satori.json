@@ -64,7 +64,41 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "satori@0.28.2 is a headless-primitive: satori(element, options):Promise<string> returns an SVG string and never mounts to the DOM (exports are only default satori, init, and type-only Font/FontStyle/FontWeight/Locale/SatoriNode/SatoriOptions). No DOM, no global style/event/mutation surface; the emitted <svg> string can be placed anywhere including inside a shadow root -> fully shadow-compatible.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it to lay out a fixed-size React-like element tree and CSS subset as SVG for social cards, posters, or OG images instead of implementing it by hand, which fails at font shaping, automatic line wrapping, flex geometry, and multilingual typesetting. It is not a full browser CSS or interactive DOM renderer.",
+      "why_valuable": "AI can hard-code simple SVG by default but cannot reliably calculate every glyph and box coordinate from text length, weight, font metrics, and flex constraints; Satori closes this layout computation into reproducible SVG.",
+      "data_in": {
+        "note": "element accepts exactly a ReactNode or React-like {type,props} object, not an HTML string. options must provide fixed pixel width/height and at least one font ArrayBuffer that covers the text characters.",
+        "schema": {
+          "element": {
+            "type": "Supported HTML tag name or plain function component",
+            "props": {
+              "children?": "string | number | element | element[] -- No children by default",
+              "style?": "CSS-in-JS subset supported by Satori -- Default {}",
+              "src?": "string | ArrayBuffer -- Used for img; omit when there is no image",
+              "width?": "number -- Recommended explicitly for img; calculated by layout by default",
+              "height?": "number -- Recommended explicitly for img; calculated by layout by default"
+            }
+          },
+          "options": {
+            "width": "number -- Output SVG width in pixels; must be > 0",
+            "height": "number -- Output SVG height in pixels; must be > 0",
+            "fonts": [
+              {
+                "name": "string -- Name referenced by style.fontFamily",
+                "data": "ArrayBuffer -- TTF/OTF/WOFF font data",
+                "weight": "100|200|300|400|500|600|700|800|900 -- This focused schema requires it explicitly",
+                "style": "'normal'|'italic' -- This focused schema requires it explicitly"
+              }
+            ],
+            "embedFont?": "boolean -- Default true",
+            "debug?": "boolean -- Default false"
+          }
+        }
+      }
+    }
   }
 }

@@ -2,6 +2,27 @@
   "entry_version": "thin-1",
   "id": "xterm-xterm",
   "name": "xterm.js",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of <pre>+span when you need correct ANSI/CSI cursor movement, 256 colors/truecolor, scrollback, and a copyable transcript, because native implementations fail on the VT state machine, cursor semantics, and virtual scrolling for long logs. It is not an executable shell, SSH client, or real PTY.",
+      "why_valuable": "AI defaults can at most map a few SGR colors; they cannot provide complete ANSI/VT parsing, cursor rewriting, screen clearing, wide characters, and reliable scrollback. xterm.js interprets the same text stream with a real terminal buffer.",
+      "data_in": {
+        "note": "text is passed exactly to terminal.write, preserving ESC, \\r, \\n, and CSI sequences; do not convert it to HTML first. This only replays a transcript already held by AI and does not bind a backend PTY.",
+        "schema": {
+          "text": "string -- raw ANSI/VT text stream",
+          "cols?": "integer > 0 -- default 80",
+          "rows?": "integer > 0 -- default 24",
+          "scrollback?": "integer >= 0 -- default 1000",
+          "convertEol?": "boolean -- convert \\n to the start of the next line; default false",
+          "disableStdin?": "boolean -- this entry defaults to true (replay only; upstream default false)",
+          "cursorBlink?": "boolean -- default false"
+        }
+      },
+      "spec": {
+        "note": "Before Terminal.open, the container must be visible and have explicit dimensions; default height is 400px, which AI may override. Iron rule 3 forbids vh and percentage heights. cols/rows controls the character grid, not CSS pixels."
+      }
+    }
+  },
   "when_to_use": "需要正确呈现 ANSI/CSI 光标移动、256 色/truecolor、scrollback 与可复制 transcript 时用它而非 <pre>+span,因为原生手写在 VT 状态机、光标语义和长日志虚拟滚动上失败;非做可执行 shell、SSH 或真实 PTY。",
   "why_valuable": "AI 默认最多映射少量 SGR 颜色,做不到完整 ANSI/VT 解析、光标重写、清屏、宽字符和稳定 scrollback;xterm.js 用真实终端缓冲区解释同一文本流。",
   "supply_form": "component",
@@ -47,7 +68,12 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "globalStyleInjection=no: xterm creates <style> elements but appends them to its OWN subtree (`t.appendChild(this._styleElement)` and `this._screenElement.appendChild(...)` for the dimensions/theme styles) — zero `document.head` references — so styles stay inside the terminal container (the shadowRoot for widgets); the external xterm.css is boot-placed. globalDomMutation=no: terminal DOM renders inside the element passed to open(). globalEvents=yes: registers document-level listeners via `this._document.addEventListener('mouseup', ...)` (text selection), where `_document` = container.ownerDocument (shadow-aware); these are removed on terminal.dispose(), and for the disableStdin:true transcript-replay usage they are minimal. shadowCompatible=yes: uses `ownerDocument` throughout (18 refs) instead of hard `document`, and is widely used inside shadow DOM.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "example": {
+    "minimal": {
+      "text": "\u001b[1;32m➜\u001b[0m  \u001b[36mmy-app\u001b[0m \u001b[34mgit:(\u001b[31mmain\u001b[34m)\u001b[0m npm run build\n\n\u001b[90m> my-app@1.0.0 build\u001b[0m\n\u001b[90m> vite build\u001b[0m\n\n\u001b[36mvite v6.0.0\u001b[0m \u001b[90mbuilding for production...\u001b[0m\n\u001b[32m✓\u001b[0m 42 modules transformed.\n\u001b[90mdist/index.html\u001b[0m                 \u001b[33m0.46 kB\u001b[0m\n\u001b[90mdist/assets/\u001b[0m\u001b[36mindex-a1b2c3.js\u001b[0m   \u001b[33m143.21 kB\u001b[0m \u001b[90m│ gzip: 46.02 kB\u001b[0m\n\u001b[1;32m✓ built in 1.24s\u001b[0m\n\n\u001b[1;32m➜\u001b[0m  \u001b[36mmy-app\u001b[0m \u001b[34mgit:(\u001b[31mmain\u001b[34m)\u001b[0m ",
+      "convertEol": true
+    }
   }
 }

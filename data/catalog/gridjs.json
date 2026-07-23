@@ -41,10 +41,19 @@
     "_why": "表格 columns/data 的轴向容易颠倒,分页又有对象分支,附最小原生 config。",
     "minimal": {
       "config": {
-        "columns": ["Name", "Score"],
+        "columns": [
+          "Name",
+          "Score"
+        ],
         "data": [
-          ["Ada", 98],
-          ["Linus", 95]
+          [
+            "Ada",
+            98
+          ],
+          [
+            "Linus",
+            95
+          ]
         ],
         "search": true,
         "sort": true,
@@ -55,7 +64,10 @@
     },
     "empty": {
       "config": {
-        "columns": ["Name", "Score"],
+        "columns": [
+          "Name",
+          "Score"
+        ],
         "data": []
       }
     }
@@ -71,7 +83,29 @@
     "globalDomMutation": "no",
     "globalEvents": "yes",
     "evidence": "gridjs@6.2.0 +esm(52KB,document.addEventListener 出现 4 次即未别名化,故 0 计数可信):0 document.head、0 document.body、0 createElement(style)、0 insertRule → 无全局样式/DOM 注入;4 处 document.addEventListener(列宽拖拽/指针跟踪类,低危、通常随手势)。Preact 渲入容器,主题为独立静态 CSS;widget boot 把主题 CSS 与容器全落 shadowRoot,shadow 内可用。",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need a lightweight, framework-agnostic data table with local search, sorting, and pagination instead of a handwritten table state machine, which fails at sort types, filter state, page boundaries, and redraw consistency. Not for a one-off small static table.",
+      "why_valuable": "AI defaults can only write a static table and cannot reliably combine search, sorting, and pagination state or handle their boundaries; Grid.js adds the interaction layer through a shallow columns+data contract.",
+      "data_in": {
+        "note": "data_in.config is passed directly to new Grid(config); the main path in this entry is fixed to columns plus two-dimensional data, and each row must contain the same number of cells as there are columns.",
+        "schema": {
+          "config": {
+            "columns": "(string | {name:string,id?:string,sort?:boolean,width?:string})[] -- id defaults to a normalized name, sort inherits config.sort by default, and width defaults to auto",
+            "data": "(string | number | boolean | null)[][]",
+            "search?": "boolean -- Boot default true",
+            "sort?": "boolean | Gridjs.SortConfig -- Boot default true",
+            "pagination?": "false | {limit?:number,summary?:boolean} -- Boot default {limit:10}; limit defaults to 10 and summary to true",
+            "language?": "Gridjs.Language -- Defaults to upstream English copy",
+            "className?": "Gridjs.ClassName -- Defaults to theme class names"
+          }
+        }
+      },
+      "spec": {
+        "note": "The table grows with its content; boot gives the outer container max-height 400px and overflow:auto so long data does not overflow the carrier. vh and percentage heights are forbidden by rule 3."
+      }
+    }
   }
 }

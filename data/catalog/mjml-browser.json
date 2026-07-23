@@ -4,6 +4,24 @@
   "name": "mjml-browser",
   "when_to_use": "需要在浏览器把 MJML 源码编译为兼容 Outlook 等邮件客户端的完整 HTML 时用它而非手写,因为原生在表格降级、条件注释、CSS 内联和客户端差异上失败;非做邮件投递或真实客户端截图测试。",
   "why_valuable": "AI 默认会写普通网页 HTML,却做不到 Outlook 条件注释、嵌套 table fallback、媒体查询与 CSS 内联的联合约束;MJML 编译器把 AI 稳定会写的标记转换成邮件安全 HTML。",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing email HTML when you need to compile MJML source in the browser into complete HTML compatible with Outlook and other email clients, because native implementations fail at table fallbacks, conditional comments, CSS inlining, and client differences; not for email delivery or screenshot testing in real clients.",
+      "why_valuable": "AI normally writes ordinary web HTML but cannot satisfy the combined constraints of Outlook conditional comments, nested table fallbacks, media queries, and CSS inlining; the MJML compiler converts markup AI can write reliably into email-safe HTML.",
+      "data_in": {
+        "note": "mjml must be a complete <mjml><mj-head>...</mj-head><mj-body>...</mj-body></mjml> string; the browser build does not support mj-include or custom components from .mjmlconfig.",
+        "schema": {
+          "mjml": "string -- complete MJML document; do not pass only an mj-section fragment",
+          "options?": {
+            "_default": "use upstream compiler defaults when omitted",
+            "validationLevel?": "'strict' | 'soft' | 'skip' -- default 'soft'",
+            "minify?": "boolean -- default false",
+            "keepComments?": "boolean -- default true"
+          }
+        }
+      }
+    }
+  },
   "supply_form": "headless-primitive",
   "mode": "direct-import",
   "upstream": {
@@ -47,7 +65,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Headless-primitive, pure string→string compiler. mjml-browser +esm grep for `document.*`/`window.*` references returns EMPTY — the compile path touches no DOM at all, so it injects no style, mutates no body, and registers no listeners. Output is an html-document string the consumer drops into an iframe/email preview; trivially shadow-safe (no shadow interaction needed).",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

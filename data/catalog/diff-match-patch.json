@@ -49,7 +49,20 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Verified: +esm exports `z as diff_match_patch` (named import correct; also DIFF_DELETE=-1/DIFF_EQUAL=0/DIFF_INSERT=1). index.js confirms prototype methods diff_main/diff_cleanupSemantic/diff_cleanupEfficiency/patch_make/patch_apply and property Diff_Timeout (boot sets dmp.Diff_Timeout, calls diff_main/diff_cleanupSemantic/diff_cleanupEfficiency/patch_make(text1,diffs) — all valid). Output diffs [-1|0|1,string][] matches DIFF_DELETE/EQUAL/INSERT constants. +esm bundle: 0 DOM/style/event APIs.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
+  },
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it when you need character-level diff, semantic cleanup, and fault-tolerant patches for prose, contracts, or translation comparisons, instead of hand-writing LCS, because native implementations fail at organizing fragmented differences into human-readable blocks and applying patches near approximate locations. It produces data only and does not render.",
+      "why_valuable": "AI cannot reliably run stable diff, semantic cleanup, and fuzzy patch apply on unknown long text by default. Manual annotations cover only one-off short text and cannot be recomputed.",
+      "data_in": {
+        "schema": {
+          "oldText": "string -- Baseline text",
+          "newText": "string -- Comparison text",
+          "cleanup?": "'semantic'|'efficiency'|'none' -- Default semantic",
+          "timeoutSeconds?": "number -- Algorithm timeout in seconds; library default 1.0; 0 means no timeout"
+        }
+      }
+    }
   }
 }

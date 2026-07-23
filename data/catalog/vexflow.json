@@ -2,6 +2,23 @@
   "entry_version": "thin-1",
   "id": "vexflow",
   "name": "VexFlow",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-written SVG when you need to engrave a short passage of SVG staff notation precisely from pitch, duration, chord, or guitar-tab primitives, because native implementations fail at staff metrics, noteheads/stems, accidentals, and multi-voice alignment; it is not for MusicXML parsing, full-score automatic pagination, or score editing.",
+      "why_valuable": "AI can output only note names or misaligned SVG lines by default; it cannot supply the glyph metrics, rhythmic spacing, multi-voice alignment, and ties required for music engraving. VexFlow's Factory/EasyScore closes the loop over low-level engraving primitives.",
+      "data_in": {
+        "note": "The input is VexFlow EasyScore DSL, not ABC/MusicXML. This DSL is relatively ambiguous for AI, so a minimal example is included.",
+        "schema": {
+          "easyScore": "string -- comma-separated EasyScore notes/chords; a single note is <A-G><bb|b|n|#|##?><octave>/<duration?>, chords use parentheses, such as (C4 E4 G4)/q; an empty string draws only an empty staff",
+          "clef?": "'treble' | 'bass' | 'alto' | 'tenor' | 'percussion' -- clef, default treble",
+          "time?": "string -- time signature <positive integer>/<positive integer>, default 4/4"
+        }
+      },
+      "spec": {
+        "note": "The SVG renderer requires explicit width/height; boot fixes these at 720x260px and sets the system width to 700px. AI may override with fixed px values; vh/percentage height is prohibited. AI should split longer phrases into measures/systems instead of expecting automatic single-line pagination."
+      }
+    }
+  },
   "when_to_use": "需要从音高、时值、和弦或吉他 tab 原语精确刻出一小段 SVG 五线谱时用它,而非手写 SVG——原生手写在谱表度量、符头/符干、升降号和多声部对齐上失败;它非做 MusicXML 解析、整曲自动分页或谱面编辑。",
   "why_valuable": "AI 默认只能输出音符名或错位的 SVG 线条,做不到音乐刻版所需的 glyph 度量、节奏间距、多声部对齐与连线;VexFlow 的 Factory/EasyScore 把底层刻版原语闭环。",
   "supply_form": "component",
@@ -55,7 +72,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "vexflow@5 +esm exports named Factory (le), Renderer (U), EasyScore (be), System (Ai) — {Factory,Renderer} import correct. build/types confirms full boot chain: Factory.EasyScore()/System()/setContext()/getContext()/draw(); EasyScore.notes(line,options)/voice(notes,{time?:string}); System.addStave({voices}) returns Stave whose addClef/addTimeSignature complete the chain. schema easyScore/clef/time all map to consumed args. Grep of the 1.1MB bundle: 0 document.head, 0 createElement('style'), 0 body.append, 0 document/window listeners; SVGContext draws createElementNS nodes into the provided div (shadow-safe), fonts embedded in-bundle.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }

@@ -2,6 +2,20 @@
   "entry_version": "thin-1",
   "id": "date-fns-tz",
   "name": "date-fns-tz",
+  "i18n": {
+    "en": {
+      "when_to_use": "Use it instead of hand-writing offsets when you need pure functions to format an instant in a specified IANA time zone or convert between wall-clock time and UTC, because native AI implementations fail at DST, time-zone abbreviations, and local calendar boundaries.",
+      "why_valuable": "AI reduces time zones to fixed hour offsets by default and cannot reliably handle DST or historical offsets; date-fns-tz reuses browser Intl and provides reproducible functions for formatInTimeZone, toZonedTime, fromZonedTime, and offset queries.",
+      "data_in": {
+        "note": "formatInTimeZone consumes a real instant plus an IANA zone; fromZonedTime instead interprets a wall-clock value with no offset in that zone and returns a real Date. Do not conflate the two semantics.",
+        "schema": {
+          "instant": "string | number | Date -- ISO instant, millisecond epoch, or Date",
+          "timeZone": "string -- an IANA zone supported by Intl",
+          "format?": "string -- date-fns format token, default 'yyyy-MM-dd HH:mm:ssXXX'"
+        }
+      }
+    }
+  },
   "when_to_use": "需要用纯函数把 instant 格式化到指定 IANA 时区、或在 wall-clock 与 UTC 间换算时用它而非手写 offset,因为原生 AI 在 DST、时区缩写与本地日历边界上失败。",
   "why_valuable": "AI 默认把时区简化成固定小时差,做不到可靠处理 DST 与历史 offset;date-fns-tz 复用浏览器 Intl,把 formatInTimeZone、toZonedTime、fromZonedTime 和 offset 查询收敛成可复算函数。",
   "supply_form": "headless-primitive",
@@ -47,7 +61,6 @@
     "globalDomMutation": "no",
     "globalEvents": "no",
     "evidence": "Verified: +esm exports `fe as formatInTimeZone, le as fromZonedTime, S as toZonedTime, me as getTimezoneOffset` — all four import names are real named exports in 3.2.0. README confirms `getTimezoneOffset(timeZone: string, date?: Date|number): number` (matches api_surface order timeZone-then-instant). Schema instant/timeZone/format are positional-mapped correctly in boot. +esm bundle: 0 DOM/style/event APIs — pure functions over Intl. Peer date-fns ^3||^4 is real; +esm resolves it.",
-    "confidence": "high",
-    "audited": "2026-07-23"
+    "confidence": "high"
   }
 }
