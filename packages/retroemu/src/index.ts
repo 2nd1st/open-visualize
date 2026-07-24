@@ -36,6 +36,50 @@ const CORE_BASE = 'https://cdn.jsdelivr.net/npm/@emulatorjs/core-mgba@4.2.3/'
 const EMULATOR_LOADER = `${EMULATOR_DATA}loader.js`
 const GAME_LIST: readonly Game[] = GAMES
 
+// mobile-Codex blob: shim —— 手机/app 版 Codex 沙箱禁 fetch(blob:)(桌面不禁)。
+// EmulatorJS 4.2.3 把解压出的 mGBA .wasm/.worker.js 经 URL.createObjectURL 造成
+// blob: URL,Emscripten 默认走 WebAssembly.instantiateStreaming(fetch(blobURL)) 实例化
+// → 手机端在此挂("both async and sync fetching of the wasm failed" / "Load failed")。
+// 修法:留住 blob→Blob 映射,把对 blob: 的 fetch 改成 blob.arrayBuffer()(内存读,不走
+// 网络/connect-src,手机 Codex 放行;桌面无害)。零 EmulatorJS 源码耦合;必须先于
+// loader.js 执行(内联在 srcdoc 脚本顶端)。单改 instantiateStreaming 不够——失败在传给
+// 它的 fetch(blob:) promise 上就抛,承重件是 fetch 拦截。EmulatorJS 建 blob 时已带
+// type:'application/wasm',合成 Response 的 Content-Type 天然正确(instantiateStreaming
+// 严格要求恰为 application/wasm)。SAB=false 环境走单线程核心,无 worker,主窗口 shim 足够。
+const MOBILE_BLOB_SHIM = `(function(){
+  if (window.__ovBlobShim) return;
+  window.__ovBlobShim = true;
+  var origCreate = URL.createObjectURL.bind(URL);
+  var origRevoke = URL.revokeObjectURL.bind(URL);
+  var blobMap = new Map();
+  URL.createObjectURL = function(obj){
+    var url = origCreate(obj);
+    if (obj instanceof Blob) blobMap.set(url, obj);
+    return url;
+  };
+  URL.revokeObjectURL = function(url){
+    blobMap.delete(url);
+    return origRevoke(url);
+  };
+  var origFetch = typeof window.fetch === 'function' ? window.fetch.bind(window) : null;
+  window.fetch = function(input, init){
+    var url = typeof input === 'string' ? input : (input && input.url) || '';
+    if (url.indexOf('blob:') === 0 && blobMap.has(url)) {
+      var blob = blobMap.get(url);
+      return blob.arrayBuffer().then(function(buf){
+        return new Response(buf, { status: 200, headers: { 'Content-Type': blob.type || 'application/wasm' } });
+      });
+    }
+    if (origFetch) return origFetch(input, init);
+    return Promise.reject(new Error('fetch unavailable'));
+  };
+  if (window.WebAssembly && WebAssembly.instantiateStreaming) {
+    WebAssembly.instantiateStreaming = function(source, imports){
+      return Promise.resolve(source).then(function(r){ return r.arrayBuffer(); }).then(function(buf){ return WebAssembly.instantiate(buf, imports); });
+    };
+  }
+})();`
+
 const COMPONENT_CSS = `
 :host{display:block;width:100%}
 *{box-sizing:border-box}
@@ -300,6 +344,7 @@ html,body,#game{width:100%;height:100%;margin:0;overflow:hidden;background:#000}
 <body>
 <div id="game"></div>
 <script>
+${MOBILE_BLOB_SHIM}
 window.EJS_player = '#game';
 window.EJS_core = 'gba';
 window.EJS_pathtodata = ${scriptValue(EMULATOR_DATA)};
