@@ -38,8 +38,8 @@
     }
   },
   "boot": {
-    "artifact": "// retroemu:自研 EmulatorJS 组件(全 jsDelivr:frontend+核心+ROM 均 jsDelivr,AI 宿主白名单兼容)。宿主 HTML 放一个空容器 div,JS 里 import + mount(铁律:JS 挂载,不放声明式标签)。\nconst host = document.getElementById('retroemu-host');\nconst { mount } = await import('https://cdn.jsdelivr.net/gh/2nd1st/open-visualize@main/packages/retroemu/dist/index.mjs');\nmount(host, 'retroemu', data);   // data = {gameName:'Advance Wars'} 或 {romUrl:'https://.../game.zip'} 或 {}(弹搜索列表)",
-    "widget": "同 artifact:const { mount } = await import('https://cdn.jsdelivr.net/gh/2nd1st/open-visualize@main/packages/retroemu/dist/index.mjs'); mount(container, 'retroemu', data)。",
+    "artifact": "// retroemu:自研 EmulatorJS 组件(全 jsDelivr:frontend+核心+ROM 均 jsDelivr,AI 宿主白名单兼容)。宿主 HTML 放一个空容器 div,JS 里 import + mount(铁律:JS 挂载,不放声明式标签)。\nconst host = document.getElementById('retroemu-host');\nconst { mount } = await import('https://cdn.jsdelivr.net/gh/2nd1st/open-visualize@32a2df2/packages/retroemu/dist/index.mjs');\nmount(host, 'retroemu', data);   // data = {gameName:'Advance Wars'} 或 {romUrl:'https://.../game.zip'} 或 {}(弹搜索列表)",
+    "widget": "同 artifact:const { mount } = await import('https://cdn.jsdelivr.net/gh/2nd1st/open-visualize@32a2df2/packages/retroemu/dist/index.mjs'); mount(container, 'retroemu', data)。",
     "codex": "同 artifact。"
   },
   "example": {
